@@ -1,9 +1,9 @@
 <!--
-  ProviderView.vue — Provider 管理页面（卡片式多行多列布局）
+  ProviderView.vue — Provider 管理页面（Element Plus 卡片式布局）
 
   功能：
     - 预设 provider 下拉选择（基于 CodeWhale 官方列表）
-    - 每张卡片展示一个 provider，内含 key 和模型标签
+    - 每张 el-card 展示一个 provider，内含 key 和模型标签
     - 添加 key 时支持 base_url、模型列表
     - 切换、删除、测试连通性
     - 无 API key 的 provider 不显示
@@ -14,47 +14,50 @@
     <div class="toolbar">
       <h2>Provider 管理</h2>
       <div class="actions">
-        <button class="btn btn-primary" @click="showAddProvider = true">添加 Provider</button>
-        <button class="btn" @click="refresh">刷新</button>
+        <el-button type="primary" @click="showAddProvider = true">添加 Provider</el-button>
+        <el-button @click="refresh">刷新</el-button>
       </div>
     </div>
 
     <!-- 当前活动配置 -->
     <div v-if="active.provider || active.key || active.model" class="active-bar">
       <span class="label">当前活动：</span>
-      <span class="value">{{ active.provider || '?' }}</span>
+      <el-tag size="small" type="primary">{{ active.provider }}</el-tag>
       <span class="sep">/</span>
-      <span class="value">{{ active.key || '?' }}</span>
+      <el-tag size="small" type="success">{{ active.key }}</el-tag>
       <span class="sep">/</span>
-      <span class="value">{{ active.model || '?' }}</span>
+      <el-tag size="small">{{ active.model }}</el-tag>
     </div>
 
     <!-- 加载 / 空态 -->
-    <div v-if="loading" class="loading">加载中...</div>
-    <div v-else-if="providers.length === 0" class="empty">
-      <p>没有配置任何 Provider，或所有 Provider 下均无 API Key</p>
-      <p class="hint">点击「添加 Provider」开始配置</p>
-    </div>
+    <div v-if="loading" class="loading" v-loading="loading" element-loading-text="加载中..."></div>
+    <el-empty v-else-if="providers.length === 0" description="没有配置任何 Provider，或所有 Provider 下均无 API Key">
+      <template #extra>
+        <el-button type="primary" @click="showAddProvider = true">添加 Provider</el-button>
+      </template>
+    </el-empty>
 
     <!-- 卡片网格 -->
     <div v-else class="card-grid">
-      <div
+      <el-card
         v-for="p in providers"
         :key="p.name"
         :class="['provider-card', { 'card-active': active.provider === p.name }]"
+        shadow="hover"
       >
-        <!-- 卡片头部：provider 名称 -->
-        <div class="card-header">
-          <div class="card-title">
-            <span v-if="active.provider === p.name" class="star">★</span>
-            <span class="provider-name">{{ p.name }}</span>
-            <span class="provider-label">{{ p.label }}</span>
+        <template #header>
+          <div class="card-header">
+            <div class="card-title">
+              <el-tag v-if="active.provider === p.name" size="small" type="primary" effect="dark">当前</el-tag>
+              <span class="provider-name">{{ p.name }}</span>
+              <span class="provider-label">{{ p.label }}</span>
+            </div>
+            <div class="card-actions">
+              <el-button size="small" @click="openAddKey(p.name)">+ Key</el-button>
+              <el-button size="small" type="danger" @click="removeProvider(p.name)">删除</el-button>
+            </div>
           </div>
-          <div class="card-actions">
-            <button class="btn btn-small" @click="openAddKey(p.name)">+ Key</button>
-            <button class="btn btn-small btn-danger" @click="removeProvider(p.name)">删除</button>
-          </div>
-        </div>
+        </template>
 
         <!-- 卡片内容：每个 key 一行 -->
         <div class="card-body">
@@ -64,7 +67,7 @@
             :class="['key-row', { 'key-active': active.provider === p.name && active.key === alias }]"
           >
             <div class="key-info">
-              <span v-if="active.provider === p.name && active.key === alias" class="star">★</span>
+              <el-tag v-if="active.provider === p.name && active.key === alias" size="small" type="success" effect="dark">当前</el-tag>
               <span class="key-alias">{{ alias }}</span>
               <span class="key-label">{{ keyCfg.label }}</span>
               <span v-if="keyCfg.base_url" class="key-base">{{ keyCfg.base_url }}</span>
@@ -73,14 +76,17 @@
 
             <!-- 模型标签 -->
             <div class="model-tags">
-              <span
+              <el-tag
                 v-for="model in keyCfg.models"
                 :key="model"
-                :class="['model-tag', { 'model-active': active.provider === p.name && active.key === alias && active.model === model }]"
+                size="small"
+                :type="active.provider === p.name && active.key === alias && active.model === model ? 'primary' : 'info'"
+                :effect="active.provider === p.name && active.key === alias && active.model === model ? 'dark' : 'plain'"
+                class="model-tag"
                 @click="switchModel(p.name, alias, model)"
               >
-                {{ active.provider === p.name && active.key === alias && active.model === model ? '★ ' : '' }}{{ model }}
-              </span>
+                {{ model }}
+              </el-tag>
               <span v-if="!keyCfg.models || keyCfg.models.length === 0" class="no-models">
                 无模型（点击测试获取）
               </span>
@@ -88,60 +94,73 @@
 
             <!-- key 操作按钮 -->
             <div class="key-actions">
-              <button
-                class="btn btn-small btn-primary"
+              <el-button
+                size="small"
+                type="primary"
                 :disabled="active.provider === p.name && active.key === alias"
                 @click="switchKey(p.name, alias)"
-              >切换</button>
-              <button class="btn btn-small" @click="probeKey(p.name, alias)">测试</button>
-              <button class="btn btn-small btn-danger" @click="removeKey(p.name, alias)">删 Key</button>
+              >切换</el-button>
+              <el-button size="small" @click="probeKey(p.name, alias)">测试</el-button>
+              <el-button size="small" type="danger" @click="removeKey(p.name, alias)">删 Key</el-button>
             </div>
           </div>
         </div>
-      </div>
+      </el-card>
     </div>
 
     <!-- ============= 弹窗：添加 Provider ============= -->
-    <div v-if="showAddProvider" class="modal-overlay" @click.self="showAddProvider = false">
-      <div class="modal">
-        <h3>添加 Provider</h3>
-        <label>
-          Provider 名称
-          <select v-model="addProviderForm.name">
-            <option value="" disabled>— 请选择 —</option>
-            <option v-for="kp in knownProviders" :key="kp.id" :value="kp.id">
-              {{ kp.id }} — {{ kp.label }}
-            </option>
-          </select>
-        </label>
-        <label>显示名称 <input v-model="addProviderForm.label" :placeholder="addProviderForm.name || '如 DeepSeek'" /></label>
-        <div class="modal-actions">
-          <button class="btn" @click="showAddProvider = false">取消</button>
-          <button class="btn btn-primary" @click="addProvider" :disabled="!addProviderForm.name">确认添加</button>
-        </div>
-      </div>
-    </div>
+    <el-dialog v-model="showAddProvider" title="添加 Provider" width="420px">
+      <el-form label-position="top">
+        <el-form-item label="Provider 名称">
+          <el-select v-model="addProviderForm.name" placeholder="请选择" style="width: 100%">
+            <el-option
+              v-for="kp in knownProviders"
+              :key="kp.id"
+              :label="kp.id + ' — ' + kp.label"
+              :value="kp.id"
+            />
+          </el-select>
+        </el-form-item>
+        <el-form-item label="显示名称">
+          <el-input v-model="addProviderForm.label" :placeholder="addProviderForm.name || '如 DeepSeek'" />
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <el-button @click="showAddProvider = false">取消</el-button>
+        <el-button type="primary" @click="addProvider" :disabled="!addProviderForm.name">确认添加</el-button>
+      </template>
+    </el-dialog>
 
     <!-- ============= 弹窗：添加 API Key ============= -->
-    <div v-if="showAddKey" class="modal-overlay" @click.self="showAddKey = false">
-      <div class="modal">
-        <h3>为 {{ addKeyForm.provider }} 添加 API Key</h3>
-        <label>Key 别名 <input v-model="addKeyForm.alias" placeholder="如 personal / work" /></label>
-        <label>API Key <input v-model="addKeyForm.key" type="password" placeholder="sk-..." /></label>
-        <label>显示名称 <input v-model="addKeyForm.label" placeholder="如 个人账号" /></label>
-        <label>Base URL（可选） <input v-model="addKeyForm.baseUrl" placeholder="如 https://api.example.com/v4" /></label>
-        <label>模型列表 <input v-model="addKeyForm.models" placeholder="逗号分隔，如 V4-Pro,V4-Flash" /></label>
-        <div class="modal-actions">
-          <button class="btn" @click="showAddKey = false">取消</button>
-          <button class="btn btn-primary" @click="addKey" :disabled="!addKeyForm.alias || !addKeyForm.key">确认添加</button>
-        </div>
-      </div>
-    </div>
+    <el-dialog v-model="showAddKey" :title="'为 ' + addKeyForm.provider + ' 添加 API Key'" width="460px">
+      <el-form label-position="top">
+        <el-form-item label="Key 别名">
+          <el-input v-model="addKeyForm.alias" placeholder="如 personal / work" />
+        </el-form-item>
+        <el-form-item label="API Key">
+          <el-input v-model="addKeyForm.key" type="password" placeholder="sk-..." show-password />
+        </el-form-item>
+        <el-form-item label="显示名称">
+          <el-input v-model="addKeyForm.label" placeholder="如 个人账号" />
+        </el-form-item>
+        <el-form-item label="Base URL（可选）">
+          <el-input v-model="addKeyForm.baseUrl" placeholder="如 https://api.example.com/v4" />
+        </el-form-item>
+        <el-form-item label="模型列表">
+          <el-input v-model="addKeyForm.models" placeholder="逗号分隔，如 V4-Pro,V4-Flash" />
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <el-button @click="showAddKey = false">取消</el-button>
+        <el-button type="primary" @click="addKey" :disabled="!addKeyForm.alias || !addKeyForm.key">确认添加</el-button>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
 <script setup>
 import { ref, reactive, onMounted } from 'vue';
+import { ElMessage, ElMessageBox } from 'element-plus';
 
 // ─── 预设 provider 列表 ──────────────────────────────────────
 const knownProviders = [
@@ -198,6 +217,8 @@ async function refresh() {
     if (activeRes.success) {
       Object.assign(active, activeRes.active);
     }
+  } catch (e) {
+    ElMessage.error('加载失败：' + e.message);
   } finally {
     loading.value = false;
   }
@@ -209,19 +230,33 @@ async function addProvider() {
     method: 'POST',
     body: JSON.stringify({ name: addProviderForm.name, label: addProviderForm.label || addProviderForm.name }),
   });
-  alert(res.message || (res.success ? '添加成功' : '添加失败'));
   if (res.success) {
+    ElMessage.success('添加成功');
     showAddProvider.value = false;
     addProviderForm.name = '';
     addProviderForm.label = '';
     refresh();
+  } else {
+    ElMessage.error(res.message || '添加失败');
   }
 }
 
 async function removeProvider(name) {
-  if (!confirm('确认删除 provider "' + name + '" 及其所有 API Key？')) return;
+  try {
+    await ElMessageBox.confirm(
+      '确认删除 provider "' + name + '" 及其所有 API Key？',
+      '确认删除',
+      { confirmButtonText: '确认删除', cancelButtonText: '取消', type: 'warning' }
+    );
+  } catch {
+    return; // 取消
+  }
   const res = await api('/provider/remove/' + name, { method: 'DELETE' });
-  alert(res.message);
+  if (res.success) {
+    ElMessage.success('已删除 ' + name);
+  } else {
+    ElMessage.error(res.message);
+  }
   refresh();
 }
 
@@ -251,17 +286,31 @@ async function addKey() {
       baseUrl: addKeyForm.baseUrl,
     }),
   });
-  alert(res.message || (res.success ? '添加成功' : '添加失败'));
   if (res.success) {
+    ElMessage.success('Key 添加成功');
     showAddKey.value = false;
     refresh();
+  } else {
+    ElMessage.error(res.message || '添加失败');
   }
 }
 
 async function removeKey(providerName, alias) {
-  if (!confirm('确认删除 "' + providerName + '" 下的 API Key "' + alias + '"？')) return;
+  try {
+    await ElMessageBox.confirm(
+      '确认删除 "' + providerName + '" 下的 API Key "' + alias + '"？',
+      '确认删除',
+      { confirmButtonText: '确认删除', cancelButtonText: '取消', type: 'warning' }
+    );
+  } catch {
+    return;
+  }
   const res = await api('/provider/remove-key/' + providerName + '/' + alias, { method: 'DELETE' });
-  alert(res.message);
+  if (res.success) {
+    ElMessage.success('Key 已删除');
+  } else {
+    ElMessage.error(res.message);
+  }
   refresh();
 }
 
@@ -272,9 +321,10 @@ async function switchKey(provider, key) {
   });
   if (res.success) {
     Object.assign(active, res.active);
+    ElMessage.success('已切换到 ' + provider + ' / ' + key);
     refresh();
   } else {
-    alert(res.message);
+    ElMessage.error(res.message);
   }
 }
 
@@ -285,19 +335,20 @@ async function switchModel(provider, key, model) {
   });
   if (res.success) {
     Object.assign(active, res.active);
+    ElMessage.success('已切换到模型 ' + model);
     refresh();
   } else {
-    alert(res.message);
+    ElMessage.error(res.message);
   }
 }
 
 async function probeKey(providerName, alias) {
   const res = await api('/provider/probe/' + providerName + '/' + alias);
   if (res.success) {
-    alert('连通成功！延迟 ' + res.latency_ms + 'ms，可用模型 ' + res.models.length + ' 个');
+    ElMessage.success('连通成功！延迟 ' + res.latency_ms + 'ms，可用模型 ' + res.models.length + ' 个');
     refresh();
   } else {
-    alert('连通失败：' + res.error);
+    ElMessage.error('连通失败：' + res.error);
   }
 }
 
@@ -312,50 +363,45 @@ onMounted(refresh);
 .actions { display: flex; gap: 8px; }
 
 .active-bar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
   padding: 8px 14px;
-  background: var(--bg-secondary, #161b22);
-  border: 1px solid var(--border, #30363d);
-  border-radius: 6px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
   font-size: 13px;
 }
-.active-bar .label { color: var(--text-secondary, #8b949e); }
-.active-bar .value { color: var(--accent, #58a6ff); font-weight: 500; }
-.active-bar .sep { color: var(--text-secondary, #8b949e); margin: 0 4px; }
+.active-bar .label { color: var(--text-secondary); }
+.active-bar .sep { color: var(--text-secondary); }
 
-.loading, .empty { padding: 40px; text-align: center; color: var(--text-secondary, #8b949e); }
-.empty .hint { font-size: 13px; margin-top: 8px; }
+.loading {
+  padding: 80px 0;
+  min-height: 200px;
+}
 
 /* ─── 卡片网格 ──────────────────────────────────────────────── */
 .card-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(420px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(460px, 1fr));
   gap: 14px;
 }
 
-.provider-card {
-  background: var(--bg-secondary, #161b22);
-  border: 1px solid var(--border, #30363d);
-  border-radius: 8px;
-  overflow: hidden;
-  transition: border-color 0.2s;
+.provider-card.card-active {
+  border-color: var(--accent);
 }
-.provider-card.card-active { border-color: var(--accent, #58a6ff); }
 
 .card-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 12px 14px;
-  background: var(--bg-tertiary, #21262d);
-  border-bottom: 1px solid var(--border, #30363d);
 }
 .card-title { display: flex; align-items: center; gap: 8px; }
-.star { color: var(--accent, #58a6ff); font-weight: bold; }
 .provider-name { font-weight: 600; font-size: 15px; }
-.provider-label { color: var(--text-secondary, #8b949e); font-size: 12px; }
+.provider-label { color: var(--text-secondary); font-size: 12px; }
 .card-actions { display: flex; gap: 4px; }
 
-.card-body { padding: 8px 14px; display: flex; flex-direction: column; gap: 8px; }
+.card-body { display: flex; flex-direction: column; gap: 8px; }
 
 /* ─── Key 行 ────────────────────────────────────────────────── */
 .key-row {
@@ -364,100 +410,33 @@ onMounted(refresh);
   align-items: flex-start;
   gap: 8px;
   padding: 8px 10px;
-  background: var(--bg-primary, #0d1117);
-  border: 1px solid var(--border, #30363d);
-  border-radius: 6px;
+  background: var(--bg-primary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
 }
-.key-row.key-active { border-color: var(--accent, #58a6ff); }
+.key-row.key-active { border-color: var(--accent); }
 
 .key-info {
   display: flex;
   align-items: center;
   gap: 6px;
   min-width: 200px;
+  flex-wrap: wrap;
 }
 .key-alias { font-weight: 500; }
-.key-label { color: var(--text-secondary, #8b949e); font-size: 11px; }
-.key-base { color: var(--text-secondary, #8b949e); font-size: 10px; max-width: 160px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.key-preview { color: var(--text-secondary, #8b949e); font-size: 11px; font-family: monospace; }
+.key-label { color: var(--text-secondary); font-size: 11px; }
+.key-base { color: var(--text-secondary); font-size: 10px; max-width: 160px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.key-preview { color: var(--text-secondary); font-size: 11px; font-family: monospace; }
 
 .model-tags {
   display: flex;
   flex-wrap: wrap;
   gap: 4px;
   flex: 1;
-}
-.model-tag {
-  padding: 2px 8px;
-  background: var(--bg-tertiary, #21262d);
-  border: 1px solid var(--border, #30363d);
-  border-radius: 10px;
-  font-size: 11px;
-  cursor: pointer;
-  transition: all 0.15s;
-  white-space: nowrap;
-}
-.model-tag:hover { border-color: var(--accent-hover, #79c0ff); }
-.model-tag.model-active {
-  background: rgba(88, 166, 255, 0.15);
-  border-color: var(--accent, #58a6ff);
-  color: var(--accent, #58a6ff);
-  font-weight: 500;
-}
-.no-models { color: var(--text-secondary, #8b949e); font-size: 11px; padding: 2px 0; }
-
-.key-actions { display: flex; gap: 3px; margin-left: auto; }
-
-/* ─── 按钮 ──────────────────────────────────────────────────── */
-.btn {
-  padding: 6px 14px;
-  background: var(--bg-tertiary, #21262d);
-  border: 1px solid var(--border, #30363d);
-  border-radius: 6px;
-  color: var(--text-primary, #e6edf3);
-  cursor: pointer;
-  font-size: 13px;
-  transition: all 0.15s;
-}
-.btn:hover { background: var(--border, #30363d); }
-.btn:disabled { opacity: 0.4; cursor: default; }
-.btn-primary { background: var(--accent, #58a6ff); border-color: var(--accent, #58a6ff); color: #fff; }
-.btn-primary:hover { background: var(--accent-hover, #79c0ff); }
-.btn-danger { color: var(--danger, #f85149); border-color: transparent; }
-.btn-danger:hover { background: rgba(248, 81, 73, 0.15); }
-.btn-small { padding: 3px 10px; font-size: 12px; }
-
-/* ─── 弹窗 ──────────────────────────────────────────────────── */
-.modal-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.6);
-  display: flex;
   align-items: center;
-  justify-content: center;
-  z-index: 50;
 }
-.modal {
-  background: var(--bg-secondary, #161b22);
-  border: 1px solid var(--border, #30363d);
-  border-radius: 8px;
-  padding: 24px;
-  min-width: 420px;
-  max-width: 520px;
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-}
-.modal h3 { font-size: 16px; }
-.modal label { display: flex; flex-direction: column; gap: 4px; font-size: 13px; color: var(--text-secondary, #8b949e); }
-.modal input, .modal select {
-  padding: 8px 10px;
-  background: var(--bg-primary, #0d1117);
-  border: 1px solid var(--border, #30363d);
-  border-radius: 6px;
-  color: var(--text-primary, #e6edf3);
-  font-size: 13px;
-}
-.modal input:focus, .modal select:focus { outline: none; border-color: var(--accent, #58a6ff); }
-.modal-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 4px; }
+.model-tag { cursor: pointer; }
+.no-models { color: var(--text-secondary); font-size: 11px; padding: 2px 0; }
+
+.key-actions { display: flex; gap: 4px; margin-left: auto; }
 </style>

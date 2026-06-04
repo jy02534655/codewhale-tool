@@ -1,60 +1,88 @@
 <!--
   App.vue — 根组件
-  顶部导航 + 标签页（Provider / Skill）
+  顶部导航 + 标签页（Provider / Skill）+ 皮肤切换
 -->
 <template>
-  <div class="app">
-    <header class="app-header">
-      <div class="header-left">
-        <h1 class="logo">🐋 CodeWhale Tool</h1>
-        <span class="subtitle">配置管理</span>
-      </div>
-      <div class="header-right">
-        <span class="config-path" :title="configPath">{{ configPath || '（自动探测）' }}</span>
-      </div>
-    </header>
+  <el-config-provider :locale="zhCn">
+    <div class="app">
+      <header class="app-header">
+        <div class="header-left">
+          <h1 class="logo">🐋 CodeWhale Tool</h1>
+          <span class="subtitle">配置管理</span>
+        </div>
+        <div class="header-right">
+          <span class="config-path" :title="configPath">{{ configPath || '（自动探测）' }}</span>
+          <el-button
+            :icon="isDark ? Sunny : Moon"
+            circle
+            size="small"
+            @click="toggleTheme"
+            :title="isDark ? '切换到普通模式' : '切换到暗黑模式'"
+          />
+        </div>
+      </header>
 
-    <nav class="tabs">
-      <button
-        :class="['tab', { active: activeTab === 'provider' }]"
-        @click="activeTab = 'provider'"
-      >
-        Provider 管理
-      </button>
-      <button
-        :class="['tab', { active: activeTab === 'skill' }]"
-        @click="activeTab = 'skill'"
-      >
-        Skill 管理
-      </button>
-    </nav>
+      <nav class="tabs">
+        <button
+          :class="['tab', { active: activeTab === 'provider' }]"
+          @click="activeTab = 'provider'"
+        >
+          Provider 管理
+        </button>
+        <button
+          :class="['tab', { active: activeTab === 'skill' }]"
+          @click="activeTab = 'skill'"
+        >
+          Skill 管理
+        </button>
+      </nav>
 
-    <main class="content">
-      <ProviderView v-if="activeTab === 'provider'" />
-      <SkillView v-if="activeTab === 'skill'" />
-    </main>
-
-    <!-- 全局提示栏 -->
-    <div v-if="toast.show" :class="['toast', toast.type]">
-      {{ toast.message }}
+      <main class="content">
+        <ProviderView v-if="activeTab === 'provider'" />
+        <SkillView v-if="activeTab === 'skill'" />
+      </main>
     </div>
-  </div>
+  </el-config-provider>
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
+import { Sunny, Moon } from '@element-plus/icons-vue';
 import ProviderView from './views/ProviderView.vue';
 import SkillView from './views/SkillView.vue';
+import zhCn from 'element-plus/dist/locale/zh-cn.mjs';
 
 const activeTab = ref('provider');
 const configPath = ref('');
-const toast = ref({ show: false, message: '', type: 'success' });
+const isDark = ref(false);
 
-/** 全局 toast 提示（供子组件通过 provide/inject 调用） */
-function showToast(message, type = 'success') {
-  toast.value = { show: true, message, type };
-  setTimeout(() => { toast.value.show = false; }, 3000);
+/** 皮肤切换 */
+function toggleTheme() {
+  const html = document.documentElement;
+  const current = html.getAttribute('data-theme') || 'light';
+  const next = current === 'dark' ? 'light' : 'dark';
+  html.setAttribute('data-theme', next);
+  if (next === 'dark') {
+    html.classList.add('dark');
+  } else {
+    html.classList.remove('dark');
+  }
+  isDark.value = next === 'dark';
+  localStorage.setItem('codewhale-theme', next);
 }
+
+/** 初始化主题 */
+onMounted(() => {
+  const saved = localStorage.getItem('codewhale-theme') || 'light';
+  const html = document.documentElement;
+  html.setAttribute('data-theme', saved);
+  if (saved === 'dark') {
+    html.classList.add('dark');
+  } else {
+    html.classList.remove('dark');
+  }
+  isDark.value = saved === 'dark';
+});
 </script>
 
 <style scoped>
@@ -76,6 +104,13 @@ function showToast(message, type = 'success') {
 .header-left { display: flex; align-items: baseline; gap: 12px; }
 .logo { font-size: 18px; font-weight: 600; }
 .subtitle { color: var(--text-secondary); font-size: 13px; }
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
 .config-path { color: var(--text-secondary); font-size: 12px; max-width: 300px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
 .tabs {
@@ -109,25 +144,5 @@ function showToast(message, type = 'success') {
   max-width: 1200px;
   width: 100%;
   margin: 0 auto;
-}
-
-.toast {
-  position: fixed;
-  bottom: 20px;
-  right: 20px;
-  padding: 10px 20px;
-  border-radius: var(--radius);
-  font-size: 13px;
-  z-index: 100;
-  animation: slideIn 0.3s ease;
-}
-
-.toast.success { background: var(--success); color: #fff; }
-.toast.error { background: var(--danger); color: #fff; }
-.toast.warning { background: var(--warning); color: #000; }
-
-@keyframes slideIn {
-  from { transform: translateY(20px); opacity: 0; }
-  to { transform: translateY(0); opacity: 1; }
 }
 </style>
