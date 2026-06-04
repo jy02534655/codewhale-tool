@@ -1,0 +1,7 @@
+node_modules/
+dist/
+*.toml.bak
+.env
+.vite/
+package-lock.json
+pnpm-workspace.yaml

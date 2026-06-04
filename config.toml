@@ -1,0 +1,11 @@
+# CodeWhale Configuration
+# Managed by codewhale-tool
+# Backup: config.toml.bak
+
+[model]
+active_provider = ""
+active_api_key = ""
+active_model = ""
+
+[skills]
+enabled = true

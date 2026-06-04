@@ -1,0 +1,21 @@
+{
+  "name": "@codewhale/cli",
+  "version": "0.1.0",
+  "description": "CodeWhale configuration CLI — manage providers and skills from the terminal",
+  "type": "module",
+  "main": "./src/index.js",
+  "bin": {
+    "codewhale-tool": "./src/index.js"
+  },
+  "scripts": {
+    "start": "node src/index.js"
+  },
+  "dependencies": {
+    "@codewhale/core": "*",
+    "chalk": "^5.3.0",
+    "commander": "^12.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
