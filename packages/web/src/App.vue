@@ -27,7 +27,7 @@
           :class="['tab', { active: activeTab === 'provider' }]"
           @click="activeTab = 'provider'"
         >
-          Provider 管理
+          模型管理
         </button>
         <button
           :class="['tab', { active: activeTab === 'skill' }]"

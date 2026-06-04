@@ -3,16 +3,21 @@
  *
  * 工具使用自己的 config.toml（项目目录），CodeWhale 使用 ~/.codewhale/config.toml。
  * 导入：从 CodeWhale 配置读取并转换为工具格式
- * 同步：将工具中激活的配置写入 CodeWhale 格式
+ * 同步：将工具中配置写入 CodeWhale 格式（合并写入，保留非管理字段）
  *
- * CodeWhale 原生格式：
- *   [model]
- *   provider = "deepseek"
+ * CodeWhale 原生格式（参考）：
+ *
+ *   api_key = "sk-xxx"
+ *   auth_mode = "api_key"
+ *   default_text_model = "deepseek-v4-pro"
+ *   provider = "siliconflow"           ← 非空 = 使用第三方
+ *
+ *   [providers.siliconflow]
+ *   api_key  = "sk-yrz..."
+ *   base_url = "https://api.siliconflow.cn/v1"
  *   model    = "deepseek-ai/DeepSeek-V4-Pro"
  *
- *   [providers.deepseek]
- *   api_key  = "sk-xxx"
- *   base_url = "https://..."
+ *   [providers.siliconflow.http_headers]   ← 保留
  *
  * @module sync
  */
@@ -40,12 +45,16 @@ export class SyncManager {
   // ─── 导入：CodeWhale → 工具 ──────────────────────────────────
 
   /**
-   * 从 CodeWhale 全局配置导入 provider 和 key
+   * 从 CodeWhale 全局配置导入到工具配置
    *
-   * 只导入 CodeWhale 当前激活的 provider（[model].provider），
-   * 如果该 provider 已有对应的 [providers.xxx] 配置，一并导入 api_key 和 base_url。
+   * 提取：
+   *   - api_key              → 工具的 official_api_key
+   *   - provider（非空时）    → 工具的 use_third_party + active_provider
+   *   - [providers.xxx] 块   → 工具的 providers 列表
    *
-   * @returns {{success: boolean, message: string, imported?: {provider: string, key_alias: string}}}
+   * 合并写入，不覆盖工具中已有的其他 provider。
+   *
+   * @returns {{success: boolean, message: string}}
    */
   importFromCodeWhale() {
     const cwPath = codeWhalePath();
@@ -57,50 +66,38 @@ export class SyncManager {
       const raw = readFileSync(cwPath, 'utf-8');
       const cwCfg = parse(raw);
 
-      // 提取 CodeWhale 当前使用的 provider 和 model
-      const cwModel = cwCfg.model || {};
-      const cwProvider = cwModel.provider || '';
-      const cwModelName = cwModel.model || '';
+      // 提取官方 API key
+      const officialApiKey = cwCfg.api_key || '';
 
-      if (!cwProvider) {
-        return { success: false, message: 'CodeWhale 配置中未设置当前 provider（[model].provider 为空）' };
+      // 提取第三方 provider 信息
+      const cwProvider = cwCfg.provider || '';
+      const useThirdParty = !!cwProvider;
+
+      // 导入 provider 配置
+      if (cwProvider && cwCfg.providers?.[cwProvider]) {
+        const pCfg = cwCfg.providers[cwProvider];
+        const providers = this._engine.getProviders();
+        providers[cwProvider] = {
+          label: cwProvider,
+          api_key: pCfg.api_key || '',
+          base_url: pCfg.base_url || '',
+          model: pCfg.model || '',
+        };
+        this._engine.setProviders(providers);
       }
 
-      // 提取对应 provider 的 api_key 和 base_url
-      const cwProviderCfg = cwCfg.providers?.[cwProvider] || {};
-
-      // 写入工具配置
-      const toolCfg = this._engine.read();
-
-      // 添加 provider
-      if (!toolCfg.providers) toolCfg.providers = {};
-      if (!toolCfg.providers[cwProvider]) {
-        toolCfg.providers[cwProvider] = { label: cwProvider, api_keys: {} };
-      }
-
-      const keyAlias = 'imported-' + Date.now().toString(36);
-      // 如果已经有同 key 的配置则覆盖
-      toolCfg.providers[cwProvider].api_keys[keyAlias] = {
-        key: cwProviderCfg.api_key || '',
-        label: '从 CodeWhale 导入',
-        models: cwModelName ? [cwModelName] : [],
-        default_model: cwModelName || '',
-        base_url: cwProviderCfg.base_url || '',
-      };
-
-      // 设置为当前活动
-      toolCfg.model = {
+      // 写入模型配置
+      this._engine.setModelConfig({
+        official_api_key: officialApiKey,
+        use_third_party: useThirdParty,
         active_provider: cwProvider,
-        active_api_key: keyAlias,
-        active_model: cwModelName || '',
-      };
-
-      this._engine.write(toolCfg);
+      });
 
       return {
         success: true,
-        message: `已从 CodeWhale 导入 provider "${cwProvider}"，模型 "${cwModelName}"`,
-        imported: { provider: cwProvider, key_alias: keyAlias },
+        message: cwProvider
+          ? `已导入：官方 API key + 第三方 provider "${cwProvider}"`
+          : '已导入官方 API key（未启用第三方 provider）',
       };
     } catch (err) {
       return { success: false, message: `读取 CodeWhale 配置失败: ${err.message}` };
@@ -110,101 +107,100 @@ export class SyncManager {
   // ─── 同步：工具 → CodeWhale ──────────────────────────────────
 
   /**
-   * 将工具中当前激活的配置同步写入 CodeWhale 全局配置
+   * 将工具配置同步写入 CodeWhale 全局配置
    *
-   * 写入 CodeWhale 原生格式（不覆盖工具自己的字段）：
-   *   [model]          → provider + model
-   *   [providers.xxx]  → api_key + base_url
+   * 合并写入策略：先读取 CodeWhale 现有配置，只更新工具管理的字段，
+   * 保留 auth_mode、default_text_model、http_headers 等非管理字段。
    *
-   * @returns {{success: boolean, message: string, active?: {provider: string, key_alias: string, model: string}}}
+   * 写入内容：
+   *   - api_key = official_api_key（始终写入）
+   *   - provider = active_provider（开关开启时）或删除（关闭时）
+   *   - [providers.xxx] 块（开关开启时写入对应 provider 的配置）
+   *
+   * @returns {{success: boolean, message: string}}
    */
   syncToCodeWhale() {
-    const toolCfg = this._engine.read();
-    const active = toolCfg.model || {};
-    const activeProvider = active.active_provider || '';
-    const activeApiKey = active.active_api_key || '';
-    const activeModel = active.active_model || '';
-
-    if (!activeProvider || !activeApiKey) {
-      return { success: false, message: '工具中未设置激活的 provider 或 API key' };
-    }
-
-    const providerCfg = toolCfg.providers?.[activeProvider];
-    const keyCfg = providerCfg?.api_keys?.[activeApiKey];
-    if (!keyCfg) {
-      return { success: false, message: `找不到 "${activeProvider}/${activeApiKey}" 的配置` };
-    }
-
-    // 构建 CodeWhale 格式
-    const cwConfig = {
-      model: {
-        provider: activeProvider,
-        model: activeModel || keyCfg.default_model || (keyCfg.models?.[0]) || '',
-      },
-      providers: {
-        [activeProvider]: {
-          api_key: keyCfg.key || '',
-        },
-      },
-    };
-
-    // 只在有值时添加 base_url
-    if (keyCfg.base_url) {
-      cwConfig.providers[activeProvider].base_url = keyCfg.base_url;
-    }
-
-    // 写入
+    const modelConfig = this._engine.getModelConfig();
     const cwPath = codeWhalePath();
+
+    // 读取现有 CodeWhale 配置（保留非管理字段）
+    let cwCfg = {};
+    if (existsSync(cwPath)) {
+      try {
+        const raw = readFileSync(cwPath, 'utf-8');
+        cwCfg = parse(raw);
+      } catch (_err) {
+        // 无法读取则从零开始
+      }
+    }
+
+    // ── 更新顶层字段 ──
+
+    // 官方 API key（始终写入）
+    cwCfg.api_key = modelConfig.official_api_key || '';
+
+    // 保留 auth_mode 和 default_text_model（如果已有则不动，没有则补默认值）
+    if (!cwCfg.auth_mode) cwCfg.auth_mode = 'api_key';
+    if (!cwCfg.default_text_model) cwCfg.default_text_model = 'deepseek-v4-pro';
+
+    // ── 处理第三方 provider ──
+
+    if (modelConfig.use_third_party && modelConfig.active_provider) {
+      cwCfg.provider = modelConfig.active_provider;
+
+      const providers = this._engine.getProviders();
+      const activeCfg = providers[modelConfig.active_provider];
+      if (activeCfg) {
+        if (!cwCfg.providers) cwCfg.providers = {};
+        cwCfg.providers[modelConfig.active_provider] = {
+          api_key: activeCfg.api_key || '',
+          base_url: activeCfg.base_url || '',
+          model: activeCfg.model || '',
+        };
+      }
+    } else {
+      // 关闭第三方 → 删除 provider 字段（使用 DeepSeek 官方）
+      delete cwCfg.provider;
+    }
+
+    // ── 写入 ──
+
     const dir = dirname(cwPath);
     if (!existsSync(dir)) {
       mkdirSync(dir, { recursive: true });
     }
 
-    const toml = '# CodeWhale Configuration\n# Synced by codewhale-tool\n\n' + stringify(cwConfig);
+    const toml = '# CodeWhale Configuration\n# Synced by codewhale-tool\n\n' + stringify(cwCfg);
     writeFileSync(cwPath, toml, 'utf-8');
 
     return {
       success: true,
-      message: `已同步到 CodeWhale: provider="${activeProvider}", model="${cwConfig.model.model}"`,
-      active: { provider: activeProvider, key_alias: activeApiKey, model: cwConfig.model.model },
+      message: modelConfig.use_third_party
+        ? `已同步到 CodeWhale：使用第三方 provider "${modelConfig.active_provider}"`
+        : '已同步到 CodeWhale：使用 DeepSeek 官方 API',
     };
   }
 
   /**
-   * 预览将要同步到 CodeWhale 的内容（不实际写入）
-   * @returns {{content: string, provider: string, model: string}}
+   * 预览将要同步到 CodeWhale 的内容
+   * @returns {{success: boolean, preview: object}}
    */
   previewSync() {
-    const toolCfg = this._engine.read();
-    const active = toolCfg.model || {};
-
-    const cwConfig = {
-      model: {
-        provider: active.active_provider || '',
-        model: active.active_model || '',
-      },
-      providers: {}
+    const modelConfig = this._engine.getModelConfig();
+    const preview = {
+      api_key: modelConfig.official_api_key
+        ? modelConfig.official_api_key.slice(0, 8) + '...'
+        : '(未设置)',
+      auth_mode: 'api_key',
+      default_text_model: 'deepseek-v4-pro',
+      third_party_enabled: modelConfig.use_third_party,
+      provider: modelConfig.use_third_party ? modelConfig.active_provider : '(使用官方 DeepSeek)',
     };
-
-    const keyCfg = toolCfg.providers?.[active.active_provider]?.api_keys?.[active.active_api_key];
-    if (keyCfg) {
-      cwConfig.providers[active.active_provider] = {
-        api_key: keyCfg.key || '',
-      };
-      if (keyCfg.base_url) {
-        cwConfig.providers[active.active_provider].base_url = keyCfg.base_url;
-      }
-    }
-
-    return {
-      content: '# 预览：将写入 ~/.codewhale/config.toml 的内容\n\n' + stringify(cwConfig),
-      provider: cwConfig.model.provider,
-      model: cwConfig.model.model,
-    };
+    return { success: true, preview };
   }
 
   /**
-   * 从工具配置中删除 CodeWhale 不兼容的字段（修复被污染的全局配置）
+   * 修复被污染的 CodeWhale 全局配置（删除工具特有的字段）
    * @returns {{success: boolean, message: string}}
    */
   static repairCodeWhaleConfig() {
@@ -216,26 +212,20 @@ export class SyncManager {
       const raw = readFileSync(cwPath, 'utf-8');
       const cfg = parse(raw);
 
-      // 删除工具特有的字段
+      // 删除工具特有字段
       if (cfg.model) {
         delete cfg.model.active_provider;
         delete cfg.model.active_api_key;
         delete cfg.model.active_model;
+        delete cfg.model.official_api_key;
+        delete cfg.model.use_third_party;
       }
 
-      // 清理 providers 中的工具格式（嵌套 api_keys）
+      // 清理 providers 中的非标准字段
       if (cfg.providers) {
-        for (const [name, pCfg] of Object.entries(cfg.providers)) {
+        for (const [, pCfg] of Object.entries(cfg.providers)) {
           delete pCfg.label;
-          // 如果有嵌套 api_keys 且格式不兼容，尝试提取第一个 key
-          if (pCfg.api_keys && !pCfg.api_key) {
-            const firstKey = Object.values(pCfg.api_keys)[0];
-            if (firstKey) {
-              pCfg.api_key = firstKey.key || '';
-              if (firstKey.base_url) pCfg.base_url = firstKey.base_url;
-            }
-            delete pCfg.api_keys;
-          }
+          delete pCfg.api_keys;
         }
       }
 

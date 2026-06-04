@@ -149,10 +149,10 @@ export class ConfigEngine {
     return header + toml;
   }
 
-  // ─── 活动配置快捷方法 ──────────────────────────────────────
+  // ─── 活动配置快捷方法（旧格式） ────────────────────────────
 
   /**
-   * 获取当前活动的 provider / api_key / model
+   * 获取当前活动的 provider / api_key / model（旧格式）
    * @returns {ActiveConfig}
    */
   getActive() {
@@ -166,7 +166,7 @@ export class ConfigEngine {
   }
 
   /**
-   * 设置当前活动配置
+   * 设置当前活动配置（旧格式）
    * @param {Partial<ActiveConfig>} active - 要更新的活动字段
    */
   setActive(active) {
@@ -219,6 +219,37 @@ export class ConfigEngine {
   setSkills(skills) {
     this.update((cfg) => {
       cfg.skills = skills;
+      return cfg;
+    });
+  }
+
+  // ─── 模型配置（新格式） ────────────────────────────────────
+
+  /**
+   * 获取模型配置（新格式）
+   * 包含：官方 API key、第三方开关、当前激活的第三方 provider
+   * @returns {{official_api_key: string, use_third_party: boolean, active_provider: string}}
+   */
+  getModelConfig() {
+    const cfg = this.read();
+    const model = cfg.model || {};
+    return {
+      official_api_key: model.official_api_key || '',
+      use_third_party: !!model.use_third_party,
+      active_provider: model.active_provider || '',
+    };
+  }
+
+  /**
+   * 设置模型配置（部分更新）
+   * @param {{official_api_key?: string, use_third_party?: boolean, active_provider?: string}} config
+   */
+  setModelConfig(config) {
+    this.update((cfg) => {
+      if (!cfg.model) cfg.model = {};
+      if (config.official_api_key !== undefined) cfg.model.official_api_key = config.official_api_key;
+      if (config.use_third_party !== undefined) cfg.model.use_third_party = config.use_third_party;
+      if (config.active_provider !== undefined) cfg.model.active_provider = config.active_provider;
       return cfg;
     });
   }
