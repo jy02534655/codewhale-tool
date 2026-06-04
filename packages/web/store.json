@@ -1,20 +1,27 @@
 {
-  "official_api_key": "sk-18b7da75b6dc4b7ab661ca7667884369",
+  "official_keys": [
+    {
+      "id": "official:sk-18b7da75b6dc4b7ab661ca7667884369",
+      "alias": "DeepSeek ",
+      "api_key": "sk-18b7da75b6dc4b7ab661ca7667884369",
+      "active": true
+    }
+  ],
   "providers": [
     {
       "id": "siliconflow:sk-yrzurqxzpugmqejpuwxassnkrcrakdtaukrxmuxdugbenvvw",
       "provider": "siliconflow",
-      "label": "硅基流动",
+      "label": "siliconflow",
       "api_key": "sk-yrzurqxzpugmqejpuwxassnkrcrakdtaukrxmuxdugbenvvw",
       "base_url": "https://api.siliconflow.cn/v1",
       "models": [
         {
-          "name": "deepseek-ai/DeepSeek-V4-Pro",
-          "active": false
-        },
-        {
           "name": "deepseek-ai/DeepSeek-V3.2",
           "active": true
+        },
+        {
+          "name": "deepseek-ai/DeepSeek-V4-Pro",
+          "active": false
         }
       ],
       "active": true

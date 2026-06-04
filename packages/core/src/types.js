@@ -9,6 +9,14 @@
  */
 
 /**
+ * @typedef {object} OfficialKeyEntry
+ * @property {string}  id      - 主键："official:" + api_key，如 "official:sk-abc"
+ * @property {string}  alias   - 别名/标签，如 "主账号"
+ * @property {string}  api_key - API key 明文
+ * @property {boolean} active  - 是否当前激活的官方 key
+ */
+
+/**
  * @typedef {object} ModelEntry
  * @property {string}  name   - 模型名称，如 "deepseek-ai/DeepSeek-V4-Pro"
  * @property {boolean} active - 是否当前激活的模型（同一 provider 下只有一个）
@@ -16,13 +24,13 @@
 
 /**
  * @typedef {object} ProviderEntry
- * @property {string}      id       - 主键：provider + ":" + api_key，如 "siliconflow:sk-abc"
- * @property {string}      provider - provider 类型标识，如 "siliconflow"
- * @property {string}      label    - 显示名称
- * @property {string}      api_key  - API key 明文
- * @property {string}      base_url - 自定义 API 基础 URL
- * @property {ModelEntry[]} models  - 该 provider 下的模型列表
- * @property {boolean}     active   - 该 provider 是否全局激活（第三方开关已开 + 当前选中）
+ * @property {string}       id       - 主键："provider类型:api_key"，如 "siliconflow:sk-abc"
+ * @property {string}       provider - provider 类型标识，如 "siliconflow"
+ * @property {string}       label    - 显示名称
+ * @property {string}       api_key  - API key 明文
+ * @property {string}       base_url - 自定义 API 基础 URL
+ * @property {ModelEntry[]} models   - 该 provider 下的模型列表
+ * @property {boolean}      active   - 该 provider 是否全局激活（第三方开关已开 + 当前选中）
  */
 
 /**
@@ -42,9 +50,9 @@
 
 /**
  * @typedef {object} StoreData
- * @property {ProviderEntry[]} providers - 第三方 provider 列表
- * @property {SkillsConfig}    skills    - Skill 配置
- * @property {string}          official_api_key - DeepSeek 官方 API key
+ * @property {OfficialKeyEntry[]} official_keys - 官方 DeepSeek API key 列表（可多个）
+ * @property {ProviderEntry[]}   providers     - 第三方 provider 列表
+ * @property {SkillsConfig}      skills        - Skill 配置
  */
 
 /** CodeWhale 官方支持的 provider 列表 */

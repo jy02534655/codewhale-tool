@@ -18,13 +18,14 @@ import { join, dirname } from 'node:path';
 
 /**
  * @typedef {import('./types.js').ProviderEntry} ProviderEntry
+ * @typedef {import('./types.js').OfficialKeyEntry} OfficialKeyEntry
  * @typedef {import('./types.js').StoreData} StoreData
  * @typedef {import('./types.js').SkillsConfig} SkillsConfig
  */
 
 /** @type {StoreData} 默认存储骨架 */
 const DEFAULT_STORE = {
-  official_api_key: '',
+  official_keys: [],
   providers: [],
   skills: {
     enabled: true,
@@ -34,7 +35,7 @@ const DEFAULT_STORE = {
 
 export class ConfigEngine {
   /**
-   * @param {string} [storePath] - 显式指定的 store.json 路径，不传则自动探测
+   * @param {string} [storePath] - 显式指定的 store.json 路径
    */
   constructor(storePath) {
     this._path = storePath || ConfigEngine.detectPath();
@@ -42,91 +43,54 @@ export class ConfigEngine {
 
   // ─── 路径探测 ──────────────────────────────────────────────
 
-  /**
-   * 自动探测 store.json 位置
-   * 优先级：cwd/store.json → ~/.codewhale/store.json → cwd/store.json（新建）
-   * @returns {string}
-   */
   static detectPath() {
     const cwd = join(process.cwd(), 'store.json');
     if (existsSync(cwd)) return cwd;
-
     const home = join(homedir(), '.codewhale', 'store.json');
     if (existsSync(home)) return home;
-
     return cwd;
   }
 
-  /** @returns {string} 当前存储文件路径 */
-  get path() {
-    return this._path;
-  }
+  /** @returns {string} */
+  get path() { return this._path; }
 
   // ─── 读写核心 ──────────────────────────────────────────────
 
-  /**
-   * 读取完整 StoreData
-   * @returns {StoreData}
-   */
+  /** @returns {StoreData} */
   read() {
     if (!existsSync(this._path)) {
       return JSON.parse(JSON.stringify(DEFAULT_STORE));
     }
-    const raw = readFileSync(this._path, 'utf-8');
     try {
-      const data = JSON.parse(raw);
-      // 深度合并默认值，保证新增字段不丢失
+      const data = JSON.parse(readFileSync(this._path, 'utf-8'));
       return this._mergeDefaults(data);
     } catch {
       return JSON.parse(JSON.stringify(DEFAULT_STORE));
     }
   }
 
-  /**
-   * 写入完整 StoreData
-   * 写入前自动备份为 store.json.bak
-   * @param {StoreData} data
-   */
+  /** @param {StoreData} data */
   write(data) {
     this._backup();
     const dir = dirname(this._path);
-    if (!existsSync(dir)) {
-      mkdirSync(dir, { recursive: true });
-    }
-    const json = JSON.stringify(data, null, 2);
-    writeFileSync(this._path, json, 'utf-8');
+    if (!existsSync(dir)) mkdirSync(dir, { recursive: true });
+    writeFileSync(this._path, JSON.stringify(data, null, 2), 'utf-8');
   }
 
-  /**
-   * 原地修改：读取 → 回调修改 → 写回
-   * @param {(data: StoreData) => StoreData} updater
-   */
+  /** @param {(data: StoreData) => StoreData} updater */
   update(updater) {
     const data = this.read();
-    const updated = updater(data);
-    this.write(updated);
+    this.write(updater(data));
   }
 
-  /**
-   * 备份当前文件为 .bak
-   * @private
-   */
   _backup() {
-    if (existsSync(this._path)) {
-      copyFileSync(this._path, this._path + '.bak');
-    }
+    if (existsSync(this._path)) copyFileSync(this._path, this._path + '.bak');
   }
 
-  /**
-   * 深度合并默认值
-   * @param {object} data
-   * @returns {StoreData}
-   * @private
-   */
   _mergeDefaults(data) {
     const def = JSON.parse(JSON.stringify(DEFAULT_STORE));
     return {
-      official_api_key: data.official_api_key ?? def.official_api_key,
+      official_keys: Array.isArray(data.official_keys) ? data.official_keys : def.official_keys,
       providers: Array.isArray(data.providers) ? data.providers : def.providers,
       skills: {
         enabled: data.skills?.enabled ?? def.skills.enabled,
@@ -135,84 +99,48 @@ export class ConfigEngine {
     };
   }
 
-  // ─── Provider 快捷方法 ─────────────────────────────────────
+  // ─── 官方 Key 方法 ─────────────────────────────────────────
 
-  /**
-   * 获取所有 provider
-   * @returns {ProviderEntry[]}
-   */
-  getProviders() {
-    return this.read().providers;
+  /** @returns {OfficialKeyEntry[]} */
+  getOfficialKeys() { return this.read().official_keys; }
+
+  /** @param {OfficialKeyEntry[]} keys */
+  setOfficialKeys(keys) {
+    this.update((d) => { d.official_keys = keys; return d; });
   }
 
-  /**
-   * 设置整个 provider 列表
-   * @param {ProviderEntry[]} providers
-   */
+  /** @param {string} id */
+  findOfficialKey(id) {
+    return this.read().official_keys.find((k) => k.id === id);
+  }
+
+  // ─── Provider 方法 ─────────────────────────────────────────
+
+  /** @returns {ProviderEntry[]} */
+  getProviders() { return this.read().providers; }
+
+  /** @param {ProviderEntry[]} providers */
   setProviders(providers) {
-    this.update((data) => {
-      data.providers = providers;
-      return data;
-    });
+    this.update((d) => { d.providers = providers; return d; });
   }
 
-  /**
-   * 根据主键 ID 查找 provider
-   * @param {string} id - provider 主键，格式 "provider类型:api_key"
-   * @returns {ProviderEntry|undefined}
-   */
+  /** @param {string} id */
   findProvider(id) {
     return this.read().providers.find((p) => p.id === id);
   }
 
-  /**
-   * 根据 provider 类型查找所有 provider
-   * @param {string} providerType - 如 "siliconflow"
-   * @returns {ProviderEntry[]}
-   */
+  /** @param {string} providerType */
   findProvidersByType(providerType) {
     return this.read().providers.filter((p) => p.provider === providerType);
   }
 
-  // ─── Skill 快捷方法 ────────────────────────────────────────
+  // ─── Skill 方法 ────────────────────────────────────────────
 
-  /**
-   * 获取 skills 配置
-   * @returns {SkillsConfig}
-   */
-  getSkills() {
-    return this.read().skills;
-  }
+  /** @returns {SkillsConfig} */
+  getSkills() { return this.read().skills; }
 
-  /**
-   * 设置 skills 配置
-   * @param {SkillsConfig} skills
-   */
+  /** @param {SkillsConfig} skills */
   setSkills(skills) {
-    this.update((data) => {
-      data.skills = skills;
-      return data;
-    });
-  }
-
-  // ─── 官方 API Key ──────────────────────────────────────────
-
-  /**
-   * 获取官方 API key
-   * @returns {string}
-   */
-  getOfficialApiKey() {
-    return this.read().official_api_key;
-  }
-
-  /**
-   * 设置官方 API key
-   * @param {string} apiKey
-   */
-  setOfficialApiKey(apiKey) {
-    this.update((data) => {
-      data.official_api_key = apiKey;
-      return data;
-    });
+    this.update((d) => { d.skills = skills; return d; });
   }
 }

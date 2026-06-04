@@ -5,7 +5,7 @@
  * 修改时实时写回 CodeWhale 标准格式。
  *
  * CodeWhale 原生格式：
- *   api_key              = "sk-xxx"         # 官方 API key
+ *   api_key              = "sk-xxx"         # 官方 API key（当前激活的）
  *   auth_mode            = "api_key"
  *   default_text_model   = "deepseek-v4-pro"
  *   provider             = "siliconflow"    # 非空=使用第三方
@@ -23,31 +23,32 @@ import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'node:fs';
 import { homedir } from 'node:os';
 import { join, dirname } from 'node:path';
 
-
-/** CodeWhale 全局配置文件路径 */
 function codeWhalePath() {
   return join(homedir(), '.codewhale', 'config.toml');
 }
 
 export class SyncManager {
   /**
-   * @param {import('./config.js').ConfigEngine} engine     - 本地 JSON 存储引擎
-   * @param {import('./provider.js').ProviderManager} providerMgr - Provider 管理器
+   * @param {import('./config.js').ConfigEngine} engine
+   * @param {import('./provider.js').ProviderManager} providerMgr
+   * @param {import('./provider.js').OfficialKeyManager} [officialKeyMgr]
    */
-  constructor(engine, providerMgr) {
+  constructor(engine, providerMgr, officialKeyMgr) {
     this._engine = engine;
     this._providerMgr = providerMgr;
+    this._officialKeyMgr = officialKeyMgr || null;
   }
 
   // ─── 启动时合并：CodeWhale → 本地 ─────────────────────────────
 
   /**
-   * 从 CodeWhale config.toml 读取 provider 并合并到本地 store.json
+   * 从 CodeWhale config.toml 读取并合并到本地 store.json
    *
    * 合并规则：
-   *   1. 以 api_key 为主键，本地有则用本地数据更新，本地无则新增
-   *   2. 过滤没有 api_key 配置的空 provider（如 http_headers）
-   *   3. 根据 codewhale 的 provider 字段和 [providers.xxx].model 确定激活状态
+   *   1. 官方 key：从 codewhale 的 api_key 字段读取，按 api_key 合并到 official_keys
+   *   2. 第三方 provider：按 api_key 匹配，本地有则保留不改，本地无则新增
+   *   3. 过滤 http_headers 等无 api_key 的空 provider
+   *   4. 根据 provider 字段和 [providers.xxx].model 确定激活状态
    *
    * @returns {{success: boolean, message: string, merged?: number}}
    */
@@ -61,85 +62,87 @@ export class SyncManager {
       const raw = readFileSync(cwPath, 'utf-8');
       const cwCfg = parse(raw);
 
-      // 提取官方 API key
-      const officialApiKey = cwCfg.api_key || '';
-      this._engine.setOfficialApiKey(officialApiKey);
+      let mergedCount = 0;
 
-      // 提取 CodeWhale 中配置的第三方 provider
+      // ── 官方 API key ──
+      if (cwCfg.api_key && this._officialKeyMgr) {
+        const existingKeys = this._engine.getOfficialKeys();
+        const alreadyExists = existingKeys.some((k) => k.api_key === cwCfg.api_key);
+        if (!alreadyExists) {
+          // 不存在则新增，且设为激活（codewhale 在用的就是激活的）
+          // 先取消其他 key 的激活
+          existingKeys.forEach((k) => (k.active = false));
+          existingKeys.push({
+            id: 'official:' + cwCfg.api_key,
+            alias: '从 CodeWhale 导入',
+            api_key: cwCfg.api_key,
+            active: true,
+          });
+          this._engine.setOfficialKeys(existingKeys);
+          mergedCount++;
+        } else {
+          // 已存在则激活它
+          existingKeys.forEach((k) => (k.active = k.api_key === cwCfg.api_key));
+          this._engine.setOfficialKeys(existingKeys);
+        }
+      }
+
+      // ── 第三方 provider ──
       const cwProviders = cwCfg.providers || {};
       const cwActiveProviderType = cwCfg.provider || '';
 
-      // 过滤：只保留有 api_key 的有效 provider
+      // 过滤有 api_key 的有效 provider
       const validCwProviders = {};
       for (const [name, cfg] of Object.entries(cwProviders)) {
         if (cfg && typeof cfg === 'object' && cfg.api_key) {
           validCwProviders[name] = cfg;
         }
-        // 跳过 http_headers、空对象等无 api_key 的 provider
       }
 
-      // 读取本地 providers，建立 api_key → 索引 映射
       const localProviders = this._engine.getProviders();
       const localByApiKey = new Map();
-      localProviders.forEach((p, i) => {
-        localByApiKey.set(p.api_key, { entry: p, index: i });
-      });
+      localProviders.forEach((p) => localByApiKey.set(p.api_key, p));
 
-      let mergedCount = 0;
+      // 遍历 codewhale 中的有效 provider
+      for (const [providerType, cwCfg_] of Object.entries(validCwProviders)) {
+        const existing = localByApiKey.get(cwCfg_.api_key);
 
-      // 遍历 codewhale 中的有效 provider，合并到本地
-      for (const [providerType, cwCfg] of Object.entries(validCwProviders)) {
-        const existing = localByApiKey.get(cwCfg.api_key);
-
-        if (existing) {
-          // 本地已有 → 用 codewhale 数据更新 provider 类型和 base_url
-          existing.entry.provider = providerType;
-          if (cwCfg.base_url && !existing.entry.base_url) {
-            existing.entry.base_url = cwCfg.base_url;
-          }
-          // 如果 codewhale 有 model 而本地没有对应模型，补充
-          if (cwCfg.model && existing.entry.models && existing.entry.models.length > 0) {
-            const hasModel = existing.entry.models.some((m) => m.name === cwCfg.model);
-            if (!hasModel) {
-              existing.entry.models.push({ name: cwCfg.model, active: false });
-            }
-          }
-          mergedCount++;
-        } else {
-          // 本地没有 → 从 codewhale 新建
-          const modelName = cwCfg.model || 'deepseek-ai/DeepSeek-V4-Pro';
+        if (!existing) {
+          // 本地没有 → 从 codewhale 新增
+          const modelName = cwCfg_.model || 'deepseek-ai/DeepSeek-V4-Pro';
           localProviders.push({
-            id: `${providerType}:${cwCfg.api_key}`,
+            id: `${providerType}:${cwCfg_.api_key}`,
             provider: providerType,
             label: providerType,
-            api_key: cwCfg.api_key,
-            base_url: cwCfg.base_url || '',
+            api_key: cwCfg_.api_key,
+            base_url: cwCfg_.base_url || '',
             models: [{ name: modelName, active: false }],
             active: false,
           });
           mergedCount++;
         }
+        // 本地已有 → 不覆盖（本地优先）
       }
 
       // ── 确定激活状态 ──
+      // 先全部取消激活，再由 codewhale 设置
+      localProviders.forEach((p) => (p.active = false));
+
       if (cwActiveProviderType && validCwProviders[cwActiveProviderType]) {
         const activeApiKey = validCwProviders[cwActiveProviderType].api_key;
         const activeModel = validCwProviders[cwActiveProviderType].model || '';
 
-        // 遍历所有 provider，设置激活状态
-        for (const p of localProviders) {
-          if (p.api_key === activeApiKey && p.provider === cwActiveProviderType) {
-            p.active = true;
-            // 设置激活模型
-            if (p.models && p.models.length > 0) {
-              p.models.forEach((m) => (m.active = m.name === activeModel));
-              // 如果 activeModel 没匹配到任何模型，激活第一个
-              if (!p.models.some((m) => m.active)) {
-                p.models[0].active = true;
-              }
+        const target = localProviders.find(
+          (p) => p.provider === cwActiveProviderType && p.api_key === activeApiKey
+        );
+        if (target) {
+          target.active = true;
+          if (target.models && target.models.length > 0) {
+            target.models.forEach((m) => (m.active = m.name === activeModel));
+            if (!target.models.some((m) => m.active)) {
+              target.models[0].active = true;
             }
           }
-          // 其他 provider 保持非激活（不强制改 false，保留本地已有状态）
         }
       }
 
@@ -147,7 +150,7 @@ export class SyncManager {
 
       return {
         success: true,
-        message: `已从 CodeWhale 同步 ${mergedCount} 个 provider`,
+        message: `已从 CodeWhale 同步 ${mergedCount} 个新条目`,
         merged: mergedCount,
       };
     } catch (err) {
@@ -161,28 +164,29 @@ export class SyncManager {
    * 将本地配置实时写入 CodeWhale config.toml
    *
    * 写入策略：
-   *   - 官方 API key（始终写入）
-   *   - 激活的第三方 provider 信息
-   *   - 保留 CodeWhale 现有的所有 provider 块（非管理字段不丢失）
+   *   - 官方 API key：写入激活的 official_key
+   *   - 第三方 providers：完全用本地数据重建（清空后重写），解决删除不同步问题
+   *   - 同类型多 provider：每种 provider 类型只保留激活的那个，其余仅存本地
+   *   - 保留 auth_mode、default_text_model 等非管理字段
    *
    * @returns {{success: boolean, message: string}}
    */
   syncToCodeWhale() {
     const cwPath = codeWhalePath();
 
-    // 读取现有 CodeWhale 配置（保留 auth_mode、default_text_model 等非管理字段）
+    // 读取现有 CodeWhale 配置（保留非管理字段）
     let cwCfg = {};
     if (existsSync(cwPath)) {
       try {
-        const raw = readFileSync(cwPath, 'utf-8');
-        cwCfg = parse(raw);
-      } catch {
-        // 无法读取则从零开始
-      }
+        cwCfg = parse(readFileSync(cwPath, 'utf-8'));
+      } catch { /* 从头开始 */ }
     }
 
     // ── 官方 API key ──
-    cwCfg.api_key = this._engine.getOfficialApiKey();
+    if (this._officialKeyMgr) {
+      const activeKey = this._officialKeyMgr.getActive();
+      cwCfg.api_key = activeKey ? activeKey.api_key : '';
+    }
 
     // 保留元数据
     if (!cwCfg.auth_mode) cwCfg.auth_mode = 'api_key';
@@ -192,51 +196,43 @@ export class SyncManager {
     const providers = this._engine.getProviders();
     const activeProvider = providers.find((p) => p.active);
 
-    if (activeProvider) {
-      // 第三方模式开启
-      cwCfg.provider = activeProvider.provider;
+    // 完全用本地数据重建 providers 块（解决删除不同步问题）
+    cwCfg.providers = {};
 
-      // 获取激活的模型
-      const activeModel = activeProvider.models?.find((m) => m.active);
-      const modelName = activeModel?.name || (activeProvider.models?.[0]?.name || '');
+    // 按 provider 类型分组，每种类型只保留激活的（或第一个）
+    const byType = new Map();
+    for (const p of providers) {
+      if (!byType.has(p.provider)) byType.set(p.provider, []);
+      byType.get(p.provider).push(p);
+    }
 
-      // 写入/更新 active provider 的配置块
-      if (!cwCfg.providers) cwCfg.providers = {};
-      cwCfg.providers[activeProvider.provider] = {
-        api_key: activeProvider.api_key,
-        base_url: activeProvider.base_url || '',
-        model: modelName,
+    for (const [type, group] of byType) {
+      // 优先选用激活的，否则用第一个
+      const pick = group.find((p) => p.active) || group[0];
+      const pModel = pick.models?.find((m) => m.active)?.name || pick.models?.[0]?.name || '';
+      cwCfg.providers[type] = {
+        api_key: pick.api_key,
+        base_url: pick.base_url || '',
+        model: pModel,
       };
+    }
 
-      // 保留 codewhale 中已有的其他 provider 块（不清除）
-      // 同时把所有本地 provider 也写进去（保持一致）
-      for (const p of providers) {
-        if (p.id !== activeProvider.id) {
-          const pModel = p.models?.find((m) => m.active)?.name || p.models?.[0]?.name || '';
-          cwCfg.providers[p.provider] = {
-            api_key: p.api_key,
-            base_url: p.base_url || '',
-            model: pModel,
-          };
-        }
-      }
+    // 设置激活 provider
+    if (activeProvider) {
+      cwCfg.provider = activeProvider.provider;
     } else {
-      // 第三方模式关闭 → 删除 provider 字段
       delete cwCfg.provider;
-      // 但仍保留 [providers.xxx] 块（数据不丢失）
     }
 
     // ── 写入 ──
     const dir = dirname(cwPath);
-    if (!existsSync(dir)) {
-      mkdirSync(dir, { recursive: true });
-    }
+    if (!existsSync(dir)) mkdirSync(dir, { recursive: true });
 
-    const toml =
-      '# CodeWhale Configuration\n# Synced by codewhale-tool\n\n' +
-      stringify(cwCfg);
-
-    writeFileSync(cwPath, toml, 'utf-8');
+    writeFileSync(
+      cwPath,
+      '# CodeWhale Configuration\n# Synced by codewhale-tool\n\n' + stringify(cwCfg),
+      'utf-8'
+    );
 
     return {
       success: true,
@@ -246,37 +242,33 @@ export class SyncManager {
     };
   }
 
-  /**
-   * 激活 provider 后立即同步到 CodeWhale
-   * @param {string} providerId - 要激活的 provider 主键
-   * @returns {{success: boolean, message?: string}}
-   */
+  // ─── 组合操作 ────────────────────────────────────────────────
+
+  /** @param {string} providerId */
   activateAndSync(providerId) {
-    const result = this._providerMgr.activateProvider(providerId);
-    if (!result.success) return result;
-
+    const r = this._providerMgr.activateProvider(providerId);
+    if (!r.success) return r;
     return this.syncToCodeWhale();
   }
 
-  /**
-   * 切换模型后立即同步到 CodeWhale
-   * @param {string} providerId
-   * @param {string} modelName
-   * @returns {{success: boolean, message?: string}}
-   */
+  /** @param {string} providerId @param {string} modelName */
   setActiveModelAndSync(providerId, modelName) {
-    const result = this._providerMgr.setActiveModel(providerId, modelName);
-    if (!result.success) return result;
-
+    const r = this._providerMgr.setActiveModel(providerId, modelName);
+    if (!r.success) return r;
     return this.syncToCodeWhale();
   }
 
-  /**
-   * 关闭第三方后立即同步
-   * @returns {{success: boolean, message?: string}}
-   */
+  /** @returns {{success:boolean, message?:string}} */
   deactivateAndSync() {
     this._providerMgr.deactivateThirdParty();
+    return this.syncToCodeWhale();
+  }
+
+  /** 激活官方 key 并同步 */
+  activateOfficialAndSync(id) {
+    if (!this._officialKeyMgr) return { success: false, message: 'OfficialKeyManager 未初始化' };
+    const r = this._officialKeyMgr.activate(id);
+    if (!r.success) return r;
     return this.syncToCodeWhale();
   }
 }

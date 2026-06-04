@@ -22,19 +22,10 @@
         </div>
       </header>
 
-      <nav class="tabs">
-        <button
-          :class="['tab', { active: activeTab === 'provider' }]"
-          @click="activeTab = 'provider'"
-        >
-          模型管理
-        </button>
-        <button
-          :class="['tab', { active: activeTab === 'skill' }]"
-          @click="activeTab = 'skill'"
-        >
-          Skill 管理
-        </button>
+      <!-- Skill 标签暂时屏蔽 -->
+      <nav class="tabs" v-if="false">
+        <button :class="['tab', { active: activeTab === 'provider' }]" @click="activeTab = 'provider'">模型管理</button>
+        <button :class="['tab', { active: activeTab === 'skill' }]" @click="activeTab = 'skill'">Skill 管理</button>
       </nav>
 
       <main class="content">
