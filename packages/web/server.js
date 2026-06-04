@@ -5,7 +5,13 @@
  */
 
 import express from 'express';
-import { ConfigEngine, ProviderManager, SkillManager, SyncManager, probeProvider } from '@codewhale/core';
+import {
+  ConfigEngine,
+  ProviderManager,
+  SkillManager,
+  SyncManager,
+  probeProvider,
+} from '@codewhale/core';
 import { existsSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -15,7 +21,10 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const engine = new ConfigEngine();
 const providerMgr = new ProviderManager(engine);
 const skillMgr = new SkillManager(engine);
-const syncMgr = new SyncManager(engine);
+const syncMgr = new SyncManager(engine, providerMgr);
+
+// 启动时从 CodeWhale 同步
+syncMgr.initSync();
 
 const app = express();
 app.use(express.json());
@@ -26,231 +35,275 @@ if (existsSync(distPath)) {
   console.log('Static files: ' + distPath);
 }
 
-// ---- Provider API ----
+// ════════════════════════════════════════════════════════════════
+// Provider API
+// ════════════════════════════════════════════════════════════════
 
-app.get('/api/provider/tree', (_req, res) => {
-  try { res.json({ success: true, tree: providerMgr.getTree() }); }
-  catch (err) { res.json({ success: false, message: err.message }); }
-});
-
-app.get('/api/provider/active', (_req, res) => {
-  try { res.json({ success: true, active: providerMgr.getActive() }); }
-  catch (err) { res.json({ success: false, message: err.message }); }
-});
-
-app.post('/api/provider/switch', (req, res) => {
+// 列出所有 provider（掩码 API key）
+app.get('/api/provider/list', (_req, res) => {
   try {
-    var p = req.body.provider, k = req.body.apiKey, m = req.body.model;
-    var result = providerMgr.switch({ provider: p, apiKey: k, model: m });
-    res.json(result);
-  } catch (err) { res.json({ success: false, message: err.message }); }
+    const providers = providerMgr.listProviders();
+    res.json({ success: true, providers });
+  } catch (err) {
+    res.json({ success: false, message: err.message });
+  }
 });
 
+// 获取当前激活的 provider 和模型
+app.get('/api/provider/active', (_req, res) => {
+  try {
+    const active = providerMgr.getActiveProvider();
+    const activeModel = providerMgr.getActiveModel();
+    res.json({ success: true, active, active_model: activeModel });
+  } catch (err) {
+    res.json({ success: false, message: err.message });
+  }
+});
+
+// 获取单个 provider 详情（含完整 API key，供编辑）
+app.get('/api/provider/:id', (req, res) => {
+  try {
+    const p = providerMgr.getProvider(req.params.id);
+    if (p) res.json({ success: true, provider: p });
+    else res.json({ success: false, message: 'Provider 不存在' });
+  } catch (err) {
+    res.json({ success: false, message: err.message });
+  }
+});
+
+// 添加 provider
 app.post('/api/provider/add', (req, res) => {
   try {
-    var result = providerMgr.addProvider(req.body.name, req.body.label);
+    const { provider, api_key, label, base_url, models } = req.body;
+    const result = providerMgr.addProvider({ provider, api_key, label, base_url, models });
+    if (result.success) syncMgr.syncToCodeWhale();
     res.json(result);
-  } catch (err) { res.json({ success: false, message: err.message }); }
+  } catch (err) {
+    res.json({ success: false, message: err.message });
+  }
 });
 
-app.post('/api/provider/add-key', (req, res) => {
+// 更新 provider 基础信息
+app.put('/api/provider/:id', (req, res) => {
   try {
-    var result = providerMgr.addApiKey(
-      req.body.provider, req.body.alias, req.body.key,
-      req.body.label, req.body.models || [], req.body.baseUrl || ''
-    );
+    const result = providerMgr.updateProvider(req.params.id, req.body);
+    if (result.success) syncMgr.syncToCodeWhale();
     res.json(result);
-  } catch (err) { res.json({ success: false, message: err.message }); }
+  } catch (err) {
+    res.json({ success: false, message: err.message });
+  }
 });
 
-app.delete('/api/provider/remove/:name', (req, res) => {
-  try { res.json(providerMgr.removeProvider(req.params.name)); }
-  catch (err) { res.json({ success: false, message: err.message }); }
-});
-
-app.delete('/api/provider/remove-key/:provider/:alias', (req, res) => {
-  try { res.json(providerMgr.removeApiKey(req.params.provider, req.params.alias)); }
-  catch (err) { res.json({ success: false, message: err.message }); }
-});
-
-app.get('/api/provider/probe/:provider/:alias', async (req, res) => {
+// 删除 provider
+app.delete('/api/provider/:id', (req, res) => {
   try {
-    var prov = providerMgr._getProvider(req.params.provider);
-    if (!prov) return res.json({ success: false, message: 'Provider not found' });
-    var entry = prov.api_keys[req.params.alias];
-    if (!entry) return res.json({ success: false, message: 'API key not found' });
-    var result = await probeProvider(req.params.provider, entry.key);
-    if (result.success) {
-      providerMgr.addApiKey(req.params.provider, req.params.alias, entry.key, entry.label, result.models, entry.base_url);
-    }
+    const result = providerMgr.removeProvider(req.params.id);
+    if (result.success) syncMgr.syncToCodeWhale();
     res.json(result);
-  } catch (err) { res.json({ success: false, message: err.message }); }
+  } catch (err) {
+    res.json({ success: false, message: err.message });
+  }
 });
 
-// ---- Sync / Import / Repair API ----
-
-app.post('/api/provider/import', (req, res) => {
-  try { res.json(syncMgr.importFromCodeWhale()); }
-  catch (err) { res.json({ success: false, message: err.message }); }
-});
-
-app.post('/api/provider/sync', (req, res) => {
-  try { res.json(syncMgr.syncToCodeWhale()); }
-  catch (err) { res.json({ success: false, message: err.message }); }
-});
-
-app.get('/api/provider/preview-sync', (req, res) => {
-  try { res.json(syncMgr.previewSync()); }
-  catch (err) { res.json({ success: false, message: err.message }); }
-});
-
-app.post('/api/provider/repair', (req, res) => {
-  try { res.json(SyncManager.repairCodeWhaleConfig()); }
-  catch (err) { res.json({ success: false, message: err.message }); }
-});
-
-// ---- 模型管理 API (新) ----
-
-// 获取完整模型配置
-app.get('/api/model/config', (_req, res) => {
+// 激活 provider（开启第三方模式）
+app.post('/api/provider/:id/activate', (req, res) => {
   try {
-    var config = providerMgr.getConfig();
-    var providers = providerMgr.listProviders();
-    var active = providerMgr.getProvider(config.active_provider);
-    res.json({ success: true, config: config, providers: providers, active_detail: active });
-  } catch (err) { res.json({ success: false, message: err.message }); }
+    const result = syncMgr.activateAndSync(req.params.id);
+    res.json(result);
+  } catch (err) {
+    res.json({ success: false, message: err.message });
+  }
 });
 
-// 更新官方 API key
-app.post('/api/model/official', (req, res) => {
-  try { res.json(providerMgr.setOfficialApiKey(req.body.api_key || '')); }
-  catch (err) { res.json({ success: false, message: err.message }); }
-});
-
-// 切换第三方开关 / 激活 provider
-app.post('/api/model/toggle', (req, res) => {
-  try { res.json(providerMgr.setUseThirdParty(!!req.body.enabled, req.body.provider || '')); }
-  catch (err) { res.json({ success: false, message: err.message }); }
-});
-
-// 切换当前激活的第三方 provider
-app.post('/api/model/switch', (req, res) => {
-  try { res.json(providerMgr.switchProvider(req.body.provider || '')); }
-  catch (err) { res.json({ success: false, message: err.message }); }
-});
-
-// 添加第三方 provider
-app.post('/api/model/provider', (req, res) => {
+// 关闭第三方模式
+app.post('/api/provider/deactivate', (_req, res) => {
   try {
-    res.json(providerMgr.addProvider(req.body.name, {
-      label: req.body.label,
-      api_key: req.body.api_key,
-      base_url: req.body.base_url,
-      model: req.body.model,
-    }));
-  } catch (err) { res.json({ success: false, message: err.message }); }
+    const result = syncMgr.deactivateAndSync();
+    res.json(result);
+  } catch (err) {
+    res.json({ success: false, message: err.message });
+  }
 });
 
-// 更新第三方 provider
-app.put('/api/model/provider/:name', (req, res) => {
+// Provider 连通性探测
+app.post('/api/provider/probe', async (req, res) => {
   try {
-    res.json(providerMgr.updateProvider(req.params.name, {
-      label: req.body.label,
-      api_key: req.body.api_key,
-      base_url: req.body.base_url,
-      model: req.body.model,
-    }));
-  } catch (err) { res.json({ success: false, message: err.message }); }
+    const { provider, api_key, base_url } = req.body;
+    const result = await probeProvider(provider, api_key, base_url);
+    res.json(result);
+  } catch (err) {
+    res.json({ success: false, message: err.message });
+  }
 });
 
-// 删除第三方 provider
-app.delete('/api/model/provider/:name', (req, res) => {
-  try { res.json(providerMgr.removeProvider(req.params.name)); }
-  catch (err) { res.json({ success: false, message: err.message }); }
-});
+// ════════════════════════════════════════════════════════════════
+// 模型管理 API
+// ════════════════════════════════════════════════════════════════
 
-// 获取单个 provider 完整信息（含 API key，供编辑）
-app.get('/api/model/provider/:name', (req, res) => {
+// 添加模型
+app.post('/api/provider/:id/models', (req, res) => {
   try {
-    var prov = providerMgr.getProvider(req.params.name);
-    if (prov) res.json({ success: true, provider: prov });
-    else res.json({ success: false, message: 'Provider 不存在' });
-  } catch (err) { res.json({ success: false, message: err.message }); }
+    const result = providerMgr.addModel(req.params.id, req.body.name);
+    if (result.success) syncMgr.syncToCodeWhale();
+    res.json(result);
+  } catch (err) {
+    res.json({ success: false, message: err.message });
+  }
 });
 
-// 同步到 CodeWhale
-app.post('/api/model/sync', (_req, res) => {
-  try { res.json(syncMgr.syncToCodeWhale()); }
-  catch (err) { res.json({ success: false, message: err.message }); }
+// 删除模型
+app.delete('/api/provider/:id/models/:modelName', (req, res) => {
+  try {
+    const modelName = decodeURIComponent(req.params.modelName);
+    const result = providerMgr.removeModel(req.params.id, modelName);
+    if (result.success) syncMgr.syncToCodeWhale();
+    res.json(result);
+  } catch (err) {
+    res.json({ success: false, message: err.message });
+  }
 });
 
-// 预览同步内容
-app.get('/api/model/sync-preview', (_req, res) => {
-  try { res.json(syncMgr.previewSync()); }
-  catch (err) { res.json({ success: false, message: err.message }); }
+// 设置当前激活模型
+app.put('/api/provider/:id/models/:modelName/activate', (req, res) => {
+  try {
+    const modelName = decodeURIComponent(req.params.modelName);
+    const result = syncMgr.setActiveModelAndSync(req.params.id, modelName);
+    res.json(result);
+  } catch (err) {
+    res.json({ success: false, message: err.message });
+  }
 });
 
-// 从 CodeWhale 导入
-app.post('/api/model/import', (_req, res) => {
-  try { res.json(syncMgr.importFromCodeWhale()); }
-  catch (err) { res.json({ success: false, message: err.message }); }
+// ════════════════════════════════════════════════════════════════
+// 官方 API Key API
+// ════════════════════════════════════════════════════════════════
+
+app.get('/api/official-key', (_req, res) => {
+  try {
+    const key = engine.getOfficialApiKey();
+    const masked = key ? key.slice(0, 5) + '...' + key.slice(-4) : '';
+    res.json({ success: true, has_key: !!key, api_key_preview: masked });
+  } catch (err) {
+    res.json({ success: false, message: err.message });
+  }
 });
 
-// ---- Skill API ----
+app.post('/api/official-key', (req, res) => {
+  try {
+    engine.setOfficialApiKey(req.body.api_key || '');
+    syncMgr.syncToCodeWhale();
+    res.json({ success: true });
+  } catch (err) {
+    res.json({ success: false, message: err.message });
+  }
+});
+
+// ════════════════════════════════════════════════════════════════
+// 同步 API
+// ════════════════════════════════════════════════════════════════
+
+app.post('/api/sync', (_req, res) => {
+  try {
+    const result = syncMgr.syncToCodeWhale();
+    res.json(result);
+  } catch (err) {
+    res.json({ success: false, message: err.message });
+  }
+});
+
+app.post('/api/init-sync', (_req, res) => {
+  try {
+    const result = syncMgr.initSync();
+    res.json(result);
+  } catch (err) {
+    res.json({ success: false, message: err.message });
+  }
+});
+
+// ════════════════════════════════════════════════════════════════
+// Skill API
+// ════════════════════════════════════════════════════════════════
 
 app.get('/api/skill/list', (_req, res) => {
-  try { res.json({ success: true, skills: skillMgr.listInstalled() }); }
-  catch (err) { res.json({ success: false, message: err.message }); }
+  try {
+    res.json({ success: true, skills: skillMgr.listInstalled() });
+  } catch (err) {
+    res.json({ success: false, message: err.message });
+  }
 });
 
 app.get('/api/skill/show/:id', (req, res) => {
   try {
-    var result = skillMgr.show(req.params.id);
-    res.json(result.entry ? { success: true, entry: result.entry, readme: result.readme } : { success: false, message: 'Not found' });
-  } catch (err) { res.json({ success: false, message: err.message }); }
+    const { entry, readme } = skillMgr.show(req.params.id);
+    res.json(
+      entry
+        ? { success: true, entry, readme }
+        : { success: false, message: 'Not found' }
+    );
+  } catch (err) {
+    res.json({ success: false, message: err.message });
+  }
 });
 
 app.post('/api/skill/install', async (req, res) => {
-  try { res.json(await skillMgr.install(req.body.id)); }
-  catch (err) { res.json({ success: false, message: err.message }); }
+  try {
+    res.json(await skillMgr.install(req.body.id));
+  } catch (err) {
+    res.json({ success: false, message: err.message });
+  }
 });
 
 app.post('/api/skill/enable/:id', (req, res) => {
-  try { res.json(skillMgr.enable(req.params.id)); }
-  catch (err) { res.json({ success: false, message: err.message }); }
+  try {
+    res.json(skillMgr.enable(req.params.id));
+  } catch (err) {
+    res.json({ success: false, message: err.message });
+  }
 });
 
 app.post('/api/skill/disable/:id', (req, res) => {
-  try { res.json(skillMgr.disable(req.params.id)); }
-  catch (err) { res.json({ success: false, message: err.message }); }
+  try {
+    res.json(skillMgr.disable(req.params.id));
+  } catch (err) {
+    res.json({ success: false, message: err.message });
+  }
 });
 
 app.delete('/api/skill/remove/:id', (req, res) => {
-  try { res.json(skillMgr.remove(req.params.id)); }
-  catch (err) { res.json({ success: false, message: err.message }); }
+  try {
+    res.json(skillMgr.remove(req.params.id));
+  } catch (err) {
+    res.json({ success: false, message: err.message });
+  }
 });
 
 app.get('/api/skill/search', async (req, res) => {
   try {
-    var result = await skillMgr.searchCommunity();
+    const result = await skillMgr.searchCommunity();
     if (result.success) {
-      var q = (req.query.q || '').toLowerCase();
-      result.skills = q ? result.skills.filter(function(s) { return s.id.toLowerCase().indexOf(q) !== -1; }) : result.skills;
+      const q = (req.query.q || '').toLowerCase();
+      result.skills = q
+        ? result.skills.filter((s) => s.id.toLowerCase().includes(q))
+        : result.skills;
     }
     res.json(result);
-  } catch (err) { res.json({ success: false, message: err.message }); }
+  } catch (err) {
+    res.json({ success: false, message: err.message });
+  }
 });
 
-// ---- SPA fallback ----
+// ════════════════════════════════════════════════════════════════
+// SPA fallback
+// ════════════════════════════════════════════════════════════════
 
 if (existsSync(distPath)) {
-  app.get('*', function(_req, res) {
+  app.get('*', (_req, res) => {
     res.sendFile(join(distPath, 'index.html'));
   });
 }
 
-var PORT = 3456;
-app.listen(PORT, function() {
+const PORT = 3456;
+app.listen(PORT, () => {
   console.log('CodeWhale Config API: http://localhost:' + PORT);
-  console.log('Config file: ' + engine.path);
+  console.log('Store file: ' + engine.path);
 });

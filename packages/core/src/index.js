@@ -9,4 +9,4 @@ export { ProviderManager } from './provider.js';
 export { SkillManager } from './skill.js';
 export { SyncManager } from './sync.js';
 export { probeProvider, probeMultiple } from './probe.js';
-export { KNOWN_PROVIDERS } from './types.js';
+export { KNOWN_PROVIDERS, getProviderLabel, getDefaultBaseUrl } from './types.js';

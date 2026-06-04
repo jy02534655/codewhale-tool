@@ -12,6 +12,7 @@
     "./probe": "./src/probe.js"
   },
   "dependencies": {
+    "lodash-es": "^4.17.21",
     "smol-toml": "^1.3.0"
   },
   "engines": {
