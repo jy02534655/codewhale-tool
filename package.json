@@ -1,8 +1,8 @@
 {
   "name": "codewhale-tool",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
-  "description": "CodeWhale configuration management toolkit — manage providers, API keys, models, and skills visually and via CLI",
+  "description": "CodeWhale AI 配置管理工具 — 多语言、可视化、实时同步",
   "type": "module",
   "workspaces": [
     "packages/core",
@@ -11,8 +11,9 @@
   ],
   "scripts": {
     "cli": "node packages/cli/src/index.js",
-    "dev": "npm run --workspace=@codewhale/web dev",
-    "server": "npm run --workspace=@codewhale/web server"
+    "dev": "node scripts/dev.mjs",
+    "server": "node packages/web/server.js",
+    "build": "npm run --workspace=@codewhale/web build"
   },
   "engines": {
     "node": ">=18.0.0"

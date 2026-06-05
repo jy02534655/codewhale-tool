@@ -2,7 +2,7 @@
   "official_keys": [
     {
       "id": "official:sk-18b7da75b6dc4b7ab661ca7667884369",
-      "alias": "DeepSeek ",
+      "alias": "从 CodeWhale 导入",
       "api_key": "sk-18b7da75b6dc4b7ab661ca7667884369",
       "active": true
     }
@@ -17,10 +17,6 @@
       "models": [
         {
           "name": "deepseek-ai/DeepSeek-V3.2",
-          "active": false
-        },
-        {
-          "name": "deepseek-ai/DeepSeek-V4-Pro",
           "active": true
         }
       ],

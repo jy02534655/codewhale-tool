@@ -10,7 +10,7 @@
  * @module provider
  */
 
-import { getProviderLabel, getDefaultBaseUrl } from './types.js';
+import { getProviderI18nLabel, getDefaultBaseUrl } from './i18n.js';
 
 /** 掩码显示 API key（前5位 + ... + 后4位） */
 function maskKey(key) {
@@ -127,7 +127,7 @@ export class ProviderManager {
     return this._engine.getProviders().map((p) => ({
       id: p.id,
       provider: p.provider,
-      label: p.label || getProviderLabel(p.provider),
+      label: p.label || getProviderI18nLabel(p.provider, 'zh-Hans'),
       api_key_preview: maskKey(p.api_key),
       base_url: p.base_url || '',
       models: p.models || [],
@@ -175,7 +175,7 @@ export class ProviderManager {
     }));
     this._engine.setProviders([
       ...this._engine.getProviders(),
-      { id, provider, label: label || getProviderLabel(provider), api_key, base_url: base_url || getDefaultBaseUrl(provider), models: modelList, active: false },
+      { id, provider, label: label || getProviderI18nLabel(provider, 'zh-Hans'), api_key, base_url: base_url || getDefaultBaseUrl(provider), models: modelList, active: false },
     ]);
     return { success: true, id };
   }

@@ -1,6 +1,6 @@
 {
   "name": "@codewhale/web",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "CodeWhale Web UI — visual configuration management with Vue 3",
   "type": "module",
   "scripts": {
@@ -13,7 +13,8 @@
     "element-plus": "^2.9.0",
     "@element-plus/icons-vue": "^2.3.1",
     "express": "^4.21.0",
-    "vue": "^3.4.0"
+    "vue": "^3.4.0",
+    "vue-i18n": "^9.14.0"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^5.0.0",

@@ -1,7 +1,5 @@
 /**
  * @codewhale/core — 统一导出入口
- *
- * @module @codewhale/core
  */
 
 export { ConfigEngine } from './config.js';
@@ -9,4 +7,10 @@ export { ProviderManager, OfficialKeyManager } from './provider.js';
 export { SkillManager } from './skill.js';
 export { SyncManager } from './sync.js';
 export { probeProvider, probeMultiple } from './probe.js';
-export { KNOWN_PROVIDERS, getProviderLabel, getDefaultBaseUrl } from './types.js';
+export {
+  getKnownProviders,
+  getProviderI18nLabel,
+  getDefaultBaseUrl,
+  SUPPORTED_LOCALES,
+  LOCALE_LABELS,
+} from './i18n.js';

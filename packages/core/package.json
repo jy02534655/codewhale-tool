@@ -9,7 +9,8 @@
     "./config": "./src/config.js",
     "./provider": "./src/provider.js",
     "./skill": "./src/skill.js",
-    "./probe": "./src/probe.js"
+    "./probe": "./src/probe.js",
+    "./i18n": "./src/i18n.js"
   },
   "dependencies": {
     "lodash-es": "^4.17.21",
