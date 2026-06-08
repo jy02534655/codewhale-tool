@@ -12,6 +12,7 @@ import jaLoc from 'element-plus/dist/locale/ja.mjs';
 import ptBrLoc from 'element-plus/dist/locale/pt-br.mjs';
 import * as ElementPlusIconsVue from '@element-plus/icons-vue';
 import App from './App.vue';
+import router from './router';
 import { i18n } from './i18n';
 
 const elLocales = {
@@ -23,6 +24,7 @@ const elLocales = {
 
 const app = createApp(App);
 app.use(createPinia());
+app.use(router);
 app.use(i18n);
 app.use(ElementPlus, { locale: elLocales[i18n.global.locale.value] || zhCn });
 

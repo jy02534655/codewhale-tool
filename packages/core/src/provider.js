@@ -161,7 +161,7 @@ export class ProviderManager {
    * @param {string} opts.api_key
    * @param {string} [opts.label]
    * @param {string} [opts.base_url]
-   * @param {string[]} [opts.models]
+   * @param {string[]|string} [opts.models] 模型列表，支持数组或逗号分隔字符串
    */
   addProvider({ provider, api_key, label, base_url, models } = {}) {
     if (!provider) return { success: false, message: 'provider 类型不能为空' };
@@ -170,7 +170,11 @@ export class ProviderManager {
     if (this._engine.findProvider(id)) {
       return { success: false, message: `Provider "${id}" 已存在（相同类型 + 相同 api_key）` };
     }
-    const modelList = (models || ['deepseek-ai/DeepSeek-V4-Pro']).map((name, i) => ({
+    // models 支持逗号分隔字符串
+    const modelsArr = typeof models === 'string'
+      ? models.split(',').map(s => s.trim()).filter(Boolean)
+      : models;
+    const modelList = (modelsArr && modelsArr.length > 0 ? modelsArr : ['deepseek-ai/DeepSeek-V4-Pro']).map((name, i) => ({
       name, active: i === 0,
     }));
     this._engine.setProviders([

@@ -151,6 +151,14 @@ app.post('/api/official-key/add', (req, res) => {
   } catch (err) { res.json(fail(err.message)); }
 });
 
+// 统一编辑接口：接受完整 body { alias, api_key }，仅更新 alias
+app.put('/api/official-key/:id', (req, res) => {
+  try {
+    const r = officialKeyMgr.updateAlias(req.params.id, req.body.alias);
+    res.json(r.success ? ok(null, t(req, 'aliasUpdated')) : fail(r.message));
+  } catch (err) { res.json(fail(err.message)); }
+});
+
 app.put('/api/official-key/:id/alias', (req, res) => {
   try {
     const r = officialKeyMgr.updateAlias(req.params.id, req.body.alias);
