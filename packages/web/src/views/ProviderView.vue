@@ -75,9 +75,9 @@
                 <span class="provider-alias">{{ p.label }}</span>
               </div>
               <div class="card-actions">
-                <el-button size="small" :type="p.active ? 'default' : 'primary'" :disabled="p.active" @click="activateProvider(p.id)">{{ $t('third_party.activate') }}</el-button>
+                <el-button size="small" :type="p.active ? 'default' : 'primary'" :disabled="p.active" @click="activateProviderAction(p.id)">{{ $t('third_party.activate') }}</el-button>
                 <el-button size="small" @click="openEditDialog(p.id)">{{ $t('third_party.edit') }}</el-button>
-                <el-button size="small" type="danger" @click="removeProvider(p.id)">{{ $t('third_party.delete') }}</el-button>
+                <el-button size="small" type="danger" @click="removeProviderSubmit(p.id)">{{ $t('third_party.delete') }}</el-button>
               </div>
             </div>
           </template>
@@ -100,9 +100,9 @@
               <div v-for="m in p.models" :key="m.name" :class="['model-item', { 'model-active': m.active }]">
                 <span class="model-name">{{ m.name }}</span>
                 <div class="model-actions">
-                  <el-button v-if="!m.active" size="small" type="primary" plain @click="setActiveModel(p.id, m.name)">{{ $t('third_party.set_current') }}</el-button>
+                  <el-button v-if="!m.active" size="small" type="primary" plain @click="setActiveModelAction(p.id, m.name)">{{ $t('third_party.set_current') }}</el-button>
                   <el-tag v-else size="small" type="success" effect="dark">{{ $t('third_party.current_model') }}</el-tag>
-                  <el-button size="small" type="danger" :disabled="p.models.length <= 1" @click="removeModel(p.id, m.name)">{{ $t('third_party.delete_model') }}</el-button>
+                  <el-button size="small" type="danger" :disabled="p.models.length <= 1" @click="removeModelSubmit(p.id, m.name)">{{ $t('third_party.delete_model') }}</el-button>
                 </div>
               </div>
             </div>
@@ -134,7 +134,7 @@
       </el-form>
       <template #footer>
         <el-button @click="showDialog = false">{{ $t('third_party.cancel') }}</el-button>
-        <el-button type="primary" @click="editingId ? saveEdit() : addProvider()" :disabled="!dialogForm.provider || !dialogForm.api_key" :loading="dialogSaving">{{ $t('third_party.confirm') }}</el-button>
+        <el-button type="primary" @click="editingId ? saveEdit() : addProviderSubmit()" :disabled="!dialogForm.provider || !dialogForm.api_key" :loading="dialogSaving">{{ $t('third_party.confirm') }}</el-button>
       </template>
     </el-dialog>
 
@@ -143,7 +143,7 @@
       <el-input v-model="newModelName" :placeholder="$t('third_party.model_name_placeholder')" />
       <template #footer>
         <el-button @click="showModelDialog = false">{{ $t('third_party.cancel') }}</el-button>
-        <el-button type="primary" @click="addModel" :disabled="!newModelName.trim()" :loading="modelDialogSaving">{{ $t('third_party.confirm') }}</el-button>
+        <el-button type="primary" @click="addModelSubmit" :disabled="!newModelName.trim()" :loading="modelDialogSaving">{{ $t('third_party.confirm') }}</el-button>
       </template>
     </el-dialog>
 
@@ -159,7 +159,7 @@
       </el-form>
       <template #footer>
         <el-button @click="showOfficialDialog = false">{{ $t('official.cancel') }}</el-button>
-        <el-button type="primary" @click="addOfficialKey" :disabled="!officialForm.api_key" :loading="officialSaving">{{ $t('official.confirm') }}</el-button>
+        <el-button type="primary" @click="addOfficialKeySubmit" :disabled="!officialForm.api_key" :loading="officialSaving">{{ $t('official.confirm') }}</el-button>
       </template>
     </el-dialog>
 
@@ -177,165 +177,116 @@
 <script setup>
 import { ref, reactive, onMounted, computed } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { ElMessage, ElMessageBox } from 'element-plus';
+import { ElMessageBox } from 'element-plus';
 import { InfoFilled } from '@element-plus/icons-vue';
 import { getKnownProviders, getProviderI18nLabel } from '@codewhale/core/i18n';
+import {
+  getProviderList, getProvider, addProvider, updateProvider,
+  removeProvider, activateProvider, deactivateProvider,
+  addModel, removeModel, setActiveModel,
+} from '@/api/provider';
+import {
+  getOfficialKeyList, addOfficialKey, activateOfficialKey,
+  updateOfficialKeyAlias, removeOfficialKey,
+} from '@/api/officialKey';
 
-const { locale } = useI18n({ useScope: 'global' });
-
-// ─── 供应商选项（按当前语言动态计算）──
+const { locale, t } = useI18n({ useScope: 'global' });
 const vendorOptions = computed(() => getKnownProviders(locale.value));
 const vendorLabel = (id) => getProviderI18nLabel(id, locale.value);
 
-// ─── 状态 ──
 const loading = ref(false);
 const dialogSaving = ref(false);
 const modelDialogSaving = ref(false);
 const officialSaving = ref(false);
 const aliasSaving = ref(false);
-
 const officialKeys = ref([]);
 const providers = ref([]);
-
 const showDialog = ref(false);
 const editingId = ref(null);
 const dialogForm = reactive({ provider: '', label: '', api_key: '', base_url: '', modelsInput: '' });
-
 const showModelDialog = ref(false);
 const addModelTargetId = ref('');
 const newModelName = ref('');
-
 const showOfficialDialog = ref(false);
 const officialForm = reactive({ alias: '', api_key: '' });
-
 const showAliasDialog = ref(false);
 const aliasForm = reactive({ id: '', alias: '' });
-
 const hasActiveProvider = computed(() => providers.value.some((p) => p.active));
 const activeProviderDisplay = computed(() => {
   const a = providers.value.find((p) => p.active);
   return a ? vendorLabel(a.provider) + ' ' + a.label : '';
 });
 
-// ─── API 封装 ──
-async function api(path, options = {}) {
-  const r = await fetch('/api' + path, { headers: { 'Content-Type': 'application/json' }, ...options });
-  return r.json();
-}
-
-// ─── 数据加载 ──
-async function loadConfig() {
+function loadConfig() {
   loading.value = true;
-  try {
-    const [provRes, keyRes] = await Promise.all([api('/provider/list'), api('/official-key/list')]);
-    if (provRes.success) providers.value = provRes.providers || [];
-    if (keyRes.success) officialKeys.value = keyRes.keys || [];
-  } catch (e) {
-    ElMessage.error($t('third_party.loading_failed') + ': ' + e.message);
-  } finally { loading.value = false; }
+  Promise.all([getProviderList(), getOfficialKeyList()])
+    .then(([prov, keys]) => { providers.value = prov || []; officialKeys.value = keys || []; })
+    .finally(() => { loading.value = false; });
 }
-
-// ─── 供应商选择时自动填充别名 ──
 function onProviderSelect(val) {
-  if (val && !dialogForm.label) {
-    dialogForm.label = vendorLabel(val);
-  }
+  if (val && !dialogForm.label) dialogForm.label = vendorLabel(val);
 }
 
-// ─── 官方 key ──
 function openAddOfficialDialog() { officialForm.alias = ''; officialForm.api_key = ''; showOfficialDialog.value = true; }
-async function addOfficialKey() {
+function addOfficialKeySubmit() {
   officialSaving.value = true;
-  try {
-    const r = await api('/official-key/add', { method: 'POST', body: JSON.stringify({ alias: officialForm.alias || '默认', api_key: officialForm.api_key }) });
-    if (r.success) { showOfficialDialog.value = false; await loadConfig(); ElMessage.success($t('official.added')); }
-    else ElMessage.error(r.message);
-  } finally { officialSaving.value = false; }
+  addOfficialKey({ alias: officialForm.alias || '默认', api_key: officialForm.api_key })
+    .then(() => { showOfficialDialog.value = false; return loadConfig(); })
+    .finally(() => { officialSaving.value = false; });
 }
-async function activateOfficial(id) {
-  const r = await api('/official-key/' + encodeURIComponent(id) + '/activate', { method: 'POST' });
-  if (r.success) { await loadConfig(); ElMessage.success($t('official.activated')); }
-  else ElMessage.error(r.message);
-}
+function activateOfficial(id) { activateOfficialKey(id).then(() => loadConfig()); }
 function openEditOfficialAlias(k) { aliasForm.id = k.id; aliasForm.alias = k.alias || ''; showAliasDialog.value = true; }
-async function saveAlias() {
+function saveAlias() {
   aliasSaving.value = true;
-  try {
-    const r = await api('/official-key/' + encodeURIComponent(aliasForm.id) + '/alias', { method: 'PUT', body: JSON.stringify({ alias: aliasForm.alias }) });
-    if (r.success) { showAliasDialog.value = false; await loadConfig(); ElMessage.success($t('official.alias_updated')); }
-    else ElMessage.error(r.message);
-  } finally { aliasSaving.value = false; }
+  updateOfficialKeyAlias(aliasForm.id, aliasForm.alias)
+    .then(() => { showAliasDialog.value = false; return loadConfig(); })
+    .finally(() => { aliasSaving.value = false; });
 }
-async function removeOfficial(id) {
-  try { await ElMessageBox.confirm($t('official.confirm_delete'), $t('official.confirm'), { type: 'warning' }); } catch { return; }
-  const r = await api('/official-key/' + encodeURIComponent(id), { method: 'DELETE' });
-  if (r.success) { await loadConfig(); ElMessage.success($t('official.deleted')); }
-  else ElMessage.error(r.message);
+function removeOfficial(id) {
+  ElMessageBox.confirm(t('official.confirm_delete'), t('official.confirm'), { type: 'warning' })
+    .then(() => removeOfficialKey(id))
+    .then(() => loadConfig());
 }
 
-// ─── 第三方供应商 ──
 function openAddDialog() { editingId.value = null; dialogForm.provider = ''; dialogForm.label = ''; dialogForm.api_key = ''; dialogForm.base_url = ''; dialogForm.modelsInput = ''; showDialog.value = true; }
-async function addProvider() {
+function addProviderSubmit() {
   dialogSaving.value = true;
-  try {
-    const models = dialogForm.modelsInput ? dialogForm.modelsInput.split(',').map((s) => s.trim()).filter(Boolean) : undefined;
-    const r = await api('/provider/add', { method: 'POST', body: JSON.stringify({ provider: dialogForm.provider, api_key: dialogForm.api_key, label: dialogForm.label || vendorLabel(dialogForm.provider), base_url: dialogForm.base_url || undefined, models }) });
-    if (r.success) { showDialog.value = false; await loadConfig(); ElMessage.success($t('third_party.added')); }
-    else ElMessage.error(r.message);
-  } finally { dialogSaving.value = false; }
+  const models = dialogForm.modelsInput ? dialogForm.modelsInput.split(',').map((s) => s.trim()).filter(Boolean) : undefined;
+  addProvider({ provider: dialogForm.provider, api_key: dialogForm.api_key, label: dialogForm.label || vendorLabel(dialogForm.provider), base_url: dialogForm.base_url || undefined, models })
+    .then(() => { showDialog.value = false; return loadConfig(); })
+    .finally(() => { dialogSaving.value = false; });
 }
-async function openEditDialog(id) {
+function openEditDialog(id) {
   editingId.value = id;
-  const r = await api('/provider/' + encodeURIComponent(id));
-  if (r.success && r.provider) { dialogForm.provider = r.provider.provider; dialogForm.label = r.provider.label || ''; dialogForm.api_key = r.provider.api_key || ''; dialogForm.base_url = r.provider.base_url || ''; dialogForm.modelsInput = ''; showDialog.value = true; }
-  else ElMessage.error($t('third_party.fetch_failed'));
+  getProvider(id).then((p) => { dialogForm.provider = p.provider; dialogForm.label = p.label || ''; dialogForm.api_key = p.api_key || ''; dialogForm.base_url = p.base_url || ''; dialogForm.modelsInput = ''; showDialog.value = true; });
 }
-async function saveEdit() {
+function saveEdit() {
   dialogSaving.value = true;
-  try {
-    const r = await api('/provider/' + encodeURIComponent(editingId.value), { method: 'PUT', body: JSON.stringify({ label: dialogForm.label, base_url: dialogForm.base_url }) });
-    if (r.success) { showDialog.value = false; await loadConfig(); ElMessage.success($t('third_party.updated')); }
-    else ElMessage.error(r.message);
-  } finally { dialogSaving.value = false; }
+  updateProvider(editingId.value, { label: dialogForm.label, base_url: dialogForm.base_url })
+    .then(() => { showDialog.value = false; return loadConfig(); })
+    .finally(() => { dialogSaving.value = false; });
 }
-async function removeProvider(id) {
-  try { await ElMessageBox.confirm($t('third_party.confirm_delete_provider') + ' "' + id + '"?', $t('third_party.confirm_delete'), { type: 'warning' }); } catch { return; }
-  const r = await api('/provider/' + encodeURIComponent(id), { method: 'DELETE' });
-  if (r.success) { await loadConfig(); ElMessage.success($t('third_party.deleted')); }
-  else ElMessage.error(r.message);
+function removeProviderSubmit(id) {
+  ElMessageBox.confirm(t('third_party.confirm_delete_provider') + ' "' + id + '"?', t('third_party.confirm_delete'), { type: 'warning' })
+    .then(() => removeProvider(id))
+    .then(() => loadConfig());
 }
-async function activateProvider(id) {
-  const r = await api('/provider/' + encodeURIComponent(id) + '/activate', { method: 'POST' });
-  if (r.success) { await loadConfig(); ElMessage.success($t('third_party.activated')); }
-  else ElMessage.error(r.message);
-}
-async function deactivateAll() {
-  const r = await api('/provider/deactivate', { method: 'POST' });
-  if (r.success) { await loadConfig(); ElMessage.success($t('third_party.deactivated')); }
-  else ElMessage.error(r.message);
-}
+function activateProviderAction(id) { activateProvider(id).then(() => loadConfig()); }
+function deactivateAll() { deactivateProvider().then(() => loadConfig()); }
 
-// ─── 模型管理 ──
 function openAddModelDialog(p) { addModelTargetId.value = p.id; newModelName.value = ''; showModelDialog.value = true; }
-async function addModel() {
+function addModelSubmit() {
   modelDialogSaving.value = true;
-  try {
-    const r = await api('/provider/' + encodeURIComponent(addModelTargetId.value) + '/models', { method: 'POST', body: JSON.stringify({ name: newModelName.value.trim() }) });
-    if (r.success) { showModelDialog.value = false; await loadConfig(); ElMessage.success($t('third_party.model_added')); }
-    else ElMessage.error(r.message);
-  } finally { modelDialogSaving.value = false; }
+  addModel(addModelTargetId.value, newModelName.value.trim())
+    .then(() => { showModelDialog.value = false; return loadConfig(); })
+    .finally(() => { modelDialogSaving.value = false; });
 }
-async function removeModel(pid, name) {
-  try { await ElMessageBox.confirm($t('third_party.confirm_delete_model') + ' "' + name + '"?', $t('third_party.confirm_delete'), { type: 'warning' }); } catch { return; }
-  const r = await api('/provider/' + encodeURIComponent(pid) + '/models/' + encodeURIComponent(name), { method: 'DELETE' });
-  if (r.success) { await loadConfig(); ElMessage.success($t('third_party.model_deleted')); }
-  else ElMessage.error(r.message);
+function removeModelSubmit(pid, name) {
+  ElMessageBox.confirm(t('third_party.confirm_delete_model') + ' "' + name + '"?', t('third_party.confirm_delete'), { type: 'warning' })
+    .then(() => removeModel(pid, name))
+    .then(() => loadConfig());
 }
-async function setActiveModel(pid, name) {
-  const r = await api('/provider/' + encodeURIComponent(pid) + '/models/' + encodeURIComponent(name) + '/activate', { method: 'PUT' });
-  if (r.success) { await loadConfig(); ElMessage.success($t('third_party.model_set') + ' ' + name); }
-  else ElMessage.error(r.message);
-}
+function setActiveModelAction(pid, name) { setActiveModel(pid, name).then(() => loadConfig()); }
 
 onMounted(loadConfig);
 </script>
@@ -344,21 +295,17 @@ onMounted(loadConfig);
 .model-view { display:flex;flex-direction:column;gap:16px; }
 .toolbar { display:flex;justify-content:space-between;align-items:center; }
 .toolbar h2 { font-size:20px;margin:0; }
-
 .section-card { margin-bottom:4px; }
 .section-header { display:flex;justify-content:space-between;align-items:center; }
 .section-title { font-weight:600;font-size:15px; }
-
 .hint-block { display:flex;align-items:center;padding:16px;margin-bottom:12px;color:var(--text-secondary);font-size:13px;background:var(--bg-secondary);border-radius:var(--radius); }
 .toolbar-row { margin-bottom:12px; }
-
 .official-list { display:flex;flex-direction:column;gap:8px; }
 .official-item { display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:var(--bg-secondary);border-radius:8px; }
 .official-item.official-active { border:1px solid var(--el-color-primary);background:var(--el-color-primary-light-9); }
 .official-info { display:flex;align-items:center;gap:10px; }
 .official-alias { font-weight:600;font-size:14px; }
 .official-actions { display:flex;gap:6px; }
-
 .card-grid { display:grid;grid-template-columns:repeat(auto-fill,minmax(440px,1fr));gap:12px; }
 .provider-card.card-active { border-color:var(--el-color-primary);border-width:2px; }
 .card-header { display:flex;justify-content:space-between;align-items:center; }
@@ -371,7 +318,6 @@ onMounted(loadConfig);
 .info-label { min-width:72px;font-size:12px;color:var(--text-secondary);text-align:right; }
 .info-value { font-size:13px;word-break:break-all; }
 .info-value.mono { font-family:monospace;font-size:12px;color:var(--text-secondary); }
-
 .model-section { border-top:1px solid var(--el-border-color-lighter);padding-top:12px; }
 .model-header { display:flex;justify-content:space-between;align-items:center;margin-bottom:8px; }
 .model-title { font-size:13px;font-weight:600;color:var(--text-secondary); }

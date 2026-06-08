@@ -5,3 +5,5 @@ dist/
 .vite/
 package-lock.json
 pnpm-workspace.yaml
+/store.json
+/store.json.bak

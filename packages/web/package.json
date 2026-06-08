@@ -10,9 +10,12 @@
   },
   "dependencies": {
     "@codewhale/core": "*",
+    "axios": "^1.7.0",
     "element-plus": "^2.9.0",
     "@element-plus/icons-vue": "^2.3.1",
     "express": "^4.21.0",
+    "lodash": "^4.17.21",
+    "pinia": "^2.2.0",
     "vue": "^3.4.0",
     "vue-i18n": "^9.14.0"
   },
