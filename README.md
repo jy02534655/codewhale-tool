@@ -54,8 +54,8 @@ codewhale-tool/
 │   │       ├── provider.js   # ProviderManager + OfficialKeyManager
 │   │       ├── skill.js      # SkillManager
 │   │       ├── sync.js       # SyncManager — 双向实时同步
-│   │       ├── i18n.js       # 多语言供应商映射
-│   │       ├── probe.js      # API 连通性探测
+│   │       ├── i18n.js       # 多语言供应商映射（含服务器消息）
+│   │       ├── result.js     # guard/guardAsync 统一错误捕获
 │   │       └── index.js      # 统一导出
 
 │   ├── server/       # @codewhale/server — Express API 服务

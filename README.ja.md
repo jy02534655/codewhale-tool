@@ -29,8 +29,8 @@ codewhale-tool/
 │   │       ├── config.js    # ConfigEngine — 安全な TOML 読み書き
 │   │       ├── provider.js  # ProviderManager — 3階層構成管理
 │   │       ├── skill.js     # SkillManager — スキルライフサイクル
-│   │       ├── probe.js     # API 接続性チェック
-│   │       └── index.js     # 統合エクスポート
+│   │       ├── i18n.js       # 多言語マッピング（プロバイダー + サーバーメッセージ）
+│   │       ├── result.js     # guard/guardAsync エラーラッパー
 │   ├── server/       # @codewhale/server — Express API サービス
 │   │   └── server.js         # REST API ルート
 │   └── web/           # @codewhale/web — Web UI

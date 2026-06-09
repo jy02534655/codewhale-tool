@@ -9,8 +9,8 @@
     "./config": "./src/config.js",
     "./provider": "./src/provider.js",
     "./skill": "./src/skill.js",
-    "./probe": "./src/probe.js",
-    "./i18n": "./src/i18n.js"
+    "./i18n": "./src/i18n.js",
+    "./result": "./src/result.js"
   },
   "dependencies": {
     "smol-toml": "^1.3.0"

@@ -72,15 +72,6 @@ export function activateProvider(id) {
 export function deactivateProvider() {
   return ajaxPostBack('/provider/deactivate', {}, { successMessage: 'deactivated' });
 }
-/**
- * 测试供应商 API 连通性
- * @param {Object} data - 测试参数
- * @param {string} data.provider - 供应商类型
- * @param {string} data.api_key - API 密钥
- * @param {string} [data.base_url] - 可选的 base URL
- * @returns {Promise<{success: boolean, message?: string, data?: {latency?: number}}>} 测试结果 Promise
- */
-export function probeProvider(data) { return ajaxPostBack('/provider/probe', data); }
 
 // ─── 模型 ──
 

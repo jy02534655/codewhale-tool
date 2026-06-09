@@ -12,7 +12,6 @@ import {
   OfficialKeyManager,
   SkillManager,
   SyncManager,
-  probeProvider,
   guard,
   guardAsync,
   getServerMessage,
@@ -195,12 +194,6 @@ app.post('/api/provider/deactivate', (req, res) => {
     const r = syncMgr.deactivateAndSync();
     return r.success ? ok(null, getServerMessage(l, 'deactivated')) : fail(r.message);
   }));
-});
-
-app.post('/api/provider/probe', async (req, res) => {
-  res.json(await guardAsync(async () =>
-    ok(await probeProvider(req.body.provider, req.body.api_key, req.body.base_url))
-  ));
 });
 
 // ════════════════════════════════════════════════════════════════

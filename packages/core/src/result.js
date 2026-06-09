@@ -36,7 +36,7 @@ export function guard(fn) {
  *
  * @example
  * const result = await guardAsync(async () => {
- *   return await probeProvider(provider, key, url);
+ *   return await someAsyncFunction();
  * });
  */
 export async function guardAsync(fn) {

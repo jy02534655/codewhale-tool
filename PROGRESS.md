@@ -27,7 +27,6 @@ CodeWhale 可视化配置管理工具 — 管理 provider/key/model 三级切换
 | `packages/core/src/config.js` | ✅ | ConfigEngine — TOML 安全读写+备份 |
 | `packages/core/src/provider.js` | ✅ | ProviderManager — 三级 CRUD+切换 |
 | `packages/core/src/skill.js` | ✅ | SkillManager — 安装/启禁/删除/搜索 |
-| `packages/core/src/probe.js` | ✅ | API 连通性探测 |
 | `packages/core/src/index.js` | ✅ | 统一导出入口 |
 | `packages/web/package.json` | ✅ | @codewhale/web，Vue 3 + Vite |
 | `packages/web/vite.config.js` | ✅ | Vite 配置 + API 代理 |

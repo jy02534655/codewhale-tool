@@ -29,8 +29,8 @@ codewhale-tool/
 │   │       ├── config.js    # ConfigEngine — Leitura/escrita segura de TOML
 │   │       ├── provider.js  # ProviderManager — Gerenciamento em três níveis
 │   │       ├── skill.js     # SkillManager — Ciclo de vida das skills
-│   │       ├── probe.js     # Verificação de conectividade da API
-│   │       └── index.js     # Exportações unificadas
+│   │       ├── i18n.js       # Mapeamento i18n (rótulos providers + mensagens servidor)
+│   │       ├── result.js     # guard/guardAsync wrapper de erro
 │   ├── server/       # @codewhale/server — Serviço Express API
 │   │   └── server.js         # Rotas REST API
 │   └── web/           # @codewhale/web — Web UI
