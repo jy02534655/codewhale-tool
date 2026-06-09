@@ -1,7 +1,7 @@
 /**
  * i18n 多语言核心模块
  *
- * 提供供应商名称、UI 文案的多语言映射。
+ * 提供供应商名称、UI 文案、服务器消息的多语言映射。
  * 支持语言：zh-Hans（默认）、en、ja、pt-BR
  *
  * @module i18n
@@ -79,4 +79,92 @@ export function getDefaultBaseUrl(providerId) {
     fireworks:   'https://api.fireworks.ai/inference/v1',
   };
   return urls[providerId] || '';
+}
+
+// ════════════════════════════════════════════════════════════════
+// 服务器消息多语言
+// ════════════════════════════════════════════════════════════════
+
+/**
+ * 服务器端 API 返回消息的多语言映射
+ */
+export const SERVER_MSG = {
+  'zh-Hans': {
+    providerNotFound: '供应商不存在',
+    officialKeyNotFound: 'API key 不存在',
+    added: '已添加',
+    deleted: '已删除',
+    updated: '已更新',
+    activated: '已激活',
+    deactivated: '已切换回官方 API',
+    modelAdded: '模型已添加',
+    modelDeleted: '模型已删除',
+    modelSet: '当前模型已切换',
+    keyAdded: '已添加',
+    keyActivated: '已激活',
+    aliasUpdated: '别名已更新',
+    notFound: '未找到',
+    synced: '同步完成',
+  },
+  'en': {
+    providerNotFound: 'Vendor not found',
+    officialKeyNotFound: 'API key not found',
+    added: 'Added',
+    deleted: 'Deleted',
+    updated: 'Updated',
+    activated: 'Activated',
+    deactivated: 'Switched to official API',
+    modelAdded: 'Model added',
+    modelDeleted: 'Model deleted',
+    modelSet: 'Model switched',
+    keyAdded: 'Added',
+    keyActivated: 'Activated',
+    aliasUpdated: 'Alias updated',
+    notFound: 'Not found',
+    synced: 'Synced',
+  },
+  'ja': {
+    providerNotFound: 'ベンダーが見つかりません',
+    officialKeyNotFound: 'APIキーが見つかりません',
+    added: '追加しました',
+    deleted: '削除しました',
+    updated: '更新しました',
+    activated: '有効化しました',
+    deactivated: '公式APIに切り替えました',
+    modelAdded: 'モデルを追加しました',
+    modelDeleted: 'モデルを削除しました',
+    modelSet: 'モデルを切り替えました',
+    keyAdded: '追加しました',
+    keyActivated: '有効化しました',
+    aliasUpdated: '別名を更新しました',
+    notFound: '見つかりません',
+    synced: '同期完了',
+  },
+  'pt-BR': {
+    providerNotFound: 'Fornecedor não encontrado',
+    officialKeyNotFound: 'Chave não encontrada',
+    added: 'Adicionado',
+    deleted: 'Excluído',
+    updated: 'Atualizado',
+    activated: 'Ativado',
+    deactivated: 'Alternou para API oficial',
+    modelAdded: 'Modelo adicionado',
+    modelDeleted: 'Modelo excluído',
+    modelSet: 'Modelo alterado',
+    keyAdded: 'Adicionado',
+    keyActivated: 'Ativado',
+    aliasUpdated: 'Apelido atualizado',
+    notFound: 'Não encontrado',
+    synced: 'Sincronizado',
+  },
+};
+
+/**
+ * 获取服务器消息在指定语言下的文本
+ * @param {Locale} locale
+ * @param {string} key
+ * @returns {string}
+ */
+export function getServerMessage(locale, key) {
+  return (SERVER_MSG[locale] && SERVER_MSG[locale][key]) || SERVER_MSG['zh-Hans'][key] || '';
 }
