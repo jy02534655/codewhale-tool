@@ -40,7 +40,7 @@ function waitForServer(url, timeoutMs = 15000) {
 console.log('🔧 启动后端 (localhost:' + PORT + ') ...');
 
 // 启动后端
-const backend = spawn('node', ['packages/web/server.js'], {
+const backend = spawn('node', ['packages/server/server.js'], {
   cwd: root,
   stdio: 'inherit',
   shell: true,

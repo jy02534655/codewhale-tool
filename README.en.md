@@ -17,7 +17,7 @@ pnpm install
 
 
 # Web UI mode (terminal 1: API backend, terminal 2: frontend dev server)
-node packages/web/server.js          # API backend → localhost:3456
+node packages/server/server.js          # API backend → localhost:3456
 pnpm --filter @codewhale/web dev      # Vite frontend → localhost:5173
 ```
 
@@ -34,13 +34,14 @@ codewhale-tool/
 │   │       ├── probe.js     # API connectivity probe
 │   │       └── index.js     # Unified exports
 
+│   ├── server/       # @codewhale/server — Express API service
+│   │   └── server.js         # REST API routes
 │   └── web/           # @codewhale/web — Web UI
-│       ├── src/
-│       │   ├── App.vue               # Root component
-│       │   └── views/
-│       │       ├── ProviderView.vue  # Provider management
-│       │       └── SkillView.vue     # Skill management
-│       └── server.js       # Express API backend
+│       └── src/
+│           ├── App.vue               # Root component
+│           └── views/
+│               ├── ProviderView.vue  # Provider management
+│               └── SkillView.vue     # Skill management
 ├── config.toml        # Example config file
 ├── PROGRESS.md         # Development progress log
 └── README.md           # This file

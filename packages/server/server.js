@@ -1,10 +1,9 @@
 /**
- * Express API server for codewhale-tool Web UI.
+ * @codewhale/server — Express API server for codewhale-tool
  *
- * Port: 3456
- * 统一响应格式: { success, data, message }
+ * 纯 API 服务，不托管静态文件。
+ * 监听端口 3456，统一 JSON 响应格式 { success, data, message }。
  */
-
 import express from 'express';
 import {
   ConfigEngine,
@@ -14,11 +13,6 @@ import {
   SyncManager,
   probeProvider,
 } from '@codewhale/core';
-import { existsSync } from 'node:fs';
-import { join, dirname } from 'node:path';
-import { fileURLToPath } from 'node:url';
-
-const __dirname = dirname(fileURLToPath(import.meta.url));
 
 const engine = new ConfigEngine();
 const providerMgr = new ProviderManager(engine);
@@ -37,12 +31,6 @@ app.use('/api', (req, res, next) => {
   res.set('Pragma', 'no-cache');
   next();
 });
-
-const distPath = join(__dirname, 'dist');
-if (existsSync(distPath)) {
-  app.use(express.static(distPath));
-  console.log('Static files: ' + distPath);
-}
 
 // ─── 响应辅助 ──────────────────────────────────────────────────
 
@@ -296,7 +284,7 @@ app.post('/api/init-sync', (req, res) => {
 });
 
 // ════════════════════════════════════════════════════════════════
-// Skill API（保留但不暴露前端入口）
+// Skill API
 // ════════════════════════════════════════════════════════════════
 
 app.get('/api/skill/list', (_req, res) => {
@@ -344,13 +332,7 @@ app.get('/api/skill/search', async (req, res) => {
   } catch (err) { res.json(fail(err.message)); }
 });
 
-// ════════════════════════════════════════════════════════════════
-// SPA fallback
-// ════════════════════════════════════════════════════════════════
-
-if (existsSync(distPath)) {
-  app.get('*', (_req, res) => { res.sendFile(join(distPath, 'index.html')); });
-}
+// ─── 启动 ──────────────────────────────────────────────────────
 
 const PORT = 3456;
 app.listen(PORT, () => {

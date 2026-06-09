@@ -11,8 +11,8 @@ codewhale-tool 是一个 CodeWhale 运行时配置的可视化管理工具。Cod
 │                   Web UI                     │
 │        ProviderView.vue (Vue 3 + i18n)      │
 ├─────────────────────────────────────────────┤
-│                Express API                   │
-│           server.js (routes)                │
+│              @codewhale/server               │
+│           server.js (REST API)               │
 ├─────────────────────────────────────────────┤
 │              @codewhale/core                 │
 │  ┌──────────┬──────────┬──────────────────┐ │
@@ -145,7 +145,7 @@ CodeWhale 的 `[providers.xxx]` 按供应商类型（如 `siliconflow`）作为 
 | 存储 | Node.js 原生 JSON（store.json）|
 | TOML 读写 | smol-toml |
 | Web 前端 | Vue 3 + Element Plus + Vue I18n |
-| 后端 | Express |
+| API 服务 | Express（@codewhale/server） |
 | 构建 | Vite |
 | 包管理 | pnpm workspaces |
 

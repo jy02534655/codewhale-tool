@@ -1,0 +1,14 @@
+{
+  "name": "@codewhale/server",
+  "version": "0.1.0",
+  "description": "Express API server for codewhale-tool",
+  "type": "module",
+  "main": "./server.js",
+  "dependencies": {
+    "@codewhale/core": "*",
+    "express": "^4.21.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

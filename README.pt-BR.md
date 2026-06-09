@@ -15,7 +15,7 @@ Kit de Configuração do CodeWhale — um toolkit visual para gerenciar provedor
 pnpm install
 
 # Modo Web UI (terminal 1: backend API, terminal 2: servidor dev frontend)
-node packages/web/server.js          # Backend API → localhost:3456
+node packages/server/server.js          # Backend API → localhost:3456
 pnpm --filter @codewhale/web dev      # Frontend Vite → localhost:5173
 ```
 
@@ -31,13 +31,14 @@ codewhale-tool/
 │   │       ├── skill.js     # SkillManager — Ciclo de vida das skills
 │   │       ├── probe.js     # Verificação de conectividade da API
 │   │       └── index.js     # Exportações unificadas
+│   ├── server/       # @codewhale/server — Serviço Express API
+│   │   └── server.js         # Rotas REST API
 │   └── web/           # @codewhale/web — Web UI
-│       ├── src/
-│       │   ├── App.vue               # Componente raiz
-│       │   └── views/
-│       │       ├── ProviderView.vue  # Gerenciamento de provedores
-│       │       └── SkillView.vue     # Gerenciamento de skills
-│       └── server.js       # Backend API Express
+│       └── src/
+│           ├── App.vue               # Componente raiz
+│           └── views/
+│               ├── ProviderView.vue  # Gerenciamento de provedores
+│               └── SkillView.vue     # Gerenciamento de skills
 ├── config.toml        # Arquivo de configuração de exemplo
 ├── PROGRESS.md         # Registro de progresso do desenvolvimento
 └── README.md           # Este arquivo

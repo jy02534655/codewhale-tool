@@ -58,17 +58,18 @@ codewhale-tool/
 │   │       ├── probe.js      # API 连通性探测
 │   │       └── index.js      # 统一导出
 
+│   ├── server/       # @codewhale/server — Express API 服务
+│   │   └── server.js         # REST API 路由
 │   └── web/           # @codewhale/web — Vue 3 + Element Plus
-│       ├── src/
-│       │   ├── App.vue               # 根组件（语言切换 + 皮肤）
-│       │   ├── main.js               # 入口（vue-i18n 初始化）
-│       │   ├── views/ProviderView.vue # 模型管理页面
-│       │   └── locales/              # 多语言包
-│       │       ├── zh-Hans.json
-│       │       ├── en.json
-│       │       ├── ja.json
-│       │       └── pt-BR.json
-│       └── server.js       # Express API 后端
+│       └── src/
+│           ├── App.vue               # 根组件（语言切换 + 皮肤）
+│           ├── main.js               # 入口（vue-i18n 初始化）
+│           ├── views/ProviderView.vue # 模型管理页面
+│           └── locales/              # 多语言包
+│               ├── zh-Hans.json
+│               ├── en.json
+│               ├── ja.json
+│               └── pt-BR.json
 ├── scripts/
 │   └── dev.mjs            # 一体化开发启动脚本
 ├── DESIGN.md               # 设计思路与方案

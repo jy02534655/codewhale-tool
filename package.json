@@ -6,11 +6,12 @@
   "type": "module",
   "workspaces": [
     "packages/core",
-    "packages/web"
+    "packages/web",
+    "packages/server"
   ],
   "scripts": {
     "dev": "node scripts/dev.mjs",
-    "server": "node packages/web/server.js",
+    "server": "node packages/server/server.js",
     "build": "npm run --workspace=@codewhale/web build"
   },
   "engines": {

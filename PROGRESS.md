@@ -8,7 +8,7 @@
 CodeWhale 可视化配置管理工具 — 管理 provider/key/model 三级切换和 skill 生命周期。
 
 - **仓库**: `D:\Code\codewhale-tool`
-- **架构**: pnpm monorepo（`packages/core` + `packages/web`）
+- **架构**: pnpm monorepo（`packages/core` + `packages/server` + `packages/web`）
 - **语言**: JavaScript (ESM) + JSDoc 注释
 - **UI 框架**: Vue 3 + Vite
 
@@ -29,14 +29,14 @@ CodeWhale 可视化配置管理工具 — 管理 provider/key/model 三级切换
 | `packages/core/src/skill.js` | ✅ | SkillManager — 安装/启禁/删除/搜索 |
 | `packages/core/src/probe.js` | ✅ | API 连通性探测 |
 | `packages/core/src/index.js` | ✅ | 统一导出入口 |
-| `packages/web/package.json` | ✅ | @codewhale/web，Vue 3 + Vite + Express |
+| `packages/web/package.json` | ✅ | @codewhale/web，Vue 3 + Vite |
 | `packages/web/vite.config.js` | ✅ | Vite 配置 + API 代理 |
 | `packages/web/index.html` | ✅ | HTML 入口 + 暗色 CSS 变量 |
 | `packages/web/src/main.js` | ✅ | Vue 3 挂载 |
 | `packages/web/src/App.vue` | ✅ | 根组件（导航+标签页+toast） |
 | `packages/web/src/views/ProviderView.vue` | ✅ | Provider 管理页面 |
 | `packages/web/src/views/SkillView.vue` | ✅ | Skill 管理页面 |
-| `packages/web/server.js` | ✅ | Express API 服务器 |
+| `packages/server/package.json` | ✅ | @codewhale/server，Express API |\n| `packages/server/server.js` | ✅ | Express API 服务器 |
 
 ---
 
@@ -67,7 +67,7 @@ CodeWhale 可视化配置管理工具 — 管理 provider/key/model 三级切换
 2. **TOML 库**：使用 `smol-toml`（零依赖，轻量）
 3. **配置路径**：cwd/config.toml → ~/.codewhale/config.toml 自动探测
 4. **写入安全**：每次写入前自动备份为 config.toml.bak
-5. **Web 架构**：Express API 后端 (3456) + Vite 前端 (5173)，dev 模式通过代理通信
+5. **Web 架构**：Express API 服务（@codewhale/server, 3456） + Vite 前端 (5173)，dev 模式通过代理通信
 
 ---
 
@@ -76,7 +76,7 @@ CodeWhale 可视化配置管理工具 — 管理 provider/key/model 三级切换
 如果在此中断后恢复工作：
 
 1. 读取本文件了解进度
-2. 首先执行 `pnpm install` 安装依赖
+2. 首先执行 `npm install` 安装依赖
 3. 验证：`node -e "import('@codewhale/core').then(m => console.log(Object.keys(m)))"`
 4. 继续下一项待开发任务
 

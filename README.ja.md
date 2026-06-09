@@ -15,7 +15,7 @@ CodeWhale 構成管理ツールキット — AI モデルプロバイダーと�
 pnpm install
 
 # Web UI モード（ターミナル1：API バックエンド、ターミナル2：フロントエンド dev サーバー）
-node packages/web/server.js          # API バックエンド → localhost:3456
+node packages/server/server.js          # API バックエンド → localhost:3456
 pnpm --filter @codewhale/web dev      # Vite フロントエンド → localhost:5173
 ```
 
@@ -31,13 +31,14 @@ codewhale-tool/
 │   │       ├── skill.js     # SkillManager — スキルライフサイクル
 │   │       ├── probe.js     # API 接続性チェック
 │   │       └── index.js     # 統合エクスポート
+│   ├── server/       # @codewhale/server — Express API サービス
+│   │   └── server.js         # REST API ルート
 │   └── web/           # @codewhale/web — Web UI
-│       ├── src/
-│       │   ├── App.vue               # ルートコンポーネント
-│       │   └── views/
-│       │       ├── ProviderView.vue  # プロバイダー管理
-│       │       └── SkillView.vue     # スキル管理
-│       └── server.js       # Express API バックエンド
+│       └── src/
+│           ├── App.vue               # ルートコンポーネント
+│           └── views/
+│               ├── ProviderView.vue  # プロバイダー管理
+│               └── SkillView.vue     # スキル管理
 ├── config.toml        # 設定ファイル例
 ├── PROGRESS.md         # 開発進捗ログ
 └── README.md           # このファイル
