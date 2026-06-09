@@ -16,9 +16,9 @@
       <el-form-item :label="$t('third_party.alias_label')" prop="label">
         <el-input v-model="formData.label" :placeholder="vendorLabel(formData.provider)" />
       </el-form-item>
-      <el-form-item :label="$t('third_party.api_key_label')" prop="api_key">
+      <el-form-item v-if="!isEdit" :label="$t('third_party.api_key_label')" prop="api_key">
         <el-input v-model="formData.api_key" type="password" show-password
-          :disabled="isEdit" placeholder="sk-..." />
+          placeholder="sk-..." />
       </el-form-item>
       <el-form-item :label="$t('third_party.base_url_label')">
         <el-input v-model="formData.base_url" :placeholder="$t('third_party.base_url_placeholder')" />

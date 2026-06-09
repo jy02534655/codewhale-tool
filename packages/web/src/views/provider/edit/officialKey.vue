@@ -10,9 +10,9 @@
       <el-form-item :label="$t('official.alias_label')" prop="alias">
         <el-input v-model="formData.alias" :placeholder="$t('official.alias_placeholder')" />
       </el-form-item>
-      <el-form-item :label="$t('official.api_key_label')" prop="api_key">
+      <el-form-item v-if="!isEdit" :label="$t('official.api_key_label')" prop="api_key">
         <el-input v-model="formData.api_key" type="password" show-password
-          :disabled="isEdit" placeholder="sk-..." />
+          placeholder="sk-..." />
       </el-form-item>
     </el-form>
     <template #footer>
