@@ -30,7 +30,7 @@
           </div>
           <div class="official-actions">
             <el-button v-if="!k.active" size="small" type="primary" @click="activateOfficial(k.id)">{{ $t('official.activate') }}</el-button>
-            <el-button size="small" @click="dialogCtrl.showEditDialog({ id: k.id, alias: k.alias }, 'alias')">{{ $t('official.alias') }}</el-button>
+            <el-button size="small" @click="dialogCtrl.showEditDialog({ id: k.id, alias: k.alias }, 'officialKey')">{{ $t('official.alias') }}</el-button>
             <el-button size="small" type="danger" @click="removeOfficial(k.id)">{{ $t('official.delete') }}</el-button>
           </div>
         </div>
@@ -112,7 +112,6 @@
     <Provider ref="provider" @submitSuccess="loadConfig" />
     <Model ref="model" @submitSuccess="loadConfig" />
     <OfficialKey ref="officialKey" @submitSuccess="loadConfig" />
-    <Alias ref="alias" @submitSuccess="loadConfig" />
   </div>
 </template>
 
@@ -129,7 +128,6 @@ import { compositionDialogContainer } from '@/composition/dialog/Container';
 import Provider from './edit/provider.vue';
 import Model from './edit/model.vue';
 import OfficialKey from './edit/officialKey.vue';
-import Alias from './edit/alias.vue';
 
 const { locale, t } = useI18n({ useScope: 'global' });
 const maskingStore = useMaskingStore();

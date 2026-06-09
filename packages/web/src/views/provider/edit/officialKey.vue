@@ -1,6 +1,7 @@
 <!--
   officialKey.vue — 官方 API Key 新增/编辑弹窗
-  el-form + formData + rules + assign
+  新增模式：alias(可选) + api_key(必填)
+  编辑模式：alias(必填)，api_key 隐藏
 -->
 <template>
   <el-dialog v-model="isShow"
@@ -25,7 +26,7 @@
 </template>
 
 <script setup>
-import { reactive } from 'vue';
+import { reactive, computed } from 'vue';
 import { assign } from 'lodash';
 import { addOfficialKey, editOfficialKey } from '@/api/officialKey';
 import { useMaskingStore } from '@/stores/masking';
@@ -36,9 +37,15 @@ const maskingStore = useMaskingStore();
 
 const formData = reactive({ alias: undefined, api_key: undefined, id: undefined });
 
-const rules = {
-  api_key: [{ required: true, message: '请输入 API Key', trigger: 'blur' }],
-};
+// 动态校验：新增时 api_key 必填，编辑时 alias 必填
+const rules = computed(() => {
+  if (isEdit.value) {
+    return { alias: [{ required: true, message: '请输入别名', trigger: 'blur' }] };
+  }
+  return {
+    api_key: [{ required: true, message: '请输入 API Key', trigger: 'blur' }],
+  };
+});
 
 const { isEdit, isShow, showDialog, hideDialog, closeDialog, showDialogByData, submitDialogForm } = compositionDialogForm({
   formName: 'form',
