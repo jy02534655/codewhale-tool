@@ -12,7 +12,19 @@
 
 import { getProviderI18nLabel, getDefaultBaseUrl } from './i18n.js';
 
-/** 掩码显示 API key（前5位 + ... + 后4位） */
+/** 掩码显示 API key（前5位 + ... + 后4位）
+ * 
+ * 用于在 UI 中安全显示 API key，避免完整密钥泄露。
+ * 规则：
+ * - 密钥长度 ≥ 9 位：显示前5位 + "..." + 后4位（如 "sk-abc...defg"）
+ * - 密钥长度 < 9 位：显示前3位 + "..."（如 "sk-..."）
+ * - 空或无效密钥：返回空字符串
+ * 
+ * @example
+ * maskKey("sk-abcdefghijklmnop") // => "sk-abc...nop"
+ * maskKey("short")               // => "sho..."
+ * maskKey("")                    // => ""
+ */
 function maskKey(key) {
   if (!key || key.length < 9) return key ? key.slice(0, 3) + '...' : '';
   return key.slice(0, 5) + '...' + key.slice(-4);
