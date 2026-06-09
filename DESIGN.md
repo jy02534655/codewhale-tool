@@ -25,9 +25,6 @@ codewhale-tool 是一个 CodeWhale 运行时配置的可视化管理工具。Cod
 │  │ i18n.js (多语言供应商映射)               │ │
 │  │ probe.js (API 连通性探测)                │ │
 │  └────────────────────────────────────────┘ │
-├─────────────────────────────────────────────┤
-│              @codewhale/cli                  │
-│         commander CLI 命令层                │
 └─────────────────────────────────────────────┘
 ```
 
@@ -149,7 +146,6 @@ CodeWhale 的 `[providers.xxx]` 按供应商类型（如 `siliconflow`）作为 
 | TOML 读写 | smol-toml |
 | Web 前端 | Vue 3 + Element Plus + Vue I18n |
 | 后端 | Express |
-| CLI | Commander + Chalk |
 | 构建 | Vite |
 | 包管理 | pnpm workspaces |
 

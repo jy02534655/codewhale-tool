@@ -6,11 +6,9 @@
   "type": "module",
   "workspaces": [
     "packages/core",
-    "packages/cli",
     "packages/web"
   ],
   "scripts": {
-    "cli": "node packages/cli/src/index.js",
     "dev": "node scripts/dev.mjs",
     "server": "node packages/web/server.js",
     "build": "npm run --workspace=@codewhale/web build"

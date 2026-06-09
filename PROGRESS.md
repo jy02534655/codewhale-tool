@@ -8,10 +8,9 @@
 CodeWhale 可视化配置管理工具 — 管理 provider/key/model 三级切换和 skill 生命周期。
 
 - **仓库**: `D:\Code\codewhale-tool`
-- **架构**: pnpm monorepo（`packages/core` + `packages/cli` + `packages/web`）
+- **架构**: pnpm monorepo（`packages/core` + `packages/web`）
 - **语言**: JavaScript (ESM) + JSDoc 注释
 - **UI 框架**: Vue 3 + Vite
-- **CLI 框架**: commander + chalk
 
 ---
 
@@ -30,8 +29,6 @@ CodeWhale 可视化配置管理工具 — 管理 provider/key/model 三级切换
 | `packages/core/src/skill.js` | ✅ | SkillManager — 安装/启禁/删除/搜索 |
 | `packages/core/src/probe.js` | ✅ | API 连通性探测 |
 | `packages/core/src/index.js` | ✅ | 统一导出入口 |
-| `packages/cli/package.json` | ✅ | @codewhale/cli，依赖 commander+chalk |
-| `packages/cli/src/index.js` | ✅ | CLI 全命令（provider 10 命令 + skill 8 命令） |
 | `packages/web/package.json` | ✅ | @codewhale/web，Vue 3 + Vite + Express |
 | `packages/web/vite.config.js` | ✅ | Vite 配置 + API 代理 |
 | `packages/web/index.html` | ✅ | HTML 入口 + 暗色 CSS 变量 |
@@ -66,7 +63,7 @@ CodeWhale 可视化配置管理工具 — 管理 provider/key/model 三级切换
 
 ## 设计决策
 
-1. **全栈 JS**：Web UI 用 Vue 3，CLI 和核心层用 Node.js，一套语言贯穿
+1. **全栈 JS**：Web UI 用 Vue 3，核心层用 Node.js，一套语言贯穿
 2. **TOML 库**：使用 `smol-toml`（零依赖，轻量）
 3. **配置路径**：cwd/config.toml → ~/.codewhale/config.toml 自动探测
 4. **写入安全**：每次写入前自动备份为 config.toml.bak

@@ -19,7 +19,7 @@ CodeWhale AI 配置管理工具 — 多语言、可视化、供应商与模型�
 - **模型管理**：每个供应商下可管理多个模型，一键切换激活模型
 - **实时同步**：所有变更自动写回 CodeWhale 运行时配置文件
 - **多语言**：支持简体中文、English、日本語、Português (BR)
-- **多入口**：CLI 命令行 + Vue 3 Web UI
+- **多入口**：Vue 3 Web UI
 
 ---
 
@@ -36,9 +36,7 @@ pnpm dev
 pnpm server    # API 后端 → localhost:3456
 pnpm --filter @codewhale/web dev  # Vite 前端 → localhost:5173
 
-# CLI 模式
-pnpm cli key list
-pnpm cli provider list
+
 ```
 
 访问 `http://localhost:5173` 即可使用 Web UI。
@@ -59,8 +57,7 @@ codewhale-tool/
 │   │       ├── i18n.js       # 多语言供应商映射
 │   │       ├── probe.js      # API 连通性探测
 │   │       └── index.js      # 统一导出
-│   ├── cli/           # @codewhale/cli — commander CLI
-│   │   └── src/index.js
+
 │   └── web/           # @codewhale/web — Vue 3 + Element Plus
 │       ├── src/
 │       │   ├── App.vue               # 根组件（语言切换 + 皮肤）

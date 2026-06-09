@@ -6,16 +6,13 @@ CodeWhale 構成管理ツールキット — AI モデルプロバイダーと�
 
 - **プロバイダー管理**: プロバイダー → API キーエイリアス → モデルの3階層構成、動的切り替え
 - **スキル管理**: インストール、有効/無効、削除、コミュニティ検索をビジュアル操作
-- **マルチインターフェース**: CLI、Vue 3 Web UI、プログラム可能な API
+- **Web UI とプログラム可能な API**
 
 ## クイックスタート
 
 ```bash
 # 依存関係のインストール
 pnpm install
-
-# CLI モード
-node packages/cli/src/index.js provider list
 
 # Web UI モード（ターミナル1：API バックエンド、ターミナル2：フロントエンド dev サーバー）
 node packages/web/server.js          # API バックエンド → localhost:3456
@@ -34,9 +31,6 @@ codewhale-tool/
 │   │       ├── skill.js     # SkillManager — スキルライフサイクル
 │   │       ├── probe.js     # API 接続性チェック
 │   │       └── index.js     # 統合エクスポート
-│   ├── cli/           # @codewhale/cli — CLI ツール
-│   │   └── src/
-│   │       └── index.js     # commander CLI エントリ
 │   └── web/           # @codewhale/web — Web UI
 │       ├── src/
 │       │   ├── App.vue               # ルートコンポーネント
@@ -47,27 +41,6 @@ codewhale-tool/
 ├── config.toml        # 設定ファイル例
 ├── PROGRESS.md         # 開発進捗ログ
 └── README.md           # このファイル
-```
-
-## CLI コマンド
-
-```bash
-# プロバイダー
-codewhale-tool provider list              # 全プロバイダーを一覧表示
-codewhale-tool provider tree              # 3階層ツリーを表示
-codewhale-tool provider active            # 現在のアクティブ構成を表示
-codewhale-tool provider switch -k work    # 特定の API キーに切り替え
-codewhale-tool provider add deepseek -l DeepSeek    # プロバイダーを追加
-codewhale-tool provider add-key deepseek personal sk-xxx  # API キーを追加
-codewhale-tool provider probe deepseek personal        # 接続テスト
-
-# スキル
-codewhale-tool skill list                 # インストール済み一覧
-codewhale-tool skill install pdf          # インストール
-codewhale-tool skill show pdf             # 詳細を表示
-codewhale-tool skill enable pdf           # 有効化
-codewhale-tool skill disable pdf          # 無効化
-codewhale-tool skill search               # コミュニティ検索
 ```
 
 ## 設定ファイル形式

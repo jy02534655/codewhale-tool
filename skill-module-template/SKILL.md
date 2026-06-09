@@ -28,8 +28,6 @@ packages/
 │   │   ├── skill.js           # 示例：技能管理模块
 │   │   └── [new-module].js    # 你的新模块
 │   └── package.json
-├── cli/                # 命令行界面
-│   └── src/index.js
 └── web/                # Web UI（Vue 3 + Element Plus）
     ├── src/
     │   ├── api/[new-module].js   # 对应 API 接口层
@@ -407,7 +405,7 @@ onMounted(async () => {
 
 ### 场景 1：仅后端逻辑（无 UI）
 - 只需实现核心 Manager 类
-- 可选提供 CLI 命令（在 `packages/cli/src/index.js` 中添加）
+（无需 CLI，使用 Web API 即可）
 
 ### 场景 2：需要与 CodeWhale 配置同步
 - 在 `SyncManager` 中实现 `initSync` 和 `syncToCodeWhale` 逻辑

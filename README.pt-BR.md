@@ -6,16 +6,13 @@ Kit de Configuração do CodeWhale — um toolkit visual para gerenciar provedor
 
 - **Gerenciamento de Provedores**: Configuração em três níveis (provedor → alias da chave API → modelos) com troca dinâmica
 - **Gerenciamento de Skills**: Instalação visual, ativar/desativar, remover e busca na comunidade
-- **Múltiplas Interfaces**: CLI, Web UI com Vue 3 e API programática
+- **Web UI com Vue 3 e API programática**
 
 ## Início Rápido
 
 ```bash
 # Instalar dependências
 pnpm install
-
-# Modo CLI
-node packages/cli/src/index.js provider list
 
 # Modo Web UI (terminal 1: backend API, terminal 2: servidor dev frontend)
 node packages/web/server.js          # Backend API → localhost:3456
@@ -34,9 +31,6 @@ codewhale-tool/
 │   │       ├── skill.js     # SkillManager — Ciclo de vida das skills
 │   │       ├── probe.js     # Verificação de conectividade da API
 │   │       └── index.js     # Exportações unificadas
-│   ├── cli/           # @codewhale/cli — Ferramenta CLI
-│   │   └── src/
-│   │       └── index.js     # Entrada CLI com commander
 │   └── web/           # @codewhale/web — Web UI
 │       ├── src/
 │       │   ├── App.vue               # Componente raiz
@@ -47,27 +41,6 @@ codewhale-tool/
 ├── config.toml        # Arquivo de configuração de exemplo
 ├── PROGRESS.md         # Registro de progresso do desenvolvimento
 └── README.md           # Este arquivo
-```
-
-## Comandos CLI
-
-```bash
-# Provedor
-codewhale-tool provider list              # Listar todos os provedores
-codewhale-tool provider tree              # Mostrar árvore de três níveis
-codewhale-tool provider active            # Mostrar configuração ativa atual
-codewhale-tool provider switch -k work    # Alternar para uma chave API específica
-codewhale-tool provider add deepseek -l DeepSeek    # Adicionar um provedor
-codewhale-tool provider add-key deepseek personal sk-xxx  # Adicionar uma chave API
-codewhale-tool provider probe deepseek personal        # Testar conectividade
-
-# Skill
-codewhale-tool skill list                 # Listar skills instaladas
-codewhale-tool skill install pdf          # Instalar uma skill
-codewhale-tool skill show pdf             # Mostrar detalhes da skill
-codewhale-tool skill enable pdf           # Ativar uma skill
-codewhale-tool skill disable pdf          # Desativar uma skill
-codewhale-tool skill search               # Buscar skills da comunidade
 ```
 
 ## Formato de Configuração
