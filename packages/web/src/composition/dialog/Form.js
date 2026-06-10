@@ -8,14 +8,15 @@ import { cloneDeep } from 'lodash';
  *
  * 组合 compositionDialogBase 和 compositionViewForm，
  * 用于新增/编辑弹窗场景。
- * 弹窗关闭时自动调用 resetForm 重置表单。
+ * 在 el-dialog 上使用 @close="resetForm" 即可在弹窗关闭时自动重置表单，
+ * 无需手动调用 closeDialog。
  *
  * @param {object} [opts] 配置
  * @param {string} [opts.formName='form'] 表单 ref 名称
  * @param {Function} opts.addFun 新增方法
  * @param {Function} opts.editFun 编辑方法
  * @param {Function} [opts.initfun] 弹窗显示时的初始化回调
- * @returns {{ state, isEdit, isShow, showDialog, hideDialog, closeDialog, showDialogByData, submitForm, submitDialogForm, validateForm, validateFieldForm, resetForm }}
+ * @returns {{ state, isEdit, isShow, showDialog, hideDialog, showDialogByData, submitForm, submitDialogForm, validateForm, validateFieldForm, resetForm }}
  */
 export function compositionDialogForm({ formName = 'form', addFun, editFun, initfun } = {}) {
   const vm = getCurrentInstance();
@@ -32,15 +33,8 @@ export function compositionDialogForm({ formName = 'form', addFun, editFun, init
   const { isShow, showDialog, hideDialog, showDialogByData } = compositionDialogBase({ state, initfun });
 
   /**
-   * 关闭弹窗并重置表单
-   */
-  const closeDialog = () => {
-    hideDialog();
-    resetForm(formName);
-  };
-
-  /**
    * 提交表单数据，成功后关闭弹窗并发出 submitSuccess 事件
+   * 弹窗关闭时由 el-dialog 的 @close="resetForm" 自动重置表单
    * @param {*} params 表单参数
    * @returns {Promise}
    */
@@ -48,7 +42,7 @@ export function compositionDialogForm({ formName = 'form', addFun, editFun, init
     const data = cloneDeep(params);
     return submitForm(params)
       .then(() => {
-        closeDialog();
+        hideDialog();
         vm.emit('submitSuccess', { data, state: state.value });
       })
       .catch(() => {});
@@ -60,7 +54,6 @@ export function compositionDialogForm({ formName = 'form', addFun, editFun, init
     isShow,
     showDialog,
     hideDialog,
-    closeDialog,
     showDialogByData,
     submitForm,
     submitDialogForm,

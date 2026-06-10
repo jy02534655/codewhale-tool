@@ -32,7 +32,7 @@ codewhale-tool/
 │   ├── server/                         # Express API 服务（@codewhale/server）
 │   │   ├── index.js                    # 入口：初始化引擎、组装路由、启动监听
 │   │   └── src/
-│   │       ├── helpers.js              # ok(), fail(), langOf() 响应工具
+│   │       ├── helpers.js              # langOf() 语言提取工具（ok/fail 已移到 core/result.js）
 │   │       ├── middleware.js           # noCache 全局中间件
 │   │       └── routes/
 │   │           ├── officialKey.js      # /api/official-key/* 路由

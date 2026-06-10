@@ -4,7 +4,7 @@
  * 注册在所有 API 路由之前的通用中间件。
  */
 
-import { langOf } from '../helpers.js';
+import { langOf } from './helpers.js';
 import { setLocale } from '@codewhale/core';
 
 /**

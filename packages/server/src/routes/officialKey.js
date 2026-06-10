@@ -3,62 +3,43 @@
  *
  * 挂载路径: /api/official-key
  * 管理 DeepSeek 官方 API key 的增删改查与激活切换。
- * 语言由中间件自动提取并全局设置，路由层不再透传 lang。
  */
 
 import { Router } from 'express';
 import { guard } from '@codewhale/core';
 
-/**
- * 创建官方 API Key 路由
- * @param {import('@codewhale/core').OfficialKeyManager} officialKeyMgr
- * @param {import('@codewhale/core').SyncManager} syncMgr
- * @returns {import('express').Router}
- */
 export function createOfficialKeyRouter(officialKeyMgr, syncMgr) {
   const router = Router();
 
+  function withSync(fn) {
+    const r = fn();
+    if (r.success) syncMgr.syncToCodeWhale();
+    return r;
+  }
+
   /** 获取所有官方 key */
   router.get('/list', (_req, res) => {
-    res.json(guard(() => ({
-      success: true,
-      data: officialKeyMgr.list(),
-      message: '',
-    })));
+    res.json(guard(() => officialKeyMgr.list()));
   });
 
   /** 添加官方 key */
   router.post('/add', (req, res) => {
-    res.json(guard(() => {
-      const r = officialKeyMgr.add(req.body);
-      if (r.success) syncMgr.syncToCodeWhale();
-      return r;
-    }));
+    res.json(guard(() => withSync(() => officialKeyMgr.add(req.body))));
   });
 
-  /** 更新 key 别名 */
+  /** 更新别名 */
   router.put('/:id', (req, res) => {
-    res.json(guard(() => {
-      const r = officialKeyMgr.updateAlias(req.params.id, req.body.alias);
-      return r;
-    }));
+    res.json(guard(() => officialKeyMgr.updateAlias({ id: req.params.id, alias: req.body.alias })));
   });
 
-  /** 激活指定 key（同步到 CodeWhale 配置） */
+  /** 激活官方 key */
   router.post('/:id/activate', (req, res) => {
-    res.json(guard(() => {
-      const r = syncMgr.activateOfficialAndSync(req.params.id);
-      return r;
-    }));
+    res.json(guard(() => syncMgr.activateOfficialAndSync(req.params.id)));
   });
 
-  /** 删除指定 key */
+  /** 删除官方 key */
   router.delete('/:id', (req, res) => {
-    res.json(guard(() => {
-      const r = officialKeyMgr.remove(req.params.id);
-      if (r.success) syncMgr.syncToCodeWhale();
-      return r;
-    }));
+    res.json(guard(() => withSync(() => officialKeyMgr.remove(req.params.id))));
   });
 
   return router;

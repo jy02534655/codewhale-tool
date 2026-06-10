@@ -42,6 +42,21 @@ export class SyncManager {
     this._officialKeyMgr = officialKeyMgr || null;
   }
 
+  // ─── 内部辅助 ────────────────────────────────────────────────
+
+  /**
+   * 执行操作，成功则自动同步到 CodeWhale
+   * @template T
+   * @param {() => T} fn
+   * @returns {T}
+   * @private
+   */
+  _syncAfter(fn) {
+    const r = fn();
+    if (!r.success) return r;
+    return this.syncToCodeWhale();
+  }
+
   // ─── 启动时合并：CodeWhale → 本地 ─────────────────────────────
 
   /**
@@ -176,7 +191,8 @@ export class SyncManager {
 
     // ── 官方 API key ──
     if (this._officialKeyMgr) {
-      const activeKey = this._officialKeyMgr.getActive();
+      const r = this._officialKeyMgr.getActive();
+      const activeKey = r.data;
       cwCfg.api_key = activeKey ? activeKey.api_key : '';
     }
 
@@ -227,31 +243,27 @@ export class SyncManager {
 
   /** @param {string} providerId */
   activateAndSync(providerId) {
-    const locale = getLocale();
-    const r = this._providerMgr.activateProvider(providerId);
-    if (!r.success) return r;
-    return this.syncToCodeWhale();
+    return this._syncAfter(() => this._providerMgr.activateProvider(providerId));
   }
 
-  /** @param {string} providerId @param {string} modelName */
-  setActiveModelAndSync(providerId, modelName) {
-    const r = this._providerMgr.setActiveModel(providerId, modelName);
-    if (!r.success) return r;
-    return this.syncToCodeWhale();
+  /** @param {{id: string, name: string}} param */
+  setActiveModelAndSync({ id, name }) {
+    return this._syncAfter(() => this._providerMgr.setActiveModel({ id, name }));
   }
 
   /** @returns {{success:boolean, data?:any, message?:string}} */
   deactivateAndSync() {
-    this._providerMgr.deactivateThirdParty();
-    return this.syncToCodeWhale();
+    return this._syncAfter(() => this._providerMgr.deactivateThirdParty());
   }
 
   /** 激活官方 key 并同步 */
   activateOfficialAndSync(id) {
-    const locale = getLocale();
-    if (!this._officialKeyMgr) return fail(getServerMessage(locale, 'OFFICIAL_MGR_NOT_READY'), 'OFFICIAL_MGR_NOT_READY');
-    const r = this._officialKeyMgr.activate(id);
-    if (!r.success) return r;
-    return this.syncToCodeWhale();
+    return this._syncAfter(() => {
+      if (!this._officialKeyMgr) {
+        const locale = getLocale();
+        return fail(getServerMessage(locale, 'OFFICIAL_MGR_NOT_READY'), 'OFFICIAL_MGR_NOT_READY');
+      }
+      return this._officialKeyMgr.activate(id);
+    });
   }
 }

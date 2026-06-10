@@ -5,7 +5,7 @@
 <template>
   <el-dialog v-model="isShow"
     :title="isEdit ? $t('third_party.edit_dialog_title') : $t('third_party.add_dialog_title')"
-    width="520px" :close-on-click-modal="false" @closed="closeDialog">
+    width="520px" :close-on-click-modal="false" @close="resetForm">
     <el-form ref="form" :model="formData" :rules="rules" label-position="top">
       <el-form-item :label="$t('third_party.provider_type')" prop="provider">
         <el-select v-model="formData.provider" :placeholder="$t('third_party.select_placeholder')"
@@ -28,7 +28,7 @@
       </el-form-item>
     </el-form>
     <template #footer>
-      <el-button @click="closeDialog">{{ $t('third_party.cancel') }}</el-button>
+      <el-button @click="hideDialog">{{ $t('third_party.cancel') }}</el-button>
       <el-button type="primary" :loading="maskingStore.isLoading" @click="onSubmit">
         {{ $t('third_party.confirm') }}
       </el-button>
@@ -45,7 +45,6 @@ import { addProvider, editProvider } from '@/api/provider';
 import { useMaskingStore } from '@/stores/masking';
 import { compositionDialogForm } from '@/composition/dialog/Form';
 
-const emit = defineEmits(['submitSuccess']);
 const maskingStore = useMaskingStore();
 const { locale } = useI18n({ useScope: 'global' });
 const vendorOptions = computed(() => getKnownProviders(locale.value));
@@ -65,7 +64,7 @@ const rules = {
   api_key: [{ required: true, message: '请输入 API Key', trigger: 'blur' }],
 };
 
-const { isEdit, isShow, showDialog, hideDialog, closeDialog, showDialogByData, submitDialogForm } = compositionDialogForm({
+const { isEdit, isShow, showDialog, hideDialog, resetForm, showDialogByData, submitDialogForm } = compositionDialogForm({
   formName: 'form',
   addFun: addProvider,
   editFun: editProvider,

@@ -41,8 +41,7 @@ export class SkillManager {
    * @returns {import('./types.js').SkillEntry[]}
    */
   listInstalled() {
-    const skills = this._engine.getSkills();
-    return skills.installed || [];
+    return ok(this._engine.getSkills().installed || []);
   }
 
   /**

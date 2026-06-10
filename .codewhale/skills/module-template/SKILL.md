@@ -34,7 +34,7 @@ codewhale-tool/
 │   │   ├── index.js                    # 入口：初始化引擎、组装路由、启动
 │   │   ├── package.json
 │   │   └── src/
-│   │       ├── helpers.js              # ok() / fail() / langOf() 响应工具
+│   │       ├── helpers.js              # langOf() 语言提取工具（ok/fail 已移到 core/result.js）
 │   │       ├── middleware.js            # noCache 全局缓存禁用中间件
 │   │       └── routes/
 │   │           ├── officialKey.js      # /api/official-key/* 路由
@@ -331,7 +331,7 @@ export class MyModuleManager {
    * @returns {import('./types.js').MyModuleEntry[]}
    */
   list() {
-    return this._engine.getMyModule() || [];
+    return ok(this._engine.getMyModule() || []);
   }
 
   /**
@@ -552,7 +552,7 @@ composition/dialog/
 -->
 <template>
   <el-dialog v-model="isShow" :title="$t('module.add_dialog_title')"
-    width="400px" :close-on-click-modal="false">
+    width="400px" :close-on-click-modal="false" @close="resetForm">
     <el-form ref="form" :model="formData" label-position="top">
       <el-form-item prop="name">
         <el-input v-model="formData.name" placeholder="请输入名称" />
@@ -570,12 +570,15 @@ composition/dialog/
 <script setup>
 import { reactive } from 'vue';
 import { addMyModule } from '@/api/my-module';
-import { compositionDialogBase } from '@/composition/dialog/Base';
+import { compositionDialogForm } from '@/composition/dialog/Form';
 
-const emit = defineEmits(['submitSuccess']);
-const formData = reactive({ name: undefined });
+const maskingStore = useMaskingStore();
 
-const { isShow, showDialog, hideDialog, showDialogByData } = compositionDialogBase({
+const formData = reactive({ name: undefined, id: undefined });
+
+const { isShow, showDialog, hideDialog, resetForm, showDialogByData, submitDialogForm } = compositionDialogForm({
+  formName: 'form',
+  addFun: addMyModule,
   initfun({ data }) {
     // 支持外部传入初始数据
     if (data) Object.assign(formData, data);
@@ -583,11 +586,10 @@ const { isShow, showDialog, hideDialog, showDialogByData } = compositionDialogBa
 });
 
 function onSubmit() {
-  addMyModule(formData)
-    .then(() => { hideDialog(); emit('submitSuccess'); });
+  submitDialogForm(formData);
 }
 
-defineExpose({ showDialog, hideDialog, showDialogByData });
+defineExpose({ showDialog, hideDialog, showDialogByData, resetForm });
 </script>
 ```
 
@@ -604,7 +606,7 @@ defineExpose({ showDialog, hideDialog, showDialogByData });
 <template>
   <el-dialog v-model="isShow"
     :title="isEdit ? $t('module.edit_title') : $t('module.add_title')"
-    width="500px" :close-on-click-modal="false" @closed="closeDialog">
+    width="500px" :close-on-click-modal="false" @close="resetForm">
     <el-form ref="form" :model="formData" :rules="rules" label-position="top">
       <el-form-item label="名称" prop="name">
         <el-input v-model="formData.name" />
@@ -614,7 +616,7 @@ defineExpose({ showDialog, hideDialog, showDialogByData });
       </el-form-item>
     </el-form>
     <template #footer>
-      <el-button @click="closeDialog">{{ $t('common.cancel') }}</el-button>
+      <el-button @click="hideDialog">{{ $t('common.cancel') }}</el-button>
       <el-button type="primary" :loading="maskingStore.isLoading" @click="onSubmit">
         {{ $t('common.confirm') }}
       </el-button>
@@ -623,28 +625,23 @@ defineExpose({ showDialog, hideDialog, showDialogByData });
 </template>
 
 <script setup>
-import { reactive, computed } from 'vue';
+import { reactive } from 'vue';
 import { assign } from 'lodash';
 import { addMyModule, editMyModule } from '@/api/my-module';
 import { useMaskingStore } from '@/stores/masking';
 import { compositionDialogForm } from '@/composition/dialog/Form';
 
-const emit = defineEmits(['submitSuccess']);
 const maskingStore = useMaskingStore();
 
 const formData = reactive({ name: undefined, secret: undefined, id: undefined });
 
-// 动态校验：编辑时 name 必填，新增时 secret 必填
-const rules = computed(() => {
-  if (isEdit.value) {
-    return { name: [{ required: true, message: '请输入名称', trigger: 'blur' }] };
-  }
-  return {
-    secret: [{ required: true, message: '请输入密钥', trigger: 'blur' }],
-  };
-});
+// 静态校验规则，通过 v-if 隐藏的表单项不参与校验
+const rules = {
+  name: [{ required: true, message: '请输入名称', trigger: 'blur' }],
+  secret: [{ required: true, message: '请输入密钥', trigger: 'blur' }],
+};
 
-const { isEdit, isShow, showDialog, hideDialog, closeDialog, showDialogByData, submitDialogForm } =
+const { isEdit, isShow, showDialog, hideDialog, resetForm, showDialogByData, submitDialogForm } =
   compositionDialogForm({
     formName: 'form',
     addFun: addMyModule,
@@ -658,7 +655,7 @@ function onSubmit() {
   submitDialogForm(formData);
 }
 
-defineExpose({ showDialog, hideDialog, showDialogByData });
+defineExpose({ showDialog, hideDialog, showDialogByData, resetForm });
 </script>
 ```
 

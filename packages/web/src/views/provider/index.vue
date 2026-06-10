@@ -163,13 +163,13 @@ function removeProviderSubmit(id) {
     .then(() => loadConfig());
 }
 
-function removeModelSubmit(pid, name) {
+function removeModelSubmit(id, name) {
   ElMessageBox.confirm(t('third_party.confirm_delete_model') + ' "' + name + '"?', t('third_party.confirm_delete'), { type: 'warning' })
-    .then(() => removeModel(pid, name))
+    .then(() => removeModel({ id, name }))
     .then(() => loadConfig());
 }
 
-function setActiveModelAction(pid, name) { setActiveModel(pid, name).then(() => loadConfig()); }
+function setActiveModelAction(id, name) { setActiveModel({ id, name }).then(() => loadConfig()); }
 
 onMounted(loadConfig);
 </script>
