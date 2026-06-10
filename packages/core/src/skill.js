@@ -7,6 +7,7 @@
  * 每个 skill 是一个目录，包含 SKILL.md 和可能的附属文件。
  * 安装 = git clone + 写入 config.toml
  * 启用/禁用 = 修改 config.toml 中 installed[].enabled 字段
+ * 所有消息已本地化，内部使用 getLocale() 获取当前语言。
  *
  * @module skill
  */
@@ -15,6 +16,8 @@ import { existsSync, rmSync } from 'node:fs';
 import { homedir } from 'node:os';
 import { join } from 'node:path';
 import { execSync } from 'node:child_process';
+import { getServerMessage, getLocale } from './i18n.js';
+import { ok, fail } from './result.js';
 
 /** CodeWhale skill 社区仓库的基础 URL */
 const SKILL_REPO_BASE = 'https://github.com/deepseek-ai/codewhale-skills';
@@ -45,7 +48,7 @@ export class SkillManager {
   /**
    * 获取单个 skill 的详细信息（包含 SKILL.md 内容）
    * @param {string} skillId
-   * @returns {{entry: import('./types.js').SkillEntry|null, readme: string}}
+   * @returns {{success: boolean, data?: {entry: object|null, readme: string}, message?: string, errorCode?: string}}
    */
   show(skillId) {
     const installed = this.listInstalled();
@@ -64,7 +67,8 @@ export class SkillManager {
       }
     }
 
-    return { entry, readme };
+    if (!entry) return fail('Not found', 'SKILL_NOT_FOUND');
+    return ok({ entry, readme });
   }
 
   // ─── 安装 ───────────────────────────────────────────────────
@@ -78,20 +82,19 @@ export class SkillManager {
    *   3. 写入 config.toml skills.installed 列表
    *
    * @param {string} skillId - skill 标识符（同时也是 GitHub 仓库下的目录名）
-   * @returns {Promise<{success: boolean, message: string}>}
+   * @returns {Promise<{success: boolean, data?: any, message?: string, errorCode?: string}>}
    */
   async install(skillId) {
-    // 检查是否已安装
+    const locale = getLocale();
     const installed = this.listInstalled();
     if (installed.some((s) => s.id === skillId)) {
-      return { success: false, message: `Skill "${skillId}" 已安装` };
+      return fail(getServerMessage(locale, 'SKILL_ALREADY_INSTALLED'), 'SKILL_ALREADY_INSTALLED');
     }
 
     const targetDir = join(this._skillsDir, skillId);
     const repoUrl = `${SKILL_REPO_BASE}.git`;
 
     try {
-      // 使用 sparse-checkout 只拉取指定 skill 目录，减少下载量
       execSync(
         `git clone --depth 1 --filter=blob:none --sparse "${repoUrl}" "${targetDir}"`,
         { stdio: 'pipe', timeout: 30000 }
@@ -102,7 +105,6 @@ export class SkillManager {
         shell: true,
       });
     } catch (err) {
-      // 如果 sparse-checkout 失败，回退到完整 clone（兼容旧版 git）
       try {
         if (existsSync(targetDir)) {
           rmSync(targetDir, { recursive: true, force: true });
@@ -112,16 +114,14 @@ export class SkillManager {
           timeout: 30000,
         });
       } catch (err2) {
-        return { success: false, message: `Git clone 失败: ${err2.message}` };
+        return fail(getServerMessage(locale, 'GIT_CLONE_FAILED'), 'GIT_CLONE_FAILED');
       }
     }
 
-    // 验证 SKILL.md 存在
     if (!existsSync(join(targetDir, 'SKILL.md'))) {
-      return { success: false, message: `安装完成但未找到 SKILL.md，请检查仓库结构` };
+      return fail(getServerMessage(locale, 'SKILL_MISSING_README'), 'SKILL_MISSING_README');
     }
 
-    // 写入 config
     const entry = {
       id: skillId,
       path: targetDir,
@@ -131,26 +131,27 @@ export class SkillManager {
     };
     this._addToConfig(entry);
 
-    return { success: true, message: `Skill "${skillId}" 安装成功` };
+    return ok(null, getServerMessage(locale, 'synced'));
   }
 
   /**
    * 从本地目录安装一个 skill
    * @param {string} skillId   - skill 标识符
    * @param {string} localPath - 本地目录路径
-   * @returns {{success: boolean, message: string}}
+   * @returns {{success: boolean, data?: any, message?: string, errorCode?: string}}
    */
   installLocal(skillId, localPath) {
+    const locale = getLocale();
     const installed = this.listInstalled();
     if (installed.some((s) => s.id === skillId)) {
-      return { success: false, message: `Skill "${skillId}" 已安装` };
+      return fail(getServerMessage(locale, 'SKILL_ALREADY_INSTALLED'), 'SKILL_ALREADY_INSTALLED');
     }
 
     if (!existsSync(localPath)) {
-      return { success: false, message: `本地路径 "${localPath}" 不存在` };
+      return fail(getServerMessage(locale, 'SKILL_DIR_NOT_EXISTS'), 'SKILL_DIR_NOT_EXISTS');
     }
     if (!existsSync(join(localPath, 'SKILL.md'))) {
-      return { success: false, message: `目录中没有 SKILL.md 文件` };
+      return fail(getServerMessage(locale, 'SKILL_DIR_NO_README'), 'SKILL_DIR_NO_README');
     }
 
     const entry = {
@@ -161,51 +162,42 @@ export class SkillManager {
     };
     this._addToConfig(entry);
 
-    return { success: true, message: `Skill "${skillId}" 已从本地安装` };
+    return ok(null, getServerMessage(locale, 'synced'));
   }
 
   // ─── 启用 / 禁用 ────────────────────────────────────────────
 
-  /**
-   * 启用一个 skill
-   * @param {string} skillId
-   * @returns {{success: boolean, message: string}}
-   */
+  /** @param {string} skillId */
   enable(skillId) {
     return this._toggle(skillId, true);
   }
 
-  /**
-   * 禁用一个 skill（不删除文件，仅标记 enabled=false）
-   * @param {string} skillId
-   * @returns {{success: boolean, message: string}}
-   */
+  /** @param {string} skillId */
   disable(skillId) {
     return this._toggle(skillId, false);
   }
 
   /**
-   * 切换 skill 启用状态
    * @param {string}  skillId
    * @param {boolean} enabled
-   * @returns {{success: boolean, message: string}}
+   * @returns {{success: boolean, data?: any, message?: string, errorCode?: string}}
    * @private
    */
   _toggle(skillId, enabled) {
+    const locale = getLocale();
     const skillsCfg = this._engine.getSkills();
     const installed = skillsCfg.installed || [];
 
     const idx = installed.findIndex((s) => s.id === skillId);
     if (idx === -1) {
-      return { success: false, message: `Skill "${skillId}" 未安装` };
+      return fail(getServerMessage(locale, 'SKILL_NOT_FOUND'), 'SKILL_NOT_FOUND');
     }
 
     installed[idx].enabled = enabled;
     skillsCfg.installed = installed;
     this._engine.setSkills(skillsCfg);
 
-    const action = enabled ? '启用' : '禁用';
-    return { success: true, message: `Skill "${skillId}" 已${action}` };
+    return ok(null, getServerMessage(locale, 'updated'));
   }
 
   // ─── 删除 ───────────────────────────────────────────────────
@@ -213,56 +205,56 @@ export class SkillManager {
   /**
    * 删除一个 skill（从磁盘删除目录 + 从 config 移除条目）
    * @param {string} skillId
-   * @returns {{success: boolean, message: string}}
+   * @returns {{success: boolean, data?: any, message?: string, errorCode?: string}}
    */
   remove(skillId) {
+    const locale = getLocale();
     const skillsCfg = this._engine.getSkills();
     const installed = skillsCfg.installed || [];
 
     const idx = installed.findIndex((s) => s.id === skillId);
     if (idx === -1) {
-      return { success: false, message: `Skill "${skillId}" 未安装` };
+      return fail(getServerMessage(locale, 'SKILL_NOT_FOUND'), 'SKILL_NOT_FOUND');
     }
 
     const entry = installed[idx];
 
-    // 删除磁盘目录
     if (entry.path && existsSync(entry.path)) {
       try {
         rmSync(entry.path, { recursive: true, force: true });
       } catch (err) {
-        return { success: false, message: `删除目录失败: ${err.message}` };
+        return fail(getServerMessage(locale, 'DELETE_DIR_FAILED'), 'DELETE_DIR_FAILED');
       }
     }
 
-    // 从 config 移除
     installed.splice(idx, 1);
     skillsCfg.installed = installed;
     this._engine.setSkills(skillsCfg);
 
-    return { success: true, message: `Skill "${skillId}" 已删除` };
+    return ok(null, getServerMessage(locale, 'deleted'));
   }
 
   /**
    * 更新一个 community 来源的 skill（git pull）
    * @param {string} skillId
-   * @returns {Promise<{success: boolean, message: string}>}
+   * @returns {Promise<{success: boolean, data?: any, message?: string, errorCode?: string}>}
    */
   async update(skillId) {
+    const locale = getLocale();
     const installed = this.listInstalled();
     const entry = installed.find((s) => s.id === skillId);
     if (!entry) {
-      return { success: false, message: `Skill "${skillId}" 未安装` };
+      return fail(getServerMessage(locale, 'SKILL_NOT_FOUND'), 'SKILL_NOT_FOUND');
     }
     if (entry.source !== 'community') {
-      return { success: false, message: `只有 community 来源的 skill 支持在线更新` };
+      return fail(getServerMessage(locale, 'SKILL_NOT_COMMUNITY'), 'SKILL_NOT_COMMUNITY');
     }
 
     try {
       execSync(`cd "${entry.path}" && git pull`, { stdio: 'pipe', timeout: 15000, shell: true });
-      return { success: true, message: `Skill "${skillId}" 已更新` };
+      return ok(null, getServerMessage(locale, 'updated'));
     } catch (err) {
-      return { success: false, message: `git pull 失败: ${err.message}` };
+      return fail(getServerMessage(locale, 'GIT_PULL_FAILED'), 'GIT_PULL_FAILED');
     }
   }
 
@@ -271,7 +263,7 @@ export class SkillManager {
    *
    * 注意：此方法需要网络连接，且 GitHub API 可能有速率限制。
    *
-   * @returns {Promise<{success: boolean, skills?: {id: string, description: string}[], message?: string}>}
+   * @returns {Promise<{success: boolean, data?: Array, message?: string}>}
    */
   async searchCommunity() {
     try {
@@ -281,21 +273,20 @@ export class SkillManager {
       });
 
       if (!response.ok) {
-        return { success: false, message: `GitHub API 返回 ${response.status}` };
+        return fail(`GitHub API 返回 ${response.status}`);
       }
 
       const data = await response.json();
-      // 过滤出目录（skill 是目录而不是文件）
       const skills = data
         .filter((item) => item.type === 'dir')
         .map((item) => ({
           id: item.name,
-          description: '', // GitHub contents API 不返回描述，需额外读取各目录的 SKILL.md
+          description: '',
         }));
 
-      return { success: true, skills };
+      return ok(skills);
     } catch (err) {
-      return { success: false, message: `网络请求失败: ${err.message}` };
+      return fail(`网络请求失败: ${err.message}`);
     }
   }
 

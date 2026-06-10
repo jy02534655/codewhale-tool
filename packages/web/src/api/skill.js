@@ -12,7 +12,7 @@ import { ajaxBack, ajaxPostBack, ajaxDeleteBack } from '@/utils/request';
  * @returns {Promise<{success: boolean, data: Array, skills?: Array}>} 包含 skill 列表的 Promise
  */
 export function getSkillList() {
-  return ajaxBack('/skill/list', {}, { rootProperty: 'skills' });
+  return ajaxBack('/skill/list');
 }
 
 /**
@@ -66,5 +66,5 @@ export function removeSkill(id) {
  * @returns {Promise<{success: boolean, data: Array, skills?: Array}>} 包含搜索结果列表的 Promise
  */
 export function searchSkill(query) {
-  return ajaxBack('/skill/search', { q: query || '' }, { rootProperty: 'skills' });
+  return ajaxBack('/skill/search', { q: query || '' });
 }

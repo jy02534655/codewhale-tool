@@ -7,6 +7,25 @@
  * @module i18n
  */
 
+/** @type {string} 当前语言环境，默认 zh-Hans */
+let _currentLocale = 'zh-Hans';
+
+/**
+ * 设置全局语言环境
+ * @param {string} locale
+ */
+export function setLocale(locale) {
+  _currentLocale = locale;
+}
+
+/**
+ * 获取当前语言环境
+ * @returns {string}
+ */
+export function getLocale() {
+  return _currentLocale;
+}
+
 /** @typedef {'zh-Hans'|'en'|'ja'|'pt-BR'} Locale */
 
 /** @type {Locale[]} */
@@ -105,6 +124,32 @@ export const SERVER_MSG = {
     aliasUpdated: '别名已更新',
     notFound: '未找到',
     synced: '同步完成',
+
+    // ── 业务错误消息 ──
+    KEY_REQUIRED: 'api_key 不能为空',
+    KEY_DUPLICATE: '该 API key 已存在',
+    KEY_NOT_FOUND: 'API key 不存在',
+    PROVIDER_REQUIRED: 'provider 类型不能为空',
+    PROVIDER_DUPLICATE: '该供应商已存在（相同类型 + 相同 api_key）',
+    PROVIDER_NOT_FOUND: '供应商不存在',
+    MODEL_DUPLICATE: '模型已存在',
+    MODEL_NOT_FOUND: '模型不存在',
+    MODEL_MIN_ONE: '至少保留一个模型',
+    PROVIDER_NO_MODELS: '该供应商下没有模型',
+    CONFIG_NOT_EXISTS: 'CodeWhale 配置不存在，跳过同步',
+    CONFIG_PARSE_ERROR: '读取 CodeWhale 配置失败',
+    OFFICIAL_MGR_NOT_READY: 'OfficialKeyManager 未初始化',
+    SKILL_ALREADY_INSTALLED: '该技能已安装',
+    SKILL_DIR_NOT_EXISTS: '本地路径不存在',
+    SKILL_DIR_NO_README: '目录中没有 SKILL.md 文件',
+    SKILL_NOT_FOUND: '技能未安装',
+    SKILL_NOT_COMMUNITY: '只有 community 来源的技能支持在线更新',
+    SKILL_MISSING_README: '安装完成但未找到 SKILL.md',
+    GIT_CLONE_FAILED: 'Git clone 失败',
+    GIT_PULL_FAILED: 'git pull 失败',
+    GITHUB_API_ERROR: 'GitHub API 请求失败',
+    NETWORK_ERROR: '网络请求失败',
+    DELETE_DIR_FAILED: '删除目录失败',
   },
   'en': {
     providerNotFound: 'Vendor not found',
@@ -122,6 +167,31 @@ export const SERVER_MSG = {
     aliasUpdated: 'Alias updated',
     notFound: 'Not found',
     synced: 'Synced',
+
+    KEY_REQUIRED: 'api_key is required',
+    KEY_DUPLICATE: 'This API key already exists',
+    KEY_NOT_FOUND: 'API key not found',
+    PROVIDER_REQUIRED: 'Provider type is required',
+    PROVIDER_DUPLICATE: 'This provider already exists (same type + same api_key)',
+    PROVIDER_NOT_FOUND: 'Provider not found',
+    MODEL_DUPLICATE: 'Model already exists',
+    MODEL_NOT_FOUND: 'Model not found',
+    MODEL_MIN_ONE: 'At least one model is required',
+    PROVIDER_NO_MODELS: 'This provider has no models',
+    CONFIG_NOT_EXISTS: 'CodeWhale config not found, skip sync',
+    CONFIG_PARSE_ERROR: 'Failed to read CodeWhale config',
+    OFFICIAL_MGR_NOT_READY: 'OfficialKeyManager not initialized',
+    SKILL_ALREADY_INSTALLED: 'Skill already installed',
+    SKILL_DIR_NOT_EXISTS: 'Local path does not exist',
+    SKILL_DIR_NO_README: 'SKILL.md not found in directory',
+    SKILL_NOT_FOUND: 'Skill not installed',
+    SKILL_NOT_COMMUNITY: 'Only community skills support online updates',
+    SKILL_MISSING_README: 'SKILL.md not found after installation',
+    GIT_CLONE_FAILED: 'Git clone failed',
+    GIT_PULL_FAILED: 'git pull failed',
+    GITHUB_API_ERROR: 'GitHub API request failed',
+    NETWORK_ERROR: 'Network request failed',
+    DELETE_DIR_FAILED: 'Failed to delete directory',
   },
   'ja': {
     providerNotFound: 'ベンダーが見つかりません',
@@ -139,6 +209,31 @@ export const SERVER_MSG = {
     aliasUpdated: '別名を更新しました',
     notFound: '見つかりません',
     synced: '同期完了',
+
+    KEY_REQUIRED: 'api_key は必須です',
+    KEY_DUPLICATE: 'このAPIキーは既に存在します',
+    KEY_NOT_FOUND: 'APIキーが見つかりません',
+    PROVIDER_REQUIRED: 'プロバイダー種別は必須です',
+    PROVIDER_DUPLICATE: 'このプロバイダーは既に存在します',
+    PROVIDER_NOT_FOUND: 'プロバイダーが見つかりません',
+    MODEL_DUPLICATE: 'モデルは既に存在します',
+    MODEL_NOT_FOUND: 'モデルが見つかりません',
+    MODEL_MIN_ONE: '少なくとも1つのモデルが必要です',
+    PROVIDER_NO_MODELS: 'このプロバイダーにはモデルがありません',
+    CONFIG_NOT_EXISTS: 'CodeWhale設定が見つかりません',
+    CONFIG_PARSE_ERROR: 'CodeWhale設定の読み取りに失敗しました',
+    OFFICIAL_MGR_NOT_READY: 'OfficialKeyManager が初期化されていません',
+    SKILL_ALREADY_INSTALLED: 'スキルは既にインストールされています',
+    SKILL_DIR_NOT_EXISTS: 'ローカルパスが存在しません',
+    SKILL_DIR_NO_README: 'ディレクトリにSKILL.mdがありません',
+    SKILL_NOT_FOUND: 'スキルがインストールされていません',
+    SKILL_NOT_COMMUNITY: 'コミュニティスキルのみオンライン更新可能です',
+    SKILL_MISSING_README: 'インストール後にSKILL.mdが見つかりません',
+    GIT_CLONE_FAILED: 'Git clone に失敗しました',
+    GIT_PULL_FAILED: 'git pull に失敗しました',
+    GITHUB_API_ERROR: 'GitHub API リクエストに失敗しました',
+    NETWORK_ERROR: 'ネットワークリクエストに失敗しました',
+    DELETE_DIR_FAILED: 'ディレクトリの削除に失敗しました',
   },
   'pt-BR': {
     providerNotFound: 'Fornecedor não encontrado',
@@ -156,6 +251,31 @@ export const SERVER_MSG = {
     aliasUpdated: 'Apelido atualizado',
     notFound: 'Não encontrado',
     synced: 'Sincronizado',
+
+    KEY_REQUIRED: 'api_key é obrigatório',
+    KEY_DUPLICATE: 'Esta chave API já existe',
+    KEY_NOT_FOUND: 'Chave API não encontrada',
+    PROVIDER_REQUIRED: 'Tipo de fornecedor é obrigatório',
+    PROVIDER_DUPLICATE: 'Este fornecedor já existe (mesmo tipo + mesma chave)',
+    PROVIDER_NOT_FOUND: 'Fornecedor não encontrado',
+    MODEL_DUPLICATE: 'Modelo já existe',
+    MODEL_NOT_FOUND: 'Modelo não encontrado',
+    MODEL_MIN_ONE: 'Pelo menos um modelo é obrigatório',
+    PROVIDER_NO_MODELS: 'Este fornecedor não possui modelos',
+    CONFIG_NOT_EXISTS: 'Config do CodeWhale não encontrada',
+    CONFIG_PARSE_ERROR: 'Falha ao ler config do CodeWhale',
+    OFFICIAL_MGR_NOT_READY: 'OfficialKeyManager não inicializado',
+    SKILL_ALREADY_INSTALLED: 'Skill já instalada',
+    SKILL_DIR_NOT_EXISTS: 'Caminho local não existe',
+    SKILL_DIR_NO_README: 'SKILL.md não encontrado no diretório',
+    SKILL_NOT_FOUND: 'Skill não instalada',
+    SKILL_NOT_COMMUNITY: 'Apenas skills da comunidade suportam atualização online',
+    SKILL_MISSING_README: 'SKILL.md não encontrado após instalação',
+    GIT_CLONE_FAILED: 'Falha no git clone',
+    GIT_PULL_FAILED: 'Falha no git pull',
+    GITHUB_API_ERROR: 'Falha na requisição à API do GitHub',
+    NETWORK_ERROR: 'Falha na requisição de rede',
+    DELETE_DIR_FAILED: 'Falha ao excluir diretório',
   },
 };
 

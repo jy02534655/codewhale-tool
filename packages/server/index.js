@@ -3,7 +3,8 @@
  *
  * 纯 API 服务。组合中间件、各领域路由模块并启动 HTTP 监听。
  * 错误捕获由 @codewhale/core 的 guard/guardAsync 统一处理，
- * 服务器消息由 getServerMessage 统一提供。
+ * 语言由 langMiddleware 自动提取并挂载到 req.lang，
+ * 所有消息在核心层统一本地化，Server 层直接透传。
  * 监听端口 3456，统一 JSON 响应格式 { success, data, message }。
  */
 
@@ -15,7 +16,7 @@ import {
   SkillManager,
   SyncManager,
 } from '@codewhale/core';
-import { noCache } from './src/middleware.js';
+import { noCache, langMiddleware } from './src/middleware.js';
 import { createOfficialKeyRouter } from './src/routes/officialKey.js';
 import { createProviderRouter } from './src/routes/provider.js';
 import { createSkillRouter } from './src/routes/skill.js';
@@ -38,6 +39,7 @@ const app = express();
 
 app.use(express.json());
 app.use('/api', noCache);
+app.use('/api', langMiddleware);
 
 // ─── 挂载路由模块 ──────────────────────────────────────────────
 

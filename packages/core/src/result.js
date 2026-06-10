@@ -28,6 +28,26 @@ export function guard(fn) {
 }
 
 /**
+ * 构建标准成功响应
+ * @param {any} data
+ * @param {string} [message]
+ * @returns {{ success: true, data: any, message: string }}
+ */
+export function ok(data, message) {
+  return { success: true, data: data ?? null, message: message || '' };
+}
+
+/**
+ * 构建标准失败响应
+ * @param {string} message
+ * @param {string} [errorCode]
+ * @returns {{ success: false, data: null, message: string, errorCode?: string }}
+ */
+export function fail(message, errorCode) {
+  return { success: false, data: null, message, ...(errorCode ? { errorCode } : {}) };
+}
+
+/**
  * 包装异步函数，捕获异常并返回标准格式。
  *
  * @template T

@@ -7,24 +7,15 @@
  *   2. 第三方 provider 列表（增删改查，主键 = provider:api_key）
  *   3. 每个 provider 下的模型列表（增删改查，切换激活）
  *
+ * 所有消息已本地化，内部使用 getLocale() 获取当前语言。
+ *
  * @module provider
  */
 
-import { getProviderI18nLabel, getDefaultBaseUrl } from './i18n.js';
+import { getProviderI18nLabel, getDefaultBaseUrl, getServerMessage, getLocale } from './i18n.js';
+import { ok, fail } from './result.js';
 
-/** 掩码显示 API key（前5位 + ... + 后4位）
- * 
- * 用于在 UI 中安全显示 API key，避免完整密钥泄露。
- * 规则：
- * - 密钥长度 ≥ 9 位：显示前5位 + "..." + 后4位（如 "sk-abc...defg"）
- * - 密钥长度 < 9 位：显示前3位 + "..."（如 "sk-..."）
- * - 空或无效密钥：返回空字符串
- * 
- * @example
- * maskKey("sk-abcdefghijklmnop") // => "sk-abc...nop"
- * maskKey("short")               // => "sho..."
- * maskKey("")                    // => ""
- */
+/** 掩码显示 API key（前5位 + ... + 后4位） */
 function maskKey(key) {
   if (!key || key.length < 9) return key ? key.slice(0, 3) + '...' : '';
   return key.slice(0, 5) + '...' + key.slice(-4);
@@ -60,63 +51,67 @@ export class OfficialKeyManager {
    * @param {object} opts
    * @param {string} opts.alias  - 别名
    * @param {string} opts.api_key
-   * @returns {{success: boolean, message?: string, id?: string}}
+   * @returns {{success: boolean, data?: any, message?: string, errorCode?: string}}
    */
   add({ alias, api_key } = {}) {
-    if (!api_key) return { success: false, message: 'api_key 不能为空' };
+    const locale = getLocale();
+    if (!api_key) return fail(getServerMessage(locale, 'KEY_REQUIRED'), 'KEY_REQUIRED');
     const id = 'official:' + api_key;
     const keys = this._engine.getOfficialKeys();
     if (keys.some((k) => k.id === id)) {
-      return { success: false, message: `该 API key 已存在（主键: ${id}）` };
+      return fail(getServerMessage(locale, 'KEY_DUPLICATE'), 'KEY_DUPLICATE');
     }
     keys.push({ id, alias: alias || '默认', api_key, active: keys.length === 0 });
     this._engine.setOfficialKeys(keys);
-    return { success: true, id };
+    return ok({ id }, getServerMessage(locale, 'keyAdded'));
   }
 
   /**
    * 激活指定官方 key
    * @param {string} id
-   * @returns {{success: boolean, message?: string}}
+   * @returns {{success: boolean, data?: any, message?: string, errorCode?: string}}
    */
   activate(id) {
+    const locale = getLocale();
     const keys = this._engine.getOfficialKeys();
     const target = keys.find((k) => k.id === id);
-    if (!target) return { success: false, message: `Key "${id}" 不存在` };
+    if (!target) return fail(getServerMessage(locale, 'KEY_NOT_FOUND'), 'KEY_NOT_FOUND');
     keys.forEach((k) => (k.active = k.id === id));
     this._engine.setOfficialKeys(keys);
-    return { success: true };
+    return ok(null, getServerMessage(locale, 'keyActivated'));
   }
 
   /**
    * 更新别名
    * @param {string} id
    * @param {string} alias
-   * @returns {{success: boolean, message?: string}}
+   * @returns {{success: boolean, data?: any, message?: string, errorCode?: string}}
    */
   updateAlias(id, alias) {
+    const locale = getLocale();
     const keys = this._engine.getOfficialKeys();
     const k = keys.find((x) => x.id === id);
-    if (!k) return { success: false, message: `Key "${id}" 不存在` };
+    if (!k) return fail(getServerMessage(locale, 'KEY_NOT_FOUND'), 'KEY_NOT_FOUND');
     k.alias = alias;
     this._engine.setOfficialKeys(keys);
-    return { success: true };
+    return ok(null, getServerMessage(locale, 'aliasUpdated'));
   }
 
   /**
    * 删除官方 key
    * @param {string} id
-   * @returns {{success: boolean, message?: string}}
+   * @returns {{success: boolean, data?: any, message?: string, errorCode?: string}}
    */
   remove(id) {
+    const locale = getLocale();
     const keys = this._engine.getOfficialKeys();
     const idx = keys.findIndex((k) => k.id === id);
-    if (idx === -1) return { success: false, message: `Key "${id}" 不存在` };
+    if (idx === -1) return fail(getServerMessage(locale, 'KEY_NOT_FOUND'), 'KEY_NOT_FOUND');
     const wasActive = keys[idx].active;
     keys.splice(idx, 1);
     if (wasActive && keys.length > 0) keys[0].active = true;
     this._engine.setOfficialKeys(keys);
-    return { success: true };
+    return ok(null, getServerMessage(locale, 'deleted'));
   }
 }
 
@@ -134,12 +129,15 @@ export class ProviderManager {
 
   // ─── Provider 列表查询 ─────────────────────────────────────
 
-  /** @returns {Array<{id:string,provider:string,label:string,api_key_preview:string,base_url:string,models:Array,active:boolean}>} */
+  /**
+   * @returns {Array<{id:string,provider:string,label:string,api_key_preview:string,base_url:string,models:Array,active:boolean}>}
+   */
   listProviders() {
+    const locale = getLocale();
     return this._engine.getProviders().map((p) => ({
       id: p.id,
       provider: p.provider,
-      label: p.label || getProviderI18nLabel(p.provider, 'zh-Hans'),
+      label: p.label || getProviderI18nLabel(p.provider, locale),
       api_key_preview: maskKey(p.api_key),
       base_url: p.base_url || '',
       models: p.models || [],
@@ -173,16 +171,17 @@ export class ProviderManager {
    * @param {string} opts.api_key
    * @param {string} [opts.label]
    * @param {string} [opts.base_url]
-   * @param {string[]|string} [opts.models] 模型列表，支持数组或逗号分隔字符串
+   * @param {string[]|string} [opts.models]
+   * @returns {{success: boolean, data?: any, message?: string, errorCode?: string}}
    */
   addProvider({ provider, api_key, label, base_url, models } = {}) {
-    if (!provider) return { success: false, message: 'provider 类型不能为空' };
-    if (!api_key) return { success: false, message: 'api_key 不能为空' };
+    const locale = getLocale();
+    if (!provider) return fail(getServerMessage(locale, 'PROVIDER_REQUIRED'), 'PROVIDER_REQUIRED');
+    if (!api_key) return fail(getServerMessage(locale, 'KEY_REQUIRED'), 'KEY_REQUIRED');
     const id = `${provider}:${api_key}`;
     if (this._engine.findProvider(id)) {
-      return { success: false, message: `Provider "${id}" 已存在（相同类型 + 相同 api_key）` };
+      return fail(getServerMessage(locale, 'PROVIDER_DUPLICATE'), 'PROVIDER_DUPLICATE');
     }
-    // models 支持逗号分隔字符串
     const modelsArr = typeof models === 'string'
       ? models.split(',').map(s => s.trim()).filter(Boolean)
       : models;
@@ -191,98 +190,103 @@ export class ProviderManager {
     }));
     this._engine.setProviders([
       ...this._engine.getProviders(),
-      { id, provider, label: label || getProviderI18nLabel(provider, 'zh-Hans'), api_key, base_url: base_url || getDefaultBaseUrl(provider), models: modelList, active: false },
+      { id, provider, label: label || getProviderI18nLabel(provider, locale), api_key, base_url: base_url || getDefaultBaseUrl(provider), models: modelList, active: false },
     ]);
-    return { success: true, id };
+    return ok({ id }, getServerMessage(locale, 'added'));
   }
 
   /** @param {string} id @param {object} opts */
   updateProvider(id, opts = {}) {
+    const locale = getLocale();
     const all = this._engine.getProviders();
     const idx = all.findIndex((p) => p.id === id);
-    if (idx === -1) return { success: false, message: `Provider "${id}" 不存在` };
+    if (idx === -1) return fail(getServerMessage(locale, 'PROVIDER_NOT_FOUND'), 'PROVIDER_NOT_FOUND');
     if (opts.label !== undefined) all[idx].label = opts.label;
     if (opts.base_url !== undefined) all[idx].base_url = opts.base_url;
     this._engine.setProviders(all);
-    return { success: true };
+    return ok(null, getServerMessage(locale, 'updated'));
   }
 
   /** @param {string} id */
   removeProvider(id) {
+    const locale = getLocale();
     const all = this._engine.getProviders();
     const idx = all.findIndex((p) => p.id === id);
-    if (idx === -1) return { success: false, message: `Provider "${id}" 不存在` };
+    if (idx === -1) return fail(getServerMessage(locale, 'PROVIDER_NOT_FOUND'), 'PROVIDER_NOT_FOUND');
     const wasActive = all[idx].active;
     all.splice(idx, 1);
-    // 如果删除的是激活的 provider，清空所有激活标记（由 sync 层写回 codewhale）
     if (wasActive) all.forEach((p) => (p.active = false));
     this._engine.setProviders(all);
-    return { success: true };
+    return ok(null, getServerMessage(locale, 'deleted'));
   }
 
   // ─── 模型管理 ──────────────────────────────────────────────
 
   /** @param {string} providerId @param {string} modelName */
   addModel(providerId, modelName) {
+    const locale = getLocale();
     const all = this._engine.getProviders();
     const p = all.find((x) => x.id === providerId);
-    if (!p) return { success: false, message: `Provider "${providerId}" 不存在` };
+    if (!p) return fail(getServerMessage(locale, 'PROVIDER_NOT_FOUND'), 'PROVIDER_NOT_FOUND');
     if (!p.models) p.models = [];
-    if (p.models.some((m) => m.name === modelName)) return { success: false, message: `模型 "${modelName}" 已存在` };
+    if (p.models.some((m) => m.name === modelName)) return fail(getServerMessage(locale, 'MODEL_DUPLICATE'), 'MODEL_DUPLICATE');
     p.models.push({ name: modelName, active: false });
     this._engine.setProviders(all);
-    return { success: true };
+    return ok(null, getServerMessage(locale, 'modelAdded'));
   }
 
   /** @param {string} providerId @param {string} modelName */
   removeModel(providerId, modelName) {
+    const locale = getLocale();
     const all = this._engine.getProviders();
     const p = all.find((x) => x.id === providerId);
-    if (!p) return { success: false, message: `Provider "${providerId}" 不存在` };
-    if (!p.models || p.models.length <= 1) return { success: false, message: '至少保留一个模型' };
+    if (!p) return fail(getServerMessage(locale, 'PROVIDER_NOT_FOUND'), 'PROVIDER_NOT_FOUND');
+    if (!p.models || p.models.length <= 1) return fail(getServerMessage(locale, 'MODEL_MIN_ONE'), 'MODEL_MIN_ONE');
     const mi = p.models.findIndex((m) => m.name === modelName);
-    if (mi === -1) return { success: false, message: `模型 "${modelName}" 不存在` };
+    if (mi === -1) return fail(getServerMessage(locale, 'MODEL_NOT_FOUND'), 'MODEL_NOT_FOUND');
     const wasActive = p.models[mi].active;
     p.models.splice(mi, 1);
     if (wasActive) p.models[0].active = true;
     this._engine.setProviders(all);
-    return { success: true };
+    return ok(null, getServerMessage(locale, 'modelDeleted'));
   }
 
   /** @param {string} providerId @param {string} modelName */
   setActiveModel(providerId, modelName) {
+    const locale = getLocale();
     const all = this._engine.getProviders();
     const p = all.find((x) => x.id === providerId);
-    if (!p) return { success: false, message: `Provider "${providerId}" 不存在` };
-    if (!p.models) return { success: false, message: '该 provider 下没有模型' };
+    if (!p) return fail(getServerMessage(locale, 'PROVIDER_NOT_FOUND'), 'PROVIDER_NOT_FOUND');
+    if (!p.models) return fail(getServerMessage(locale, 'PROVIDER_NO_MODELS'), 'PROVIDER_NO_MODELS');
     const target = p.models.find((m) => m.name === modelName);
-    if (!target) return { success: false, message: `模型 "${modelName}" 不存在` };
+    if (!target) return fail(getServerMessage(locale, 'MODEL_NOT_FOUND'), 'MODEL_NOT_FOUND');
     p.models.forEach((m) => (m.active = m.name === modelName));
     this._engine.setProviders(all);
-    return { success: true };
+    return ok(null, getServerMessage(locale, 'modelSet'));
   }
 
   // ─── 激活管理 ──────────────────────────────────────────────
 
   /** @param {string} providerId */
   activateProvider(providerId) {
+    const locale = getLocale();
     const all = this._engine.getProviders();
     const target = all.find((p) => p.id === providerId);
-    if (!target) return { success: false, message: `Provider "${providerId}" 不存在` };
+    if (!target) return fail(getServerMessage(locale, 'PROVIDER_NOT_FOUND'), 'PROVIDER_NOT_FOUND');
     all.forEach((p) => (p.active = p.id === providerId));
     if (target.models && target.models.length > 0 && !target.models.some((m) => m.active)) {
       target.models[0].active = true;
     }
     this._engine.setProviders(all);
-    return { success: true };
+    return ok(null, getServerMessage(locale, 'activated'));
   }
 
-  /** @returns {{success:boolean}} */
+  /** @returns {{success:boolean, data:null, message:string}} */
   deactivateThirdParty() {
     const all = this._engine.getProviders();
     all.forEach((p) => (p.active = false));
     this._engine.setProviders(all);
-    return { success: true };
+    return ok(null);
   }
 
   /** @param {Array<{id:string,active:boolean}>} states */

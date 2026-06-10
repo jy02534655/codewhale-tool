@@ -3,11 +3,11 @@
  *
  * 挂载路径: /api
  * 提供手动触发同步和初始化同步的端点。
+ * 语言由中间件自动提取并全局设置，路由层不再透传 lang。
  */
 
 import { Router } from 'express';
-import { guard, getServerMessage } from '@codewhale/core';
-import { ok, fail, langOf } from '../helpers.js';
+import { guard } from '@codewhale/core';
 
 /**
  * 创建同步路由
@@ -18,20 +18,13 @@ export function createSyncRouter(syncMgr) {
   const router = Router();
 
   /** 手动触发将 store.json 同步到 CodeWhale 配置文件 */
-  router.post('/sync', (req, res) => {
-    const l = langOf(req);
-    res.json(guard(() => {
-      const r = syncMgr.syncToCodeWhale();
-      return r.success ? ok(null, getServerMessage(l, 'synced')) : fail(r.message);
-    }));
+  router.post('/sync', (_req, res) => {
+    res.json(guard(() => syncMgr.syncToCodeWhale()));
   });
 
   /** 初始化同步（从 CodeWhale 配置加载到 store.json） */
-  router.post('/init-sync', (req, res) => {
-    res.json(guard(() => {
-      const r = syncMgr.initSync();
-      return r.success ? ok(null, r.message) : fail(r.message);
-    }));
+  router.post('/init-sync', (_req, res) => {
+    res.json(guard(() => syncMgr.initSync()));
   });
 
   return router;

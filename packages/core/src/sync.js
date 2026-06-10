@@ -3,6 +3,7 @@
  *
  * 启动时从 CodeWhale 配置合并到本地 JSON 存储（按 api_key 去重合并），
  * 修改时实时写回 CodeWhale 标准格式。
+ * 所有消息已本地化，内部使用 getLocale() 获取当前语言。
  *
  * CodeWhale 原生格式：
  *   api_key              = "sk-xxx"         # 官方 API key（当前激活的）
@@ -22,6 +23,8 @@ import { parse, stringify } from 'smol-toml';
 import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'node:fs';
 import { homedir } from 'node:os';
 import { join, dirname } from 'node:path';
+import { getServerMessage, getLocale } from './i18n.js';
+import { ok, fail } from './result.js';
 
 function codeWhalePath() {
   return join(homedir(), '.codewhale', 'config.toml');
@@ -50,12 +53,13 @@ export class SyncManager {
    *   3. 过滤 http_headers 等无 api_key 的空 provider
    *   4. 根据 provider 字段和 [providers.xxx].model 确定激活状态
    *
-   * @returns {{success: boolean, message: string, merged?: number}}
+   * @returns {{success: boolean, data?: {merged?: number}, message?: string, errorCode?: string}}
    */
   initSync() {
+    const locale = getLocale();
     const cwPath = codeWhalePath();
     if (!existsSync(cwPath)) {
-      return { success: true, message: 'CodeWhale 配置不存在，跳过同步', merged: 0 };
+      return ok({ merged: 0 }, getServerMessage(locale, 'CONFIG_NOT_EXISTS'));
     }
 
     try {
@@ -69,8 +73,6 @@ export class SyncManager {
         const existingKeys = this._engine.getOfficialKeys();
         const alreadyExists = existingKeys.some((k) => k.api_key === cwCfg.api_key);
         if (!alreadyExists) {
-          // 不存在则新增，且设为激活（codewhale 在用的就是激活的）
-          // 先取消其他 key 的激活
           existingKeys.forEach((k) => (k.active = false));
           existingKeys.push({
             id: 'official:' + cwCfg.api_key,
@@ -81,7 +83,6 @@ export class SyncManager {
           this._engine.setOfficialKeys(existingKeys);
           mergedCount++;
         } else {
-          // 已存在则激活它
           existingKeys.forEach((k) => (k.active = k.api_key === cwCfg.api_key));
           this._engine.setOfficialKeys(existingKeys);
         }
@@ -91,7 +92,6 @@ export class SyncManager {
       const cwProviders = cwCfg.providers || {};
       const cwActiveProviderType = cwCfg.provider || '';
 
-      // 过滤有 api_key 的有效 provider
       const validCwProviders = {};
       for (const [name, cfg] of Object.entries(cwProviders)) {
         if (cfg && typeof cfg === 'object' && cfg.api_key) {
@@ -103,12 +103,10 @@ export class SyncManager {
       const localByApiKey = new Map();
       localProviders.forEach((p) => localByApiKey.set(p.api_key, p));
 
-      // 遍历 codewhale 中的有效 provider
       for (const [providerType, cwCfg_] of Object.entries(validCwProviders)) {
         const existing = localByApiKey.get(cwCfg_.api_key);
 
         if (!existing) {
-          // 本地没有 → 从 codewhale 新增
           const modelName = cwCfg_.model || 'deepseek-ai/DeepSeek-V4-Pro';
           localProviders.push({
             id: `${providerType}:${cwCfg_.api_key}`,
@@ -121,11 +119,9 @@ export class SyncManager {
           });
           mergedCount++;
         }
-        // 本地已有 → 不覆盖（本地优先）
       }
 
       // ── 确定激活状态 ──
-      // 先全部取消激活，再由 codewhale 设置
       localProviders.forEach((p) => (p.active = false));
 
       if (cwActiveProviderType && validCwProviders[cwActiveProviderType]) {
@@ -148,13 +144,9 @@ export class SyncManager {
 
       this._engine.setProviders(localProviders);
 
-      return {
-        success: true,
-        message: `已从 CodeWhale 同步 ${mergedCount} 个新条目`,
-        merged: mergedCount,
-      };
+      return ok({ merged: mergedCount }, `已从 CodeWhale 同步 ${mergedCount} 个新条目`);
     } catch (err) {
-      return { success: false, message: `读取 CodeWhale 配置失败: ${err.message}` };
+      return fail(getServerMessage(locale, 'CONFIG_PARSE_ERROR'), 'CONFIG_PARSE_ERROR');
     }
   }
 
@@ -169,12 +161,12 @@ export class SyncManager {
    *   - 同类型多 provider：每种 provider 类型只保留激活的那个，其余仅存本地
    *   - 保留 auth_mode、default_text_model 等非管理字段
    *
-   * @returns {{success: boolean, message: string}}
+   * @returns {{success: boolean, data?: any, message?: string, errorCode?: string}}
    */
   syncToCodeWhale() {
+    const locale = getLocale();
     const cwPath = codeWhalePath();
 
-    // 读取现有 CodeWhale 配置（保留非管理字段）
     let cwCfg = {};
     if (existsSync(cwPath)) {
       try {
@@ -188,7 +180,6 @@ export class SyncManager {
       cwCfg.api_key = activeKey ? activeKey.api_key : '';
     }
 
-    // 保留元数据
     if (!cwCfg.auth_mode) cwCfg.auth_mode = 'api_key';
     if (!cwCfg.default_text_model) cwCfg.default_text_model = 'deepseek-v4-pro';
 
@@ -196,10 +187,8 @@ export class SyncManager {
     const providers = this._engine.getProviders();
     const activeProvider = providers.find((p) => p.active);
 
-    // 完全用本地数据重建 providers 块（解决删除不同步问题）
     cwCfg.providers = {};
 
-    // 按 provider 类型分组，每种类型只保留激活的（或第一个）
     const byType = new Map();
     for (const p of providers) {
       if (!byType.has(p.provider)) byType.set(p.provider, []);
@@ -207,7 +196,6 @@ export class SyncManager {
     }
 
     for (const [type, group] of byType) {
-      // 优先选用激活的，否则用第一个
       const pick = group.find((p) => p.active) || group[0];
       const pModel = pick.models?.find((m) => m.active)?.name || pick.models?.[0]?.name || '';
       cwCfg.providers[type] = {
@@ -217,14 +205,12 @@ export class SyncManager {
       };
     }
 
-    // 设置激活 provider
     if (activeProvider) {
       cwCfg.provider = activeProvider.provider;
     } else {
       delete cwCfg.provider;
     }
 
-    // ── 写入 ──
     const dir = dirname(cwPath);
     if (!existsSync(dir)) mkdirSync(dir, { recursive: true });
 
@@ -234,18 +220,14 @@ export class SyncManager {
       'utf-8'
     );
 
-    return {
-      success: true,
-      message: activeProvider
-        ? `已同步到 CodeWhale：使用 ${activeProvider.provider}`
-        : '已同步到 CodeWhale：使用官方 DeepSeek API',
-    };
+    return ok(null, getServerMessage(locale, 'synced'));
   }
 
   // ─── 组合操作 ────────────────────────────────────────────────
 
   /** @param {string} providerId */
   activateAndSync(providerId) {
+    const locale = getLocale();
     const r = this._providerMgr.activateProvider(providerId);
     if (!r.success) return r;
     return this.syncToCodeWhale();
@@ -258,7 +240,7 @@ export class SyncManager {
     return this.syncToCodeWhale();
   }
 
-  /** @returns {{success:boolean, message?:string}} */
+  /** @returns {{success:boolean, data?:any, message?:string}} */
   deactivateAndSync() {
     this._providerMgr.deactivateThirdParty();
     return this.syncToCodeWhale();
@@ -266,7 +248,8 @@ export class SyncManager {
 
   /** 激活官方 key 并同步 */
   activateOfficialAndSync(id) {
-    if (!this._officialKeyMgr) return { success: false, message: 'OfficialKeyManager 未初始化' };
+    const locale = getLocale();
+    if (!this._officialKeyMgr) return fail(getServerMessage(locale, 'OFFICIAL_MGR_NOT_READY'), 'OFFICIAL_MGR_NOT_READY');
     const r = this._officialKeyMgr.activate(id);
     if (!r.success) return r;
     return this.syncToCodeWhale();

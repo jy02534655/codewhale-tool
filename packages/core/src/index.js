@@ -6,12 +6,14 @@ export { ConfigEngine } from './config.js';
 export { ProviderManager, OfficialKeyManager } from './provider.js';
 export { SkillManager } from './skill.js';
 export { SyncManager } from './sync.js';
-export { guard, guardAsync } from './result.js';
+export { guard, guardAsync, ok, fail } from './result.js';
 export {
   getKnownProviders,
   getProviderI18nLabel,
   getDefaultBaseUrl,
   getServerMessage,
+  setLocale,
+  getLocale,
   SERVER_MSG,
   SUPPORTED_LOCALES,
   LOCALE_LABELS,

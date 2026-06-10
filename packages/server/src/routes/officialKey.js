@@ -3,11 +3,11 @@
  *
  * 挂载路径: /api/official-key
  * 管理 DeepSeek 官方 API key 的增删改查与激活切换。
+ * 语言由中间件自动提取并全局设置，路由层不再透传 lang。
  */
 
 import { Router } from 'express';
-import { guard, getServerMessage } from '@codewhale/core';
-import { ok, fail, langOf } from '../helpers.js';
+import { guard } from '@codewhale/core';
 
 /**
  * 创建官方 API Key 路由
@@ -20,44 +20,44 @@ export function createOfficialKeyRouter(officialKeyMgr, syncMgr) {
 
   /** 获取所有官方 key */
   router.get('/list', (_req, res) => {
-    res.json(guard(() => ok(officialKeyMgr.list())));
+    res.json(guard(() => ({
+      success: true,
+      data: officialKeyMgr.list(),
+      message: '',
+    })));
   });
 
   /** 添加官方 key */
   router.post('/add', (req, res) => {
-    const l = langOf(req);
     res.json(guard(() => {
       const r = officialKeyMgr.add(req.body);
       if (r.success) syncMgr.syncToCodeWhale();
-      return r.success ? ok(null, r.message || getServerMessage(l, 'keyAdded')) : fail(r.message);
+      return r;
     }));
   });
 
-  /** 更新 key 别名（前端通过 PUT /:id 调用） */
+  /** 更新 key 别名 */
   router.put('/:id', (req, res) => {
-    const l = langOf(req);
     res.json(guard(() => {
       const r = officialKeyMgr.updateAlias(req.params.id, req.body.alias);
-      return r.success ? ok(null, getServerMessage(l, 'aliasUpdated')) : fail(r.message);
+      return r;
     }));
   });
 
   /** 激活指定 key（同步到 CodeWhale 配置） */
   router.post('/:id/activate', (req, res) => {
-    const l = langOf(req);
     res.json(guard(() => {
       const r = syncMgr.activateOfficialAndSync(req.params.id);
-      return r.success ? ok(null, getServerMessage(l, 'keyActivated')) : fail(r.message);
+      return r;
     }));
   });
 
   /** 删除指定 key */
   router.delete('/:id', (req, res) => {
-    const l = langOf(req);
     res.json(guard(() => {
       const r = officialKeyMgr.remove(req.params.id);
       if (r.success) syncMgr.syncToCodeWhale();
-      return r.success ? ok(null, getServerMessage(l, 'deleted')) : fail(r.message);
+      return r;
     }));
   });
 
