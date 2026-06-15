@@ -216,6 +216,7 @@ const merged = localItems.map(local => { // ← 避免这种行尾注释
 | 类别 | 规范 | 示例 |
 |---|---|---|
 | 变量/函数 | camelCase | `getActiveProvider`, `providerId` |
+| 变量声明 | 模块级 `const`，需重赋值用 `let`，禁用 `var` | `const items = []` / `let count = 0` |
 | 布尔变量 | 前缀 is/has/can | `isActive`, `hasPermission`, `canEdit` |
 | 私有成员 | 前缀 `_` | `this._engine`, `this._cache` |
 | 常量 | 全大写 SNAKE_CASE | `DEFAULT_TIMEOUT`, `MAX_RETRIES` |

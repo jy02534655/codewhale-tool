@@ -11,6 +11,7 @@
 import express from 'express';
 import {
   ConfigEngine,
+  ProjectSkillEngine,
   ProviderManager,
   OfficialKeyManager,
   SkillManager,
@@ -25,13 +26,17 @@ import { createSyncRouter } from './src/routes/sync.js';
 // ─── 初始化核心管理器 ──────────────────────────────────────────
 
 const engine = new ConfigEngine();
+const projectSkillEngine = new ProjectSkillEngine();
 const providerMgr = new ProviderManager(engine);
 const officialKeyMgr = new OfficialKeyManager(engine);
-const skillMgr = new SkillManager(engine);
+const skillMgr = new SkillManager(engine, projectSkillEngine);
 const syncMgr = new SyncManager(engine, providerMgr, officialKeyMgr);
 
 // 启动时从 CodeWhale 配置同步到 store.json
 syncMgr.initSync();
+
+// 自动发现本机已有 skill
+skillMgr.discover();
 
 // ─── 创建 Express 应用 ─────────────────────────────────────────
 
@@ -54,4 +59,5 @@ const PORT = 3456;
 app.listen(PORT, () => {
   console.log('CodeWhale Config API: http://localhost:' + PORT);
   console.log('Store file: ' + engine.path);
+  console.log('Project skill file: ' + projectSkillEngine.path);
 });

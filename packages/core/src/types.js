@@ -1,7 +1,7 @@
 /**
  * 核心类型定义（JSDoc 类型注释，供 IDE 智能提示使用）
  *
- * 本地存储使用 JSON 格式（store.json），
+ * 本地存储使用 JSON 格式（store.json / .codewhale/skills.json），
  * CodeWhale 运行时使用 TOML 格式（~/.codewhale/config.toml），
  * 两者通过 SyncManager 实时双向同步。
  *
@@ -35,17 +35,27 @@
 
 /**
  * @typedef {object} SkillEntry
- * @property {string}  id      - Skill 唯一标识符
- * @property {string}  path    - Skill 在磁盘上的完整路径
- * @property {boolean} enabled - 是否启用
- * @property {string}  source  - 来源：'community' | 'local' | 'custom'
- * @property {string}  [version] - 版本号（可选）
+ * @property {string}   id            - 唯一标识
+ * @property {string}   [name]        - 从 SKILL.md 自动提取的显示名
+ * @property {string}   [description] - 从 SKILL.md 自动提取的描述
+ * @property {string}   [alias]       - 用户自定义别名（左侧显示优先使用此字段）
+ * @property {string}   [remark]      - 用户自定义备注（中文注解）
+ * @property {string[]} [tags]        - 用户自定义标签
+ * @property {string}   path          - 磁盘路径
+ * @property {boolean}  enabled       - 是否启用
+ * @property {string}   source        - 来源：community | local | custom
+ * @property {string}   [version]     - 版本号
+ * @property {string[]} [depends_on]  - 依赖的 skill id 列表（预留）
+ * @property {number}   [installed_at] - 安装时间戳（ms）
+ * @property {number}   [updated_at]   - 更新时间戳（ms）
  */
 
 /**
  * @typedef {object} SkillsConfig
- * @property {boolean}      enabled   - 全局 skill 开关
- * @property {SkillEntry[]} installed - 已安装的 skill 列表
+ * @property {boolean}                    enabled         - 全局 skill 开关
+ * @property {SkillEntry[]}              installed        - 已安装的 skill 列表
+ * @property {Array<{id:string}>}        [community_cache] - 社区 skill 列表缓存
+ * @property {number}                    [cached_at]      - 缓存时间戳（ms），0 表示未缓存
  */
 
 /**

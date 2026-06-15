@@ -30,6 +30,8 @@ const DEFAULT_STORE = {
   skills: {
     enabled: true,
     installed: [],
+    community_cache: [],
+    cached_at: 0,
   },
 };
 
@@ -95,6 +97,10 @@ export class ConfigEngine {
       skills: {
         enabled: data.skills?.enabled ?? def.skills.enabled,
         installed: Array.isArray(data.skills?.installed) ? data.skills.installed : def.skills.installed,
+        community_cache: Array.isArray(data.skills?.community_cache)
+          ? data.skills.community_cache
+          : def.skills.community_cache,
+        cached_at: data.skills?.cached_at ?? def.skills.cached_at,
       },
     };
   }

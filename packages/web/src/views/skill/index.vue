@@ -1,275 +1,279 @@
 <!--
   index.vue — Skill 管理页面（skill 模块入口）
-  统一使用 maskingStore.isLoading 控制全局加载状态
-  安装弹窗提取到 ./edit/install.vue
+  compositionDialogContainer 管理弹窗
+  使用 .then() 链，没有 await/try-catch
 -->
 <template>
   <div class="skill-view" v-loading="maskingStore.isLoading">
-    <!-- 顶部操作栏 -->
+
+    <!-- 工具栏 -->
     <div class="toolbar">
-      <h2>Skill 管理</h2>
-      <div class="actions">
-        <el-button type="primary" @click="dialogCtrl.showDialog('install')">+ 安装 Skill</el-button>
-        <el-button @click="refresh">刷新</el-button>
+      <h2>{{ $t('skill.title') }}</h2>
+      <div class="toolbar-actions">
+        <el-button size="small" @click="doDiscover">{{ $t('skill.discover') }}</el-button>
+        <el-button size="small" type="primary"
+          @click="dialogCtrl.showAddDialog(null, 'installDialog')">{{ $t('skill.install') }}</el-button>
+        <el-button size="small" @click="loadSkills">{{ $t('skill.refresh') }}</el-button>
       </div>
     </div>
 
-    <!-- 搜索社区 Skill -->
+    <!-- 搜索栏 -->
     <div class="search-bar">
-      <el-input
-        v-model="searchQuery"
-        placeholder="搜索社区 skill..."
-        @keyup.enter="searchCommunity"
-        clearable
-      />
-      <el-button @click="searchCommunity">搜索</el-button>
+      <el-input v-model="search" :placeholder="$t('skill.searchPlaceholder')" clearable size="small" />
+      <el-button size="small"
+        @click="dialogCtrl.showAddDialog(null, 'installDialog')">{{ $t('skill.searchCommunity') }}</el-button>
     </div>
 
-    <!-- 社区搜索结果 -->
-    <el-card v-if="communityResults.length > 0" class="community-block" shadow="hover">
-      <template #header>
-        <span>社区可用 Skill（{{ communityResults.length }} 个）</span>
-      </template>
-      <div class="community-grid">
-        <div v-for="s in communityResults" :key="s.id" class="community-card">
-          <div class="community-info">
-            <span class="skill-id">{{ s.id }}</span>
-            <span v-if="s.description" class="skill-desc">{{ s.description }}</span>
-          </div>
-          <el-button
-            size="small"
-            :type="installedIds.includes(s.id) ? 'info' : 'primary'"
-            :disabled="installedIds.includes(s.id)"
-            @click="doInstall(s.id)"
-          >
-            {{ installedIds.includes(s.id) ? '已安装' : '安装' }}
-          </el-button>
+    <!-- 主从布局 -->
+    <div class="master-detail">
+
+      <!-- 左面板 -->
+      <div class="master-panel">
+        <el-tabs v-model="activeTab" @tab-change="onTabChange">
+          <el-tab-pane :label="$t('skill.global')" name="global" />
+          <el-tab-pane :label="$t('skill.project')" name="project" />
+        </el-tabs>
+        <div class="master-list">
+
+          <!-- 全局 Tab -->
+          <template v-if="activeTab === 'global'">
+            <div v-for="s in filteredGlobal" :key="s.id"
+              :class="['master-item', { active: selectedId === s.id }]"
+              @click="selectSkill(s)">
+              <div class="master-item-title">
+                <el-tag :type="s.enabled ? 'success' : 'danger'" size="small" effect="dark">
+                  {{ s.enabled ? '开' : '关' }}
+                </el-tag>
+                <span class="master-item-name">{{ displayName(s) }}</span>
+              </div>
+              <div class="master-item-sub">
+                <span class="sub-original">{{ s.name || s.id }}</span>
+                <el-tag size="small" type="info" effect="plain">{{ sourceName(s.source) }}</el-tag>
+                <span v-if="s.remark" class="sub-remark">· {{ truncate(s.remark, 20) }}</span>
+              </div>
+            </div>
+            <el-empty v-if="filteredGlobal.length === 0"
+              :description="search ? $t('skill.noMatch') : $t('skill.noSkill')" />
+          </template>
+
+          <!-- 项目 Tab：树形展开 -->
+          <template v-if="activeTab === 'project'">
+            <el-empty v-if="projectTree.length === 0" :description="$t('skill.noProject')" />
+            <template v-for="node in filteredProjectTree" :key="node.name">
+              <div class="project-group-header">
+                <el-tag size="small" type="warning" effect="dark">P</el-tag>
+                <span class="project-group-name">{{ node.alias || node.name }}</span>
+                <span v-if="node.alias && node.alias !== node.name" class="sub-original">{{ node.name }}</span>
+              </div>
+              <div v-for="s in node.skills" :key="s.id"
+                :class="['master-item', 'project-skill-item', { active: selectedId === s.id }]"
+                @click="selectSkill(s)">
+                <div class="master-item-title">
+                  <el-tag :type="s.enabled ? 'success' : 'danger'" size="small" effect="dark">
+                    {{ s.enabled ? '开' : '关' }}
+                  </el-tag>
+                  <span class="master-item-name">{{ displayName(s) }}</span>
+                </div>
+                <div class="master-item-sub">
+                  <span class="sub-original">{{ s.name || s.id }}</span>
+                  <el-tag size="small" type="info" effect="plain">{{ sourceName(s.source) }}</el-tag>
+                  <span v-if="s.remark" class="sub-remark">· {{ truncate(s.remark, 20) }}</span>
+                </div>
+              </div>
+            </template>
+          </template>
+
         </div>
       </div>
-    </el-card>
 
-    <!-- 已安装列表 -->
-    <el-empty v-if="skills.length === 0" description="没有安装任何 Skill">
-      <template #extra>
-        <el-button type="primary" @click="dialogCtrl.showDialog('install')">安装 Skill</el-button>
-      </template>
-    </el-empty>
-    <div v-else class="skill-list">
-      <el-card
-        v-for="s in skills"
-        :key="s.id"
-        :class="['skill-card', { disabled: !s.enabled }]"
-        shadow="hover"
-      >
-        <template #header>
-          <div class="skill-header">
-            <div class="skill-info">
-              <el-tag :type="s.enabled ? 'success' : 'danger'" size="small" effect="dark">
-                {{ s.enabled ? '启用' : '禁用' }}
-              </el-tag>
-              <span class="skill-id">{{ s.id }}</span>
-              <el-tag size="small" type="info" effect="plain">{{ s.source }}</el-tag>
-              <span v-if="s.version" class="skill-version">v{{ s.version }}</span>
-            </div>
-            <div class="skill-actions">
-              <el-button size="small" @click="toggleDetail(s)">
-                {{ s.showDetail ? '收起' : '详情' }}
-              </el-button>
-              <el-button
-                v-if="s.enabled"
-                size="small"
-                @click="doDisable(s.id)"
-              >
-                禁用
-              </el-button>
-              <el-button
-                v-else
-                size="small"
-                type="success"
-                @click="doEnable(s.id)"
-              >
-                启用
-              </el-button>
-              <el-button size="small" type="danger" @click="doRemove(s.id)">删除</el-button>
-            </div>
-          </div>
-        </template>
+      <!-- 右面板 -->
+      <div class="detail-wrapper">
+        <detail :skill="selectedSkill"
+          @refresh="loadSkills"
+          @openEdit="onOpenEdit"
+          @openReadme="onOpenReadme" />
+      </div>
 
-        <!-- 展开的详情（SKILL.md 内容） -->
-        <div v-if="s.showDetail" class="skill-detail">
-          <div v-if="s.readmeLoading" v-loading="true" element-loading-text="加载详情中..." class="detail-loading"></div>
-          <pre v-else-if="s.readme">{{ s.readme }}</pre>
-          <p v-else class="no-detail">（无详情）</p>
-        </div>
-      </el-card>
     </div>
 
-    <!-- 安装弹窗 -->
-    <Install ref="install" @submitSuccess="refresh" />
+    <!-- 弹窗组件 -->
+    <install ref="installDialog" @submitSuccess="loadSkills" />
+    <info ref="infoDialog" @submitSuccess="loadSkills" />
+    <readme ref="readmeDialog" @submitSuccess="loadSkills" />
   </div>
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue';
-import { ElMessage, ElMessageBox } from 'element-plus';
-import {
-  getSkillList,
-  getSkillDetail,
-  installSkill,
-  enableSkill,
-  disableSkill,
-  removeSkill,
-  searchSkill,
-} from '@/api/skill';
-import { useMaskingStore } from '@/stores/masking';
-import { compositionDialogContainer } from '@/composition/dialog/Container';
-import Install from './edit/install.vue';
+import { ref, computed, onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
+import { ElMessage } from 'element-plus'
+import { getGlobalSkillList, getProjectSkillList, discoverSkill } from '@/api/skill'
+import { useMaskingStore } from '@/stores/masking'
+import { compositionDialogContainer } from '@/composition/dialog/Container'
+import install from './edit/install.vue'
+import detail from './edit/detail.vue'
+import info from './edit/info.vue'
+import readme from './edit/readme.vue'
 
-const maskingStore = useMaskingStore();
-const dialogCtrl = compositionDialogContainer();
+const { t } = useI18n({ useScope: 'global' })
+const maskingStore = useMaskingStore()
 
-const skills = ref([]);
-const searchQuery = ref('');
-const communityResults = ref([]);
+/** 弹窗容器 */
+const dialogCtrl = compositionDialogContainer()
 
-// 已安装的 skill ID 列表
-const installedIds = computed(() => skills.value.map((s) => s.id));
+/** 响应式数据 */
+const globalSkills = ref([])
+const projectSkills = ref([])
+const search = ref('')
+const activeTab = ref('global')
+const selectedId = ref(null)
 
-async function refresh() {
-  try {
-    const list = await getSkillList();
-    skills.value = (list || []).map((s) => ({
-      ...s,
-      showDetail: false,
-      readme: null,
-      readmeLoading: false,
-    }));
-  } catch {
-    // 错误已由 request 层处理
+/** 显示名称：别名优先 */
+function displayName(s) {
+  return s.alias || s.name || s.id
+}
+
+/** 来源本地化文本 */
+function sourceName(source) {
+  var key = 'skill.source.' + (source || 'local')
+  return t(key) || source
+}
+
+/** 字符串截断 */
+function truncate(str, max) {
+  return str && str.length > max ? str.slice(0, max) + '…' : str
+}
+
+/** 选中 skill */
+function selectSkill(s) {
+  selectedId.value = s.id
+}
+
+/** Tab 切换时重置选中 */
+function onTabChange() {
+  selectedId.value = null
+}
+
+/** 当前选中技能对象（全局 + 项目合并搜索） */
+const selectedSkill = computed(function () {
+  if (!selectedId.value) return null
+  var all = globalSkills.value.concat(projectSkills.value)
+  return all.find(function (s) { return s.id === selectedId.value }) || null
+})
+
+/** 全局 skill 列表过滤 */
+const filteredGlobal = computed(function () {
+  var q = search.value.toLowerCase().trim()
+  if (!q) return globalSkills.value
+  return globalSkills.value.filter(function (s) {
+    var name = (s.alias || s.name || s.id).toLowerCase()
+    var remark = (s.remark || '').toLowerCase()
+    var tags = (s.tags || []).join(' ').toLowerCase()
+    return name.indexOf(q) !== -1 || remark.indexOf(q) !== -1 || tags.indexOf(q) !== -1
+  })
+})
+
+/** 项目树：按项目名分组 */
+const projectTree = computed(function () {
+  var map = {}
+  projectSkills.value.forEach(function (s) {
+    var pn = s.path && s.path.indexOf('.codewhale') !== -1 ? 'codewhale-tool' : 'unknown'
+    if (!map[pn]) map[pn] = { name: pn, alias: pn, skills: [] }
+    map[pn].skills.push(s)
+  })
+  return Object.values(map)
+})
+
+/** 项目树过滤 */
+const filteredProjectTree = computed(function () {
+  var q = search.value.toLowerCase().trim()
+  if (!q) return projectTree.value
+  return projectTree.value
+    .map(function (node) {
+      return {
+        name: node.name,
+        alias: node.alias,
+        skills: node.skills.filter(function (s) {
+          var name = (s.alias || s.name || s.id).toLowerCase()
+          var remark = (s.remark || '').toLowerCase()
+          var tags = (s.tags || []).join(' ').toLowerCase()
+          return name.indexOf(q) !== -1 || remark.indexOf(q) !== -1 || tags.indexOf(q) !== -1
+        })
+      }
+    })
+    .filter(function (node) { return node.skills.length > 0 })
+})
+
+/** 加载全局 + 项目 skill 列表 */
+function loadSkills() {
+  Promise.all([getGlobalSkillList(), getProjectSkillList()])
+    .then(function (results) {
+      globalSkills.value = results[0] || []
+      projectSkills.value = (results[1] || []).map(function (s) { s.level = 'project'; return s })
+      if (selectedId.value) {
+        var all = globalSkills.value.concat(projectSkills.value)
+        if (!all.find(function (s) { return s.id === selectedId.value })) {
+          selectedId.value = null
+        }
+      }
+    })
+}
+
+/** 自动发现 */
+function doDiscover() {
+  discoverSkill()
+    .then(function (res) {
+      var d = res && res.data ? res.data : { found: 0, added: 0 }
+      ElMessage.success(t('skill.discoverSuccess', { found: d.found, added: d.added }))
+      loadSkills()
+    })
+    .catch(function () {
+      ElMessage.error(t('skill.discoverFail'))
+    })
+}
+
+/** 打开编辑信息弹窗 */
+function onOpenEdit() {
+  if (selectedSkill.value) {
+    dialogCtrl.showEditDialog(selectedSkill.value, 'infoDialog')
   }
 }
 
-async function loadReadme(skill) {
-  if (skill.readme || skill.readmeLoading) return;
-  skill.readmeLoading = true;
-  try {
-    const res = await getSkillDetail(skill.id);
-    skill.readme = res?.readme || '（无 SKILL.md）';
-  } catch {
-    skill.readme = '加载失败';
-  } finally {
-    skill.readmeLoading = false;
+/** 打开 SKILL.md 编辑弹窗 */
+function onOpenReadme() {
+  if (selectedSkill.value) {
+    dialogCtrl.showEditDialog(selectedSkill.value, 'readmeDialog')
   }
 }
 
-// 切换详情展开/收起
-function toggleDetail(skill) {
-  skill.showDetail = !skill.showDetail;
-  if (skill.showDetail) loadReadme(skill);
-}
-
-async function doInstall(id) {
-  try {
-    await installSkill(id);
-    ElMessage.success('安装成功');
-    refresh();
-  } catch {
-    // 错误已由 request 层处理
-  }
-}
-
-async function doEnable(id) {
-  try {
-    await enableSkill(id);
-    refresh();
-  } catch {}
-}
-
-async function doDisable(id) {
-  try {
-    await disableSkill(id);
-    refresh();
-  } catch {}
-}
-
-async function doRemove(id) {
-  try {
-    await ElMessageBox.confirm(
-      `确认删除 skill "${id}"？（将同时删除磁盘文件）`,
-      '确认删除',
-      { confirmButtonText: '确认删除', cancelButtonText: '取消', type: 'warning' }
-    );
-  } catch {
-    return;
-  }
-  try {
-    await removeSkill(id);
-    refresh();
-  } catch {}
-}
-
-async function searchCommunity() {
-  try {
-    communityResults.value = await searchSkill(searchQuery.value);
-  } catch {
-    communityResults.value = [];
-  }
-}
-
-onMounted(refresh);
+onMounted(loadSkills)
 </script>
 
 <style scoped>
-.skill-view { display: flex; flex-direction: column; gap: 16px; }
-
+.skill-view { display: flex; flex-direction: column; height: 100%; gap: 8px; }
 .toolbar { display: flex; justify-content: space-between; align-items: center; }
-.toolbar h2 { font-size: 20px; margin: 0; }
-.actions { display: flex; gap: 8px; }
-
+.toolbar h2 { font-size: 18px; margin: 0; }
+.toolbar-actions { display: flex; gap: 6px; }
 .search-bar { display: flex; gap: 8px; }
 .search-bar :deep(.el-input) { flex: 1; }
-
-.community-block { margin-bottom: 4px; }
-.community-grid { display: flex; flex-direction: column; gap: 8px; }
-.community-card {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  padding: 4px 0;
-}
-.community-info { display: flex; align-items: center; gap: 12px; flex: 1; }
-.skill-id { font-weight: 500; min-width: 140px; }
-.skill-desc { flex: 1; color: var(--text-secondary); font-size: 12px; }
-
-.skill-list { display: flex; flex-direction: column; gap: 8px; }
-
-.skill-card.disabled { opacity: 0.6; }
-
-.skill-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-.skill-info { display: flex; align-items: center; gap: 10px; }
-.skill-version { color: var(--text-secondary); font-size: 12px; }
-.skill-actions { display: flex; gap: 4px; }
-
-.skill-detail {
-  padding-top: 10px;
-  border-top: 1px solid var(--border);
-  margin-top: 4px;
-}
-.skill-detail pre {
-  background: var(--bg-primary);
-  border-radius: var(--radius);
-  padding: 12px;
-  font-size: 12px;
-  overflow-x: auto;
-  white-space: pre-wrap;
-  max-height: 400px;
-  overflow-y: auto;
-}
-.detail-loading { min-height: 80px; }
-.no-detail { color: var(--text-secondary); font-size: 12px; padding: 8px 0; }
+/* 主从布局 */
+.master-detail { display: flex; gap: 16px; flex: 1; min-height: 0; }
+.master-panel { width: 280px; min-width: 220px; display: flex; flex-direction: column; border-right: 1px solid var(--border); padding-right: 12px; }
+.master-panel :deep(.el-tabs__item) { padding: 0 8px; font-size: 13px; }
+.master-list { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 2px; }
+/* 列表项 */
+.master-item { padding: 6px 10px; border-radius: 4px; cursor: pointer; border-left: 3px solid transparent; transition: background 0.15s; }
+.master-item:hover { background: var(--bg-secondary, #f5f5f5); }
+.master-item.active { background: var(--el-color-primary-light-9); border-left-color: var(--el-color-primary); }
+.project-skill-item { padding-left: 24px; }
+.master-item-title { display: flex; align-items: center; gap: 6px; margin-bottom: 2px; }
+.master-item-name { font-weight: 500; font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.master-item-sub { font-size: 11px; color: var(--text-secondary); display: flex; align-items: center; gap: 4px; margin-left: 28px; }
+.sub-original { color: var(--text-secondary); }
+.sub-remark { color: var(--text-secondary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+/* 项目分组头 */
+.project-group-header { display: flex; align-items: center; gap: 6px; padding: 8px 4px 4px; font-weight: 600; font-size: 13px; border-bottom: 1px solid var(--border); margin-bottom: 4px; }
+.project-group-name { font-weight: 500; }
+/* 右面板容器 */
+.detail-wrapper { flex: 1; min-width: 0; overflow-y: auto; }
 </style>

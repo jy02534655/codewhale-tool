@@ -1,6 +1,6 @@
 {
   "app": {
-    "title": "🐋 CodeWhale Tool",
+    "title": "🐋 CodeWhale 工具",
     "subtitle": "配置管理",
     "model_management": "模型管理"
   },
@@ -48,35 +48,66 @@
     "base_url_label": "Base URL（可选）",
     "base_url_placeholder": "如 https://api.siliconflow.cn/v1",
     "initial_models": "初始模型（逗号分隔，留空默认 V4-Pro）",
-    "models_placeholder": "V4-Pro,V4-Flash",
-    "add_model_dialog_title": "添加模型",
-    "model_name_placeholder": "如 deepseek-ai/DeepSeek-V4-Flash",
-    "confirm_delete": "确认删除",
-    "confirm_delete_provider": "确认删除供应商",
-    "confirm_delete_model": "确认删除模型",
-    "fetch_failed": "获取失败",
-    "loading_failed": "加载失败",
-    "confirm": "确认",
-    "cancel": "取消",
-    "refresh": "刷新"
+    "error_update": "更新失败"
   },
   "message": {
     "added": "已添加",
     "deleted": "已删除",
     "updated": "已更新",
+    "synced": "同步完成",
+    "syncSuccess": "操作成功",
     "activated": "已激活",
-    "deactivated": "已切换回官方 API",
-    "modelAdded": "模型已添加",
-    "modelDeleted": "模型已删除",
-    "modelSet": "当前模型已切换",
-    "aliasUpdated": "别名已更新",
-    "keyActivated": "已激活",
-    "providerNotFound": "供应商不存在",
-    "networkError": "网络错误，请稍后重试"
+    "networkError": "网络异常，请重试"
+  },
+  "skill": {
+    "title": "Skill 管理",
+    "discover": "发现",
+    "install": "安装",
+    "refresh": "刷新",
+    "searchPlaceholder": "搜索名称、别名、备注或标签...",
+    "searchCommunity": "社区搜索",
+    "global": "全局",
+    "project": "项目",
+    "alias": "别名",
+    "remark": "备注",
+    "tags": "标签",
+    "enabled": "已启用",
+    "disabled": "已禁用",
+    "enable": "启用",
+    "disable": "禁用",
+    "delete": "删除",
+    "gitUpdate": "Git 更新",
+    "viewReadme": "查看 SKILL.md",
+    "editReadme": "编辑 SKILL.md",
+    "editInfo": "编辑信息",
+    "selectHint": "选择左侧 Skill 查看详情",
+    "noSkill": "没有安装任何 Skill",
+    "noMatch": "没有匹配的 skill",
+    "noProject": "没有项目 skill",
+    "confirmDelete": "确认删除 skill \"{id}\"？（将同时删除磁盘文件）",
+    "noRemark": "暂无备注",
+    "noTags": "暂无标签",
+    "noReadme": "无 SKILL.md",
+    "collapseReadme": "收起 SKILL.md",
+    "discoverSuccess": "发现 {found} 个，新增 {added} 个",
+    "discoverNone": "未发现新 skill",
+    "aliasPlaceholder": "如：委托代理、文档工具",
+    "remarkPlaceholder": "用中文写一段备注说明...",
+    "tagsPlaceholder": "英文逗号分隔，如：mcp, server, debug",
+    "source": {
+      "community": "社区",
+      "local": "本地",
+      "custom": "自定义"
+    }
   },
   "common": {
     "confirm": "确认",
     "cancel": "取消",
-    "refresh": "刷新"
+    "refresh": "刷新",
+    "collapse": "收起",
+    "edit": "编辑",
+    "save": "保存",
+    "preview": "预览",
+    "add": "添加"
   }
 }
