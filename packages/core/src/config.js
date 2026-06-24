@@ -25,6 +25,7 @@ import { join, dirname } from 'node:path';
 
 /** @type {StoreData} 默认存储骨架 */
 const DEFAULT_STORE = {
+  locale: 'zh-Hans',
   official_keys: [],
   providers: [],
   skills: {
@@ -92,6 +93,7 @@ export class ConfigEngine {
   _mergeDefaults(data) {
     const def = JSON.parse(JSON.stringify(DEFAULT_STORE));
     return {
+      locale: data.locale || def.locale,
       official_keys: Array.isArray(data.official_keys) ? data.official_keys : def.official_keys,
       providers: Array.isArray(data.providers) ? data.providers : def.providers,
       skills: {
@@ -148,5 +150,23 @@ export class ConfigEngine {
   /** @param {SkillsConfig} skills */
   setSkills(skills) {
     this.update((d) => { d.skills = skills; return d; });
+  }
+
+  // ─── Locale 方法 ────────────────────────────────────────────
+
+  /**
+   * 获取持久化的语言偏好
+   * @returns {string}
+   */
+  getLocale() {
+    return this.read().locale || 'zh-Hans';
+  }
+
+  /**
+   * 持久化语言偏好
+   * @param {string} locale
+   */
+  setLocale(locale) {
+    this.update((d) => { d.locale = locale; return d; });
   }
 }

@@ -49,6 +49,8 @@ import enLoc from 'element-plus/dist/locale/en.mjs';
 import jaLoc from 'element-plus/dist/locale/ja.mjs';
 import ptBrLoc from 'element-plus/dist/locale/pt-br.mjs';
 
+import { setLang } from '@/api/lang';
+
 const elLocaleMap = { 'zh-Hans': zhCn, 'en': enLoc, 'ja': jaLoc, 'pt-BR': ptBrLoc };
 
 const router = useRouter();
@@ -77,6 +79,7 @@ function onTabChange(val) {
 
 function onLocaleChange(val) {
   localStorage.setItem('codewhale-locale', val);
+  setLang(val);
 }
 
 const isDark = ref(false);

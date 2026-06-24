@@ -12,33 +12,33 @@ export function getProviderActive() { return ajaxBack('/provider/active'); }
 export function getProvider(id) { return ajaxBack('/provider/' + id); }
 
 export function addProvider(data) {
-  return ajaxPostBack('/provider/add', data, { successMessage: 'added' });
+  return ajaxPostBack('/provider/add', data, { successMessage: true });
 }
 
 export function editProvider(data) {
-  return ajaxPutBack('/provider/' + data.id, data, { successMessage: 'updated' });
+  return ajaxPutBack('/provider/' + data.id, data, { successMessage: true });
 }
 
 export function removeProvider(id) {
-  return ajaxDeleteBack('/provider/' + id, {}, { successMessage: 'deleted' });
+  return ajaxDeleteBack('/provider/' + id, {}, { successMessage: true });
 }
 
 export function activateProvider(id) {
-  return ajaxPostBack('/provider/' + id + '/activate', {}, { successMessage: 'activated' });
+  return ajaxPostBack('/provider/' + id + '/activate', {}, { successMessage: true });
 }
 
 export function deactivateProvider() {
-  return ajaxPostBack('/provider/deactivate', {}, { successMessage: 'deactivated' });
+  return ajaxPostBack('/provider/deactivate', {}, { successMessage: true });
 }
 
 // ─── 模型 ──
 
 export function addModel(data) {
-  return ajaxPostBack('/provider/models/add', data, { successMessage: 'modelAdded' });
+  return ajaxPostBack('/provider/models/add', data, { successMessage: true });
 }
 export function removeModel(data) {
-  return ajaxPostBack('/provider/models/delete', data, { successMessage: 'modelDeleted' });
+  return ajaxPostBack('/provider/models/delete', data, { successMessage: true });
 }
 export function setActiveModel(data) {
-  return ajaxPostBack('/provider/models/activate', data, { successMessage: 'modelSet' });
+  return ajaxPostBack('/provider/models/activate', data, { successMessage: true });
 }

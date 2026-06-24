@@ -51,7 +51,7 @@ try {
   await waitForServer('http://localhost:' + PORT + '/api/provider/list');
   console.log('✅ 后端就绪，启动前端 ...');
 
-  const frontend = spawn('npx', ['vite', '--host', '--port', '5173'], {
+  const frontend = spawn('npx', ['vite', '--host', '--port', '5163'], {
     cwd: join(root, 'packages', 'web'),
     stdio: 'inherit',
     shell: true,

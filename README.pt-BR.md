@@ -16,7 +16,7 @@ pnpm install
 
 # Modo Web UI (terminal 1: backend API, terminal 2: servidor dev frontend)
 node packages/server/server.js          # Backend API → localhost:3456
-pnpm --filter @codewhale/web dev      # Frontend Vite → localhost:5173
+pnpm --filter @codewhale/web dev      # Frontend Vite → localhost:5163
 ```
 
 ## Estrutura do Projeto

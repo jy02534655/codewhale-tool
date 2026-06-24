@@ -7,5 +7,5 @@ package-lock.json
 pnpm-workspace.yaml
 /store.json
 /store.json.bak
-/.codewhale/skills.json
-/.codewhale/skills.json.bak
+/.codewhale/
+/.deepseek/

@@ -18,24 +18,25 @@ CodeWhale 可视化配置管理工具 — 管理 provider/key/model 三级切换
 
 | 文件 | 状态 | 说明 |
 |------|------|------|
-| `package.json` | ✅ | monorepo 根配置，ESM 模式 |
-| `pnpm-workspace.yaml` | ✅ | workspace 定义 |
-| `.gitignore` | ✅ | 忽略 node_modules / dist / .bak 等 |
-| `PROGRESS.md` | ✅ | 本进度日志 |
-| `packages/core/package.json` | ✅ | @codewhale/core，依赖 smol-toml |
+| `packages/core/src/skill.js` | ✅ | SkillManager — 双层 skill 管理 + 多源安装（GitHub/ZIP/Registry）+ 代理下载 |
+| `packages/core/src/skillhub.js` | ✅ | Skillhub CLI 集成 |
+| `packages/core/src/project-skill.js` | ✅ | 项目级 skill 存储引擎 |
+| `packages/core/src/config.js` | ✅ | ConfigEngine — JSON 存储引擎，含 community_cache |
+| `packages/core/src/provider.js` | ✅ | ProviderManager + OfficialKeyManager |
+| `packages/core/src/sync.js` | ✅ | SyncManager — 双向实时同步 |
 | `packages/core/src/types.js` | ✅ | JSDoc 类型定义 |
-| `packages/core/src/config.js` | ✅ | ConfigEngine — TOML 安全读写+备份 |
-| `packages/core/src/provider.js` | ✅ | ProviderManager — 三级 CRUD+切换 |
-| `packages/core/src/skill.js` | ✅ | SkillManager — 安装/启禁/删除/搜索 |
-| `packages/core/src/index.js` | ✅ | 统一导出入口 |
-| `packages/web/package.json` | ✅ | @codewhale/web，Vue 3 + Vite |
+| `packages/core/src/result.js` | ✅ | ok/fail/guard 统一错误捕获 |
+| `packages/core/src/i18n.js` | ✅ | 多语言映射 |
+| `packages/server/index.js` | ✅ | Express 服务入口，集成 ProjectSkillEngine + skillMgr.discover() |
+| `packages/server/src/routes/skill.js` | ✅ | Skill 路由 — 完整端点（列表/编辑/安装/SSE/Skillhub） |
+| `packages/server/src/routes/provider.js` | ✅ | Provider 路由 |
+| `packages/server/src/routes/officialKey.js` | ✅ | 官方 Key 路由 |
+| `packages/server/src/routes/sync.js` | ✅ | 同步路由 |
+| `packages/web/src/views/skill/` | ✅ | Skill 管理页面（install/edit/detail/readme） |
+| `packages/web/src/utils/request.js` | ✅ | axios 封装 — 标准 15s + 长超时 120s 双实例 |
+| `packages/web/src/api/skill.js` | ✅ | Skill API — 安装操作使用长超时 ajaxPostBackLong |
 | `packages/web/vite.config.js` | ✅ | Vite 配置 + API 代理 |
-| `packages/web/index.html` | ✅ | HTML 入口 + 暗色 CSS 变量 |
-| `packages/web/src/main.js` | ✅ | Vue 3 挂载 |
-| `packages/web/src/App.vue` | ✅ | 根组件（导航+标签页+toast） |
-| `packages/web/src/views/ProviderView.vue` | ✅ | Provider 管理页面 |
-| `packages/web/src/views/SkillView.vue` | ✅ | Skill 管理页面 |
-| `packages/server/package.json` | ✅ | @codewhale/server，Express API |\n| `packages/server/server.js` | ✅ | Express API 服务器 |
+| 多语言包 `zh-Hans/en/ja/pt-BR` | ✅ | 4 语言完整支持 |
 
 ---
 
@@ -43,30 +44,18 @@ CodeWhale 可视化配置管理工具 — 管理 provider/key/model 三级切换
 
 | 任务 | 状态 | 说明 |
 |------|------|------|
-| 安装依赖 | 🔄 | `pnpm install` |
-| 验证构建 | ⬜ | 确认所有包可正确导入 |
-| 多语言文档 | ⬜ | en / ja / zh-Hans / pt-BR |
-
----
-
-## 待开发
-
-| 项目 | 优先级 | 说明 |
-|------|--------|------|
-| Web UI Skill 详情展开 | P4 | SKILL.md 内容在点击"详情"时加载 |
-| Web UI 全局 toast | P4 | 替换 alert() 为优雅的 toast 提示 |
-| 单文件打包 | P5 | bun build --compile 单 exe 分发 |
-| CI/CD | P6 | GitHub Actions 自动构建发布 |
+| 启动验证 | ⬜ | `pnpm dev` 完整安装链路验证（GitHub → 代理下载 → SSE 进度 → 前端） |
+| Stage 辅助脚本 | ⬜ | 根目录 `fix_*.py/cjs`、`check_*.py` 等是否要 staged |
 
 ---
 
 ## 设计决策
 
-1. **全栈 JS**：Web UI 用 Vue 3，核心层用 Node.js，一套语言贯穿
-2. **TOML 库**：使用 `smol-toml`（零依赖，轻量）
-3. **配置路径**：cwd/config.toml → ~/.codewhale/config.toml 自动探测
-4. **写入安全**：每次写入前自动备份为 config.toml.bak
-5. **Web 架构**：Express API 服务（@codewhale/server, 3456） + Vite 前端 (5173)，dev 模式通过代理通信
+1. **代理下载走 `node:https.get` + agent**：`degit` 不支持自定义 agent，`installFromGitHub` 传入 `proxyUrl` 时走 `_downloadZipWithProxy` 分支（codeload zipball → adm-zip），自动识别 SOCKS5/HTTP。
+2. **SSE 端点手动注入**：`fix_route_sse.py` 通过字节级搜索/替换向 `skill.js` 注入 `/install-github-stream` 路由。
+3. **路由函数签名扩展**：`createSkillRouter` 新增 `skillhubCli` 参数。
+4. **前端双 axios 实例**：标准操作 15s（`service`），安装/下载操作 120s（`serviceLong`），通过 `ajaxPostBackLong` 导出。
+5. **安装操作 `loading: false`**：避免长时间 loading 遮罩遮挡安装进度 UI。
 
 ---
 
@@ -75,10 +64,11 @@ CodeWhale 可视化配置管理工具 — 管理 provider/key/model 三级切换
 如果在此中断后恢复工作：
 
 1. 读取本文件了解进度
-2. 首先执行 `npm install` 安装依赖
-3. 验证：`node -e "import('@codewhale/core').then(m => console.log(Object.keys(m)))"`
-4. 继续下一项待开发任务
+2. SSE 端点 `/install-github-stream` 已在 `packages/server/src/routes/skill.js`（staged）
+3. 前端双 axios 实例已在 `packages/web/src/utils/request.js` 和 `packages/web/src/api/skill.js`
+4. 下次启动：`pnpm dev` 验证完整安装链路
+5. 安装请求超时已从 15s 提升至 120s，但未实际运行验证
 
 ---
 
-_最后更新: 2026-06-03_
+_最后更新: 2026-06-24_

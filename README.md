@@ -34,12 +34,12 @@ pnpm dev
 
 # 或分别启动
 pnpm server    # API 后端 → localhost:3456
-pnpm --filter @codewhale/web dev  # Vite 前端 → localhost:5173
+pnpm --filter @codewhale/web dev  # Vite 前端 → localhost:5163
 
 
 ```
 
-访问 `http://localhost:5173` 即可使用 Web UI。
+访问 `http://localhost:5163` 即可使用 Web UI。
 
 ---
 

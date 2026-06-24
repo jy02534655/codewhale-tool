@@ -150,6 +150,18 @@ export const SERVER_MSG = {
     GITHUB_API_ERROR: 'GitHub API 请求失败',
     NETWORK_ERROR: '网络请求失败',
     DELETE_DIR_FAILED: '删除目录失败',
+    SKILL_ZIP_DOWNLOAD_FAILED: 'ZIP 下载失败，请检查网络连接',
+    SKILL_INSTALL_FAILED: 'Skill 安装失败',
+    SKILL_ZIP_EXTRACT_FAILED: 'ZIP 解压失败，文件可能已损坏',
+    SKILL_INVALID_REPO_URL: '无效的 GitHub 仓库 URL',
+    SKILL_MULTI_SKILL_REPO: '此仓库包含多个 Skill，请指定 skill 名称',
+
+    // ── Skillhub ──
+    SKILLHUB_NOT_INSTALLED: 'Skillhub 命令行工具未安装，请先通过 Web UI 安装',
+    SKILLHUB_INSTALL_FAILED: 'Skillhub 安装失败，请检查网络连接',
+    SKILLHUB_SEARCH_FAILED: 'Skillhub 搜索失败',
+    SKILLHUB_INSTALL_SKILL_OK: '技能已通过 Skillhub 安装成功',
+    SKILLHUB_INSTALL_SKILL_FAILED: '通过 Skillhub 安装技能失败',
   },
   'en': {
     providerNotFound: 'Vendor not found',
@@ -192,6 +204,18 @@ export const SERVER_MSG = {
     GITHUB_API_ERROR: 'GitHub API request failed',
     NETWORK_ERROR: 'Network request failed',
     DELETE_DIR_FAILED: 'Failed to delete directory',
+    SKILL_ZIP_DOWNLOAD_FAILED: 'ZIP download failed, check network connection',
+    SKILL_INSTALL_FAILED: 'Skill installation failed',
+    SKILL_ZIP_EXTRACT_FAILED: 'ZIP extraction failed, file may be corrupted',
+    SKILL_INVALID_REPO_URL: 'Invalid GitHub repository URL',
+    SKILL_MULTI_SKILL_REPO: 'This repo contains multiple skills, please specify a skill name',
+
+    // ── Skillhub ──
+    SKILLHUB_NOT_INSTALLED: 'Skillhub CLI not installed, please install via Web UI first',
+    SKILLHUB_INSTALL_FAILED: 'Skillhub installation failed, check network connection',
+    SKILLHUB_SEARCH_FAILED: 'Skillhub search failed',
+    SKILLHUB_INSTALL_SKILL_OK: 'Skill installed successfully via Skillhub',
+    SKILLHUB_INSTALL_SKILL_FAILED: 'Failed to install skill via Skillhub',
   },
   'ja': {
     providerNotFound: 'ベンダーが見つかりません',
@@ -234,6 +258,18 @@ export const SERVER_MSG = {
     GITHUB_API_ERROR: 'GitHub API リクエストに失敗しました',
     NETWORK_ERROR: 'ネットワークリクエストに失敗しました',
     DELETE_DIR_FAILED: 'ディレクトリの削除に失敗しました',
+    SKILL_ZIP_DOWNLOAD_FAILED: 'ZIP のダウンロードに失敗しました。ネットワークを確認してください',
+    SKILL_INSTALL_FAILED: 'スキルのインストールに失敗しました',
+    SKILL_ZIP_EXTRACT_FAILED: 'ZIP の解凍に失敗しました。ファイルが破損している可能性があります',
+    SKILL_INVALID_REPO_URL: '無効な GitHub リポジトリ URL です',
+    SKILL_MULTI_SKILL_REPO: 'このリポジトリには複数のスキルが含まれています。スキル名を指定してください',
+
+    // ── Skillhub ──
+    SKILLHUB_NOT_INSTALLED: 'Skillhub CLI がインストールされていません。Web UI からインストールしてください',
+    SKILLHUB_INSTALL_FAILED: 'Skillhub のインストールに失敗しました。ネットワークを確認してください',
+    SKILLHUB_SEARCH_FAILED: 'Skillhub の検索に失敗しました',
+    SKILLHUB_INSTALL_SKILL_OK: 'スキルが Skillhub 経由で正常にインストールされました',
+    SKILLHUB_INSTALL_SKILL_FAILED: 'Skillhub 経由でのスキルインストールに失敗しました',
   },
   'pt-BR': {
     providerNotFound: 'Fornecedor não encontrado',
@@ -276,6 +312,18 @@ export const SERVER_MSG = {
     GITHUB_API_ERROR: 'Falha na requisição à API do GitHub',
     NETWORK_ERROR: 'Falha na requisição de rede',
     DELETE_DIR_FAILED: 'Falha ao excluir diretório',
+    SKILL_ZIP_DOWNLOAD_FAILED: 'Falha no download do ZIP, verifique a rede',
+    SKILL_INSTALL_FAILED: 'Falha na instalação da skill',
+    SKILL_ZIP_EXTRACT_FAILED: 'Falha ao extrair ZIP, arquivo pode estar corrompido',
+    SKILL_INVALID_REPO_URL: 'URL de repositório GitHub inválida',
+    SKILL_MULTI_SKILL_REPO: 'Este repositório contém múltiplos skills, especifique um nome',
+
+    // ── Skillhub ──
+    SKILLHUB_NOT_INSTALLED: 'Skillhub CLI não instalado, instale via Web UI primeiro',
+    SKILLHUB_INSTALL_FAILED: 'Falha na instalação do Skillhub, verifique a rede',
+    SKILLHUB_SEARCH_FAILED: 'Falha na busca do Skillhub',
+    SKILLHUB_INSTALL_SKILL_OK: 'Skill instalada com sucesso via Skillhub',
+    SKILLHUB_INSTALL_SKILL_FAILED: 'Falha ao instalar skill via Skillhub',
   },
 };
 
@@ -285,6 +333,22 @@ export const SERVER_MSG = {
  * @param {string} key
  * @returns {string}
  */
-export function getServerMessage(locale, key) {
+export function getServerMessage(key) {
+  const locale = getLocale();
   return (SERVER_MSG[locale] && SERVER_MSG[locale][key]) || SERVER_MSG['zh-Hans'][key] || '';
+}
+
+/**
+ * 直接返回标准失败响应（含翻译消息 + errorCode）
+ * @param {string} key - SERVER_MSG 中的消息 key
+ * @returns {{success: false, data: null, message: string, errorCode: string}}
+ */
+export function failMsg(key) {
+  const locale = getLocale();
+  return {
+    success: false,
+    data: null,
+    message: (SERVER_MSG[locale] && SERVER_MSG[locale][key]) || SERVER_MSG['zh-Hans'][key] || '',
+    errorCode: key,
+  };
 }

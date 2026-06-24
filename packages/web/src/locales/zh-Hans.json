@@ -51,12 +51,6 @@
     "error_update": "更新失败"
   },
   "message": {
-    "added": "已添加",
-    "deleted": "已删除",
-    "updated": "已更新",
-    "synced": "同步完成",
-    "syncSuccess": "操作成功",
-    "activated": "已激活",
     "networkError": "网络异常，请重试"
   },
   "skill": {
@@ -94,6 +88,37 @@
     "aliasPlaceholder": "如：委托代理、文档工具",
     "remarkPlaceholder": "用中文写一段备注说明...",
     "tagsPlaceholder": "英文逗号分隔，如：mcp, server, debug",
+    "skillId": "Skill ID",
+    "repoUrl": "仓库 URL",
+    "skillPath": "Skill 路径（可选）",
+    "zipUrl": "ZIP 链接",
+    "zipFile": "本地文件",
+    "zipOr": "或",
+    "chooseFile": "选择文件",
+    "clearFile": "清除",
+    "communityLink": "📦 浏览社区 Skill 列表",
+    "registryId": "注册表标识符",
+    "proxyUrl": "代理地址（可选）",
+    "installMode": {
+      "community": "社区安装",
+      "github": "GitHub 仓库",
+      "zip": "ZIP 包导入",
+      "registry": "注册表",
+      "skillhub": "Skillhub 搜索"
+    },
+    "skillhub": {
+      "notInstalled": "Skillhub 命令行工具未安装",
+      "installNow": "立即安装",
+      "installing": "安装中…",
+      "searchPlaceholder": "输入关键词搜索技能…",
+      "searching": "搜索中…",
+      "searchFail": "搜索失败",
+      "noResults": "未找到匹配的技能",
+      "installSkill": "安装",
+      "installingSkill": "安装中…",
+      "installSuccess": "安装成功",
+      "installFail": "安装失败"
+    },
     "source": {
       "community": "社区",
       "local": "本地",

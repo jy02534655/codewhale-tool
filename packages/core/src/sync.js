@@ -23,7 +23,7 @@ import { parse, stringify } from 'smol-toml';
 import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'node:fs';
 import { homedir } from 'node:os';
 import { join, dirname } from 'node:path';
-import { getServerMessage, getLocale } from './i18n.js';
+import { getServerMessage, failMsg } from './i18n.js';
 import { ok, fail } from './result.js';
 
 function codeWhalePath() {
@@ -71,10 +71,9 @@ export class SyncManager {
    * @returns {{success: boolean, data?: {merged?: number}, message?: string, errorCode?: string}}
    */
   initSync() {
-    const locale = getLocale();
     const cwPath = codeWhalePath();
     if (!existsSync(cwPath)) {
-      return ok({ merged: 0 }, getServerMessage(locale, 'CONFIG_NOT_EXISTS'));
+      return ok({ merged: 0 }, getServerMessage('CONFIG_NOT_EXISTS'));
     }
 
     try {
@@ -161,7 +160,7 @@ export class SyncManager {
 
       return ok({ merged: mergedCount }, `已从 CodeWhale 同步 ${mergedCount} 个新条目`);
     } catch (err) {
-      return fail(getServerMessage(locale, 'CONFIG_PARSE_ERROR'), 'CONFIG_PARSE_ERROR');
+      return failMsg('CONFIG_PARSE_ERROR');
     }
   }
 
@@ -179,7 +178,6 @@ export class SyncManager {
    * @returns {{success: boolean, data?: any, message?: string, errorCode?: string}}
    */
   syncToCodeWhale() {
-    const locale = getLocale();
     const cwPath = codeWhalePath();
 
     let cwCfg = {};
@@ -236,7 +234,7 @@ export class SyncManager {
       'utf-8'
     );
 
-    return ok(null, getServerMessage(locale, 'synced'));
+    return ok(null, getServerMessage('synced'));
   }
 
   // ─── 组合操作 ────────────────────────────────────────────────
@@ -260,8 +258,7 @@ export class SyncManager {
   activateOfficialAndSync(id) {
     return this._syncAfter(() => {
       if (!this._officialKeyMgr) {
-        const locale = getLocale();
-        return fail(getServerMessage(locale, 'OFFICIAL_MGR_NOT_READY'), 'OFFICIAL_MGR_NOT_READY');
+        return failMsg('OFFICIAL_MGR_NOT_READY');
       }
       return this._officialKeyMgr.activate(id);
     });

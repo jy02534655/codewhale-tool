@@ -10,7 +10,6 @@
     <div class="toolbar">
       <h2>{{ $t('skill.title') }}</h2>
       <div class="toolbar-actions">
-        <el-button size="small" @click="doDiscover">{{ $t('skill.discover') }}</el-button>
         <el-button size="small" type="primary"
           @click="dialogCtrl.showAddDialog(null, 'installDialog')">{{ $t('skill.install') }}</el-button>
         <el-button size="small" @click="loadSkills">{{ $t('skill.refresh') }}</el-button>
@@ -20,8 +19,6 @@
     <!-- 搜索栏 -->
     <div class="search-bar">
       <el-input v-model="search" :placeholder="$t('skill.searchPlaceholder')" clearable size="small" />
-      <el-button size="small"
-        @click="dialogCtrl.showAddDialog(null, 'installDialog')">{{ $t('skill.searchCommunity') }}</el-button>
     </div>
 
     <!-- 主从布局 -->
@@ -107,7 +104,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { ElMessage } from 'element-plus'
-import { getGlobalSkillList, getProjectSkillList, discoverSkill } from '@/api/skill'
+import { getGlobalSkillList, getProjectSkillList } from '@/api/skill'
 import { useMaskingStore } from '@/stores/masking'
 import { compositionDialogContainer } from '@/composition/dialog/Container'
 import install from './edit/install.vue'
@@ -216,19 +213,6 @@ function loadSkills() {
           selectedId.value = null
         }
       }
-    })
-}
-
-/** 自动发现 */
-function doDiscover() {
-  discoverSkill()
-    .then(function (res) {
-      var d = res && res.data ? res.data : { found: 0, added: 0 }
-      ElMessage.success(t('skill.discoverSuccess', { found: d.found, added: d.added }))
-      loadSkills()
-    })
-    .catch(function () {
-      ElMessage.error(t('skill.discoverFail'))
     })
 }
 

@@ -12,7 +12,7 @@
  * @module provider
  */
 
-import { getProviderI18nLabel, getDefaultBaseUrl, getServerMessage, getLocale } from './i18n.js';
+import { getProviderI18nLabel, getDefaultBaseUrl, getServerMessage, getLocale, failMsg } from './i18n.js';
 import { ok, fail } from './result.js';
 
 /** 掩码显示 API key（前5位 + ... + 后4位） */
@@ -53,11 +53,10 @@ export class OfficialKeyManager {
    * @private
    */
   _mutateKey(id, fn) {
-    const locale = getLocale();
     const keys = this._engine.getOfficialKeys();
     const idx = keys.findIndex((k) => k.id === id);
-    if (idx === -1) return fail(getServerMessage(locale, 'KEY_NOT_FOUND'), 'KEY_NOT_FOUND');
-    const result = fn(keys, idx, keys[idx], locale);
+    if (idx === -1) return failMsg('KEY_NOT_FOUND');
+    const result = fn(keys, idx, keys[idx]);
     this._engine.setOfficialKeys(keys);
     return result;
   }
@@ -70,16 +69,15 @@ export class OfficialKeyManager {
    * @returns {{success: boolean, data?: any, message?: string, errorCode?: string}}
    */
   add({ alias, api_key } = {}) {
-    const locale = getLocale();
-    if (!api_key) return fail(getServerMessage(locale, 'KEY_REQUIRED'), 'KEY_REQUIRED');
+    if (!api_key) return failMsg('KEY_REQUIRED');
     const id = 'official:' + api_key;
     const keys = this._engine.getOfficialKeys();
     if (keys.some((k) => k.id === id)) {
-      return fail(getServerMessage(locale, 'KEY_DUPLICATE'), 'KEY_DUPLICATE');
+      return failMsg('KEY_DUPLICATE');
     }
     keys.push({ id, alias: alias || '默认', api_key, active: keys.length === 0 });
     this._engine.setOfficialKeys(keys);
-    return ok({ id }, getServerMessage(locale, 'keyAdded'));
+    return ok({ id }, getServerMessage('keyAdded'));
   }
 
   /**
@@ -88,9 +86,9 @@ export class OfficialKeyManager {
    * @returns {{success: boolean, data?: any, message?: string, errorCode?: string}}
    */
   activate(id) {
-    return this._mutateKey(id, (keys, idx, k, locale) => {
+    return this._mutateKey(id, (keys, idx, k) => {
       keys.forEach((kk) => (kk.active = kk.id === id));
-      return ok(null, getServerMessage(locale, 'keyActivated'));
+      return ok(null, getServerMessage('keyActivated'));
     });
   }
 
@@ -100,9 +98,9 @@ export class OfficialKeyManager {
    * @returns {{success: boolean, data?: any, message?: string, errorCode?: string}}
    */
   updateAlias({ id, alias }) {
-    return this._mutateKey(id, (keys, idx, k, locale) => {
+    return this._mutateKey(id, (keys, idx, k) => {
       k.alias = alias;
-      return ok(null, getServerMessage(locale, 'aliasUpdated'));
+      return ok(null, getServerMessage('aliasUpdated'));
     });
   }
 
@@ -112,11 +110,11 @@ export class OfficialKeyManager {
    * @returns {{success: boolean, data?: any, message?: string, errorCode?: string}}
    */
   remove(id) {
-    return this._mutateKey(id, (keys, idx, k, locale) => {
+    return this._mutateKey(id, (keys, idx, k) => {
       const wasActive = k.active;
       keys.splice(idx, 1);
       if (wasActive && keys.length > 0) keys[0].active = true;
-      return ok(null, getServerMessage(locale, 'deleted'));
+      return ok(null, getServerMessage('deleted'));
     });
   }
 }
@@ -142,11 +140,10 @@ export class ProviderManager {
    * @private
    */
   _mutate(id, fn) {
-    const locale = getLocale();
     const all = this._engine.getProviders();
     const idx = all.findIndex((p) => p.id === id);
-    if (idx === -1) return fail(getServerMessage(locale, 'PROVIDER_NOT_FOUND'), 'PROVIDER_NOT_FOUND');
-    const result = fn(all, idx, all[idx], locale);
+    if (idx === -1) return failMsg('PROVIDER_NOT_FOUND');
+    const result = fn(all, idx, all[idx]);
     this._engine.setProviders(all);
     return result;
   }
@@ -157,11 +154,10 @@ export class ProviderManager {
    * @returns {{success: boolean, data: Array, message: string}}
    */
   listProviders() {
-    const locale = getLocale();
     return ok(this._engine.getProviders().map((p) => ({
       id: p.id,
       provider: p.provider,
-      label: p.label || getProviderI18nLabel(p.provider, locale),
+      label: p.label || getProviderI18nLabel(p.provider, getLocale()),
       api_key_preview: maskKey(p.api_key),
       base_url: p.base_url || '',
       models: p.models || [],
@@ -200,12 +196,11 @@ export class ProviderManager {
    * @returns {{success: boolean, data?: any, message?: string, errorCode?: string}}
    */
   addProvider({ provider, api_key, label, base_url, models } = {}) {
-    const locale = getLocale();
-    if (!provider) return fail(getServerMessage(locale, 'PROVIDER_REQUIRED'), 'PROVIDER_REQUIRED');
-    if (!api_key) return fail(getServerMessage(locale, 'KEY_REQUIRED'), 'KEY_REQUIRED');
+    if (!provider) return failMsg('PROVIDER_REQUIRED');
+    if (!api_key) return failMsg('KEY_REQUIRED');
     const id = `${provider}:${api_key}`;
     if (this._engine.findProvider(id)) {
-      return fail(getServerMessage(locale, 'PROVIDER_DUPLICATE'), 'PROVIDER_DUPLICATE');
+      return failMsg('PROVIDER_DUPLICATE');
     }
     const modelsArr = typeof models === 'string'
       ? models.split(',').map(s => s.trim()).filter(Boolean)
@@ -215,27 +210,27 @@ export class ProviderManager {
     }));
     this._engine.setProviders([
       ...this._engine.getProviders(),
-      { id, provider, label: label || getProviderI18nLabel(provider, locale), api_key, base_url: base_url || getDefaultBaseUrl(provider), models: modelList, active: false },
+      { id, provider, label: label || getProviderI18nLabel(provider, getLocale()), api_key, base_url: base_url || getDefaultBaseUrl(provider), models: modelList, active: false },
     ]);
-    return ok({ id }, getServerMessage(locale, 'added'));
+    return ok({ id }, getServerMessage('added'));
   }
 
   /** @param {{id: string, label?: string, base_url?: string}} param */
   updateProvider({ id, label, base_url } = {}) {
-    return this._mutate(id, (all, idx, p, locale) => {
+    return this._mutate(id, (all, idx, p) => {
       if (label !== undefined) p.label = label;
       if (base_url !== undefined) p.base_url = base_url;
-      return ok(null, getServerMessage(locale, 'updated'));
+      return ok(null, getServerMessage('updated'));
     });
   }
 
   /** @param {string} id */
   removeProvider(id) {
-    return this._mutate(id, (all, idx, p, locale) => {
+    return this._mutate(id, (all, idx, p) => {
       const wasActive = p.active;
       all.splice(idx, 1);
       if (wasActive) all.forEach((pp) => (pp.active = false));
-      return ok(null, getServerMessage(locale, 'deleted'));
+      return ok(null, getServerMessage('deleted'));
     });
   }
 
@@ -243,35 +238,35 @@ export class ProviderManager {
 
   /** @param {{id: string, name: string}} param */
   addModel({ id, name }) {
-    return this._mutate(id, (all, idx, p, locale) => {
+    return this._mutate(id, (all, idx, p) => {
       if (!p.models) p.models = [];
-      if (p.models.some((m) => m.name === name)) return fail(getServerMessage(locale, 'MODEL_DUPLICATE'), 'MODEL_DUPLICATE');
+      if (p.models.some((m) => m.name === name)) return failMsg('MODEL_DUPLICATE');
       p.models.push({ name, active: false });
-      return ok(null, getServerMessage(locale, 'modelAdded'));
+      return ok(null, getServerMessage('modelAdded'));
     });
   }
 
   /** @param {{id: string, name: string}} param */
   removeModel({ id, name }) {
-    return this._mutate(id, (all, idx, p, locale) => {
-      if (!p.models || p.models.length <= 1) return fail(getServerMessage(locale, 'MODEL_MIN_ONE'), 'MODEL_MIN_ONE');
+    return this._mutate(id, (all, idx, p) => {
+      if (!p.models || p.models.length <= 1) return failMsg('MODEL_MIN_ONE');
       const mi = p.models.findIndex((m) => m.name === name);
-      if (mi === -1) return fail(getServerMessage(locale, 'MODEL_NOT_FOUND'), 'MODEL_NOT_FOUND');
+      if (mi === -1) return failMsg('MODEL_NOT_FOUND');
       const wasActive = p.models[mi].active;
       p.models.splice(mi, 1);
       if (wasActive) p.models[0].active = true;
-      return ok(null, getServerMessage(locale, 'modelDeleted'));
+      return ok(null, getServerMessage('modelDeleted'));
     });
   }
 
   /** @param {{id: string, name: string}} param */
   setActiveModel({ id, name }) {
-    return this._mutate(id, (all, idx, p, locale) => {
-      if (!p.models) return fail(getServerMessage(locale, 'PROVIDER_NO_MODELS'), 'PROVIDER_NO_MODELS');
+    return this._mutate(id, (all, idx, p) => {
+      if (!p.models) return failMsg('PROVIDER_NO_MODELS');
       const target = p.models.find((m) => m.name === name);
-      if (!target) return fail(getServerMessage(locale, 'MODEL_NOT_FOUND'), 'MODEL_NOT_FOUND');
+      if (!target) return failMsg('MODEL_NOT_FOUND');
       p.models.forEach((m) => (m.active = m.name === name));
-      return ok(null, getServerMessage(locale, 'modelSet'));
+      return ok(null, getServerMessage('modelSet'));
     });
   }
 
@@ -279,12 +274,12 @@ export class ProviderManager {
 
   /** @param {string} providerId */
   activateProvider(providerId) {
-    return this._mutate(providerId, (all, idx, p, locale) => {
+    return this._mutate(providerId, (all, idx, p) => {
       all.forEach((pp) => (pp.active = pp.id === providerId));
       if (p.models && p.models.length > 0 && !p.models.some((m) => m.active)) {
         p.models[0].active = true;
       }
-      return ok(null, getServerMessage(locale, 'activated'));
+      return ok(null, getServerMessage('activated'));
     });
   }
 

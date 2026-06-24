@@ -21,7 +21,7 @@ export function getOfficialKeyList() { return ajaxBack('/official-key/list'); }
  * @returns {Promise<{success: boolean, message?: string, data?: Object}>} 操作结果 Promise
  */
 export function addOfficialKey(data) {
-  return ajaxPostBack('/official-key/add', data, { successMessage: 'added' });
+  return ajaxPostBack('/official-key/add', data, { successMessage: true });
 }
 
 /**
@@ -34,7 +34,7 @@ export function addOfficialKey(data) {
  * @description 与 addOfficialKey 参数结构一致，服务端仅使用 alias 字段
  */
 export function editOfficialKey(data) {
-  return ajaxPutBack('/official-key/' + data.id, data, { successMessage: 'aliasUpdated' });
+  return ajaxPutBack('/official-key/' + data.id, data, { successMessage: true });
 }
 
 /**
@@ -43,7 +43,7 @@ export function editOfficialKey(data) {
  * @returns {Promise<{success: boolean, message?: string, data?: Object}>} 操作结果 Promise
  */
 export function activateOfficialKey(id) {
-  return ajaxPostBack('/official-key/' + id + '/activate', {}, { successMessage: 'keyActivated' });
+  return ajaxPostBack('/official-key/' + id + '/activate', {}, { successMessage: true });
 }
 
 /**
@@ -52,5 +52,5 @@ export function activateOfficialKey(id) {
  * @returns {Promise<{success: boolean, message?: string}>} 操作结果 Promise
  */
 export function removeOfficialKey(id) {
-  return ajaxDeleteBack('/official-key/' + id, {}, { successMessage: 'deleted' });
+  return ajaxDeleteBack('/official-key/' + id, {}, { successMessage: true });
 }
