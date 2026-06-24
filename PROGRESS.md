@@ -28,7 +28,7 @@ CodeWhale 可视化配置管理工具 — 管理 provider/key/model 三级切换
 | `packages/core/src/result.js` | ✅ | ok/fail/guard 统一错误捕获 |
 | `packages/core/src/i18n.js` | ✅ | 多语言映射 |
 | `packages/server/index.js` | ✅ | Express 服务入口，集成 ProjectSkillEngine + skillMgr.discover() |
-| `packages/server/src/routes/skill.js` | ✅ | Skill 路由 — 完整端点（列表/编辑/安装/SSE/Skillhub） |
+| `packages/server/src/routes/skill.js` | ✅ | Skill 路由 — 完整端点（列表/安装/编辑/SSE/Skillhub） |
 | `packages/server/src/routes/provider.js` | ✅ | Provider 路由 |
 | `packages/server/src/routes/officialKey.js` | ✅ | 官方 Key 路由 |
 | `packages/server/src/routes/sync.js` | ✅ | 同步路由 |
@@ -37,6 +37,7 @@ CodeWhale 可视化配置管理工具 — 管理 provider/key/model 三级切换
 | `packages/web/src/api/skill.js` | ✅ | Skill API — 安装操作使用长超时 ajaxPostBackLong |
 | `packages/web/vite.config.js` | ✅ | Vite 配置 + API 代理 |
 | 多语言包 `zh-Hans/en/ja/pt-BR` | ✅ | 4 语言完整支持 |
+| 端到端启动验证 | ✅ | `pnpm dev` → 后端 3456 HTTP 200 / 前端 5163 HTTP 200 |
 
 ---
 
@@ -44,9 +45,8 @@ CodeWhale 可视化配置管理工具 — 管理 provider/key/model 三级切换
 
 | 任务 | 状态 | 说明 |
 |------|------|------|
-| 启动验证 | ⬜ | `pnpm dev` 完整安装链路验证（GitHub → 代理下载 → SSE 进度 → 前端） |
-| Stage 辅助脚本 | ⬜ | 根目录 `fix_*.py/cjs`、`check_*.py` 等是否要 staged |
-| Bug 修复已部署 | ✅ | 见上方「Bug 修复 (2026-06-24)」
+| `demo/` 目录 | ⬜ | 示例文件目录，暂未处理 |
+| SSE 进度流端到端测试 | ⬜ | 需要通过浏览器 UI 手动操作验证 |
 
 ---
 
@@ -57,20 +57,26 @@ CodeWhale 可视化配置管理工具 — 管理 provider/key/model 三级切换
 3. **路由函数签名扩展**：`createSkillRouter` 新增 `skillhubCli` 参数。
 4. **前端双 axios 实例**：标准操作 15s（`service`），安装/下载操作 120s（`serviceLong`），通过 `ajaxPostBackLong` 导出。
 5. **安装操作 `loading: false`**：避免长时间 loading 遮罩遮挡安装进度 UI。
-6. **Bug 修复：installFromGitHub 回退路径 + codeload URL**：详见下方「Bug 修复」。
+
 ---
 
 ## Bug 修复 (2026-06-24)
 
 | 问题 | 修复 |
 |------|------|
-| **degit 子目录不存在时静默创建空目录**：`installFromGitHub` 无代理路径使用 degit 下载子目录，若 `skillPath` 指向不存在的目录（如 `anthropics/skills` 的 skill 在 `skills/` 子目录下而非根目录），degit 静默创建空目录、不抛异常，导致返回 `SKILL_MISSING_README`且 targetDir 为空 | **`packages/core/src/skill.js`**: 无代理路径改为「优先 degit → 失败时回退到 ZIP 下载整个仓库 + `_findSkillDir` 递归搜索」。degit 完成后检查 `SKILL.md`，若不存在则清理空目录，改用 `_downloadAndExtractZip`（native fetch, 无代理）下载完整仓库 ZIP，再用 `_findSkillDir` 按 basename 递归搜索子目录 |
-| **codeload URL 格式错误**：`zipball/{branch}` 返回 HTTP 400，正确格式应为 `zip/refs/heads/{branch}` | **`packages/core/src/skill.js`**: 两处 `zipball/${branch}` 改为 `zip/refs/heads/${branch}` |
+| **degit 子目录不存在时静默创建空目录** | 无代理路径改为「优先 degit → 失败时回退到 ZIP 下载整个仓库 + `_findSkillDir` 递归搜索」 |
+| **codeload URL 格式错误** | `zipball/{branch}` → `zip/refs/heads/{branch}` |
+| **fetch res.body 是 Web ReadableStream，不支持 .pipe()** | 添加 `Readable.fromWeb(res.body)` 转换后使用 Node.js Readable |
 
-### 测试结果
-- `_findSkillDir` 对 `skillPath="skills/frontend-design"` 成功定位
-- 即使 `skillPath="frontend-design"`（不带 `skills/` 前缀），`_findSkillDir` 的回退搜索也能找到嵌套目录
-- `https://codeload.github.com/anthropics/skills/zip/refs/heads/main` → 200 OK
+## 验证记录
+
+- ✅ `node --check packages/core/src/skill.js` 语法通过
+- ✅ `_findSkillDir` 对 `skills/frontend-design` 成功定位
+- ✅ `_findSkillDir` 回退搜索（无 `skills/` 前缀）有效
+- ✅ codeload URL `zip/refs/heads/main` → 200 OK
+- ✅ `pnpm dev` → 后端 3456 HTTP 200，前端 5163 HTTP 200
+- ✅ `Readable.fromWeb()` 修复已正确应用到 _downloadViaTar 和 _downloadViaApi 两处
+- ❌ SSE 进度流端到端测试（需手动操作浏览器）
 
 ---
 
@@ -78,11 +84,12 @@ CodeWhale 可视化配置管理工具 — 管理 provider/key/model 三级切换
 
 如果在此中断后恢复工作：
 
-1. 读取本文件了解进度
-2. 核心代码已提交，见 `git log`
-3. 临时辅助脚本（`fix-skill-patch.mjs`、`test-skill-fallback.mjs`）已清理
-4. 下次启动：`pnpm dev` 验证完整安装链路
-5. 安装请求超时已从 15s 提升至 120s，但未实际运行验证
+1. 确保已安装依赖：`pnpm install`
+2. 启动开发环境：`pnpm dev`
+3. 访问 `http://localhost:5163` → Skill 管理 → 安装
+4. 测试 GitHub URL: `https://github.com/anthropics/skills`
+5. Skill 路径: `skills/frontend-design`
+6. 观察 SSE 进度流是否正常输出进度事件
 
 ---
 

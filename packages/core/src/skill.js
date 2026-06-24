@@ -1019,6 +1019,8 @@ export class SkillManager {
         const skillName = skillPath || repo;
         const { prefix } = await this._detectSkillPrefix(owner, repo, skillName, branch, agent);
         const skillPrefix = skillPath ? prefix : '';
+        // 候选 fallback 前缀（demo 同款策略）
+        const fallbackPrefixes = [`skills/${skillName}/`, `${skillName}/`];
 
         let tarFailed = false;
         try {
@@ -1045,7 +1047,74 @@ export class SkillManager {
       }
 
       if (onProgress) {
-        onProgress({ stage: 'registering', percent: 90, message: '注册 Skill...' });
+        onProgress({ stage: 'extracted', percent: 85, message: '验证 SKILL.md...' });
+      }
+
+      // ── 安装后检测：SKILL.md 是否存在（prefix 可能不准确）──
+      if (skillPath && !existsSync(join(targetDir, 'SKILL.md'))) {
+        let recovered = false;
+
+        // 1. 尝试 fallback 前缀（demo 同款策略）
+        for (const fbPrefix of fallbackPrefixes) {
+          if (fbPrefix === skillPrefix) continue;
+          if (onProgress) {
+            onProgress({ stage: 'fallback', percent: 70, message: `尝试前缀 "${fbPrefix}"...` });
+          }
+          try {
+            try { if (existsSync(targetDir)) rmSync(targetDir, { recursive: true, force: true }); } catch {}
+            await this._downloadViaTar({
+              owner, repo, branch, skillPrefix: fbPrefix,
+              targetDir, agent, onProgress,
+            });
+            if (existsSync(join(targetDir, 'SKILL.md'))) {
+              recovered = true;
+              break;
+            }
+          } catch (fbTarErr) {
+            if (onProgress) {
+              onProgress({ stage: 'fallback', percent: 70, message: `前缀 "${fbPrefix}" 也失败: ${fbTarErr.message}` });
+            }
+          }
+        }
+
+        // 2. ZIP 全量下载 + 目录搜索（终极回退）
+        if (!recovered && !existsSync(join(targetDir, 'SKILL.md'))) {
+          if (onProgress) {
+            onProgress({ stage: 'fallback', percent: 75, message: '回退 ZIP 全量下载 + 目录搜索...' });
+          }
+          try { if (existsSync(targetDir)) rmSync(targetDir, { recursive: true, force: true }); } catch {}
+
+          const tempRoot = join(tmpdir(), `skill-fallback-${randomUUID()}`);
+          mkdirSync(tempRoot, { recursive: true });
+          try {
+            await this._downloadAndExtractZip(
+              `https://codeload.github.com/${owner}/${repo}/zip/refs/heads/${branch}`,
+              tempRoot, proxyUrl, onProgress
+            );
+            // ZIP 解压后在 tempRoot 下生成 <repo>-<branch>/ 子目录
+            const innerDir = join(tempRoot, `${repo}-${branch}`);
+            const actualRoot = existsSync(innerDir) ? innerDir : tempRoot;
+            const foundDir = this._findSkillDir(actualRoot, skillPath);
+            if (foundDir) {
+              this._copyDir(foundDir, targetDir);
+              recovered = true;
+            }
+          } finally {
+            try { rmSync(tempRoot, { recursive: true, force: true }); } catch {}
+          }
+        }
+
+        // 3. API 并发下载（最后的回退）
+        if (!recovered && !existsSync(join(targetDir, 'SKILL.md'))) {
+          if (onProgress) {
+            onProgress({ stage: 'fallback', percent: 80, message: '回退 API 并发下载...' });
+          }
+          try { if (existsSync(targetDir)) rmSync(targetDir, { recursive: true, force: true }); } catch {}
+          await this._downloadViaApi({
+            owner, repo, branch, skillPrefix,
+            targetDir, agent, onProgress,
+          });
+        }
       }
 
       // 验证 SKILL.md 存在
