@@ -35,7 +35,7 @@ export function updateSkill(id) { return ajaxPostBack('/skill/update/' + id, {},
 
 /** 从 GitHub 仓库安装 skill */
 export function installFromGithub(repoUrl, skillPath, level, proxyUrl) {
-  return ajaxPostBackLong('/skill/install-github', { repoUrl, skillPath, level, proxyUrl }, { successMessage: true, loading: false })
+  return new EventSource('/skill/install-github', { repoUrl, skillPath, level, proxyUrl }, { successMessage: true, loading: false })
 }
 
 /** 从 ZIP 文件安装 skill */
@@ -84,3 +84,13 @@ export function getReadme(id) { return ajaxBack('/skill/readme/' + id) }
 
 /** 保存 SKILL.md */
 export function saveReadme(id, content) { return ajaxPutBack('/skill/readme/' + id, { content }, { successMessage: true }) }
+
+/** GitHub 仓库安装（SSE 实时进度流，返回 EventSource 实例） */
+export function installFromGithubStream(repoUrl, skillPath, proxyUrl) {
+  var params = new URLSearchParams({
+    repoUrl: repoUrl || '',
+    skillPath: skillPath || '',
+    proxyUrl: proxyUrl || '',
+  })
+  return new EventSource('/api/skill/install-github-stream?' + params.toString())
+}

@@ -432,6 +432,143 @@ export class SkillManager {
   }
 
   /**
+   * 使用 git sparse checkout（partial clone）下载单个 skill 子目录
+   *
+   * 比 ZIP 全量下载快得多（只下载目标子目录，而非整个仓库）。
+   * git 原生支持 http.proxy/https.proxy，兼容 SOCKS5/HTTP 代理。
+   *
+   * @param {string} repoUrl    - GitHub 仓库 URL
+   * @param {string} [skillPath] - 子目录路径（可选，无则克隆整个仓库根目录）
+   * @param {string} targetDir  - 目标目录
+   * @param {string} [proxyUrl]  - 代理地址（可选）
+   * @param {Function} [onProgress] - 进度回调
+   * @returns {Promise<void>}
+   * @private
+   */
+  async _cloneWithGitSparse(repoUrl, skillPath, targetDir, proxyUrl, onProgress) {
+    const { execSync } = await import('node:child_process');
+    const tmpDir = join(tmpdir(), `skill-git-${randomUUID()}`);
+    mkdirSync(tmpDir, { recursive: true });
+
+    try {
+      onProgress?.({ stage: 'cloning', percent: 10, message: 'git sparse clone...' });
+
+      // 构建 git clone 参数
+      // --depth 1: 浅克隆，只取最新 commit
+      // --filter=blob:none: partial clone，不下载文件 blob
+      // --sparse: 开启稀疏检出
+      // --no-checkout: 暂不检出，后续 sparse-checkout 后统一 checkout
+      const proxyArgs = proxyUrl
+        ? `-c http.proxy=${proxyUrl} -c https.proxy=${proxyUrl}`
+        : '';
+      const cloneArgs = [
+        'clone',
+        '--depth', '1',
+        '--filter=blob:none',
+        '--sparse',
+        '--no-checkout',
+        repoUrl,
+        tmpDir,
+      ];
+      const cloneCmd = [
+        ...(proxyArgs ? ['git', proxyArgs, ...cloneArgs] : ['git', ...cloneArgs]),
+      ].join(' ');
+
+      execSync(cloneCmd, { stdio: 'pipe', timeout: 120000 });
+
+      // 设置稀疏检出路径
+      if (skillPath) {
+        onProgress?.({ stage: 'checkout', percent: 40, message: `sparse-checkout: ${skillPath}...` });
+        const sparseArgs = [
+          ...(proxyArgs ? ['git', proxyArgs, '-C', `"${tmpDir}"`, 'sparse-checkout', 'set', `"${skillPath}"`]
+            : ['git', '-C', `"${tmpDir}"`, 'sparse-checkout', 'set', `"${skillPath}"`]),
+        ].join(' ');
+        execSync(sparseArgs, { stdio: 'pipe', timeout: 60000 });
+      }
+
+      onProgress?.({ stage: 'checking-out', percent: 60, message: 'checkout files...' });
+      execSync(`git -C "${tmpDir}" checkout`, { stdio: 'pipe', timeout: 60000 });
+
+      // 定位 skill 目录并复制到目标
+      const skillDir = skillPath
+        ? join(tmpDir, ...skillPath.split('/'))
+        : tmpDir;
+
+      if (!existsSync(join(skillDir, 'SKILL.md'))) {
+        throw new Error('SKILL.md not found after sparse checkout');
+      }
+
+      onProgress?.({ stage: 'copying', percent: 80, message: '复制到目标目录...' });
+      this._copyDir(skillDir, targetDir);
+
+      onProgress?.({ stage: 'cloned', percent: 85, message: 'clone 完成' });
+    } finally {
+      try { rmSync(tmpDir, { recursive: true, force: true }); } catch {}
+    }
+  }
+
+  /**
+   * 代理下载回退方案：ZIP 下载（archive/codeload 直链）
+   * 当 git sparse checkout 失败时使用。通过代理下载整个仓库 ZIP 后解压搜索子目录。
+   * @param {string} owner      - GitHub 仓库 owner
+   * @param {string} repo       - GitHub 仓库 repo
+   * @param {string} [skillPath] - 子目录路径
+   * @param {string} targetDir  - 目标安装目录
+   * @param {string} [proxyUrl]  - 代理地址
+   * @param {Function} [onProgress]
+   * @returns {Promise<boolean>}
+   * @private
+   */
+  async _proxyDownloadFallback(owner, repo, skillPath, targetDir, proxyUrl, onProgress) {
+    const tempDir = join(tmpdir(), `skill-extract-${randomUUID()}`);
+    const branches = ['main', 'master'];
+    const zipUrlFormats = [
+      (branch) => `https://github.com/${owner}/${repo}/archive/refs/heads/${branch}.zip`,
+      (branch) => `https://codeload.github.com/${owner}/${repo}/zip/refs/heads/${branch}`,
+    ];
+    let extractRoot = null;
+    let lastError = null;
+    for (const branch of branches) {
+      for (const fmt of zipUrlFormats) {
+        try {
+          extractRoot = await this._downloadAndExtractZip(fmt(branch), tempDir, proxyUrl, onProgress);
+          break;
+        } catch (e) {
+          lastError = e;
+        }
+      }
+      if (extractRoot) break;
+      try { rmSync(tempDir, { recursive: true, force: true }); } catch {}
+    }
+    if (!extractRoot) throw lastError || new Error('ZIP download failed');
+
+    let skillDir;
+    if (skillPath) {
+      skillDir = this._findSkillDir(extractRoot, skillPath);
+      if (!skillDir) {
+        try { rmSync(tempDir, { recursive: true, force: true }); } catch {}
+        return false;
+      }
+    } else {
+      skillDir = extractRoot;
+      if (!existsSync(join(skillDir, 'SKILL.md'))) {
+        try { rmSync(tempDir, { recursive: true, force: true }); } catch {}
+        return false;
+      }
+    }
+
+    if (!existsSync(join(skillDir, 'SKILL.md'))) {
+      try { rmSync(tempDir, { recursive: true, force: true }); } catch {}
+      return false;
+    }
+
+    onProgress?.({ stage: 'finding', percent: 75, message: '定位 Skill 目录...' });
+    this._copyDir(skillDir, targetDir);
+    try { rmSync(tempDir, { recursive: true, force: true }); } catch {}
+    return true;
+  }
+
+  /**
    * 在解压目录中搜索 skill 子目录
    * 策略：优先精确匹配 skillPath，其次递归搜索同名目录
    * @param {string} extractRoot - 解压根目录
@@ -528,57 +665,20 @@ export class SkillManager {
         onProgress({ stage: 'connecting', percent: 5, message: '连接 GitHub...' });
       }
       if (proxyUrl) {
-        // ── 有代理：ZIP 下载（archive 直链 → codeload 备选） ──
-        const tempDir = join(tmpdir(), `skill-extract-${randomUUID()}`);
-        const branches = ['main', 'master'];
-        // 两种 URL 格式：GitHub archive 直链（CDN 重定向，代理友好）+ codeload 备选
-        const zipUrlFormats = [
-          (branch) => `https://github.com/${owner}/${repo}/archive/refs/heads/${branch}.zip`,
-          (branch) => `https://codeload.github.com/${owner}/${repo}/zip/refs/heads/${branch}`,
-        ];
-        let extractRoot = null;
-        let lastError = null;
-        for (const branch of branches) {
-          for (const fmt of zipUrlFormats) {
-            try {
-              const zipUrl = fmt(branch);
-              extractRoot = await this._downloadAndExtractZip(zipUrl, tempDir, proxyUrl);
-              break;
-            } catch (e) {
-              lastError = e;
-            }
+        // ── 有代理：优先 git sparse checkout（原生代理穿透），失败回退 ZIP ──
+        // git 支持 http.proxy/https.proxy，不走 CDN 域名，代理友好
+        let cloned = false;
+        try {
+          await this._cloneWithGitSparse(`https://github.com/${owner}/${repo}`, skillPath, targetDir, proxyUrl, onProgress);
+          cloned = true;
+        } catch (gitErr) {
+          if (onProgress) {
+            onProgress({ stage: 'fallback', percent: 10, message: `git clone 失败 (${gitErr.message}), 回退 ZIP 下载...` });
           }
-          if (extractRoot) break;
-          try { rmSync(tempDir, { recursive: true, force: true }); } catch {}
+          // 回退：ZIP 下载（archive 直链 → codeload 备选）
+          cloned = await this._proxyDownloadFallback(owner, repo, skillPath, targetDir, proxyUrl, onProgress);
         }
-        if (!extractRoot) throw lastError || new Error('ZIP download failed');
-
-        // 定位 skill 子目录
-        let skillDir;
-        if (skillPath) {
-          skillDir = this._findSkillDir(extractRoot, skillPath);
-          if (!skillDir) {
-            try { rmSync(tempDir, { recursive: true, force: true }); } catch {}
-            return failMsg('SKILL_MISSING_README');
-          }
-        } else {
-          skillDir = extractRoot;
-          if (!existsSync(join(skillDir, 'SKILL.md'))) {
-            try { rmSync(tempDir, { recursive: true, force: true }); } catch {}
-            return failMsg('SKILL_MISSING_README');
-          }
-        }
-
-        if (!existsSync(join(skillDir, 'SKILL.md'))) {
-          try { rmSync(tempDir, { recursive: true, force: true }); } catch {}
-          return failMsg('SKILL_MISSING_README');
-        }
-
-        if (onProgress) {
-          onProgress({ stage: 'finding', percent: 75, message: '定位 Skill 目录...' });
-        }
-        this._copyDir(skillDir, targetDir);
-        try { rmSync(tempDir, { recursive: true, force: true }); } catch {}
+        if (!cloned) throw new Error('ZIP download failed');
       } else {
         // ── 无代理：优先 degit（快），失败时回退到 ZIP 下载 + _findSkillDir 搜索 ──
         if (onProgress) {

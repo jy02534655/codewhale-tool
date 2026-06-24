@@ -116,8 +116,8 @@ export function createSkillRouter(skillMgr, skillhubCli) {
   // 注册表安装
 
   // GitHub 仓库安装（SSE 实时进度流）
-  router.post('/install-github-stream', async (req, res) => {
-    const { repoUrl, skillPath, level, proxyUrl } = req.body;
+  router.get('/install-github-stream', async (req, res) => {
+    const { repoUrl, skillPath, level, proxyUrl } = req.query;
 
     // 设置 SSE 响应头
     res.writeHead(200, {

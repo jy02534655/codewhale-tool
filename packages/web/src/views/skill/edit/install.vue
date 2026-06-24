@@ -289,9 +289,38 @@ function onSubmit() {
   var promise
   var pUrl = proxyUrl.value.trim() || undefined
   switch (mode.value) {
-    case 'github':
-      promise = installFromGithub(repoUrl.value.trim(), skillPath.value.trim() || undefined, undefined, pUrl)
-      break
+    case 'github': {
+      var params = new URLSearchParams({
+        repoUrl: repoUrl.value.trim(),
+        skillPath: skillPath.value.trim() || '',
+        proxyUrl: proxyUrl.value.trim() || '',
+      })
+      var es = new EventSource('/api/skill/install-github-stream?' + params.toString())
+      es.addEventListener('progress', function (e) {
+        var data = JSON.parse(e.data)
+        console.log('Install progress:', data.percent + '%', data.message)
+      })
+      es.addEventListener('complete', function () {
+        es.close()
+        ElMessage.success('安装完成')
+        hideDialog()
+        emit('submitSuccess')
+      })
+      es.addEventListener('error', function (e) {
+        es.close()
+        if (e.data) {
+          try {
+            var data = JSON.parse(e.data)
+            ElMessage.error(data.message)
+          } catch (_) {
+            ElMessage.error('安装失败')
+          }
+        } else {
+          ElMessage.error('连接中断')
+        }
+      })
+      return
+    }
     case 'zip':
       if (zipBase64) {
         promise = uploadZip(zipBase64, zipFileName.value)
