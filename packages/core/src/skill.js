@@ -534,7 +534,7 @@ export class SkillManager {
         // 两种 URL 格式：GitHub archive 直链（CDN 重定向，代理友好）+ codeload 备选
         const zipUrlFormats = [
           (branch) => `https://github.com/${owner}/${repo}/archive/refs/heads/${branch}.zip`,
-          (branch) => `https://codeload.github.com/${owner}/${repo}/zipball/${branch}`,
+          (branch) => `https://codeload.github.com/${owner}/${repo}/zip/refs/heads/${branch}`,
         ];
         let extractRoot = null;
         let lastError = null;
@@ -580,27 +580,88 @@ export class SkillManager {
         this._copyDir(skillDir, targetDir);
         try { rmSync(tempDir, { recursive: true, force: true }); } catch {}
       } else {
-        // ── 无代理：使用 degit（快） ──
+        // ── 无代理：优先 degit（快），失败时回退到 ZIP 下载 + _findSkillDir 搜索 ──
         if (onProgress) {
           onProgress({ stage: 'connecting', percent: 5, message: '连接 GitHub...' });
         }
-        const degitSource = skillPath
-          ? `github:${owner}/${repo}/${skillPath}`
-          : `github:${owner}/${repo}`;
+        let skillDir = null;
 
-        const emitter = degit(degitSource, {
-          cache: false,
-          force: true,
-        });
-        await emitter.clone(targetDir);
-
-        if (onProgress) {
-          onProgress({ stage: 'finding', percent: 75, message: '验证 Skill 目录...' });
+        // 路径 1：degit（快速路径，仅下载子目录）
+        if (skillPath) {
+          try {
+            const dSource = `github:${owner}/${repo}/${skillPath}`;
+            const emitter = degit(dSource, { cache: false, force: true });
+            await emitter.clone(targetDir);
+            if (existsSync(join(targetDir, 'SKILL.md'))) {
+              skillDir = targetDir;
+            } else {
+              try { rmSync(targetDir, { recursive: true, force: true }); } catch {}
+            }
+          } catch {
+            try { rmSync(targetDir, { recursive: true, force: true }); } catch {}
+          }
+        } else {
+          // 无 skillPath：下载整个仓库
+          try {
+            const dSource = `github:${owner}/${repo}`;
+            const emitter = degit(dSource, { cache: false, force: true });
+            await emitter.clone(targetDir);
+            if (existsSync(join(targetDir, 'SKILL.md'))) {
+              skillDir = targetDir;
+            }
+          } catch { /* fall through */ }
         }
 
-        if (!existsSync(join(targetDir, 'SKILL.md'))) {
-          try { rmSync(targetDir, { recursive: true, force: true }); } catch {}
-          return failMsg('SKILL_MISSING_README');
+        // 路径 2：degit 未成功 → 回退到 ZIP 下载整个仓库 + _findSkillDir 搜索
+        if (!skillDir) {
+          if (onProgress) {
+            onProgress({ stage: 'downloading', percent: 10, message: '回退到完整下载...' });
+          }
+          const tempDir = join(tmpdir(), `skill-extract-${randomUUID()}`);
+          const branches = ['main', 'master'];
+          const zipUrlFormats = [
+            (branch) => `https://github.com/${owner}/${repo}/archive/refs/heads/${branch}.zip`,
+            (branch) => `https://codeload.github.com/${owner}/${repo}/zip/refs/heads/${branch}`,
+          ];
+          let extractRoot = null;
+          let lastError = null;
+          for (const branch of branches) {
+            for (const fmt of zipUrlFormats) {
+              try {
+                const zipUrl = fmt(branch);
+                // 无代理时用 native fetch（传 null 作为 proxyUrl）
+                extractRoot = await this._downloadAndExtractZip(zipUrl, tempDir, null, onProgress);
+                break;
+              } catch (e) {
+                lastError = e;
+              }
+            }
+            if (extractRoot) break;
+            try { rmSync(tempDir, { recursive: true, force: true }); } catch {}
+          }
+          if (!extractRoot) throw lastError || new Error('ZIP download failed');
+
+          if (onProgress) {
+            onProgress({ stage: 'finding', percent: 75, message: '定位 Skill 目录...' });
+          }
+          // 定位 skill 子目录
+          if (skillPath) {
+            skillDir = this._findSkillDir(extractRoot, skillPath);
+            if (!skillDir) {
+              try { rmSync(tempDir, { recursive: true, force: true }); } catch {}
+              return failMsg('SKILL_MISSING_README');
+            }
+          } else {
+            skillDir = extractRoot;
+            if (!existsSync(join(skillDir, 'SKILL.md'))) {
+              try { rmSync(tempDir, { recursive: true, force: true }); } catch {}
+              return failMsg('SKILL_MISSING_README');
+            }
+          }
+
+          // 复制到目标目录
+          this._copyDir(skillDir, targetDir);
+          try { rmSync(tempDir, { recursive: true, force: true }); } catch {}
         }
       }
 
