@@ -31,14 +31,15 @@ import { existsSync, rmSync, readFileSync, readdirSync, writeFileSync, createWri
 import { homedir, tmpdir } from 'node:os';
 import { join, basename, dirname } from 'node:path';
 import { execSync } from 'node:child_process';
-import { pipeline } from 'node:stream/promises';
+import { PassThrough, Readable } from 'node:stream';
 import { randomUUID } from 'node:crypto';
+import zlib from 'node:zlib';
 import { getServerMessage, failMsg } from './i18n.js';
 import { ok, fail } from './result.js';
 import AdmZip from 'adm-zip';
-import degit from 'degit';
 import { SocksProxyAgent } from 'socks-proxy-agent';
 import { HttpsProxyAgent } from 'https-proxy-agent';
+import { extract as tarExtract } from 'tar';
 
 /** CodeWhale skill 社区仓库的基础 URL */
 const SKILL_REPO_BASE = 'https://github.com/deepseek-ai/codewhale-skills';
@@ -608,6 +609,327 @@ export class SkillManager {
     return found.length > 0 ? found[0] : null;
   }
 
+  // ─── 新辅助方法（Tar 流式下载 + API 并发下载） ─────────────
+
+  /**
+   * 字节数格式化
+   * @param {number} bytes
+   * @returns {string}
+   * @private
+   */
+  _formatBytes(bytes) {
+    if (!bytes || bytes === 0) return '0 B';
+    const units = ['B', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(1024));
+    return `${(bytes / Math.pow(1024, i)).toFixed(1)} ${units[i]}`;
+  }
+
+  /**
+   * 根据代理地址创建代理 agent
+   * @param {string} proxyUrl - 如 socks5://127.0.0.1:1080 或 http://127.0.0.1:7890
+   * @returns {object|undefined}
+   * @private
+   */
+  _createAgent(proxyUrl) {
+    if (!proxyUrl) return undefined;
+    if (proxyUrl.startsWith('http://') || proxyUrl.startsWith('https://')) {
+      return new HttpsProxyAgent(proxyUrl);
+    }
+    if (proxyUrl.startsWith('socks')) {
+      return new SocksProxyAgent(proxyUrl);
+    }
+    throw new Error(`不支持代理协议: ${proxyUrl}`);
+  }
+
+  /**
+   * Tar.gz 流式下载 + 解压（仅提取目标 skill 子目录）
+   *
+   * 通过 filter 只保留 skillPrefix 下的文件，map 移除目录前缀。
+   * 比全量 ZIP 下载后搜索快得多，且流式处理节省磁盘 IO。
+   *
+   * @param {object}       opts
+   * @param {string}       opts.owner       - GitHub owner
+   * @param {string}       opts.repo        - GitHub repo
+   * @param {string}       opts.branch      - 分支（默认 main）
+   * @param {string}       opts.skillPrefix - 子目录前缀
+   * @param {string}       opts.targetDir   - 解压目标目录
+   * @param {object}       [opts.agent]     - 代理 agent
+   * @param {Function}     [opts.onProgress] - 进度回调
+   * @returns {Promise<string>} targetDir
+   * @private
+   */
+  async _downloadViaTar({ owner, repo, branch, skillPrefix, targetDir, agent, onProgress }) {
+    const downloadUrl = `https://codeload.github.com/${owner}/${repo}/tar.gz/${branch}`;
+    const repoPrefix = `${repo}-${branch}/`;
+
+    const res = await fetch(downloadUrl, { agent, headers: { 'User-Agent': 'CodeWhale/1.0' } });
+    if (!res.ok) throw new Error(`Tar 下载失败: HTTP ${res.status}`);
+    if (!res.body) throw new Error('响应没有 body 流');
+    const nodeBody = Readable.fromWeb(res.body);
+
+    const total = parseInt(res.headers.get('content-length') || 0) || null;
+    let downloaded = 0;
+    let extractedFiles = 0;
+
+    if (existsSync(targetDir)) rmSync(targetDir, { recursive: true, force: true });
+    mkdirSync(targetDir, { recursive: true });
+
+    // 进度监控 PassThrough
+    const progressStream = new PassThrough();
+    progressStream.on('data', (chunk) => {
+      downloaded += chunk.length;
+      if (onProgress) {
+        onProgress({
+          stage: 'download',
+          downloaded,
+          total,
+          percent: total ? (downloaded / total) * 100 : null,
+          currentFile: `${owner}/${repo}.tar.gz`,
+        });
+      }
+    });
+
+    // filter 看到的是原始路径（如 repo-main/skills/find-skills/SKILL.md）
+    // map 剥离前缀后写入 targetDir
+    const extractor = tarExtract({
+      cwd: targetDir,
+      filter: (entryPath) => entryPath.startsWith(`${repoPrefix}${skillPrefix}`),
+      map: (header) => {
+        header.name = header.name.replace(`${repoPrefix}${skillPrefix}`, '');
+        return header;
+      },
+    });
+
+    extractor.on('entry', () => {
+      extractedFiles++;
+    });
+
+    const gunzip = zlib.createGunzip();
+
+    return new Promise((resolve, reject) => {
+      if (!nodeBody) return reject(new Error('res.body is null'));
+      nodeBody.on('error', reject);
+      progressStream.on('error', reject);
+      gunzip.on('error', reject);
+      extractor.on('error', reject);
+
+      nodeBody
+        .pipe(progressStream)
+        .pipe(gunzip)
+        .pipe(extractor)
+        .on('finish', () => {
+          if (onProgress) {
+            onProgress({ stage: 'extracted', percent: 70, message: `解压完成 (${extractedFiles} 个文件)` });
+          }
+          resolve(targetDir);
+        });
+    });
+  }
+
+  /**
+   * API 并发下载（适用于大仓库）
+   *
+   * 通过 GitHub Tree API 获取文件列表，然后以 5 并发下载每个文件。
+   * 带 3 次重试和速率限制检测。
+   *
+   * @param {object}       opts
+   * @param {string}       opts.owner        - GitHub owner
+   * @param {string}       opts.repo         - GitHub repo
+   * @param {string}       opts.branch       - 分支
+   * @param {string}       opts.skillPrefix  - 子目录前缀
+   * @param {string}       opts.targetDir    - 目标目录
+   * @param {object}       [opts.agent]      - 代理 agent
+   * @param {string}       [opts.token]      - GitHub token（防限流）
+   * @param {Function}     [opts.onProgress] - 进度回调
+   * @returns {Promise<string>} targetDir
+   * @private
+   */
+  async _downloadViaApi({ owner, repo, branch, skillPrefix, targetDir, agent, token, onProgress }) {
+    const headers = {
+      'User-Agent': 'CodeWhale/1.0',
+      'Accept': 'application/vnd.github.v3+json',
+      ...(token && { Authorization: `token ${token}` }),
+    };
+
+    const treeUrl = `https://api.github.com/repos/${owner}/${repo}/git/trees/${branch}?recursive=1`;
+    // Tree API 增加 15s 超时控制
+    const treeCtrl = new AbortController();
+    const treeTimer = setTimeout(() => treeCtrl.abort(), 15000);
+    let treeRes;
+    try {
+      treeRes = await fetch(treeUrl, { agent, headers, signal: treeCtrl.signal });
+    } finally {
+      clearTimeout(treeTimer);
+    }
+    const treeData = await treeRes.json().catch(() => ({}));
+    if (treeRes.status === 403 && treeData.message?.includes('rate limit')) {
+      throw new Error('GitHub API 速率限制已达，请提供 token');
+    }
+    if (!treeRes.ok) throw new Error(`Tree API 失败: HTTP ${treeRes.status}`);
+
+    const { tree } = treeData;
+    const files = tree.filter((f) => f.type === 'blob' && f.path.startsWith(skillPrefix));
+    if (!files.length) throw new Error(`未找到 skill 文件（前缀 "${skillPrefix}"）`);
+
+    const totalFiles = files.length;
+    const totalBytes = files.reduce((s, f) => s + (f.size || 0), 0);
+    let completed = 0;
+    let downloaded = 0;
+
+    if (existsSync(targetDir)) rmSync(targetDir, { recursive: true, force: true });
+    mkdirSync(targetDir, { recursive: true });
+
+    const downloadFile = async (file) => {
+      const rawUrl = `https://raw.githubusercontent.com/${owner}/${repo}/${branch}/${file.path}`;
+      let relativePath = file.path.replace(skillPrefix, '');
+      const localPath = join(targetDir, relativePath);
+      mkdirSync(dirname(localPath), { recursive: true });
+
+      for (let attempt = 1; attempt <= 3; attempt++) {
+        let res = null;
+        try {
+          // AbortSignal 30s 超时控制，防止 fetch 永远挂起
+          const ctrl = new AbortController();
+          const timer = setTimeout(() => ctrl.abort(), 30000);
+          try {
+            res = await fetch(rawUrl, {
+              agent,
+              signal: ctrl.signal,
+              headers: { 'User-Agent': 'CodeWhale/1.0' },
+            });
+          } finally {
+            clearTimeout(timer);
+          }
+          if (!res.ok) throw new Error(`HTTP ${res.status}`);
+          if (!res.body) throw new Error('响应没有 body');
+          const nodeBody = Readable.fromWeb(res.body);
+
+          const writer = createWriteStream(localPath);
+          let fileDownloaded = 0;
+          const fileTotal = parseInt(res.headers.get('content-length') || 0) || file.size || 0;
+
+          nodeBody.on('data', (chunk) => {
+            fileDownloaded += chunk.length;
+            downloaded += chunk.length;
+            if (onProgress) {
+              onProgress({
+                stage: 'download',
+                completed,
+                totalFiles,
+                downloaded,
+                totalBytes,
+                percent: totalBytes ? (downloaded / totalBytes) * 100 : (completed / totalFiles) * 100,
+                filePercent: fileTotal ? (fileDownloaded / fileTotal) * 100 : null,
+                currentFile: file.path,
+              });
+            }
+          });
+
+          nodeBody.pipe(writer);
+          await new Promise((resolve, reject) => {
+            writer.on('finish', () => {
+              completed++;
+              if (onProgress) {
+                onProgress({
+                  stage: 'download',
+                  completed,
+                  totalFiles,
+                  downloaded,
+                  totalBytes,
+                  percent: totalBytes ? (downloaded / totalBytes) * 100 : (completed / totalFiles) * 100,
+                  filePercent: 100,
+                  currentFile: file.path,
+                });
+              }
+              resolve();
+            });
+            writer.on('error', (e) => {
+              try { writer.destroy(); } catch {}
+              reject(e);
+            });
+            nodeBody.on('error', (e) => {
+              try { nodeBody.destroy(); } catch {}
+              reject(e);
+            });
+          });
+
+          return;
+        } catch (err) {
+          if (res && nodeBody && !nodeBody.destroyed) {
+            nodeBody.destroy();
+          }
+          const isTimeout = err.name === 'AbortError' || err.message?.includes('abort');
+          const retryMsg = attempt < 3 ? ` (重试 ${attempt + 1}/3...)` : '';
+          console.warn(`[Skill] 下载 ${file.path} 第${attempt}次失败: ${err.message}${isTimeout ? ' (超时)' : ''}${retryMsg}`);
+          if (attempt === 3) throw new Error(`下载 ${file.path} 失败: ${err.message}`);
+          await new Promise((r) => setTimeout(r, 1000 * attempt));
+        }
+      }
+    };
+
+    const CONCURRENCY = 5;
+    const queue = [...files];
+
+    async function worker() {
+      while (queue.length > 0) {
+        await downloadFile(queue.shift());
+      }
+    }
+
+    await Promise.all(
+      Array(Math.min(CONCURRENCY, files.length)).fill().map(() => worker())
+    );
+
+    if (onProgress) {
+      onProgress({ stage: 'api_complete', percent: 70, message: `API 下载完成 (${completed}/${totalFiles})` });
+    }
+
+    return targetDir;
+  }
+
+  /**
+   * 探测正确的 skill 子目录前缀
+   *
+   * 策略：通过 GitHub Tree API 快速确认两个候选前缀中哪一个实际存在。
+   *   候选1: skills/<skillName>/（社区仓库约定）
+   *   候选2: <skillName>/（直接子目录）
+   *   如果 API 不可用，默认使用 skills/<skillName>/
+   *
+   * @param {string} owner       - GitHub owner
+   * @param {string} repo        - GitHub repo
+   * @param {string} skillName   - skill 名称/子路径
+   * @param {string} [branch]    - 分支
+   * @param {object} [agent]     - 代理 agent
+   * @param {string} [token]     - GitHub token
+   * @returns {Promise<{prefix: string}>}
+   * @private
+   */
+  async _detectSkillPrefix(owner, repo, skillName, branch = 'main', agent, token) {
+    const candidatePrefixes = [`skills/${skillName}/`, `${skillName}/`];
+
+    // 通过 Tree API 快速探测
+    const apiHeaders = {
+      'User-Agent': 'CodeWhale/1.0',
+      'Accept': 'application/vnd.github.v3+json',
+      ...(token && { Authorization: `token ${token}` }),
+    };
+    const treeUrl = `https://api.github.com/repos/${owner}/${repo}/git/trees/${branch}?recursive=1`;
+    try {
+      const treeRes = await fetch(treeUrl, { agent, headers: apiHeaders });
+      if (treeRes.ok) {
+        const { tree } = await treeRes.json();
+        for (const prefix of candidatePrefixes) {
+          if (tree.some((f) => f.type === 'blob' && f.path.startsWith(prefix))) {
+            return { prefix };
+          }
+        }
+      }
+    } catch { /* ignore */ }
+
+    // API 不可用 → 默认 skills/<skillName>/（社区仓库约定）
+    return { prefix: candidatePrefixes[0] };
+  }
+
   // ─── 安装 ───────────────────────────────────────────────────
 
   /**
@@ -624,13 +946,16 @@ export class SkillManager {
   /**
    * 从任意 GitHub 仓库安装一个 skill
    *
-   * 无代理时：使用 degit 直接从 GitHub 下载子目录（快）。
-   * 有代理时：回退到 codeload ZIP 下载 + adm-zip 解压（兼容 SOCKS5/HTTP 代理）。
+   * 下载策略（基于 skill-downloader-final.mjs 的成熟方案）：
+   *   小仓库 → Tar.gz 流式下载解压（filter+map 仅提取目标子目录，快且可靠）
+   *   大仓库 → API 获取文件列表 → 5 并发下载每个文件
+   *   有代理 → 优先 git sparse clone，失败回退 Tar/API（代理穿透）
    *
    * @param {string}       repoUrl   - GitHub 仓库 URL（如 https://github.com/vercel-labs/skills）
    * @param {string}       [skillPath] - 仓库内 skill 子路径（如 "find-skills"），可选
    * @param {'global'|'project'} [level='global']
-   * @param {string}       [proxyUrl] - 代理地址（可选，如 socks5://127.0.0.1:1080 或 http://127.0.0.1:10808）
+   * @param {string}       [proxyUrl] - 代理地址（可选）
+   * @param {Function}     [onProgress] - 进度回调
    * @returns {Promise<{success: boolean, data?: any, message?: string, errorCode?: string}>}
    */
   async installFromGitHub(repoUrl, skillPath, level, proxyUrl, onProgress) {
@@ -643,18 +968,13 @@ export class SkillManager {
     }
     const { owner, repo } = parsed;
 
-    // 2. 构造 degit source: github:owner/repo/subdir
-    const degitSource = skillPath
-      ? `github:${owner}/${repo}/${skillPath}`
-      : `github:${owner}/${repo}`;
-
-    // 3. 确定 skillId 和目标目录
+    // 2. 确定 skillId 和目标目录
     const skillId = skillPath ? basename(skillPath) : repo;
     const targetDir = targetLevel === 'project'
       ? join(process.cwd(), this._projectSkillsDir, skillId)
       : join(this._skillsDir, skillId);
 
-    // 4. 重复安装检测
+    // 3. 重复安装检测
     const installed = this._getLevelInstalled(targetLevel);
     if (installed.some((s) => s.id === skillId)) {
       return failMsg('SKILL_ALREADY_INSTALLED');
@@ -664,111 +984,76 @@ export class SkillManager {
       if (onProgress) {
         onProgress({ stage: 'connecting', percent: 5, message: '连接 GitHub...' });
       }
+
+      const agent = this._createAgent(proxyUrl);
+      const branch = 'main';
+
       if (proxyUrl) {
-        // ── 有代理：优先 git sparse checkout（原生代理穿透），失败回退 ZIP ──
-        // git 支持 http.proxy/https.proxy，不走 CDN 域名，代理友好
-        let cloned = false;
+        // ── 有代理：优先 git sparse clone（原生代理穿透，快），失败回退 Tar ──
+        let downloaded = false;
         try {
           await this._cloneWithGitSparse(`https://github.com/${owner}/${repo}`, skillPath, targetDir, proxyUrl, onProgress);
-          cloned = true;
+          downloaded = true;
         } catch (gitErr) {
           if (onProgress) {
-            onProgress({ stage: 'fallback', percent: 10, message: `git clone 失败 (${gitErr.message}), 回退 ZIP 下载...` });
+            onProgress({ stage: 'fallback', percent: 10, message: `git clone 失败 (${gitErr.message}), 回退 Tar 下载...` });
           }
-          // 回退：ZIP 下载（archive 直链 → codeload 备选）
-          cloned = await this._proxyDownloadFallback(owner, repo, skillPath, targetDir, proxyUrl, onProgress);
-        }
-        if (!cloned) throw new Error('ZIP download failed');
-      } else {
-        // ── 无代理：优先 degit（快），失败时回退到 ZIP 下载 + _findSkillDir 搜索 ──
-        if (onProgress) {
-          onProgress({ stage: 'connecting', percent: 5, message: '连接 GitHub...' });
-        }
-        let skillDir = null;
-
-        // 路径 1：degit（快速路径，仅下载子目录）
-        if (skillPath) {
-          try {
-            const dSource = `github:${owner}/${repo}/${skillPath}`;
-            const emitter = degit(dSource, { cache: false, force: true });
-            await emitter.clone(targetDir);
-            if (existsSync(join(targetDir, 'SKILL.md'))) {
-              skillDir = targetDir;
-            } else {
-              try { rmSync(targetDir, { recursive: true, force: true }); } catch {}
-            }
-          } catch {
-            try { rmSync(targetDir, { recursive: true, force: true }); } catch {}
-          }
-        } else {
-          // 无 skillPath：下载整个仓库
-          try {
-            const dSource = `github:${owner}/${repo}`;
-            const emitter = degit(dSource, { cache: false, force: true });
-            await emitter.clone(targetDir);
-            if (existsSync(join(targetDir, 'SKILL.md'))) {
-              skillDir = targetDir;
-            }
-          } catch { /* fall through */ }
-        }
-
-        // 路径 2：degit 未成功 → 回退到 ZIP 下载整个仓库 + _findSkillDir 搜索
-        if (!skillDir) {
-          if (onProgress) {
-            onProgress({ stage: 'downloading', percent: 10, message: '回退到完整下载...' });
-          }
-          const tempDir = join(tmpdir(), `skill-extract-${randomUUID()}`);
-          const branches = ['main', 'master'];
-          const zipUrlFormats = [
-            (branch) => `https://github.com/${owner}/${repo}/archive/refs/heads/${branch}.zip`,
-            (branch) => `https://codeload.github.com/${owner}/${repo}/zip/refs/heads/${branch}`,
-          ];
-          let extractRoot = null;
-          let lastError = null;
-          for (const branch of branches) {
-            for (const fmt of zipUrlFormats) {
-              try {
-                const zipUrl = fmt(branch);
-                // 无代理时用 native fetch（传 null 作为 proxyUrl）
-                extractRoot = await this._downloadAndExtractZip(zipUrl, tempDir, null, onProgress);
-                break;
-              } catch (e) {
-                lastError = e;
-              }
-            }
-            if (extractRoot) break;
-            try { rmSync(tempDir, { recursive: true, force: true }); } catch {}
-          }
-          if (!extractRoot) throw lastError || new Error('ZIP download failed');
-
-          if (onProgress) {
-            onProgress({ stage: 'finding', percent: 75, message: '定位 Skill 目录...' });
-          }
-          // 定位 skill 子目录
+          // 回退：Tar 流式下载
           if (skillPath) {
-            skillDir = this._findSkillDir(extractRoot, skillPath);
-            if (!skillDir) {
-              try { rmSync(tempDir, { recursive: true, force: true }); } catch {}
-              return failMsg('SKILL_MISSING_README');
-            }
+            const { prefix } = await this._detectSkillPrefix(owner, repo, skillPath, branch, agent);
+            await this._downloadViaTar({
+              owner, repo, branch, skillPrefix: prefix,
+              targetDir, agent, onProgress,
+            });
           } else {
-            skillDir = extractRoot;
-            if (!existsSync(join(skillDir, 'SKILL.md'))) {
-              try { rmSync(tempDir, { recursive: true, force: true }); } catch {}
-              return failMsg('SKILL_MISSING_README');
-            }
+            await this._downloadViaTar({
+              owner, repo, branch, skillPrefix: '',
+              targetDir, agent, onProgress,
+            });
           }
+          downloaded = true;
+        }
+        if (!downloaded) throw new Error('下载失败');
+      } else {
+        // ── 无代理：始终优先 Tar 流式下载，失败回退 API ──
+        const skillName = skillPath || repo;
+        const { prefix } = await this._detectSkillPrefix(owner, repo, skillName, branch, agent);
+        const skillPrefix = skillPath ? prefix : '';
 
-          // 复制到目标目录
-          this._copyDir(skillDir, targetDir);
-          try { rmSync(tempDir, { recursive: true, force: true }); } catch {}
+        let tarFailed = false;
+        try {
+          if (onProgress) {
+            onProgress({ stage: 'downloading', percent: 15, message: 'Tarball 流式下载...' });
+          }
+          await this._downloadViaTar({
+            owner, repo, branch, skillPrefix,
+            targetDir, agent, onProgress,
+          });
+        } catch (tarErr) {
+          tarFailed = true;
+          if (onProgress) {
+            onProgress({ stage: 'fallback', percent: 15, message: `Tar 下载失败 (${tarErr.message}), 回退 API 并发下载...` });
+          }
+          // 清理 tar 残留
+          try { if (existsSync(targetDir)) rmSync(targetDir, { recursive: true, force: true }); } catch {}
+
+          await this._downloadViaApi({
+            owner, repo, branch, skillPrefix,
+            targetDir, agent, onProgress,
+          });
         }
       }
 
       if (onProgress) {
         onProgress({ stage: 'registering', percent: 90, message: '注册 Skill...' });
       }
-      // 7. 注册到配置
+
+      // 验证 SKILL.md 存在
+      if (!existsSync(join(targetDir, 'SKILL.md'))) {
+        throw new Error('SKILL.md 未找到');
+      }
+
+      // 4. 注册到配置
       const meta = _extractMeta(targetDir);
       const entry = {
         id: skillId,
