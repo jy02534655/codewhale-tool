@@ -40,6 +40,7 @@ import AdmZip from 'adm-zip';
 import { SocksProxyAgent } from 'socks-proxy-agent';
 import { HttpsProxyAgent } from 'https-proxy-agent';
 import { extract as tarExtract } from 'tar';
+import { downloadSkillFromGitHub } from './download-skill.js';
 
 /** CodeWhale skill 社区仓库的基础 URL */
 const SKILL_REPO_BASE = 'https://github.com/deepseek-ai/codewhale-skills';
@@ -959,6 +960,10 @@ export class SkillManager {
    * @returns {Promise<{success: boolean, data?: any, message?: string, errorCode?: string}>}
    */
   async installFromGitHub(repoUrl, skillPath, level, proxyUrl, onProgress) {
+    // 兼容新旧两种调用方式
+    if (typeof repoUrl === 'object' && repoUrl !== null) {
+      return this._installFromGitHubV2(repoUrl, skillPath);
+    }
     const targetLevel = level || 'global';
 
     // 1. 解析 GitHub URL 获取 owner/repo
@@ -1144,6 +1149,106 @@ export class SkillManager {
       return ok(null, getServerMessage('synced'));
     } catch (err) {
       // 清理残留
+      try { if (existsSync(targetDir)) rmSync(targetDir, { recursive: true, force: true }); } catch {}
+      return fail(getServerMessage('SKILL_INSTALL_FAILED') + ': ' + err.message, 'SKILL_INSTALL_FAILED');
+    }
+  }
+
+  /**
+   * 新版：接受 options 对象，委托 downloadSkillFromGitHub
+   *
+   * @param {object}   opts
+   * @param {string}   opts.repoUrl    - GitHub 仓库 URL
+   * @param {string}   [opts.skillPath] - 仓库内 skill 子路径
+   * @param {'global'|'project'} [opts.level='global']
+   * @param {string}   [opts.proxyId]  - 代理配置 ID
+   * @param {string}   [opts.tokenId]  - GitHub Token ID
+   * @param {Function} [onProgress]    - 进度回调
+   * @returns {Promise<{success: boolean, data?: any, message?: string, errorCode?: string}>}
+   * @private
+   */
+  async _installFromGitHubV2({ repoUrl, skillPath, level, proxyId, tokenId } = {}, onProgress) {
+    const targetLevel = level || 'global';
+
+    const parsed = _parseGitHubUrl(repoUrl);
+    if (!parsed) return failMsg('SKILL_INVALID_REPO_URL');
+    const { owner, repo } = parsed;
+
+    const skillId = skillPath ? basename(skillPath) : repo;
+    const targetDir = targetLevel === 'project'
+      ? join(process.cwd(), this._projectSkillsDir, skillId)
+      : join(this._skillsDir, skillId);
+
+    if (this._getLevelInstalled(targetLevel).some((s) => s.id === skillId)) {
+      return failMsg('SKILL_ALREADY_INSTALLED');
+    }
+
+    try {
+      if (onProgress) {
+        onProgress({ stage: 'connecting', percent: 5, message: '连接 GitHub...' });
+      }
+
+      // 解析代理配置
+      let proxyConfig = undefined;
+      if (proxyId) {
+        const proxyEntry = this._engine.findProxy(proxyId);
+        if (proxyEntry) {
+          proxyConfig = {
+            type: proxyEntry.type,
+            host: proxyEntry.host,
+            port: proxyEntry.port,
+            auth: proxyEntry.auth
+              ? { username: proxyEntry.auth.username, password: proxyEntry.auth.password }
+              : undefined,
+          };
+        }
+      }
+
+      // 解析 Token
+      let token = undefined;
+      if (tokenId) {
+        const tokenEntry = this._engine.findToken(tokenId);
+        if (tokenEntry) token = tokenEntry.token;
+      }
+
+      // 委托 downloadSkillFromGitHub 执行核心下载
+      await downloadSkillFromGitHub({
+        repoUrl,
+        skillName: skillPath || repo,
+        destDir: targetDir,
+        proxy: proxyConfig,
+        token,
+        onProgress,
+      });
+
+      // 验证 SKILL.md 存在
+      if (!existsSync(join(targetDir, 'SKILL.md'))) {
+        throw new Error('SKILL.md 未找到');
+      }
+
+      // 注册到配置
+      if (onProgress) {
+        onProgress({ stage: 'registering', percent: 95, message: '注册 Skill...' });
+      }
+      const meta = _extractMeta(targetDir);
+      this._addToConfig({
+        id: skillId,
+        name: meta.name,
+        description: meta.description,
+        path: targetDir,
+        enabled: true,
+        source: 'community',
+        version: 'latest',
+        installed_at: Date.now(),
+        updated_at: Date.now(),
+      }, targetLevel);
+
+      if (onProgress) {
+        onProgress({ stage: 'done', percent: 100, message: '安装完成' });
+      }
+
+      return ok(null, getServerMessage('synced'));
+    } catch (err) {
       try { if (existsSync(targetDir)) rmSync(targetDir, { recursive: true, force: true }); } catch {}
       return fail(getServerMessage('SKILL_INSTALL_FAILED') + ': ' + err.message, 'SKILL_INSTALL_FAILED');
     }

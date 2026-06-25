@@ -3,6 +3,7 @@
  *
  * 挂载路径: /api/skill
  * 双层 skill 管理：全局 + 项目。
+ * 只保留从 GitHub 安装（SSE 流式）。
  */
 
 import { Router } from 'express';
@@ -12,7 +13,11 @@ import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import { randomUUID } from 'node:crypto';
 
-export function createSkillRouter(skillMgr, skillhubCli) {
+/**
+ * @param {import('@codewhale/core').SkillManager} skillMgr
+ * @returns {import('express').Router}
+ */
+export function createSkillRouter(skillMgr) {
   const router = Router();
 
   // ─── 列表查询 ────────────────────────────────────────────────
@@ -83,41 +88,14 @@ export function createSkillRouter(skillMgr, skillhubCli) {
     res.json(await guardAsync(() => skillMgr.update(req.params.id)));
   });
 
-  // ─── 新版安装端点 ──────────────────────────────────────────
+  // ─── 安装：GitHub SSE 进度流 ────────────────────────────────────
 
-  // GitHub 仓库安装
-  router.post('/install-github', async (req, res) => {
-    res.json(await guardAsync(() =>
-      skillMgr.installFromGitHub(req.body.repoUrl, req.body.skillPath, req.body.level, req.body.proxyUrl)
-    ));
-  });
-
-  // ZIP 安装（URL 或本地路径）
-  router.post('/install-zip', async (req, res) => {
-    res.json(await guardAsync(() =>
-      skillMgr.installFromZip(req.body.zipSource, req.body.level, req.body.proxyUrl)
-    ));
-  });
-
-  // ZIP Base64 上传安装
-  router.post('/upload-zip', async (req, res) => {
-    res.json(await guardAsync(async () => {
-      const { base64, fileName, level } = req.body;
-      if (!base64) return { success: false, message: '缺少 ZIP 数据' };
-      const buffer = Buffer.from(base64, 'base64');
-      const tmpPath = join(tmpdir(), `upload-${randomUUID()}.zip`);
-      writeFileSync(tmpPath, buffer);
-      const result = await skillMgr.installFromZip(tmpPath, level);
-      try { rmSync(tmpPath); } catch {}
-      return result;
-    }));
-  });
-
-  // 注册表安装
-
-  // GitHub 仓库安装（SSE 实时进度流）
+  /**
+   * SSE 流式安装 — 从 GitHub 仓库下载 skill
+   * query: repoUrl, skillPath, level, proxyId, tokenId
+   */
   router.get('/install-github-stream', async (req, res) => {
-    const { repoUrl, skillPath, level, proxyUrl } = req.query;
+    const { repoUrl, skillPath, level, proxyId, tokenId } = req.query;
 
     // 设置 SSE 响应头
     res.writeHead(200, {
@@ -127,13 +105,15 @@ export function createSkillRouter(skillMgr, skillhubCli) {
       'X-Accel-Buffering': 'no',
     });
 
-    // SSE 发送辅助函数
     let clientConnected = true;
     req.on('close', () => { clientConnected = false; });
 
     function sendSSE(event, data) {
       if (!clientConnected) return;
-      res.write(`event: ${event}\ndata: ${JSON.stringify(data)}\n\n`);
+      res.write(`event: ${event}
+data: ${JSON.stringify(data)}
+
+`);
     }
 
     // 进度回调 → SSE 事件
@@ -142,7 +122,13 @@ export function createSkillRouter(skillMgr, skillhubCli) {
     };
 
     try {
-      const result = await skillMgr.installFromGitHub(repoUrl, skillPath, level, proxyUrl, onProgress);
+      const result = await skillMgr.installFromGitHub({
+        repoUrl,
+        skillPath,
+        level,
+        proxyId,
+        tokenId
+      }, onProgress);
       if (result.success) {
         sendSSE('complete', { success: true, data: result.data });
       } else {
@@ -157,12 +143,6 @@ export function createSkillRouter(skillMgr, skillhubCli) {
     }
   });
 
-  router.post('/install-registry', async (req, res) => {
-    res.json(await guardAsync(() =>
-      skillMgr.installFromRegistry(req.body.identifier, req.body.level)
-    ));
-  });
-
   // ─── 社区搜索 ──────────────────────────────────────────────
 
   router.get('/search', async (req, res) => {
@@ -175,45 +155,6 @@ export function createSkillRouter(skillMgr, skillhubCli) {
       }
       return r;
     }));
-  });
-
-  // ─── Skillhub ──────────────────────────────────────────────
-
-  // 检查 Skillhub CLI 是否已安装
-  router.get('/skillhub/status', async (_req, res) => {
-    if (!skillhubCli) {
-      res.json({ success: false, data: null, message: 'SkillhubCLI not initialized' });
-      return;
-    }
-    const result = await skillhubCli.getStatus();
-    res.json(result);
-  });
-
-  // 安装 Skillhub CLI
-  router.post('/skillhub/install', async (_req, res) => {
-    if (!skillhubCli) {
-      res.json({ success: false, data: null, message: 'SkillhubCLI not initialized' });
-      return;
-    }
-    res.json(await guardAsync(() => skillhubCli.install()));
-  });
-
-  // 通过 Skillhub 搜索技能
-  router.post('/skillhub/search', async (req, res) => {
-    if (!skillhubCli) {
-      res.json({ success: false, data: null, message: 'SkillhubCLI not initialized' });
-      return;
-    }
-    res.json(await guardAsync(() => skillhubCli.search(req.body.keyword)));
-  });
-
-  // 通过 Skillhub 安装技能
-  router.post('/skillhub/install-skill', async (req, res) => {
-    if (!skillhubCli) {
-      res.json({ success: false, data: null, message: 'SkillhubCLI not initialized' });
-      return;
-    }
-    res.json(await guardAsync(() => skillhubCli.installSkill(req.body.name)));
   });
 
   return router;

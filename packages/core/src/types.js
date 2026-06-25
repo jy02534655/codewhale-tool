@@ -9,6 +9,29 @@
  */
 
 /**
+ * @typedef {object} ProxyAuth
+ * @property {string} [username] - 代理认证用户名
+ * @property {string} [password] - 代理认证密码
+ */
+
+/**
+ * @typedef {object} ProxyEntry
+ * @property {string}  id       - 主键："proxy:" + uuid
+ * @property {string}  alias    - 显示别名，如下拉框展示
+ * @property {'http'|'socks5'} type - 代理协议
+ * @property {string}  host     - 代理主机地址
+ * @property {number}  port     - 代理端口
+ * @property {ProxyAuth} [auth] - 代理认证（可选）
+ */
+
+/**
+ * @typedef {object} TokenEntry
+ * @property {string} id     - 主键："token:" + uuid
+ * @property {string} alias  - 显示别名，如下拉框展示
+ * @property {string} token  - GitHub Token 明文
+ */
+
+/**
  * @typedef {object} OfficialKeyEntry
  * @property {string}  id      - 主键："official:" + api_key
  * @property {string}  alias   - 别名/标签
@@ -63,6 +86,8 @@
  * @property {OfficialKeyEntry[]} official_keys - 官方 DeepSeek API key 列表
  * @property {ProviderEntry[]}   providers     - 第三方供应商列表
  * @property {SkillsConfig}      skills        - Skill 配置
+ * @property {ProxyEntry[]}      proxies       - 代理配置列表
+ * @property {TokenEntry[]}      tokens        - GitHub Token 列表
  */
 
 export {};

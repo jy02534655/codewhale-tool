@@ -28,6 +28,8 @@ const DEFAULT_STORE = {
   locale: 'zh-Hans',
   official_keys: [],
   providers: [],
+  proxies: [],
+  tokens: [],
   skills: {
     enabled: true,
     installed: [],
@@ -96,6 +98,8 @@ export class ConfigEngine {
       locale: data.locale || def.locale,
       official_keys: Array.isArray(data.official_keys) ? data.official_keys : def.official_keys,
       providers: Array.isArray(data.providers) ? data.providers : def.providers,
+      proxies: Array.isArray(data.proxies) ? data.proxies : def.proxies,
+      tokens: Array.isArray(data.tokens) ? data.tokens : def.tokens,
       skills: {
         enabled: data.skills?.enabled ?? def.skills.enabled,
         installed: Array.isArray(data.skills?.installed) ? data.skills.installed : def.skills.installed,
@@ -140,6 +144,36 @@ export class ConfigEngine {
   /** @param {string} providerType */
   findProvidersByType(providerType) {
     return this.read().providers.filter((p) => p.provider === providerType);
+  }
+
+  // ─── Proxy 方法 ────────────────────────────────────────────
+
+  /** @returns {import('./types.js').ProxyEntry[]} */
+  getProxies() { return this.read().proxies; }
+
+  /** @param {import('./types.js').ProxyEntry[]} proxies */
+  setProxies(proxies) {
+    this.update((d) => { d.proxies = proxies; return d; });
+  }
+
+  /** @param {string} id */
+  findProxy(id) {
+    return this.read().proxies.find((p) => p.id === id);
+  }
+
+  // ─── Token 方法 ────────────────────────────────────────────
+
+  /** @returns {import('./types.js').TokenEntry[]} */
+  getTokens() { return this.read().tokens; }
+
+  /** @param {import('./types.js').TokenEntry[]} tokens */
+  setTokens(tokens) {
+    this.update((d) => { d.tokens = tokens; return d; });
+  }
+
+  /** @param {string} id */
+  findToken(id) {
+    return this.read().tokens.find((t) => t.id === id);
   }
 
   // ─── Skill 方法 ────────────────────────────────────────────

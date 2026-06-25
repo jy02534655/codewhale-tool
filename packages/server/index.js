@@ -13,6 +13,8 @@ import {
   ProjectSkillEngine,
   ProviderManager,
   OfficialKeyManager,
+  ProxyManager,
+  TokenManager,
   SkillManager,
   SkillhubCLI,
   SyncManager,
@@ -21,6 +23,8 @@ import {
 } from '@codewhale/core';
 import { createOfficialKeyRouter } from './src/routes/officialKey.js';
 import { createProviderRouter } from './src/routes/provider.js';
+import { createProxyRouter } from './src/routes/proxy.js';
+import { createTokenRouter } from './src/routes/token.js';
 import { createSkillRouter } from './src/routes/skill.js';
 import { createSyncRouter } from './src/routes/sync.js';
 
@@ -39,6 +43,8 @@ const engine = new ConfigEngine();
 const projectSkillEngine = new ProjectSkillEngine();
 const providerMgr = new ProviderManager(engine);
 const officialKeyMgr = new OfficialKeyManager(engine);
+const proxyMgr = new ProxyManager(engine);
+const tokenMgr = new TokenManager(engine);
 const skillMgr = new SkillManager(engine, projectSkillEngine);
 const skillhubCli = new SkillhubCLI(skillMgr);
 const syncMgr = new SyncManager(engine, providerMgr, officialKeyMgr);
@@ -77,6 +83,8 @@ app.post('/api/lang', (req, res) => {
 
 app.use('/api/official-key', createOfficialKeyRouter(officialKeyMgr, syncMgr));
 app.use('/api/provider', createProviderRouter(providerMgr, syncMgr));
+app.use('/api/proxy', createProxyRouter(proxyMgr));
+app.use('/api/token', createTokenRouter(tokenMgr));
 app.use('/api/skill', createSkillRouter(skillMgr, skillhubCli));
 app.use('/api', createSyncRouter(syncMgr));
 
