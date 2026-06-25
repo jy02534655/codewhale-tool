@@ -1,11 +1,11 @@
 /**
- * token-manager.js — GitHub Token 配置管理器
+ * TokenManager — GitHub Token 配置管理器
  *
  * 管理 store.json 中的 GitHub Token 列表，带 alias 别名。
  * 每个 TokenEntry 有 id / alias / token。
  * 列表返回时 token 已掩码，仅在请求内部查找时获取明文。
  *
- * @module token-manager
+ * @module token
  */
 
 import { randomUUID } from 'node:crypto';

@@ -88,7 +88,7 @@ import { useI18n } from 'vue-i18n'
 import { getProxyList } from '@/api/proxy'
 import { getTokenList } from '@/api/token'
 import { compositionDialogBase } from '@/composition/dialog/Base'
-import InstallProgress from './InstallProgress.vue'
+import InstallProgress from './progress.vue'
 
 const emit = defineEmits(['submitSuccess'])
 const { t } = useI18n({ useScope: 'global' })

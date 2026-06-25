@@ -17,7 +17,7 @@ import { readFileSync, writeFileSync, copyFileSync, existsSync, mkdirSync } from
 import { join, dirname, resolve } from 'node:path';
 
 /**
- * @typedef {import('./types.js').SkillsConfig} SkillsConfig
+ * @typedef {import('../types.js').SkillsConfig} SkillsConfig
  */
 
 /** @type {SkillsConfig} 默认项目 skill 配置 */
@@ -102,7 +102,7 @@ export class ProjectSkillEngine {
 
   // ─── Skill 方法 ────────────────────────────────────────────
 
-  /** @returns {import('./types.js').SkillEntry[]} */
+  /** @returns {import('../types.js').SkillEntry[]} */
   getInstalled() {
     return this.read().installed;
   }
@@ -112,7 +112,7 @@ export class ProjectSkillEngine {
     this.update((d) => { d.installed = installed; return d; });
   }
 
-  /** @param {string} id @returns {import('./types.js').SkillEntry|undefined} */
+  /** @param {string} id @returns {import('../types.js').SkillEntry|undefined} */
   find(id) {
     return this.read().installed.find((s) => s.id === id);
   }

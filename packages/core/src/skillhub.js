@@ -24,12 +24,12 @@ import { getServerMessage } from './i18n.js';
  */
 export class SkillhubCLI {
   /**
-   * @param {import('./skill.js').SkillManager} skillManager - 用于安装后触发 discover
+   * @param {import('./skill/index.js').SkillManager} skillManager - 用于安装后触发 discover
    * @param {object} [options]
    * @param {string} [options.baseUrl] - 下载基础 URL
    */
   constructor(skillManager, options = {}) {
-    /** @type {import('./skill.js').SkillManager} */
+    /** @type {import('./skill/index.js').SkillManager} */
     this._skillMgr = skillManager;
     this._baseUrl = options.baseUrl || 'https://skillhub-1388575217.cos.ap-guangzhou.myqcloud.com';
     this._cliPath = null; // 缓存 CLI 路径

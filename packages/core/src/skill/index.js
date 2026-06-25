@@ -34,13 +34,13 @@ import { execSync } from 'node:child_process';
 import { PassThrough, Readable } from 'node:stream';
 import { randomUUID } from 'node:crypto';
 import zlib from 'node:zlib';
-import { getServerMessage, failMsg } from './i18n.js';
-import { ok, fail } from './result.js';
+import { getServerMessage, failMsg } from '../i18n.js';
+import { ok, fail } from '../result.js';
 import AdmZip from 'adm-zip';
 import { SocksProxyAgent } from 'socks-proxy-agent';
 import { HttpsProxyAgent } from 'https-proxy-agent';
 import { extract as tarExtract } from 'tar';
-import { downloadSkillFromGitHub } from './download-skill.js';
+import { downloadSkillFromGitHub } from './download.js';
 
 /** CodeWhale skill 社区仓库的基础 URL */
 const SKILL_REPO_BASE = 'https://github.com/deepseek-ai/codewhale-skills';
@@ -111,13 +111,13 @@ function _parseGitHubUrl(repoUrl) {
 export class SkillManager {
   /**
    * @param {import('./config.js').ConfigEngine} engine         - 全局配置引擎
-   * @param {import('./project-skill.js').ProjectSkillEngine} [projectEngine] - 项目 skill 引擎（可选）
+   * @param {import('./project.js').ProjectSkillEngine} [projectEngine] - 项目 skill 引擎（可选）
    * @param {string}                            [skillsDir]    - 全局 skill 存储目录
    */
   constructor(engine, projectEngine, skillsDir) {
     /** @type {import('./config.js').ConfigEngine} */
     this._engine = engine;
-    /** @type {import('./project-skill.js').ProjectSkillEngine|null} */
+    /** @type {import('./project.js').ProjectSkillEngine|null} */
     this._projectEngine = projectEngine || null;
     /** @type {string} 全局 skill 文件存储根目录 */
     this._skillsDir = skillsDir || join(homedir(), '.codewhale', 'skills');

@@ -7,11 +7,11 @@
   "exports": {
     ".": "./src/index.js",
     "./config": "./src/config.js",
-    "./download-skill": "./src/download-skill.js",
+    "./download-skill": "./src/skill/download.js",
     "./i18n": "./src/i18n.js",
     "./provider": "./src/provider.js",
     "./result": "./src/result.js",
-    "./skill": "./src/skill.js"
+    "./skill": "./src/skill/index.js"
   },
   "dependencies": {
     "adm-zip": "^0.5.16",

@@ -1,10 +1,10 @@
 /**
- * proxy-manager.js — 代理配置管理器
+ * ProxyManager — 代理配置管理器
  *
  * 管理 store.json 中的 proxy 配置列表，带 alias 别名。
  * 每个 ProxyEntry 有 id / alias / type(http|socks5) / host / port / [auth]。
  *
- * @module proxy-manager
+ * @module proxy
  */
 
 import { randomUUID } from 'node:crypto';
