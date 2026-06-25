@@ -101,7 +101,11 @@
       "community": "社区",
       "local": "本地",
       "custom": "自定义"
-    }
+    },
+    "name": "名称",
+    "viewLog": "查看日志",
+    "clearLog": "清除日志",
+    "browse": "浏览"
   },
   "common": {
     "confirm": "确认",

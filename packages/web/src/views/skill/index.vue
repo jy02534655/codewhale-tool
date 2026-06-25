@@ -1,9 +1,8 @@
 <!--
-  index.vue — Skill 管理页面（skill 模块入口）
-  compositionDialogContainer 管理弹窗
-  使用 .then() 链，没有 await/try-catch
--->
-<template>
+  index.vue — Skill 管理页面
+  工具栏含安装日志查看/清除
+  左侧列表简化：名称+状态 | 别名+来源标签 | 标签
+--><template>
   <div class="skill-view" v-loading="maskingStore.isLoading">
 
     <!-- 工具栏 -->
@@ -12,6 +11,8 @@
       <div class="toolbar-actions">
         <el-button size="small" type="primary"
           @click="dialogCtrl.showAddDialog(null, 'installDialog')">{{ $t('skill.install') }}</el-button>
+        <el-button size="small" text @click="doViewLog">{{ $t('skill.viewLog') || '查看日志' }}</el-button>
+        <el-button size="small" text type="danger" @click="doClearLog">{{ $t('skill.clearLog') || '清除日志' }}</el-button>
         <el-button size="small" @click="loadSkills">{{ $t('skill.refresh') }}</el-button>
       </div>
     </div>
@@ -24,7 +25,7 @@
     <!-- 主从布局 -->
     <div class="master-detail">
 
-      <!-- 左面板 -->
+      <!-- 左面板 — 简化列表：名称 | 别名+来源 | 标签 -->
       <div class="master-panel">
         <el-tabs v-model="activeTab" @tab-change="onTabChange">
           <el-tab-pane :label="$t('skill.global')" name="global" />
@@ -37,16 +38,21 @@
             <div v-for="s in filteredGlobal" :key="s.id"
               :class="['master-item', { active: selectedId === s.id }]"
               @click="selectSkill(s)">
-              <div class="master-item-title">
+              <!-- 第1行：名称 + 状态 -->
+              <div class="master-item-row">
                 <el-tag :type="s.enabled ? 'success' : 'danger'" size="small" effect="dark">
                   {{ s.enabled ? '开' : '关' }}
                 </el-tag>
                 <span class="master-item-name">{{ displayName(s) }}</span>
               </div>
-              <div class="master-item-sub">
-                <span class="sub-original">{{ s.name || s.id }}</span>
-                <el-tag size="small" type="info" effect="plain">{{ sourceName(s.source) }}</el-tag>
-                <span v-if="s.remark" class="sub-remark">· {{ truncate(s.remark, 20) }}</span>
+              <!-- 第2行：别名（左）+ 来源标签（右） -->
+              <div class="master-item-field">
+                <span v-if="s.alias && s.alias !== (s.name || s.id)" class="field-value-text">{{ s.alias }}</span>
+                <span class="master-item-source"><el-tag size="small" type="info" effect="plain">{{ sourceName(s.source) }}</el-tag></span>
+              </div>
+              <!-- 第3行：标签 -->
+              <div v-if="s.tags && s.tags.length" class="master-item-field">
+                <el-tag v-for="tag in s.tags" :key="tag" size="small" type="info" effect="plain" class="tag-item">{{ tag }}</el-tag>
               </div>
             </div>
             <el-empty v-if="filteredGlobal.length === 0"
@@ -65,16 +71,21 @@
               <div v-for="s in node.skills" :key="s.id"
                 :class="['master-item', 'project-skill-item', { active: selectedId === s.id }]"
                 @click="selectSkill(s)">
-                <div class="master-item-title">
+                <!-- 第1行：名称 + 状态 -->
+                <div class="master-item-row">
                   <el-tag :type="s.enabled ? 'success' : 'danger'" size="small" effect="dark">
                     {{ s.enabled ? '开' : '关' }}
                   </el-tag>
                   <span class="master-item-name">{{ displayName(s) }}</span>
                 </div>
-                <div class="master-item-sub">
-                  <span class="sub-original">{{ s.name || s.id }}</span>
-                  <el-tag size="small" type="info" effect="plain">{{ sourceName(s.source) }}</el-tag>
-                  <span v-if="s.remark" class="sub-remark">· {{ truncate(s.remark, 20) }}</span>
+                <!-- 第2行：别名（左）+ 来源标签（右） -->
+                <div class="master-item-field">
+                  <span v-if="s.alias && s.alias !== (s.name || s.id)" class="field-value-text">{{ s.alias }}</span>
+                  <span class="master-item-source"><el-tag size="small" type="info" effect="plain">{{ sourceName(s.source) }}</el-tag></span>
+                </div>
+                <!-- 第3行：标签 -->
+                <div v-if="s.tags && s.tags.length" class="master-item-field">
+                  <el-tag v-for="tag in s.tags" :key="tag" size="small" type="info" effect="plain" class="tag-item">{{ tag }}</el-tag>
                 </div>
               </div>
             </template>
@@ -93,6 +104,14 @@
 
     </div>
 
+    <!-- 安装日志查看弹窗 -->
+    <el-dialog v-model="logVisible" title="安装日志" width="720px" top="5vh" :destroy-on-close="true">
+      <pre class="log-content-dialog">{{ logContent || '暂无日志记录' }}</pre>
+      <template #footer>
+        <el-button @click="logVisible = false">{{ $t('common.close') }}</el-button>
+      </template>
+    </el-dialog>
+
     <!-- 弹窗组件 -->
     <install ref="installDialog" @submitSuccess="loadSkills" />
     <info ref="infoDialog" @submitSuccess="loadSkills" />
@@ -103,8 +122,8 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { ElMessage } from 'element-plus'
-import { getGlobalSkillList, getProjectSkillList } from '@/api/skill'
+import { ElMessageBox } from 'element-plus'
+import { getGlobalSkillList, getProjectSkillList, getInstallLog, clearInstallLog } from '@/api/skill'
 import { useMaskingStore } from '@/stores/masking'
 import { compositionDialogContainer } from '@/composition/dialog/Container'
 import install from './edit/install.vue'
@@ -124,6 +143,8 @@ const projectSkills = ref([])
 const search = ref('')
 const activeTab = ref('global')
 const selectedId = ref(null)
+const logVisible = ref(false)
+const logContent = ref('')
 
 /** 显示名称：别名优先 */
 function displayName(s) {
@@ -136,11 +157,6 @@ function sourceName(source) {
   return t(key) || source
 }
 
-/** 字符串截断 */
-function truncate(str, max) {
-  return str && str.length > max ? str.slice(0, max) + '…' : str
-}
-
 /** 选中 skill */
 function selectSkill(s) {
   selectedId.value = s.id
@@ -151,7 +167,7 @@ function onTabChange() {
   selectedId.value = null
 }
 
-/** 当前选中技能对象（全局 + 项目合并搜索） */
+/** 当前选中技能对象 */
 const selectedSkill = computed(function () {
   if (!selectedId.value) return null
   var all = globalSkills.value.concat(projectSkills.value)
@@ -164,9 +180,8 @@ const filteredGlobal = computed(function () {
   if (!q) return globalSkills.value
   return globalSkills.value.filter(function (s) {
     var name = (s.alias || s.name || s.id).toLowerCase()
-    var remark = (s.remark || '').toLowerCase()
     var tags = (s.tags || []).join(' ').toLowerCase()
-    return name.indexOf(q) !== -1 || remark.indexOf(q) !== -1 || tags.indexOf(q) !== -1
+    return name.indexOf(q) !== -1 || tags.indexOf(q) !== -1
   })
 })
 
@@ -192,9 +207,8 @@ const filteredProjectTree = computed(function () {
         alias: node.alias,
         skills: node.skills.filter(function (s) {
           var name = (s.alias || s.name || s.id).toLowerCase()
-          var remark = (s.remark || '').toLowerCase()
           var tags = (s.tags || []).join(' ').toLowerCase()
-          return name.indexOf(q) !== -1 || remark.indexOf(q) !== -1 || tags.indexOf(q) !== -1
+          return name.indexOf(q) !== -1 || tags.indexOf(q) !== -1
         })
       }
     })
@@ -230,6 +244,27 @@ function onOpenReadme() {
   }
 }
 
+// ─── 日志查看 / 清除 ──────────────────────────────────────
+
+function doViewLog() {
+  getInstallLog().then(function (res) {
+    logContent.value = (res && res.data) ? res.data : ''
+    logVisible.value = true
+  })
+}
+
+function doClearLog() {
+  ElMessageBox.confirm('确认清除所有安装日志？', '提示', {
+    confirmButtonText: t('common.confirm'),
+    cancelButtonText: t('common.cancel'),
+    type: 'warning'
+  }).then(function () {
+    return clearInstallLog()
+  }).then(function () {
+    logContent.value = ''
+  })
+}
+
 onMounted(loadSkills)
 </script>
 
@@ -237,27 +272,26 @@ onMounted(loadSkills)
 .skill-view { display: flex; flex-direction: column; height: 100%; gap: 8px; }
 .toolbar { display: flex; justify-content: space-between; align-items: center; }
 .toolbar h2 { font-size: 18px; margin: 0; }
-.toolbar-actions { display: flex; gap: 6px; }
+.toolbar-actions { display: flex; gap: 6px; align-items: center; }
 .search-bar { display: flex; gap: 8px; }
 .search-bar :deep(.el-input) { flex: 1; }
-/* 主从布局 */
 .master-detail { display: flex; gap: 16px; flex: 1; min-height: 0; }
-.master-panel { width: 280px; min-width: 220px; display: flex; flex-direction: column; border-right: 1px solid var(--border); padding-right: 12px; }
+.master-panel { width: 320px; min-width: 260px; display: flex; flex-direction: column; border-right: 1px solid var(--border); padding-right: 12px; flex-shrink: 0; }
 .master-panel :deep(.el-tabs__item) { padding: 0 8px; font-size: 13px; }
 .master-list { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 2px; }
-/* 列表项 */
-.master-item { padding: 6px 10px; border-radius: 4px; cursor: pointer; border-left: 3px solid transparent; transition: background 0.15s; }
+.master-item { padding: 6px 10px; border-radius: 4px; cursor: pointer; border-left: 3px solid transparent; }
 .master-item:hover { background: var(--bg-secondary, #f5f5f5); }
 .master-item.active { background: var(--el-color-primary-light-9); border-left-color: var(--el-color-primary); }
 .project-skill-item { padding-left: 24px; }
-.master-item-title { display: flex; align-items: center; gap: 6px; margin-bottom: 2px; }
+.master-item-row { display: flex; align-items: center; gap: 6px; margin-bottom: 2px; }
 .master-item-name { font-weight: 500; font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.master-item-sub { font-size: 11px; color: var(--text-secondary); display: flex; align-items: center; gap: 4px; margin-left: 28px; }
-.sub-original { color: var(--text-secondary); }
-.sub-remark { color: var(--text-secondary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-/* 项目分组头 */
+.master-item-field { display: flex; align-items: center; gap: 4px; font-size: 11px; color: var(--text-secondary); margin-top: 2px; margin-left: 26px; flex-wrap: wrap; }
+.master-item-source { margin-left: auto; }
+.field-value-text { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.tag-item { margin-left: 2px; }
 .project-group-header { display: flex; align-items: center; gap: 6px; padding: 8px 4px 4px; font-weight: 600; font-size: 13px; border-bottom: 1px solid var(--border); margin-bottom: 4px; }
 .project-group-name { font-weight: 500; }
-/* 右面板容器 */
-.detail-wrapper { flex: 1; min-width: 0; overflow-y: auto; }
+.sub-original { color: var(--text-secondary); font-size: 11px; }
+.detail-wrapper { flex: 1; min-width: 0; overflow-y: auto; contain: layout style; }
+.log-content-dialog { max-height: 400px; overflow: auto; background: #1e1e1e; color: #d4d4d4; font-family: monospace; font-size: 12px; padding: 12px; border-radius: 4px; white-space: pre-wrap; margin: 0; }
 </style>

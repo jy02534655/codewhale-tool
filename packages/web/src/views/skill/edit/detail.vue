@@ -119,7 +119,6 @@ function doUpdate() {
 function loadReadme() {
   if (!props.skill) return
   readmeLoading.value = true
-  var prev = showReadme.value
   getSkillDetail(props.skill.id)
     .then(function (res) {
       readmeContent.value = (res && res.readme) ? res.readme : ''

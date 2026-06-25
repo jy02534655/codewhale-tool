@@ -12,8 +12,8 @@
     <!-- 快速粘贴提示 -->
     <el-alert title="快速粘贴" description="可直接粘贴 npx 命令，自动识别仓库和路径" type="info" show-icon :closable="false" class="mode-tip" />
 
-    <!-- 智能识别输入框 -->
-    <div class="smart-paste" v-if="!smartParsed">
+    <!-- 智能识别输入框 — 始终显示 -->
+    <div class="smart-paste">
       <el-input v-model="smartInput" placeholder="粘贴安装命令，如 npx skills add https://github.com/vercel-labs/skills --skill find-skills" size="small" @input="onSmartInput">
         <template #append>
           <el-button @click="parseSmartInput" :disabled="!smartInput.trim()">识别</el-button>
@@ -39,30 +39,30 @@
         </el-radio-group>
       </el-form-item>
 
-      <!-- 项目目录（仅项目级别显示） -->
+      <!-- 项目目录（仅项目级别显示）—— 后端获取默认目录 -->
       <el-form-item v-if="level === 'project'" :label="$t('skill.projectPath')">
-        <el-input v-model="projectPath" placeholder="如 D:/Code/my-project（默认为当前目录）" />
+        <el-input v-model="projectPath" placeholder="如 D:/Code/my-project（默认为当前项目目录）" />
       </el-form-item>
 
-      <!-- 代理选择下拉 -->
+      <!-- 代理选择下拉 — 不标注默认 -->
       <el-form-item :label="$t('skill.proxy_select')">
         <el-select v-model="selectedProxyId" :placeholder="$t('skill.proxy_select_placeholder')" clearable style="width:100%">
           <el-option
             v-for="p in proxyList"
             :key="p.id"
-            :label="p.alias + ' (' + p.type + '://' + p.host + ':' + p.port + ')' + (p.default ? ' ★默认' : '')"
+            :label="p.alias + ' (' + p.type + '://' + p.host + ':' + p.port + ')'"
             :value="p.id"
           />
         </el-select>
       </el-form-item>
 
-      <!-- Token 选择下拉 -->
+      <!-- Token 选择下拉 — 不标注默认 -->
       <el-form-item :label="$t('skill.token_select')">
         <el-select v-model="selectedTokenId" :placeholder="$t('skill.token_select_placeholder')" clearable style="width:100%">
           <el-option
             v-for="t in tokenList"
             :key="t.id"
-            :label="t.alias + ' (' + t.token + ')' + (t.default ? ' ★默认' : '')"
+            :label="t.alias + ' (' + t.token + ')'"
             :value="t.id"
           />
         </el-select>
@@ -87,6 +87,7 @@ import { ElMessage } from 'element-plus'
 import { useI18n } from 'vue-i18n'
 import { getProxyList } from '@/api/proxy'
 import { getTokenList } from '@/api/token'
+import { getCurrentProjectDir } from '@/api/skill'
 import { compositionDialogBase } from '@/composition/dialog/Base'
 import InstallProgress from './progress.vue'
 
@@ -96,7 +97,6 @@ const { t } = useI18n({ useScope: 'global' })
 // ─── 输入字段 ──────────────────────────────────────────────
 
 const smartInput = ref('')
-const smartParsed = ref(false)
 const repoUrl = ref('')
 const skillPath = ref('')
 const level = ref('global')
@@ -142,14 +142,10 @@ function parseSmartInput() {
       skillPath.value = match[2]
     }
   }
-  smartParsed.value = true
 }
 
 function onSmartInput() {
-  // 当用户清空智能输入时重置解析状态
-  if (!smartInput.value.trim()) {
-    smartParsed.value = false
-  }
+  // 无需重置状态，输入框始终可见
 }
 
 // ─── 级别切换 ──────────────────────────────────────────────
@@ -181,12 +177,15 @@ const { isShow, showDialog, hideDialog, showDialogByData } = compositionDialogBa
     }).catch(function () {
       tokenList.value = []
     })
+    // 从后端获取当前项目目录作为默认值
+    getCurrentProjectDir().then(function (res) {
+      if (res && res.data) projectPath.value = res.data
+    }).catch(function () { /* ignore */ })
   }
 })
 
 function resetForm() {
   smartInput.value = ''
-  smartParsed.value = false
   repoUrl.value = ''
   skillPath.value = ''
   level.value = 'global'

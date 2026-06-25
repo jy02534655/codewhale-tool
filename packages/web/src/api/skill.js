@@ -4,7 +4,7 @@
  * 参考 provider.js 规范： 成功消息通过第三个参数传入，由 request.js 自动显示
  * loading 遮罩由 request.js 自动管理
  */
-import { ajaxBack, ajaxPostBack, ajaxPostBackLong, ajaxDeleteBack, ajaxPutBack } from '@/utils/request'
+import { ajaxBack, ajaxPostBack, ajaxDeleteBack, ajaxPutBack } from '@/utils/request'
 
 /** 获取全部 skill */
 export function getSkillList() { return ajaxBack('/skill/list') }
@@ -18,9 +18,6 @@ export function getProjectSkillList() { return ajaxBack('/skill/list/project') }
 /** 获取指定 skill 详情 */
 export function getSkillDetail(id) { return ajaxBack('/skill/show/' + id) }
 
-/** 安装 community skill */
-export function installSkill(id, level) { return ajaxPostBack('/skill/install', { id, level }, { successMessage: true }) }
-
 /** 启用 skill */
 export function enableSkill(id) { return ajaxPostBack('/skill/enable/' + id, {}, { successMessage: true }) }
 
@@ -33,48 +30,15 @@ export function removeSkill(id) { return ajaxDeleteBack('/skill/remove/' + id, {
 /** 更新 skill（git pull） */
 export function updateSkill(id) { return ajaxPostBack('/skill/update/' + id, {}, { successMessage: true }) }
 
-/** 从 GitHub 仓库安装 skill */
-export function installFromGithub(repoUrl, skillPath, level, proxyUrl) {
-  return new EventSource('/skill/install-github', { repoUrl, skillPath, level, proxyUrl }, { successMessage: true, loading: false })
+/** 通过 SSE 流式安装 skill（返回 EventSource 实例） */
+export function installFromGithubStream(repoUrl, skillPath, level) {
+  var params = new URLSearchParams({
+    repoUrl: repoUrl || '',
+    skillPath: skillPath || '',
+    level: level || 'global',
+  })
+  return new EventSource('/api/skill/install-github-stream?' + params.toString())
 }
-
-/** 从 ZIP 文件安装 skill */
-export function installFromZip(zipSource, level, proxyUrl) {
-  return ajaxPostBackLong('/skill/install-zip', { zipSource, level, proxyUrl }, { successMessage: true, loading: false })
-}
-
-/** 上传本地 ZIP 文件安装 skill（base64 编码） */
-export function uploadZip(base64, fileName, level) {
-  return ajaxPostBackLong('/skill/upload-zip', { base64, fileName, level }, { successMessage: true, loading: false })
-}
-
-/** 从注册表安装 skill */
-export function installFromRegistry(identifier, level) {
-  return ajaxPostBackLong('/skill/install-registry', { identifier, level }, { successMessage: true, loading: false })
-}
-
-/** 搜索社区 skill */
-export function searchSkill(query, force) {
-  const params = []
-  if (query) params.push('q=' + encodeURIComponent(query))
-  if (force) params.push('force=true')
-  return ajaxBack('/skill/search' + (params.length ? '?' + params.join('&') : ''))
-}
-
-/** 检查 Skillhub CLI 安装状态 */
-export function skillhubStatus() { return ajaxBack('/skill/skillhub/status') }
-
-/** 安装 Skillhub CLI */
-export function skillhubInstall() { return ajaxPostBack('/skill/skillhub/install', {}, { successMessage: true }) }
-
-/** 通过 Skillhub 搜索技能 */
-export function skillhubSearch(keyword) { return ajaxPostBack('/skill/skillhub/search', { keyword }) }
-
-/** 通过 Skillhub 安装技能 */
-export function skillhubInstallSkill(name) { return ajaxPostBack('/skill/skillhub/install-skill', { name }, { successMessage: true }) }
-
-/** 自动发现 */
-export function discoverSkill(level) { return ajaxPostBack('/skill/discover', { level }, { successMessage: true }) }
 
 /** 合并更新元数据（alias + remark + tags） */
 export function updateMeta(id, data) { return ajaxPutBack('/skill/meta/' + id, data, { successMessage: true }) }
@@ -85,12 +49,11 @@ export function getReadme(id) { return ajaxBack('/skill/readme/' + id) }
 /** 保存 SKILL.md */
 export function saveReadme(id, content) { return ajaxPutBack('/skill/readme/' + id, { content }, { successMessage: true }) }
 
-/** GitHub 仓库安装（SSE 实时进度流，返回 EventSource 实例） */
-export function installFromGithubStream(repoUrl, skillPath, proxyUrl) {
-  var params = new URLSearchParams({
-    repoUrl: repoUrl || '',
-    skillPath: skillPath || '',
-    proxyUrl: proxyUrl || '',
-  })
-  return new EventSource('/api/skill/install-github-stream?' + params.toString())
-}
+/** 获取安装日志 */
+export function getInstallLog() { return ajaxBack('/skill/install-log') }
+
+/** 清除安装日志 */
+export function clearInstallLog() { return ajaxDeleteBack('/skill/install-log') }
+
+/** 获取当前项目目录 */
+export function getCurrentProjectDir() { return ajaxBack('/skill/current-project') }

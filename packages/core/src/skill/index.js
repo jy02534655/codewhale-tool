@@ -959,10 +959,10 @@ export class SkillManager {
    * @param {Function}     [onProgress] - 进度回调
    * @returns {Promise<{success: boolean, data?: any, message?: string, errorCode?: string}>}
    */
-  async installFromGitHub(repoUrl, skillPath, level, proxyUrl, onProgress) {
+  async installFromGitHub(repoUrl, skillPath, level, proxyUrl, onProgress, onLog) {
     // 兼容新旧两种调用方式
     if (typeof repoUrl === 'object' && repoUrl !== null) {
-      return this._installFromGitHubV2(repoUrl, skillPath);
+      return this._installFromGitHubV2(repoUrl, skillPath, onLog);
     }
     const targetLevel = level || 'global';
 
@@ -1164,10 +1164,11 @@ export class SkillManager {
    * @param {string}   [opts.proxyId]  - 代理配置 ID
    * @param {string}   [opts.tokenId]  - GitHub Token ID
    * @param {Function} [onProgress]    - 进度回调
+   * @param {Function} [onLog]         - 日志回调（可选，用于 SSE 实时推送）
    * @returns {Promise<{success: boolean, data?: any, message?: string, errorCode?: string}>}
    * @private
    */
-  async _installFromGitHubV2({ repoUrl, skillPath, level, proxyId, tokenId, proxyConfig, projectPath } = {}, onProgress) {
+  async _installFromGitHubV2({ repoUrl, skillPath, level, proxyId, tokenId, proxyConfig, projectPath } = {}, onProgress, onLog) {
     const targetLevel = level || 'global';
 
     const parsed = _parseGitHubUrl(repoUrl);
@@ -1218,6 +1219,7 @@ export class SkillManager {
         proxy: proxyConfig,
         token,
         onProgress,
+        onLog,
       });
 
       // 验证 SKILL.md 存在

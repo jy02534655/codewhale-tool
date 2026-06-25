@@ -8,9 +8,9 @@
 
 import { Router } from 'express';
 import { guard, guardAsync } from '@codewhale/core';
-import { writeFileSync, rmSync } from 'node:fs';
+import { writeFileSync, rmSync, existsSync, readFileSync, unlinkSync } from 'node:fs';
 import { join } from 'node:path';
-import { tmpdir } from 'node:os';
+import { tmpdir, homedir } from 'node:os';
 import { randomUUID } from 'node:crypto';
 
 /**
@@ -150,6 +150,11 @@ data: ${JSON.stringify(data)}
       }
     };
 
+    // 日志回调 → SSE log 事件（转发 download-skill.log 内容）
+    const onLog = (logEntry) => {
+      sendSSE('log', { level: logEntry.level || 'INFO', message: logEntry.message });
+    };
+
     try {
       const result = await skillMgr.installFromGitHub({
         repoUrl,
@@ -159,7 +164,7 @@ data: ${JSON.stringify(data)}
         tokenId,
         proxyConfig,
         projectPath,
-      }, onProgress);
+      }, onProgress, onLog);
       if (result.success) {
         sendSSE('complete', { success: true, data: result.data });
       } else {
@@ -186,6 +191,41 @@ data: ${JSON.stringify(data)}
       }
       return r;
     }));
+  });
+
+  // ─── 安装日志查看 / 清除 ─────────────────────────────────
+
+  /** GET /api/skill/install-log — 读取最近安装日志 */
+  router.get('/install-log', (_req, res) => {
+    try {
+      var LOG_PATH = join(process.cwd(), 'download-skill.log');
+      if (!existsSync(LOG_PATH)) {
+        return res.json({ success: true, data: '' });
+      }
+      var content = readFileSync(LOG_PATH, 'utf-8');
+      // 只返回最后 200 行避免日志过大
+      var lines = content.split('\n');
+      var tail = lines.slice(Math.max(0, lines.length - 200)).join('\n');
+      res.json({ success: true, data: tail });
+    } catch (err) {
+      res.json({ success: false, message: err.message });
+    }
+  });
+
+  /** DELETE /api/skill/install-log — 清除安装日志 */
+  router.delete('/install-log', (_req, res) => {
+    try {
+      var LOG_PATH = join(process.cwd(), 'download-skill.log');
+      if (existsSync(LOG_PATH)) unlinkSync(LOG_PATH);
+      res.json({ success: true, message: '日志已清除' });
+    } catch (err) {
+      res.json({ success: false, message: err.message });
+    }
+  });
+
+  /** GET /api/skill/current-project — 返回当前项目工作目录 */
+  router.get('/current-project', (_req, res) => {
+    res.json({ success: true, data: process.cwd() });
   });
 
   return router;

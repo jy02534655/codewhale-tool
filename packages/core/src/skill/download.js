@@ -30,6 +30,9 @@ import { SocksProxyAgent } from 'socks-proxy-agent';
 /** 日志文件路径 */
 let _logFile = null;
 
+/** 外部日志回调（供 SSE 等场景实时推送） */
+let _onLogExtra = null;
+
 /**
  * 设置日志文件路径（由 downloadSkillFromGitHub 入口调用）
  * @param {string} filePath
@@ -46,12 +49,13 @@ function _setLogFile(filePath) {
  * @param {object} [extra]
  */
 function _log(level, message, extra) {
-  if (!_logFile) return;
+  if (!_logFile && !_onLogExtra) return;
   try {
     const ts = new Date().toISOString().replace('T', ' ').replace('Z', '');
     const extraStr = extra ? JSON.stringify(extra, null, 0) : '';
-    const line = `[${ts}] [${level}] ${message}${extraStr ? ' | ' + extraStr : ''}\n`;
-    fs.appendFileSync(_logFile, line, 'utf-8');
+    const line = `[${ts}] [${level}] ${message}${extraStr ? ' | ' + extraStr : ''}`;
+    if (_logFile) fs.appendFileSync(_logFile, line + '\n', 'utf-8');
+    if (_onLogExtra) _onLogExtra({ level, message: line });
   } catch { /* 日志写入失败不阻塞流程 */ }
 }
 
@@ -474,10 +478,13 @@ export async function downloadSkillFromGitHub({
   token,
   renameMap,
   onProgress,
+  onLog,
   level
 }) {
   // 初始化诊断日志（写入工作目录下的 download-skill.log）
   _setLogFile(path.join(process.cwd(), 'download-skill.log'));
+  // 设置外部日志回调（用于 SSE 实时推送）
+  _onLogExtra = onLog || null;
   _log('INFO', '========== 下载开始 ==========');
   const startTime = Date.now();
   _log('INFO', '参数', {

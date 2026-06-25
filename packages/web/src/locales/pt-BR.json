@@ -108,7 +108,11 @@
       "installSuccess": "Instalação bem-sucedida",
       "installFail": "Falha na instalação"
     },
-    "source": { "community": "Comunidade", "local": "Local", "custom": "Personalizado" }
+    "source": { "community": "Comunidade", "local": "Local", "custom": "Personalizado" },
+    "name": "Nome",
+    "viewLog": "Ver Log",
+    "clearLog": "Limpar Log",
+    "browse": "Navegar"
   },
   "message": {
     "networkError": "Erro de rede, tente novamente"

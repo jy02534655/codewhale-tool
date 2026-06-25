@@ -108,7 +108,11 @@
       "installSuccess": "Install successful",
       "installFail": "Install failed"
     },
-    "source": { "community": "Community", "local": "Local", "custom": "Custom" }
+    "source": { "community": "Community", "local": "Local", "custom": "Custom" },
+    "name": "Name",
+    "viewLog": "View Log",
+    "clearLog": "Clear Log",
+    "browse": "Browse"
   },
   "message": {
     "networkError": "Network error, please try again"

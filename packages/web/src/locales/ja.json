@@ -108,7 +108,11 @@
       "installSuccess": "インストール成功",
       "installFail": "インストール失敗"
     },
-    "source": { "community": "コミュニティ", "local": "ローカル", "custom": "カスタム" }
+    "source": { "community": "コミュニティ", "local": "ローカル", "custom": "カスタム" },
+    "name": "名前",
+    "viewLog": "ログ表示",
+    "clearLog": "ログ削除",
+    "browse": "参照"
   },
   "message": {
     "networkError": "ネットワークエラー、再試行してください"
