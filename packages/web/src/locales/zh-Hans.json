@@ -103,6 +103,8 @@
       "custom": "自定义"
     },
     "name": "名称",
+    "installLog": "安装日志",
+    "noLog": "暂无日志记录",
     "viewLog": "查看日志",
     "clearLog": "清除日志",
     "browse": "浏览"

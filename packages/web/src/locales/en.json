@@ -110,6 +110,8 @@
     },
     "source": { "community": "Community", "local": "Local", "custom": "Custom" },
     "name": "Name",
+    "installLog": "Install Log",
+    "noLog": "No log records",
     "viewLog": "View Log",
     "clearLog": "Clear Log",
     "browse": "Browse"

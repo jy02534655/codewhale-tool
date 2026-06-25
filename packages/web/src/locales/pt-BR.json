@@ -110,6 +110,8 @@
     },
     "source": { "community": "Comunidade", "local": "Local", "custom": "Personalizado" },
     "name": "Nome",
+    "installLog": "Log de Instalação",
+    "noLog": "Nenhum registro de log",
     "viewLog": "Ver Log",
     "clearLog": "Limpar Log",
     "browse": "Navegar"

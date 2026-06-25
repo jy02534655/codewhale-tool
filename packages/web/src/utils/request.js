@@ -22,26 +22,9 @@ const service = axios.create({
 });
 
 /**
- * 创建 axios 实例（长超时 120s，用于安装/下载等耗时操作）
- */
-const serviceLong = axios.create({
-  baseURL: '/api',
-  timeout: 120000,
-});
-
-/**
  * 全局请求拦截：设置缓存控制
  */
 service.interceptors.request.use((config) => {
-  if (config.method === 'get') {
-    config.params = { ...config.params, _t: Date.now() };
-    config.headers['Cache-Control'] = 'no-cache';
-  }
-  return config;
-});
-
-// 相同的拦截器应用于长超时实例
-serviceLong.interceptors.request.use((config) => {
   if (config.method === 'get') {
     config.params = { ...config.params, _t: Date.now() };
     config.headers['Cache-Control'] = 'no-cache';
@@ -144,64 +127,6 @@ function axiosRequest(
 }
 
 /**
- * 长超时核心请求函数（120s，用于安装/下载）
- */
-function axiosRequestLong(
-  config,
-  {
-    rootProperty = 'data',
-    successProperty = 'success',
-    successCode = true,
-    messageProperty = 'message',
-    successMessage = false,
-    errorMessage = true,
-    errorProperty = 'message',
-    loading = true,
-    loadingText = '加载中...',
-  } = {}
-) {
-  let loadingData;
-  if (loading) {
-    let nextTime = 100;
-    if (isNumber(loading) && loading > 0) {
-      nextTime = loading;
-    }
-    loadingData = {
-      loadingText,
-      nextTime,
-      view: DEFAULT_VIEW,
-    };
-    masking.loading(loadingData);
-  }
-  return serviceLong(config)
-    .then((res) => {
-      const data = res.data || {};
-      const code = getValueByData(data, successProperty);
-      let success = !isEmpty(code);
-      if (success && !isEmpty(successCode)) {
-        success = code.toString() === successCode.toString();
-      }
-      data.success = success;
-      if (success) {
-        processMessage(data, success, { messageProperty, successMessage, errorMessage, errorProperty });
-        return getValueByData(data, rootProperty);
-      }
-      return Promise.reject(data);
-    })
-    .catch((error) => {
-      const errData = error?.response?.data || error || {};
-      if (!errData.message) errData.message = t('message.networkError');
-      processMessage(errData, false, { messageProperty, successMessage, errorMessage, errorProperty });
-      return Promise.reject(error);
-    })
-    .finally(() => {
-      if (loadingData) {
-        masking.clear(loadingData);
-      }
-    });
-}
-
-/**
  * GET 方式提交数据（带错误处理）
  */
 export function ajaxBack(url, params = {}, opts = {}) {
@@ -224,13 +149,6 @@ export function ajax(url, params = {}, opts = {}) {
  */
 export function ajaxPostBack(url, params = {}, opts = {}) {
   return axiosRequest({ url, method: 'post', data: params }, opts);
-}
-
-/**
- * POST 方式提交数据（带错误处理，长超时 120s，用于安装/下载）
- */
-export function ajaxPostBackLong(url, params = {}, opts = {}) {
-  return axiosRequestLong({ url, method: 'post', data: params }, opts);
 }
 
 /**

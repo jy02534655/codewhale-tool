@@ -38,19 +38,23 @@
             <div v-for="s in filteredGlobal" :key="s.id"
               :class="['master-item', { active: selectedId === s.id }]"
               @click="selectSkill(s)">
-              <!-- 第1行：名称 + 状态 -->
+              <!-- 第1行：名称 + 状态 + 来源标签（右上） -->
               <div class="master-item-row">
                 <el-tag :type="s.enabled ? 'success' : 'danger'" size="small" effect="dark">
                   {{ s.enabled ? '开' : '关' }}
                 </el-tag>
                 <span class="master-item-name">{{ displayName(s) }}</span>
-              </div>
-              <!-- 第2行：别名（左）+ 来源标签（右） -->
-              <div class="master-item-field">
-                <span v-if="s.alias && s.alias !== (s.name || s.id)" class="field-value-text">{{ s.alias }}</span>
                 <span class="master-item-source"><el-tag size="small" type="info" effect="plain">{{ sourceName(s.source) }}</el-tag></span>
               </div>
-              <!-- 第3行：标签 -->
+              <!-- 第2行：原名（name） -->
+              <div v-if="s.name && s.name !== (s.alias || s.id)" class="master-item-field">
+                <span class="field-value-text">{{ s.name }}</span>
+              </div>
+              <!-- 第3行：备注 -->
+              <div v-if="s.remark" class="master-item-field">
+                <span class="field-value-text remark-text">{{ s.remark }}</span>
+              </div>
+              <!-- 第4行：标签 -->
               <div v-if="s.tags && s.tags.length" class="master-item-field">
                 <el-tag v-for="tag in s.tags" :key="tag" size="small" type="info" effect="plain" class="tag-item">{{ tag }}</el-tag>
               </div>
@@ -71,19 +75,23 @@
               <div v-for="s in node.skills" :key="s.id"
                 :class="['master-item', 'project-skill-item', { active: selectedId === s.id }]"
                 @click="selectSkill(s)">
-                <!-- 第1行：名称 + 状态 -->
+                <!-- 第1行：名称 + 状态 + 来源标签（右上） -->
                 <div class="master-item-row">
                   <el-tag :type="s.enabled ? 'success' : 'danger'" size="small" effect="dark">
                     {{ s.enabled ? '开' : '关' }}
                   </el-tag>
                   <span class="master-item-name">{{ displayName(s) }}</span>
-                </div>
-                <!-- 第2行：别名（左）+ 来源标签（右） -->
-                <div class="master-item-field">
-                  <span v-if="s.alias && s.alias !== (s.name || s.id)" class="field-value-text">{{ s.alias }}</span>
                   <span class="master-item-source"><el-tag size="small" type="info" effect="plain">{{ sourceName(s.source) }}</el-tag></span>
                 </div>
-                <!-- 第3行：标签 -->
+                <!-- 第2行：原名（name） -->
+                <div v-if="s.name && s.name !== (s.alias || s.id)" class="master-item-field">
+                  <span class="field-value-text">{{ s.name }}</span>
+                </div>
+                <!-- 第3行：备注 -->
+                <div v-if="s.remark" class="master-item-field">
+                  <span class="field-value-text remark-text">{{ s.remark }}</span>
+                </div>
+                <!-- 第4行：标签 -->
                 <div v-if="s.tags && s.tags.length" class="master-item-field">
                   <el-tag v-for="tag in s.tags" :key="tag" size="small" type="info" effect="plain" class="tag-item">{{ tag }}</el-tag>
                 </div>
@@ -105,8 +113,8 @@
     </div>
 
     <!-- 安装日志查看弹窗 -->
-    <el-dialog v-model="logVisible" title="安装日志" width="720px" top="5vh" :destroy-on-close="true">
-      <pre class="log-content-dialog">{{ logContent || '暂无日志记录' }}</pre>
+    <el-dialog v-model="logVisible" :title="$t('skill.installLog')" width="720px" top="5vh" :destroy-on-close="true">
+      <pre class="log-content-dialog">{{ logContent || $t('skill.noLog') }}</pre>
       <template #footer>
         <el-button @click="logVisible = false">{{ $t('common.close') }}</el-button>
       </template>
@@ -279,14 +287,14 @@ onMounted(loadSkills)
 .master-panel { width: 320px; min-width: 260px; display: flex; flex-direction: column; border-right: 1px solid var(--border); padding-right: 12px; flex-shrink: 0; }
 .master-panel :deep(.el-tabs__item) { padding: 0 8px; font-size: 13px; }
 .master-list { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 2px; }
-.master-item { padding: 6px 10px; border-radius: 4px; cursor: pointer; border-left: 3px solid transparent; }
+.master-item { position: relative; padding: 6px 10px; border-radius: 4px; cursor: pointer; border-left: 3px solid transparent; }
 .master-item:hover { background: var(--bg-secondary, #f5f5f5); }
 .master-item.active { background: var(--el-color-primary-light-9); border-left-color: var(--el-color-primary); }
 .project-skill-item { padding-left: 24px; }
-.master-item-row { display: flex; align-items: center; gap: 6px; margin-bottom: 2px; }
+.master-item-row { display: flex; align-items: center; gap: 6px; margin-bottom: 2px; padding-right: 60px; }
 .master-item-name { font-weight: 500; font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .master-item-field { display: flex; align-items: center; gap: 4px; font-size: 11px; color: var(--text-secondary); margin-top: 2px; margin-left: 26px; flex-wrap: wrap; }
-.master-item-source { margin-left: auto; }
+.master-item-source { position: absolute; top: 6px; right: 10px; }
 .field-value-text { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .tag-item { margin-left: 2px; }
 .project-group-header { display: flex; align-items: center; gap: 6px; padding: 8px 4px 4px; font-weight: 600; font-size: 13px; border-bottom: 1px solid var(--border); margin-bottom: 4px; }

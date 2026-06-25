@@ -110,6 +110,8 @@
     },
     "source": { "community": "コミュニティ", "local": "ローカル", "custom": "カスタム" },
     "name": "名前",
+    "installLog": "インストールログ",
+    "noLog": "ログ記録なし",
     "viewLog": "ログ表示",
     "clearLog": "ログ削除",
     "browse": "参照"
