@@ -4,6 +4,7 @@
   支持智能识别 npx 命令格式，自动填充仓库 URL 和 Skill 路径
   支持项目级别时选择安装目录
   打开时自动选中默认代理和 Token
+  确认后弹出 InstallProgress 浮层展示步骤/进度/日志
 -->
 <template>
   <el-dialog v-model="isShow" :title="$t('skill.install')" width="560px" :close-on-click-modal="false" @close="resetForm">
@@ -69,12 +70,15 @@
     </el-form>
 
     <template #footer>
-      <el-button @click="hideDialog">{{ $t('common.cancel') }}</el-button>
+      <el-button :disabled="installing" @click="hideDialog">{{ $t('common.cancel') }}</el-button>
       <el-button type="primary" :disabled="!canSubmit" :loading="installing" @click="onSubmit">
-        {{ installing ? installingText : $t('common.confirm') }}
+        {{ $t('common.confirm') }}
       </el-button>
     </template>
   </el-dialog>
+
+  <!-- 安装进度浮层 -->
+  <InstallProgress ref="progressRef" @complete="onInstallComplete" />
 </template>
 
 <script setup>
@@ -84,6 +88,7 @@ import { useI18n } from 'vue-i18n'
 import { getProxyList } from '@/api/proxy'
 import { getTokenList } from '@/api/token'
 import { compositionDialogBase } from '@/composition/dialog/Base'
+import InstallProgress from './InstallProgress.vue'
 
 const emit = defineEmits(['submitSuccess'])
 const { t } = useI18n({ useScope: 'global' })
@@ -105,9 +110,9 @@ const installing = ref(false)
 const proxyList = ref([])
 const tokenList = ref([])
 
-// ─── 安装文案 ──────────────────────────────────────────────
+// ─── 进度浮层 ──────────────────────────────────────────────
 
-const installingText = ref('安装中…')
+const progressRef = ref(null)
 
 // ─── 提交按钮启用条件 ──────────────────────────────────────
 
@@ -189,14 +194,12 @@ function resetForm() {
   selectedProxyId.value = ''
   selectedTokenId.value = ''
   installing.value = false
-  installingText.value = '安装中…'
 }
 
-// ─── 提交（SSE 流式安装）──────────────────────────────────
+// ─── 提交 ──────────────────────────────────────────────────
 
 function onSubmit() {
   installing.value = true
-  installingText.value = '连接 GitHub…'
 
   // 构建 SSE URL 参数
   var params = new URLSearchParams({
@@ -214,38 +217,20 @@ function onSubmit() {
     params.append('projectPath', projectPath.value.trim())
   }
 
-  var es = new EventSource('/api/skill/install-github-stream?' + params.toString())
+  var url = '/api/skill/install-github-stream?' + params.toString()
 
-  es.addEventListener('progress', function (e) {
-    var data
-    try { data = JSON.parse(e.data) } catch (_) { return }
-    if (data.message) {
-      installingText.value = data.message
-    }
-  })
+  // 打开进度浮层
+  if (progressRef.value) {
+    progressRef.value.start(url)
+  }
+}
 
-  es.addEventListener('complete', function () {
-    es.close()
-    ElMessage.success('安装完成')
-    hideDialog()
+function onInstallComplete(success) {
+  installing.value = false
+  hideDialog()
+  if (success) {
     emit('submitSuccess')
-    installing.value = false
-  })
-
-  es.addEventListener('error', function (e) {
-    es.close()
-    installing.value = false
-    if (e.data) {
-      try {
-        var data = JSON.parse(e.data)
-        ElMessage.error(data.message || '安装失败')
-      } catch (_) {
-        ElMessage.error('安装失败')
-      }
-    } else {
-      ElMessage.error('连接中断')
-    }
-  })
+  }
 }
 
 defineExpose({ showDialog, hideDialog, showDialogByData })

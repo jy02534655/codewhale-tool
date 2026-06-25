@@ -132,9 +132,22 @@ data: ${JSON.stringify(data)}
 `);
     }
 
-    // 进度回调 → SSE 事件
+    // 进度回调 → SSE 事件（含步骤追踪和日志）
+    var currentStage = null;
+    const STEPS = ['connecting', 'downloading', 'extracting', 'installing'];
     const onProgress = (progress) => {
       sendSSE('progress', progress);
+
+      // 步骤切换时自动发射日志
+      if (progress.stage && progress.stage !== currentStage) {
+        currentStage = progress.stage;
+        var stepLabel = '';
+        if (progress.stage === 'connecting') stepLabel = '连接仓库';
+        else if (progress.stage === 'downloading') stepLabel = '下载文件';
+        else if (progress.stage === 'extracting') stepLabel = '解压文件';
+        else if (progress.stage === 'installing') stepLabel = '注册 Skill';
+        sendSSE('log', { level: 'info', message: '▶ ' + (stepLabel || progress.stage) + '...', time: new Date().toLocaleTimeString() });
+      }
     };
 
     try {
