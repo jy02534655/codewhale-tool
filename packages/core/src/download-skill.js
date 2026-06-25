@@ -25,6 +25,51 @@ import * as tar from 'tar';
 import { HttpsProxyAgent } from 'https-proxy-agent';
 import { SocksProxyAgent } from 'socks-proxy-agent';
 
+// ===================== 诊断日志 =====================
+
+/** 日志文件路径 */
+let _logFile = null;
+
+/**
+ * 设置日志文件路径（由 downloadSkillFromGitHub 入口调用）
+ * @param {string} filePath
+ */
+function _setLogFile(filePath) {
+  _logFile = filePath;
+  _log('INFO', '========== 新建诊断日志 ==========');
+}
+
+/**
+ * 写入一行日志到本地文件
+ * @param {'INFO'|'WARN'|'ERROR'|'DEBUG'} level
+ * @param {string} message
+ * @param {object} [extra]
+ */
+function _log(level, message, extra) {
+  if (!_logFile) return;
+  try {
+    const ts = new Date().toISOString().replace('T', ' ').replace('Z', '');
+    const extraStr = extra ? JSON.stringify(extra, null, 0) : '';
+    const line = `[${ts}] [${level}] ${message}${extraStr ? ' | ' + extraStr : ''}\n`;
+    fs.appendFileSync(_logFile, line, 'utf-8');
+  } catch { /* 日志写入失败不阻塞流程 */ }
+}
+
+/**
+ * 带计时器的日志段 — 返回 { finish(status, msg) }，调用时自动计算耗时
+ * @param {string} name 操作名称
+ * @returns {{ finish: Function }}
+ */
+function _logSpan(name) {
+  const t = Date.now();
+  _log('INFO', `${name} ...`);
+  return {
+    finish(status, msg, extra) {
+      _log(status, `${name} → ${msg}`, { ...extra, elapsed: Date.now() - t + 'ms' });
+    }
+  };
+}
+
 // ===================== 工具函数 =====================
 
 /**
@@ -317,13 +362,19 @@ async function downloadViaApi({ owner, repo, branch, skillPrefix, targetDir, age
  */
 async function detectTarballSize(owner, repo, branch, agent) {
   const checkUrl = `https://codeload.github.com/${owner}/${repo}/tar.gz/${branch}`;
+  _log('INFO', 'detectTarballSize: HEAD 请求', { url: checkUrl });
   try {
     const headRes = await fetch(checkUrl, { agent, method: 'HEAD', headers: { 'User-Agent': 'codewhale-downloader' } });
     if (headRes.ok) {
       const cl = parseInt(headRes.headers.get('content-length') || 0) || null;
+      _log('INFO', 'detectTarballSize: 成功', { status: headRes.status, contentLength: cl });
       return cl;
     }
-  } catch { /* 忽略 */ }
+    _log('WARN', 'detectTarballSize: HEAD 响应非 OK', { status: headRes.status });
+  } catch (err) {
+    _log('WARN', 'detectTarballSize: 请求异常', { message: err.message });
+  }
+  _log('INFO', 'detectTarballSize: 返回 null（无法探测）');
   return null;
 }
 
@@ -342,6 +393,7 @@ async function detectSkillPrefix(owner, repo, skillName, branch, agent, token) {
   // 如果 skillName 本身包含路径（如 "skills/frontend-design"），直接使用
   if (skillName.includes('/')) {
     const normalized = skillName.replace(/\/+$/, '') + '/';
+    _log('INFO', 'detectSkillPrefix: skillName 含路径，直接使用', { prefix: normalized });
     return { prefix: normalized };
   }
 
@@ -353,21 +405,48 @@ async function detectSkillPrefix(owner, repo, skillName, branch, agent, token) {
     ...(token && { Authorization: `token ${token}` })
   };
 
+  _log('INFO', 'detectSkillPrefix: 通过 Tree API 探测前缀', {
+    url: treeUrl,
+    candidates: candidatePrefixes,
+    hasToken: !!token
+  });
+
+  let usedApi = false;
+  let treeCount = 0;  // Tree API 返回的条目数（用于策略路由）
   // 通过 Tree API 快速探测
   try {
+    const span = _logSpan('detectSkillPrefix: Tree API 请求');
     const treeRes = await fetch(treeUrl, { agent, headers: apiHeaders });
     if (treeRes.ok) {
+      usedApi = true;
       const { tree } = await treeRes.json();
+      treeCount = tree ? tree.length : 0;
+      _log('INFO', 'detectSkillPrefix: Tree API 成功', { status: treeRes.status, treeEntries: treeCount });
       for (const prefix of candidatePrefixes) {
-        if (tree.some((f) => f.type === 'blob' && f.path.startsWith(prefix))) {
-          return { prefix };
+        const matched = tree.some((f) => f.type === 'blob' && f.path.startsWith(prefix));
+        _log('DEBUG', 'detectSkillPrefix: 检查候选前缀', { prefix, matched });
+        if (matched) {
+          span.finish('INFO', `匹配到前缀: ${prefix}`);
+          return { prefix, treeCount };
         }
       }
+      _log('WARN', 'detectSkillPrefix: 所有候选前缀均未匹配', { candidates: candidatePrefixes });
+      // Tree API 成功但没匹配到 → 仓库中不存在该 skill，但不回退到默认前缀（默认值在调用方决定）
+      span.finish('WARN', `完成: 候选均未匹配 (treeCount=${treeCount})`);
+      return { prefix: candidatePrefixes[0], treeCount, apiOk: true, noMatch: true };
+    } else {
+      const body = await treeRes.text().catch(() => '');
+      _log('WARN', 'detectSkillPrefix: Tree API 响应非 OK', { status: treeRes.status, body: body.slice(0, 200) });
+      span.finish('WARN', `API 失败: HTTP ${treeRes.status}`);
     }
-  } catch { /* 忽略 */ }
+  } catch (err) {
+    _log('WARN', 'detectSkillPrefix: Tree API 异常', { message: err.message });
+  }
 
-  // API 不可用或未匹配 → 默认 skills/<skillName>/（社区仓库约定）
-  return { prefix: candidatePrefixes[0] };
+  // API 不可用 → 默认 skills/<skillName>/（社区仓库约定）
+  const result = candidatePrefixes[0];
+  _log('WARN', 'detectSkillPrefix: 回退默认前缀', { prefix: result, reason: 'API 不可用' });
+  return { prefix: result, treeCount: 0, apiOk: false };
 }
 
 // ===================== 主入口 =====================
@@ -397,24 +476,51 @@ export async function downloadSkillFromGitHub({
   onProgress,
   level
 }) {
+  // 初始化诊断日志（写入工作目录下的 download-skill.log）
+  _setLogFile(path.join(process.cwd(), 'download-skill.log'));
+  _log('INFO', '========== 下载开始 ==========');
+  const startTime = Date.now();
+  _log('INFO', '参数', {
+    repoUrl,
+    skillName,
+    destDir,
+    hasProxy: !!proxy,
+    proxyType: proxy?.type,
+    hasToken: !!token,
+    hasRenameMap: !!renameMap,
+    hasOnProgress: !!onProgress,
+    level
+  });
+
   const { owner, repo } = parseRepoUrl(repoUrl);
   const agent = createAgent(proxy);
   const branch = 'main';
+  _log('INFO', '仓库信息', { owner, repo, branch });
 
   if (onProgress) {
     onProgress({ stage: 'connecting', percent: 5, message: '解析仓库...', speed: 0, speedFormatted: '' });
   }
 
   // 1. 探测 skill 前缀
-  const { prefix } = await detectSkillPrefix(owner, repo, skillName, branch, agent, token);
+  const spanPrefix = _logSpan('探测前缀');
+  const { prefix, treeCount, noMatch } = await detectSkillPrefix(owner, repo, skillName, branch, agent, token);
   const skillPrefix = prefix;
+  spanPrefix.finish('INFO', `结果: ${skillPrefix}`);
+
+  // Tree API 成功但所有候选前缀均不匹配 → 仓库中不存在该 skill
+  if (noMatch) {
+    _log('ERROR', `仓库中${treeCount}个文件，但 skill "${skillName}" 未找到 (前缀: ${skillPrefix})`);
+    throw new Error(`在仓库 ${owner}/${repo} 中未找到 skill "${skillName}"。请确认 skill 名称是否正确。仓库中有 ${treeCount} 个文件。`);
+  }
 
   if (onProgress) {
     onProgress({ stage: 'detected', percent: 10, message: `已探测前缀: ${skillPrefix}`, speed: 0, speedFormatted: '' });
   }
 
   // 2. 探测 tarball 大小，决定策略
+  const spanSize = _logSpan('探测 Tarball 大小');
   const tarballSize = await detectTarballSize(owner, repo, branch, agent);
+  spanSize.finish('INFO', tarballSize ? `大小: ${formatBytes(tarballSize)}` : '无法探测');
 
   if (onProgress) {
     onProgress({
@@ -429,17 +535,40 @@ export async function downloadSkillFromGitHub({
   const fallbackPrefixes = skillName.includes('/')
     ? []
     : [`skills/${skillName}/`, `${skillName}/`];
+  // 去重：skillPrefix 可能在 fallbackPrefixes 中重复
+  const tryPrefixes = [...new Set([skillPrefix, ...fallbackPrefixes])];
+  _log('INFO', '尝试前缀列表（去重）', { tryPrefixes, treeCount, hasSize: !!tarballSize });
 
-  // ─── 策略 A：小仓库（<5MB）→ Tar 流式下载 ───
-  if (!tarballSize || tarballSize < 5 * 1024 * 1024) {
+  // 策略路由：有 treeCount 但无 tarball size 时，用 treeCount 判断仓库大小
+  const tarballTooBig = tarballSize && tarballSize >= 5 * 1024 * 1024;
+  const treeTooBig = !tarballSize && treeCount > 300;  // >300 文件说明是大仓库，应走 API
+  const useApi = tarballTooBig || treeTooBig;
+
+  _log('INFO', '策略路由', {
+    strategy: useApi ? 'API (B)' : 'Tar (A)',
+    reason: tarballTooBig ? `tarball ${formatBytes(tarballSize)} ≥ 5MB`
+           : treeTooBig ? `tree ${treeCount} 条目 > 500, 用 API`
+           : tarballSize ? `tarball ${formatBytes(tarballSize)} < 5MB`
+           : '无法探测大小，小仓库尝试 Tar<br/>',
+    tarballSize, treeCount
+  });
+
+  // ─── 策略 A：Tar 流式下载 ───
+  if (!useApi) {
+    _log('INFO', '走 Tar 策略');
+
     if (onProgress) {
       onProgress({ stage: 'downloading', percent: 15, message: 'Tarball 流式下载...', speed: 0, speedFormatted: '' });
     }
 
     let tarSucceeded = false;
     let lastTarError;
+    let tarAttempt = 0;
 
-    for (const candidatePrefix of [skillPrefix, ...fallbackPrefixes]) {
+    for (const candidatePrefix of tryPrefixes) {
+      tarAttempt++;
+      const spanTar = _logSpan(`Tar 尝试 #${tarAttempt}`);
+      _log('INFO', `Tar 尝试 #${tarAttempt}`, { candidatePrefix });
       try {
         targetDir = await downloadViaTar({
           owner, repo, branch,
@@ -451,14 +580,17 @@ export async function downloadSkillFromGitHub({
         // 检查是否提取到了文件
         const files = fs.readdirSync(targetDir);
         const hasSkillMd = fs.existsSync(path.join(targetDir, 'SKILL.md'));
+        _log('INFO', `Tar #${tarAttempt} 提取结果`, { filesCount: files.length, hasSkillMd });
 
         if (files.length > 0 && hasSkillMd) {
           tarSucceeded = true;
+          spanTar.finish('INFO', `成功 (${files.length} 文件)`);
           break;
         }
 
         // 空目录或没有 SKILL.md → 尝试下一个 prefix
         if (candidatePrefix !== skillPrefix || files.length === 0 || !hasSkillMd) {
+          spanTar.finish('WARN', `失败: ${files.length} 文件, SKILL.md=${hasSkillMd}`, { filesCount: files.length, hasSkillMd });
           if (onProgress) {
             onProgress({
               stage: 'fallback', percent: 50, message:
@@ -470,6 +602,7 @@ export async function downloadSkillFromGitHub({
         }
       } catch (tarErr) {
         lastTarError = tarErr;
+        spanTar.finish('ERROR', `异常: ${tarErr.message}`);
         if (onProgress) {
           onProgress({
             stage: 'fallback', percent: 50, message: `Tar 失败 (${tarErr.message}), 尝试下一个前缀或回退 API`,
@@ -482,15 +615,20 @@ export async function downloadSkillFromGitHub({
 
     // Tar 全部失败 → 回退 API
     if (!tarSucceeded) {
+      _log('WARN', `Tar 全部失败 (${tarAttempt} 次尝试), 回退 API`);
       if (onProgress) {
         onProgress({ stage: 'fallback', percent: 50, message: '回退 API 并发下载...', speed: 0, speedFormatted: '' });
       }
       try { if (fs.existsSync(destDir)) fs.rmSync(destDir, { recursive: true, force: true }); } catch {}
 
-      const candidateFallback = [...new Set([skillPrefix, ...fallbackPrefixes])];
+      _log('INFO', 'API 回退候选前缀列表', { tryPrefixes });
       let apiSucceeded = false;
+      let apiAttempt = 0;
 
-      for (const candidatePrefix of candidateFallback) {
+      for (const candidatePrefix of tryPrefixes) {
+        apiAttempt++;
+        const spanApi = _logSpan(`API 尝试 #${apiAttempt}`);
+        _log('INFO', `API 尝试 #${apiAttempt}`, { candidatePrefix });
         try {
           targetDir = await downloadViaApi({
             owner, repo, branch,
@@ -499,12 +637,18 @@ export async function downloadSkillFromGitHub({
             agent, token, onProgress, renameMap
           });
 
-          if (fs.existsSync(path.join(targetDir, 'SKILL.md'))) {
+          const hasSkillMd = fs.existsSync(path.join(targetDir, 'SKILL.md'));
+          _log('INFO', `API #${apiAttempt} 结果`, { hasSkillMd });
+
+          if (hasSkillMd) {
             apiSucceeded = true;
+            spanApi.finish('INFO', `成功 (有 SKILL.md)`);
             break;
           }
+          spanApi.finish('WARN', `无 SKILL.md, 继续下个前缀`);
           try { if (fs.existsSync(destDir)) fs.rmSync(destDir, { recursive: true, force: true }); } catch {}
         } catch (apiErr) {
+          spanApi.finish('ERROR', `异常: ${apiErr.message}`);
           try { if (fs.existsSync(destDir)) fs.rmSync(destDir, { recursive: true, force: true }); } catch {}
           if (onProgress) {
             onProgress({ stage: 'fallback', percent: 50, message: `API 前缀 "${candidatePrefix}" 也失败: ${apiErr.message}` });
@@ -513,32 +657,46 @@ export async function downloadSkillFromGitHub({
       }
 
       if (!apiSucceeded) {
-        throw new Error(lastTarError || '所有下载策略均失败');
+        const errMsg = lastTarError ? lastTarError.message : '所有下载策略均失败';
+        _log('ERROR', `下载失败: ${errMsg}`);
+        throw new Error(errMsg);
       }
     }
   } else {
-    // ─── 策略 B：大仓库（≥5MB）→ API 并发下载 ───
+    // ─── 策略 B：大仓库（树条目多 或 tarball 大）→ API 并发下载 ───
+    _log('INFO', '走 API 策略');
+
     if (onProgress) {
       onProgress({ stage: 'fetching-tree', percent: 15, message: '获取文件列表 (Tree API)...', speed: 0, speedFormatted: '' });
     }
 
     let apiSucceeded = false;
+    let apiAttempt = 0;
 
-    for (const candidatePrefix of [skillPrefix, ...fallbackPrefixes]) {
+    for (const candidatePrefix of tryPrefixes) {
+      apiAttempt++;
+      const spanApi = _logSpan(`API 尝试 #${apiAttempt} (策略 B)`);
+      _log('INFO', `API #${apiAttempt}`, { candidatePrefix });
       try {
-        targetDir = await downloadViaApi({
-          owner, repo, branch,
-          skillPrefix: candidatePrefix,
-          targetDir: destDir,
-          agent, token, onProgress, renameMap
-        });
+          targetDir = await downloadViaApi({
+            owner, repo, branch,
+            skillPrefix: candidatePrefix,
+            targetDir: destDir,
+            agent, token, onProgress, renameMap
+          });
 
-        if (fs.existsSync(path.join(targetDir, 'SKILL.md'))) {
-          apiSucceeded = true;
-          break;
-        }
-        try { if (fs.existsSync(destDir)) fs.rmSync(destDir, { recursive: true, force: true }); } catch {}
+          const hasSkillMd = fs.existsSync(path.join(targetDir, 'SKILL.md'));
+          _log('INFO', `API #${apiAttempt} 结果`, { filesCount: fs.readdirSync(targetDir).length, hasSkillMd });
+
+          if (hasSkillMd) {
+            apiSucceeded = true;
+            spanApi.finish('INFO', '成功 (有 SKILL.md)');
+            break;
+          }
+          spanApi.finish('WARN', '无 SKILL.md, 继续下个前缀');
+          try { if (fs.existsSync(destDir)) fs.rmSync(destDir, { recursive: true, force: true }); } catch {}
       } catch (apiErr) {
+        spanApi.finish('ERROR', `异常: ${apiErr.message}`);
         if (onProgress) {
           onProgress({ stage: 'fallback', percent: 50, message: `API 前缀 "${candidatePrefix}" 失败: ${apiErr.message}` });
         }
@@ -547,14 +705,19 @@ export async function downloadSkillFromGitHub({
     }
 
     if (!apiSucceeded) {
+      _log('ERROR', '下载失败: 所有前缀均未找到 SKILL.md');
       throw new Error('API 下载失败：所有前缀均未找到 SKILL.md');
     }
   }
 
   // 最终验证
   if (!fs.existsSync(path.join(destDir, 'SKILL.md'))) {
+    _log('ERROR', '最终验证失败: SKILL.md 不存在');
     throw new Error('SKILL.md 未找到');
   }
+
+  const totalElapsed = Date.now() - startTime;
+  _log('INFO', '========== 下载完成 ==========', { elapsed: totalElapsed + 'ms' });
 
   if (onProgress) {
     onProgress({ stage: 'registering', percent: 90, message: '注册 Skill...', speed: 0, speedFormatted: '' });
