@@ -25,8 +25,10 @@
           :model-value="activeTab"
           @update:model-value="onTabChange"
         >
-          <el-tab-pane label="模型管理" name="provider" />
-          <el-tab-pane label="Skill 管理" name="skill" />
+          <el-tab-pane :label="$t('app.model_management')" name="provider" />
+          <el-tab-pane :label="$t('skill.title')" name="skill" />
+          <el-tab-pane :label="$t('proxy.title')" name="proxy" />
+          <el-tab-pane :label="$t('token.title')" name="token" />
         </el-tabs>
       </nav>
 
@@ -123,6 +125,7 @@ onMounted(() => {
   padding:0 24px;
   background:var(--bg-primary);
   border-bottom:1px solid var(--border);
+  overflow-x:auto;
 }
 .nav-bar :deep(.el-tabs__header) { margin-bottom:0; }
 .nav-bar :deep(.el-tabs__nav-wrap::after) { display:none; }
