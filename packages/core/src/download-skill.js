@@ -21,7 +21,7 @@ import zlib from 'node:zlib';
 import { PassThrough } from 'node:stream';
 
 import fetch from 'node-fetch';
-import tar from 'tar';
+import * as tar from 'tar';
 import { HttpsProxyAgent } from 'https-proxy-agent';
 import { SocksProxyAgent } from 'socks-proxy-agent';
 

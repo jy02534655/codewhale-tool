@@ -4,7 +4,7 @@
  * 纯 API 服务。组合中间件、各领域路由模块并启动 HTTP 监听。
  * 错误捕获由 @codewhale/core 的 guard/guardAsync 统一处理。
  * 语言偏好持久化到 store.json，启动时自动恢复。
- * 监听端口 3456，统一 JSON 响应格式 { success, data, message }。
+ * 监听端口 7000，统一 JSON 响应格式 { success, data, message }。
  */
 
 import express from 'express';
@@ -90,9 +90,17 @@ app.use('/api', createSyncRouter(syncMgr));
 
 // ─── 启动服务 ──────────────────────────────────────────────────
 
-const PORT = 3456;
-app.listen(PORT, () => {
+const PORT = 7000;
+const server = app.listen(PORT, () => {
   console.log('CodeWhale Config API: http://localhost:' + PORT);
   console.log('Store file: ' + engine.path);
   console.log('Project skill file: ' + projectSkillEngine.path);
+});
+
+// 端口被占用时给出提示而非静默崩溃
+server.on('error', (err) => {
+  if (err.code === 'EADDRINUSE') {
+    console.error('❌ 端口 ' + PORT + ' 已被占用，请先关闭旧进程（netstat -ano | findstr :' + PORT + '）');
+    process.exit(1);
+  }
 });

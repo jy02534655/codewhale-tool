@@ -5,7 +5,7 @@ import { fileURLToPath, URL } from 'node:url';
 /**
  * Vite 配置
  *
- * 开发模式下将 /api 请求代理到 Express 后端（端口 3456），
+ * 开发模式下将 /api 请求代理到 Express 后端（端口 7000），
  * 生产模式下由 Express 直接托管 dist/ 静态文件。
  */
 export default defineConfig({
@@ -16,10 +16,10 @@ export default defineConfig({
     },
   },
   server: {
-    port: 5163,
+    port: 7200,
     proxy: {
       '/api': {
-        target: 'http://localhost:3456',
+        target: 'http://localhost:7000',
         changeOrigin: true,
       },
     },
