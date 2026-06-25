@@ -1167,7 +1167,7 @@ export class SkillManager {
    * @returns {Promise<{success: boolean, data?: any, message?: string, errorCode?: string}>}
    * @private
    */
-  async _installFromGitHubV2({ repoUrl, skillPath, level, proxyId, tokenId } = {}, onProgress) {
+  async _installFromGitHubV2({ repoUrl, skillPath, level, proxyId, tokenId, proxyConfig } = {}, onProgress) {
     const targetLevel = level || 'global';
 
     const parsed = _parseGitHubUrl(repoUrl);
@@ -1188,9 +1188,8 @@ export class SkillManager {
         onProgress({ stage: 'connecting', percent: 5, message: '连接 GitHub...' });
       }
 
-      // 解析代理配置
-      let proxyConfig = undefined;
-      if (proxyId) {
+      // 解析代理配置：优先使用直接传入的 proxyConfig，其次从 proxyId 查找
+      if (!proxyConfig && proxyId) {
         const proxyEntry = this._engine.findProxy(proxyId);
         if (proxyEntry) {
           proxyConfig = {

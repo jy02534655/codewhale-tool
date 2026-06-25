@@ -95,7 +95,23 @@ export function createSkillRouter(skillMgr) {
    * query: repoUrl, skillPath, level, proxyId, tokenId
    */
   router.get('/install-github-stream', async (req, res) => {
-    const { repoUrl, skillPath, level, proxyId, tokenId } = req.query;
+    const { repoUrl, skillPath, level, proxyId, tokenId, proxyUrl } = req.query;
+
+    // 解析 proxyUrl 为结构化代理配置（支持直接传 URL 而非 proxyId）
+    let proxyConfig = undefined;
+    if (proxyUrl && !proxyId) {
+      try {
+        const url = new URL(proxyUrl);
+        proxyConfig = {
+          type: url.protocol.replace(':', ''),
+          host: url.hostname,
+          port: parseInt(url.port) || (url.protocol === 'socks5:' ? 1080 : 8080),
+          auth: url.username
+            ? { username: decodeURIComponent(url.username), password: decodeURIComponent(url.password) }
+            : undefined,
+        };
+      } catch { /* ignore invalid URL */ }
+    }
 
     // 设置 SSE 响应头
     res.writeHead(200, {
@@ -127,7 +143,8 @@ data: ${JSON.stringify(data)}
         skillPath,
         level,
         proxyId,
-        tokenId
+        tokenId,
+        proxyConfig,
       }, onProgress);
       if (result.success) {
         sendSSE('complete', { success: true, data: result.data });
@@ -137,9 +154,9 @@ data: ${JSON.stringify(data)}
     } catch (err) {
       sendSSE('error', { success: false, message: err.message });
     } finally {
-      if (clientConnected) {
-        res.end();
-      }
+      // 始终尝试结束响应，即使客户端已断开连接
+      // 如果客户端已断开，res.end() 是安全的空操作
+      try { res.end(); } catch { /* ignore */ }
     }
   });
 
