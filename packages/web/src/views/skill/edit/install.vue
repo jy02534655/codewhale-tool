@@ -1,13 +1,24 @@
 <!--
   install.vue — Skill 安装弹窗（仅 GitHub 仓库安装）
   代理和 Token 从管理页面配置的下拉列表中选择（按别名）
-  使用 SSE 实时显示安装进度
+  支持智能识别 npx 命令格式，自动填充仓库 URL 和 Skill 路径
+  支持项目级别时选择安装目录
+  打开时自动选中默认代理和 Token
 -->
 <template>
   <el-dialog v-model="isShow" :title="$t('skill.install')" width="560px" :close-on-click-modal="false" @close="resetForm">
 
-    <!-- 安装提示 -->
-    <el-alert :title="modeTipTitle" :description="modeTipDesc" type="info" show-icon :closable="false" class="mode-tip" />
+    <!-- 快速粘贴提示 -->
+    <el-alert title="快速粘贴" description="可直接粘贴 npx 命令，自动识别仓库和路径" type="info" show-icon :closable="false" class="mode-tip" />
+
+    <!-- 智能识别输入框 -->
+    <div class="smart-paste" v-if="!smartParsed">
+      <el-input v-model="smartInput" placeholder="粘贴安装命令，如 npx skills add https://github.com/vercel-labs/skills --skill find-skills" size="small" @input="onSmartInput">
+        <template #append>
+          <el-button @click="parseSmartInput" :disabled="!smartInput.trim()">识别</el-button>
+        </template>
+      </el-input>
+    </div>
 
     <el-form label-position="top" class="install-form">
       <el-form-item :label="$t('skill.repoUrl')">
@@ -21,10 +32,15 @@
 
       <!-- 安装级别 -->
       <el-form-item :label="$t('skill.level')">
-        <el-radio-group v-model="level">
+        <el-radio-group v-model="level" @change="onLevelChange">
           <el-radio value="global">{{ $t('skill.global') }}</el-radio>
           <el-radio value="project">{{ $t('skill.project') }}</el-radio>
         </el-radio-group>
+      </el-form-item>
+
+      <!-- 项目目录（仅项目级别显示） -->
+      <el-form-item v-if="level === 'project'" :label="$t('skill.projectPath')">
+        <el-input v-model="projectPath" placeholder="如 D:/Code/my-project（默认为当前目录）" />
       </el-form-item>
 
       <!-- 代理选择下拉 -->
@@ -33,7 +49,7 @@
           <el-option
             v-for="p in proxyList"
             :key="p.id"
-            :label="p.alias + ' (' + p.type + '://' + p.host + ':' + p.port + ')'"
+            :label="p.alias + ' (' + p.type + '://' + p.host + ':' + p.port + ')' + (p.default ? ' ★默认' : '')"
             :value="p.id"
           />
         </el-select>
@@ -45,7 +61,7 @@
           <el-option
             v-for="t in tokenList"
             :key="t.id"
-            :label="t.alias + ' (' + t.token + ')'"
+            :label="t.alias + ' (' + t.token + ')' + (t.default ? ' ★默认' : '')"
             :value="t.id"
           />
         </el-select>
@@ -74,9 +90,12 @@ const { t } = useI18n({ useScope: 'global' })
 
 // ─── 输入字段 ──────────────────────────────────────────────
 
+const smartInput = ref('')
+const smartParsed = ref(false)
 const repoUrl = ref('')
 const skillPath = ref('')
 const level = ref('global')
+const projectPath = ref('')
 const selectedProxyId = ref('')
 const selectedTokenId = ref('')
 const installing = ref(false)
@@ -85,11 +104,6 @@ const installing = ref(false)
 
 const proxyList = ref([])
 const tokenList = ref([])
-
-// ─── 提示信息 ──────────────────────────────────────────────
-
-const modeTipTitle = '从 GitHub 仓库安装 Skill'
-const modeTipDesc = '输入包含 SKILL.md 的 GitHub 仓库地址。如果仓库内含多个 Skill，请在「Skill 路径」指定子目录。可通过「代理管理」和「Token 管理」页面配置代理与 GitHub Token，安装时从下拉列表选择即可。'
 
 // ─── 安装文案 ──────────────────────────────────────────────
 
@@ -101,6 +115,46 @@ const canSubmit = computed(function () {
   return repoUrl.value.trim() !== '' && !installing.value
 })
 
+// ─── 智能识别 ──────────────────────────────────────────────
+
+function parseSmartInput() {
+  var text = smartInput.value.trim()
+  if (!text) return
+
+  // 匹配 npx skills add <url> --skill <path> 格式
+  var match = text.match(/npx\s+skills\s+add\s+(\S+)(?:\s+--skill\s+(\S+))?/)
+  if (!match) {
+    // 匹配直接粘贴 URL 格式
+    match = text.match(/^(https?:\/\/[^\s]+)/)
+    if (!match) {
+      ElMessage.warning('无法识别，请手动输入')
+      return
+    }
+    repoUrl.value = match[1]
+  } else {
+    repoUrl.value = match[1]
+    if (match[2]) {
+      skillPath.value = match[2]
+    }
+  }
+  smartParsed.value = true
+}
+
+function onSmartInput() {
+  // 当用户清空智能输入时重置解析状态
+  if (!smartInput.value.trim()) {
+    smartParsed.value = false
+  }
+}
+
+// ─── 级别切换 ──────────────────────────────────────────────
+
+function onLevelChange() {
+  if (level.value === 'global') {
+    projectPath.value = ''
+  }
+}
+
 // ─── 弹窗生命周期 ──────────────────────────────────────────
 
 const { isShow, showDialog, hideDialog, showDialogByData } = compositionDialogBase({
@@ -108,11 +162,17 @@ const { isShow, showDialog, hideDialog, showDialogByData } = compositionDialogBa
     resetForm()
     getProxyList().then(function (data) {
       proxyList.value = data || []
+      // 自动选中默认代理
+      var def = (data || []).find(function (p) { return p.default })
+      if (def) selectedProxyId.value = def.id
     }).catch(function () {
       proxyList.value = []
     })
     getTokenList().then(function (data) {
       tokenList.value = data || []
+      // 自动选中默认 Token
+      var def = (data || []).find(function (t) { return t.default })
+      if (def) selectedTokenId.value = def.id
     }).catch(function () {
       tokenList.value = []
     })
@@ -120,9 +180,12 @@ const { isShow, showDialog, hideDialog, showDialogByData } = compositionDialogBa
 })
 
 function resetForm() {
+  smartInput.value = ''
+  smartParsed.value = false
   repoUrl.value = ''
   skillPath.value = ''
   level.value = 'global'
+  projectPath.value = ''
   selectedProxyId.value = ''
   selectedTokenId.value = ''
   installing.value = false
@@ -146,6 +209,9 @@ function onSubmit() {
   }
   if (selectedTokenId.value) {
     params.append('tokenId', selectedTokenId.value)
+  }
+  if (level.value === 'project' && projectPath.value.trim()) {
+    params.append('projectPath', projectPath.value.trim())
   }
 
   var es = new EventSource('/api/skill/install-github-stream?' + params.toString())
@@ -191,5 +257,8 @@ defineExpose({ showDialog, hideDialog, showDialogByData })
 }
 .install-form {
   margin-top: 12px;
+}
+.smart-paste {
+  margin-bottom: 8px;
 }
 </style>

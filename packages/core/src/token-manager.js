@@ -91,6 +91,28 @@ export class TokenManager {
   find(id) {
     return this._engine.findToken(id);
   }
+
+  /**
+   * 设为默认 Token
+   * @param {string} id
+   * @returns {{success: boolean, data?: TokenEntry, message?: string, errorCode?: string}}
+   */
+  setDefault(id) {
+    const tokens = this._engine.getTokens();
+    const idx = tokens.findIndex((t) => t.id === id);
+    if (idx === -1) return fail('Token 未找到', 'NOT_FOUND');
+    tokens.forEach((t) => (t.default = t.id === id));
+    this._engine.setTokens(tokens);
+    return ok(tokens[idx]);
+  }
+
+  /**
+   * 获取默认 Token
+   * @returns {TokenEntry|undefined}
+   */
+  getDefault() {
+    return this._engine.getTokens().find((t) => t.default);
+  }
 }
 
 /**

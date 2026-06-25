@@ -24,3 +24,8 @@ export function editToken(data) {
 export function removeToken(id) {
   return ajaxDeleteBack('/token/' + id, {}, { successMessage: true });
 }
+
+/** 设为默认 Token */
+export function setDefaultToken(id) {
+  return ajaxPutBack('/token/' + id + '/default', {}, { successMessage: true });
+}

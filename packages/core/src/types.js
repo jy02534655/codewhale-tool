@@ -22,13 +22,15 @@
  * @property {string}  host     - 代理主机地址
  * @property {number}  port     - 代理端口
  * @property {ProxyAuth} [auth] - 代理认证（可选）
+ * @property {boolean} [default] - 是否默认选中
  */
 
 /**
  * @typedef {object} TokenEntry
- * @property {string} id     - 主键："token:" + uuid
- * @property {string} alias  - 显示别名，如下拉框展示
- * @property {string} token  - GitHub Token 明文
+ * @property {string}  id      - 主键："token:" + uuid
+ * @property {string}  alias   - 显示别名，如下拉框展示
+ * @property {string}  token   - GitHub Token 明文
+ * @property {boolean} [default] - 是否默认选中
  */
 
 /**

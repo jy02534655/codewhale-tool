@@ -1167,7 +1167,7 @@ export class SkillManager {
    * @returns {Promise<{success: boolean, data?: any, message?: string, errorCode?: string}>}
    * @private
    */
-  async _installFromGitHubV2({ repoUrl, skillPath, level, proxyId, tokenId, proxyConfig } = {}, onProgress) {
+  async _installFromGitHubV2({ repoUrl, skillPath, level, proxyId, tokenId, proxyConfig, projectPath } = {}, onProgress) {
     const targetLevel = level || 'global';
 
     const parsed = _parseGitHubUrl(repoUrl);
@@ -1176,7 +1176,7 @@ export class SkillManager {
 
     const skillId = skillPath ? basename(skillPath) : repo;
     const targetDir = targetLevel === 'project'
-      ? join(process.cwd(), this._projectSkillsDir, skillId)
+      ? join(projectPath || process.cwd(), this._projectSkillsDir, skillId)
       : join(this._skillsDir, skillId);
 
     if (this._getLevelInstalled(targetLevel).some((s) => s.id === skillId)) {

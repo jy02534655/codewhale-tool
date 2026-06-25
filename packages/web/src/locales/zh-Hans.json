@@ -91,6 +91,7 @@
     "skillId": "Skill ID",
     "repoUrl": "仓库 URL",
     "skillPath": "Skill 路径（可选）",
+    "projectPath": "项目目录",
     "level": "安装级别",
     "proxy_select": "代理（可选）",
     "proxy_select_placeholder": "不使用代理",
@@ -131,7 +132,8 @@
     "auth_password_placeholder": "认证密码",
     "add_title": "添加代理",
     "edit_title": "编辑代理",
-    "confirm_delete": "确认删除代理"
+    "confirm_delete": "确认删除代理",
+    "setDefault": "设为默认"
   },
   "token": {
     "title": "Token 管理",
@@ -144,6 +146,7 @@
     "token_edit_placeholder": "留空则不修改",
     "add_title": "添加 Token",
     "edit_title": "编辑 Token",
-    "confirm_delete": "确认删除 Token"
+    "confirm_delete": "确认删除 Token",
+    "setDefault": "设为默认"
   }
 }

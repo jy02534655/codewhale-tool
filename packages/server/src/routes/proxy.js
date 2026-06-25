@@ -35,5 +35,10 @@ export function createProxyRouter(proxyMgr) {
     res.json(result);
   });
 
+  // 设为默认代理
+  router.put('/:id/default', (req, res) => {
+    res.json(proxyMgr.setDefault(req.params.id));
+  });
+
   return router;
 }

@@ -34,5 +34,10 @@ export function createTokenRouter(tokenMgr) {
     res.json(result);
   });
 
+  // 设为默认 Token
+  router.put('/:id/default', (req, res) => {
+    res.json(tokenMgr.setDefault(req.params.id));
+  });
+
   return router;
 }

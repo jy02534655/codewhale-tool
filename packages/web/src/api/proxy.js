@@ -24,3 +24,8 @@ export function editProxy(data) {
 export function removeProxy(id) {
   return ajaxDeleteBack('/proxy/' + id, {}, { successMessage: true });
 }
+
+/** 设为默认代理 */
+export function setDefaultProxy(id) {
+  return ajaxPutBack('/proxy/' + id + '/default', {}, { successMessage: true });
+}

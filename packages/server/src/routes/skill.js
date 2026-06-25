@@ -95,7 +95,7 @@ export function createSkillRouter(skillMgr) {
    * query: repoUrl, skillPath, level, proxyId, tokenId
    */
   router.get('/install-github-stream', async (req, res) => {
-    const { repoUrl, skillPath, level, proxyId, tokenId, proxyUrl } = req.query;
+    const { repoUrl, skillPath, level, proxyId, tokenId, proxyUrl, projectPath } = req.query;
 
     // 解析 proxyUrl 为结构化代理配置（支持直接传 URL 而非 proxyId）
     let proxyConfig = undefined;
@@ -145,6 +145,7 @@ data: ${JSON.stringify(data)}
         proxyId,
         tokenId,
         proxyConfig,
+        projectPath,
       }, onProgress);
       if (result.success) {
         sendSSE('complete', { success: true, data: result.data });

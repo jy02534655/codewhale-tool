@@ -9,3 +9,4 @@ pnpm-workspace.yaml
 /store.json.bak
 /.codewhale/
 /.deepseek/
+/download-skill.log

@@ -19,9 +19,11 @@
       <div v-for="t in list" :key="t.id" class="token-item">
         <div class="token-info">
           <span class="token-alias">{{ t.alias }}</span>
+          <el-tag v-if="t.default" size="small" type="success" effect="dark">默认</el-tag>
           <el-tag size="small" type="info" effect="plain">{{ t.token }}</el-tag>
         </div>
         <div class="token-actions">
+          <el-button v-if="!t.default" size="small" @click="onSetDefault(t)">{{ $t('token.setDefault') }}</el-button>
           <el-button size="small" @click="showEditDialog(t)">{{ $t('common.edit') }}</el-button>
           <el-button size="small" type="danger" @click="onRemove(t)">{{ $t('common.delete') }}</el-button>
         </div>
@@ -55,7 +57,7 @@
 import { ref, reactive, onMounted } from 'vue'
 import { ElMessageBox } from 'element-plus'
 import { useI18n } from 'vue-i18n'
-import { getTokenList, addToken, editToken, removeToken } from '@/api/token'
+import { getTokenList, addToken, editToken, removeToken, setDefaultToken } from '@/api/token'
 import { useMaskingStore } from '@/stores/masking'
 
 const { t } = useI18n({ useScope: 'global' })
@@ -140,6 +142,10 @@ function onRemove(row) {
   ).then(function () {
     removeToken(row.id).then(function () { loadList() })
   })
+}
+
+function onSetDefault(row) {
+  setDefaultToken(row.id).then(function () { loadList() })
 }
 
 onMounted(loadList)

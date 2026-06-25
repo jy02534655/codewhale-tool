@@ -97,4 +97,26 @@ export class ProxyManager {
   find(id) {
     return this._engine.findProxy(id);
   }
+
+  /**
+   * 设为默认代理
+   * @param {string} id
+   * @returns {{success: boolean, data?: ProxyEntry, message?: string, errorCode?: string}}
+   */
+  setDefault(id) {
+    const proxies = this._engine.getProxies();
+    const idx = proxies.findIndex((p) => p.id === id);
+    if (idx === -1) return fail('代理未找到', 'NOT_FOUND');
+    proxies.forEach((p) => (p.default = p.id === id));
+    this._engine.setProxies(proxies);
+    return ok(proxies[idx]);
+  }
+
+  /**
+   * 获取默认代理
+   * @returns {ProxyEntry|undefined}
+   */
+  getDefault() {
+    return this._engine.getProxies().find((p) => p.default);
+  }
 }

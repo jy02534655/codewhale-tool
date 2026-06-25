@@ -19,11 +19,13 @@
       <div v-for="p in list" :key="p.id" class="proxy-item">
         <div class="proxy-info">
           <span class="proxy-alias">{{ p.alias }}</span>
+          <el-tag v-if="p.default" size="small" type="success" effect="dark">默认</el-tag>
           <el-tag size="small" type="info" effect="plain">{{ p.type }}</el-tag>
           <span class="proxy-addr">{{ p.host }}:{{ p.port }}</span>
           <span v-if="p.auth && p.auth.username" class="proxy-auth">{{ p.auth.username }}:{{ p.auth.password }}</span>
         </div>
         <div class="proxy-actions">
+          <el-button v-if="!p.default" size="small" @click="onSetDefault(p)">{{ $t('proxy.setDefault') }}</el-button>
           <el-button size="small" @click="showEditDialog(p)">{{ $t('common.edit') }}</el-button>
           <el-button size="small" type="danger" @click="onRemove(p)">{{ $t('common.delete') }}</el-button>
         </div>
@@ -71,7 +73,7 @@
 import { ref, reactive, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { useI18n } from 'vue-i18n'
-import { getProxyList, addProxy, editProxy, removeProxy } from '@/api/proxy'
+import { getProxyList, addProxy, editProxy, removeProxy, setDefaultProxy } from '@/api/proxy'
 import { useMaskingStore } from '@/stores/masking'
 
 const { t } = useI18n({ useScope: 'global' })
@@ -171,6 +173,10 @@ function onRemove(row) {
   ).then(function () {
     removeProxy(row.id).then(function () { loadList() })
   })
+}
+
+function onSetDefault(row) {
+  setDefaultProxy(row.id).then(function () { loadList() })
 }
 
 onMounted(loadList)
