@@ -108,6 +108,29 @@ function _parseGitHubUrl(repoUrl) {
   return { owner: match[1], repo: match[2] };
 }
 
+/**
+ * 安全调用 onLog（用于安装后注册阶段的日志记录）
+ * 生成 download-skill.log 兼容格式：[YYYY-MM-DD HH:MM:SS.SSS] [LEVEL] message
+ * @param {Function|null} onLog - 日志回调
+ * @param {string} level - INFO/WARN/ERROR/DEBUG
+ * @param {string} message - 日志内容
+ */
+function _sseLogSafe(onLog, level, message) {
+  if (!onLog) return;
+  try {
+    var d = new Date();
+    var ts = d.getFullYear() + '-' +
+      String(d.getMonth() + 1).padStart(2, '0') + '-' +
+      String(d.getDate()).padStart(2, '0') + ' ' +
+      String(d.getHours()).padStart(2, '0') + ':' +
+      String(d.getMinutes()).padStart(2, '0') + ':' +
+      String(d.getSeconds()).padStart(2, '0') + '.' +
+      String(d.getMilliseconds()).padStart(3, '0');
+    var line = '[' + ts + '] [' + level + '] ' + message;
+    onLog({ level: level, message: line });
+  } catch { /* 日志失败不阻塞安装 */ }
+}
+
 export class SkillManager {
   /**
    * @param {import('./config.js').ConfigEngine} engine         - 全局配置引擎
@@ -962,7 +985,7 @@ export class SkillManager {
   async installFromGitHub(repoUrl, skillPath, level, proxyUrl, onProgress, onLog) {
     // 兼容新旧两种调用方式
     if (typeof repoUrl === 'object' && repoUrl !== null) {
-      return this._installFromGitHubV2(repoUrl, skillPath, onLog);
+      return this._installFromGitHubV2(repoUrl, skillPath, level);
     }
     const targetLevel = level || 'global';
 
@@ -1224,10 +1247,13 @@ export class SkillManager {
 
       // 验证 SKILL.md 存在
       if (!existsSync(join(targetDir, 'SKILL.md'))) {
+        _sseLogSafe(onLog, 'WARN', 'SKILL.md 未找到');
         throw new Error('SKILL.md 未找到');
       }
+      _sseLogSafe(onLog, 'INFO', 'SKILL.md 验证通过');
 
       // 注册到配置
+      _sseLogSafe(onLog, 'INFO', '注册 Skill 到配置 | ' + JSON.stringify({ skillId, targetDir, level: targetLevel }));
       if (onProgress) {
         onProgress({ stage: 'registering', percent: 95, message: '注册 Skill...' });
       }

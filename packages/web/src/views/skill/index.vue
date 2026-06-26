@@ -256,7 +256,7 @@ function onOpenReadme() {
 
 function doViewLog() {
   getInstallLog().then(function (res) {
-    logContent.value = (res && res.data) ? res.data : ''
+    logContent.value = res || ''
     logVisible.value = true
   })
 }
