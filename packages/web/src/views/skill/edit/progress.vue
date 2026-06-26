@@ -6,7 +6,7 @@
 --><template>
   <el-dialog v-model="visible" :title="$t('skill.progressTitle')" width="680px" top="5vh" :close-on-click-modal="false" :close-on-press-escape="!running" :show-close="!running" :destroy-on-close="true">
     <!-- 第一行：当前步骤（简单位置指示，不显示日志） -->
-    <div class="ip-step-row" v-if="activeStepLabel">
+    <div v-if="activeStepLabel" class="ip-step-row">
       <span class="ip-step-icon">{{ running ? '⏳' : '✅' }}</span>
       <span class="ip-step-label-active">{{ activeStepLabel }}</span>
       <span v-if="stepDetail" class="ip-step-detail">{{ stepDetail }}</span>
@@ -31,7 +31,7 @@
     <el-divider />
 
     <!-- 第三行：download-skill.log 格式化日志（来自 _onLog 回调，已是 [时间戳] [LEVEL] 格式） -->
-    <div class="ip-log" ref="logRef">
+    <div ref="logRef" class="ip-log">
       <div v-for="(entry, i) in logEntries" :key="i" class="ip-log-line" :class="'ip-log--' + entry.level.toLowerCase()">{{ entry.message }}</div>
       <div v-if="logEntries.length === 0 && !running" class="ip-log-empty">{{ $t('skill.installDone') }}</div>
       <div v-if="logEntries.length === 0 && running" class="ip-log-empty">{{ $t('skill.waitingStart') }}</div>
@@ -52,7 +52,7 @@ const emit = defineEmits(['complete'])
 const { t } = useI18n({ useScope: 'global' })
 
 // ─── 步骤映射 ──────────────────────────────────────────────
-var STAGE_MAP = {
+const STAGE_MAP = {
   connecting: t('skill.stageConnecting'),
   downloading: t('skill.stageDownloading'),
   extracting: t('skill.stageExtracting'),
@@ -74,26 +74,26 @@ var STAGE_MAP = {
 }
 
 // ─── 基本状态 ──────────────────────────────────────────────
-var visible = ref(false)
-var running = ref(false)
-var activeStepLabel = ref('')
-var stepDetail = ref('')
-var totalPercent = ref(0)
-var downloadPercent = ref(0)
-var downloadBytes = ref(0)
-var totalBytes = ref(0)
-var speedText = ref('')
-var showStats = ref(false)
-var showSubProgress = ref(false)
-var logEntries = ref([])
-var logRef = ref(null)
-var es = null
+const visible = ref(false)
+const running = ref(false)
+const activeStepLabel = ref('')
+const stepDetail = ref('')
+const totalPercent = ref(0)
+const downloadPercent = ref(0)
+const downloadBytes = ref(0)
+const totalBytes = ref(0)
+const speedText = ref('')
+const showStats = ref(false)
+const showSubProgress = ref(false)
+const logEntries = ref([])
+const logRef = ref(null)
+let es = null
 
 // ─── 格式化工具 ────────────────────────────────────────────
 function formatBytes(bytes) {
   if (!bytes || bytes === 0) return '0 B'
-  var units = ['B', 'KB', 'MB', 'GB']
-  var i = Math.floor(Math.log(bytes) / Math.log(1024))
+  const units = ['B', 'KB', 'MB', 'GB']
+  const i = Math.floor(Math.log(bytes) / Math.log(1024))
   return (bytes / Math.pow(1024, i)).toFixed(1) + ' ' + units[i]
 }
 
@@ -112,10 +112,10 @@ function start(url) {
 
   // ── progress 事件：步骤 + 进度 + 字节数 ──
   es.addEventListener('progress', function (e) {
-    var data
-    try { data = JSON.parse(e.data) } catch (_) { return }
+    let data
+    try { data = JSON.parse(e.data) } catch { return }
     if (data.stage) {
-      var label = STAGE_MAP[data.stage] || data.stage
+      const label = STAGE_MAP[data.stage] || data.stage
       if (activeStepLabel.value !== label) activeStepLabel.value = label
     }
     if (data.message) stepDetail.value = data.message
@@ -146,11 +146,11 @@ function start(url) {
   es.addEventListener('error', function (e) {
     es.close(); running.value = false
     showSubProgress.value = false
-    var msg = t('skill.installFailed')
+    let msg = t('skill.installFailed')
     try {
-      var data = JSON.parse(e.data)
+      const data = JSON.parse(e.data)
       if (data && data.message) msg = data.message
-    } catch (_) { /* ignore */ }
+    } catch { /* ignore */ }
     logEntries.value.push({ level: 'error', message: msg })
     nextTick(function () { scrollLog() })
     emit('complete', false)
@@ -158,8 +158,8 @@ function start(url) {
 
   // ── log：download.js 的 _log() 回调，已格式化为 [时间戳] [LEVEL] message ──
   es.addEventListener('log', function (e) {
-    var data
-    try { data = JSON.parse(e.data) } catch (_) { return }
+    let data
+    try { data = JSON.parse(e.data) } catch { return }
     logEntries.value.push({ level: data.level || 'info', message: data.message })
     nextTick(function () { scrollLog() })
   })

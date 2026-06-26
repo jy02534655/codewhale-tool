@@ -32,7 +32,7 @@ export function updateSkill(id) { return ajaxPostBack('/skill/update/' + id, {},
 
 /** 通过 SSE 流式安装 skill（返回 EventSource 实例） */
 export function installFromGithubStream(repoUrl, skillPath, level) {
-  var params = new URLSearchParams({
+  const params = new URLSearchParams({
     repoUrl: repoUrl || '',
     skillPath: skillPath || '',
     level: level || 'global',

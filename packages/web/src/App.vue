@@ -58,12 +58,11 @@ const elLocaleMap = { 'zh-Hans': zhCn, 'en': enLoc, 'ja': jaLoc, 'pt-BR': ptBrLo
 const router = useRouter();
 const route = useRoute();
 const { locale } = useI18n({ useScope: 'global' });
-
 const locales = [
   { value: 'zh-Hans', label: '简体中文' },
-  { value: 'en',      label: 'English' },
-  { value: 'ja',      label: '日本語' },
-  { value: 'pt-BR',   label: 'Português (BR)' },
+  { value: 'en', label: 'English' },
+  { value: 'ja', label: '日本語' },
+  { value: 'pt-BR', label: 'Português (BR)' },
 ];
 
 const elLocale = computed(() => elLocaleMap[locale.value] || zhCn);

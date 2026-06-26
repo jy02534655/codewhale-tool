@@ -4,7 +4,7 @@
   弹窗组件位于 ./edit/ 子目录
 -->
 <template>
-  <div class="model-view" v-loading="maskingStore.isLoading">
+  <div v-loading="maskingStore.isLoading" class="model-view">
     <div class="toolbar">
       <h2>{{ $t('app.model_management') }}</h2>
       <el-button @click="loadConfig">{{ $t('common.refresh') }}</el-button>
@@ -120,7 +120,6 @@ import { ref, onMounted, computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { ElMessageBox } from 'element-plus';
 import { InfoFilled } from '@element-plus/icons-vue';
-import { getProviderI18nLabel } from '@codewhale/core/i18n';
 import { getProviderList, activateProvider, removeProvider, deactivateProvider, removeModel, setActiveModel } from '@/api/provider';
 import { getOfficialKeyList, activateOfficialKey, removeOfficialKey } from '@/api/officialKey';
 import { useMaskingStore } from '@/stores/masking';
@@ -129,7 +128,7 @@ import Provider from './edit/provider.vue';
 import Model from './edit/model.vue';
 import OfficialKey from './edit/officialKey.vue';
 
-const { locale, t } = useI18n({ useScope: 'global' });
+const { t } = useI18n({ useScope: 'global' });
 const maskingStore = useMaskingStore();
 const dialogCtrl = compositionDialogContainer();
 

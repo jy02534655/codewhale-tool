@@ -3,7 +3,7 @@
   使用 compositionDialogBase，左右分栏
 --><template>
   <el-dialog v-model="isShow" :title="$t('skill.editReadme')" width="800px" top="5vh" :close-on-click-modal="false" destroy-on-close @close="resetForm">
-    <div class="md-editor-layout" v-loading="loading">
+    <div v-loading="loading" class="md-editor-layout">
       <div class="md-editor-pane">
         <div class="pane-header">{{ $t('common.edit') }}</div>
         <textarea v-model="content" class="md-textarea" spellcheck="false"></textarea>
@@ -21,11 +21,9 @@
 </template>
 <script setup>
 import { ref, computed } from 'vue'
-import { useI18n } from 'vue-i18n'
 import { getReadme, saveReadme } from '@/api/skill'
 import { compositionDialogBase } from '@/composition/dialog/Base'
 
-const { t } = useI18n({ useScope: 'global' })
 const emit = defineEmits(['submitSuccess'])
 
 let skillId = ''
@@ -57,18 +55,17 @@ function escapeHtml(str) {
 }
 
 const previewHtml = computed(function () {
-  try { return simpleMdToHtml(content.value) }
-  catch (_) { return '<p style="color:red">渲染失败</p>' }
+  try { return simpleMdToHtml(content.value) } catch { return '<p style="color:red">渲染失败</p>' }
 })
 
 const { isShow, showDialog, hideDialog, showDialogByData } = compositionDialogBase({
   initfun: function (opts) {
-    var data = opts && opts.data
+    const data = opts && opts.data
     if (data) {
       skillId = data.id || data
       content.value = ''
       loading.value = true
-      var id = data.id || data
+      const id = data.id || data
       getReadme(id)
         .then(function (res) { content.value = res || '# ' + id + '\n\n' })
         .catch(function () { content.value = '# ' + id + '\n\n' })

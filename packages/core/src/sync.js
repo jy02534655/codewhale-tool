@@ -24,7 +24,7 @@ import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'node:fs';
 import { homedir } from 'node:os';
 import { join, dirname } from 'node:path';
 import { getServerMessage, failMsg } from './i18n.js';
-import { ok, fail } from './result.js';
+import { ok } from './result.js';
 
 function codeWhalePath() {
   return join(homedir(), '.codewhale', 'config.toml');
@@ -159,7 +159,7 @@ export class SyncManager {
       this._engine.setProviders(localProviders);
 
       return ok({ merged: mergedCount }, getServerMessage('SYNC_MERGED', { count: mergedCount }));
-    } catch (err) {
+    } catch {
       return failMsg('CONFIG_PARSE_ERROR');
     }
   }

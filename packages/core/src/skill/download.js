@@ -51,8 +51,8 @@ function _setLogFile(filePath) {
 function _log(level, message, extra) {
   if (!_logFile && !_onLogExtra) return;
   try {
-    var d = new Date();
-    var ts = d.getFullYear() + '-' +
+    const d = new Date();
+    const ts = d.getFullYear() + '-' +
       String(d.getMonth() + 1).padStart(2, '0') + '-' +
       String(d.getDate()).padStart(2, '0') + ' ' +
       String(d.getHours()).padStart(2, '0') + ':' +
@@ -323,7 +323,7 @@ async function downloadViaApi({ owner, repo, branch, skillPrefix, targetDir, age
     if (!fileRes.ok) throw new Error(`下载 ${filePath} 失败: HTTP ${fileRes.status}`);
 
     const total = parseInt(fileRes.headers.get('content-length') || 0) || null;
-    let downloaded = 0;
+    const downloaded = 0;
     const wStream = fs.createWriteStream(destPath);
 
     return new Promise((resolve, reject) => {
@@ -422,14 +422,13 @@ async function detectSkillPrefix(owner, repo, skillName, branch, agent, token) {
     hasToken: !!token
   });
 
-  let usedApi = false;
-  let treeCount = 0;  // Tree API 返回的条目数（用于策略路由）
+  // eslint-disable-next-line no-useless-assignment
+  let treeCount = 0; // Tree API 返回的条目数（用于策略路由）
   // 通过 Tree API 快速探测
   try {
     const span = _logSpan('detectSkillPrefix: Tree API 请求');
     const treeRes = await fetch(treeUrl, { agent, headers: apiHeaders });
     if (treeRes.ok) {
-      usedApi = true;
       const { tree } = await treeRes.json();
       treeCount = tree ? tree.length : 0;
       _log('INFO', 'detectSkillPrefix: Tree API 成功', { status: treeRes.status, treeEntries: treeCount });
@@ -555,7 +554,7 @@ export async function downloadSkillFromGitHub({
 
   // 策略路由：有 treeCount 但无 tarball size 时，用 treeCount 判断仓库大小
   const tarballTooBig = tarballSize && tarballSize >= 5 * 1024 * 1024;
-  const treeTooBig = !tarballSize && treeCount > 300;  // >300 文件说明是大仓库，应走 API
+  const treeTooBig = !tarballSize && treeCount > 300; // >300 文件说明是大仓库，应走 API
   const useApi = tarballTooBig || treeTooBig;
 
   _log('INFO', '策略路由', {

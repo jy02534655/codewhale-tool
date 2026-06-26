@@ -13,7 +13,7 @@
  */
 
 import { getProviderI18nLabel, getDefaultBaseUrl, getServerMessage, getLocale, failMsg } from './i18n.js';
-import { ok, fail } from './result.js';
+import { ok } from './result.js';
 
 /** 掩码显示 API key（前5位 + ... + 后4位） */
 function maskKey(key) {
@@ -86,7 +86,7 @@ export class OfficialKeyManager {
    * @returns {{success: boolean, data?: any, message?: string, errorCode?: string}}
    */
   activate(id) {
-    return this._mutateKey(id, (keys, idx, k) => {
+    return this._mutateKey(id, (keys) => {
       keys.forEach((kk) => (kk.active = kk.id === id));
       return ok(null, getServerMessage('keyActivated'));
     });

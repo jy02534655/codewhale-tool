@@ -12,12 +12,20 @@
   "scripts": {
     "dev": "node scripts/dev.mjs",
     "server": "node packages/server/server.js",
-    "build": "npm run --workspace=@codewhale/web build"
+    "build": "npm run --workspace=@codewhale/web build",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix"
   },
   "engines": {
     "node": ">=18.0.0"
   },
   "dependencies": {
     "https-proxy-agent": "^9.1.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "eslint": "^10.5.0",
+    "eslint-plugin-vue": "^10.9.2",
+    "globals": "^17.7.0"
   }
 }

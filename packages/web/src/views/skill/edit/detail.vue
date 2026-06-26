@@ -92,7 +92,7 @@ const sourceText = computed(function () {
 
 function doToggle() {
   if (!props.skill) return
-  var fn = props.skill.enabled ? disableSkill : enableSkill
+  const fn = props.skill.enabled ? disableSkill : enableSkill
   fn(props.skill.id).then(function () { emit('refresh') })
 }
 

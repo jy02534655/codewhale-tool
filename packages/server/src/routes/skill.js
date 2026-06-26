@@ -8,10 +8,8 @@
 
 import { Router } from 'express';
 import { guard, guardAsync } from '@codewhale/core';
-import { writeFileSync, rmSync, existsSync, readFileSync, unlinkSync } from 'node:fs';
+import { existsSync, readFileSync, unlinkSync } from 'node:fs';
 import { join } from 'node:path';
-import { tmpdir, homedir } from 'node:os';
-import { randomUUID } from 'node:crypto';
 
 /**
  * @param {import('@codewhale/core').SkillManager} skillMgr
@@ -98,7 +96,7 @@ export function createSkillRouter(skillMgr) {
     const { repoUrl, skillPath, level, proxyId, tokenId, proxyUrl, projectPath } = req.query;
 
     // 解析 proxyUrl 为结构化代理配置（支持直接传 URL 而非 proxyId）
-    let proxyConfig = undefined;
+    let proxyConfig;
     if (proxyUrl && !proxyId) {
       try {
         const url = new URL(proxyUrl);
@@ -127,13 +125,10 @@ export function createSkillRouter(skillMgr) {
     function sendSSE(event, data) {
       if (!clientConnected) return;
       res.write(`event: ${event}
-data: ${JSON.stringify(data)}
-
-`);
+                  data: ${JSON.stringify(data)}
+                  `);
     }
 
-// 进度回调 → SSE 事件（只发送进度数据，不发送简化日志）
-var currentStage = null;
 const onProgress = (progress) => {
   sendSSE('progress', progress);
 };
@@ -186,14 +181,14 @@ const onProgress = (progress) => {
   /** GET /api/skill/install-log — 读取最近安装日志 */
   router.get('/install-log', (_req, res) => {
     try {
-      var LOG_PATH = join(process.cwd(), 'download-skill.log');
+      const LOG_PATH = join(process.cwd(), 'download-skill.log');
       if (!existsSync(LOG_PATH)) {
         return res.json({ success: true, data: '' });
       }
-      var content = readFileSync(LOG_PATH, 'utf-8');
+      const content = readFileSync(LOG_PATH, 'utf-8');
       // 只返回最后 200 行避免日志过大
-      var lines = content.split('\n');
-      var tail = lines.slice(Math.max(0, lines.length - 200)).join('\n');
+      const lines = content.split('\n');
+      const tail = lines.slice(Math.max(0, lines.length - 200)).join('\n');
       res.json({ success: true, data: tail });
     } catch (err) {
       res.json({ success: false, message: err.message });
@@ -203,7 +198,7 @@ const onProgress = (progress) => {
   /** DELETE /api/skill/install-log — 清除安装日志 */
   router.delete('/install-log', (_req, res) => {
     try {
-      var LOG_PATH = join(process.cwd(), 'download-skill.log');
+      const LOG_PATH = join(process.cwd(), 'download-skill.log');
       if (existsSync(LOG_PATH)) unlinkSync(LOG_PATH);
       res.json({ success: true, message: '日志已清除' });
     } catch (err) {

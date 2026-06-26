@@ -3,7 +3,7 @@
   工具栏含安装日志查看/清除
   左侧列表简化：名称+状态 | 别名+来源标签 | 标签
 --><template>
-  <div class="skill-view" v-loading="maskingStore.isLoading">
+  <div v-loading="maskingStore.isLoading" class="skill-view">
 
     <!-- 工具栏 -->
     <div class="toolbar">
@@ -161,7 +161,7 @@ function displayName(s) {
 
 /** 来源本地化文本 */
 function sourceName(source) {
-  var key = 'skill.source.' + (source || 'local')
+  const key = 'skill.source.' + (source || 'local')
   return t(key) || source
 }
 
@@ -178,26 +178,26 @@ function onTabChange() {
 /** 当前选中技能对象 */
 const selectedSkill = computed(function () {
   if (!selectedId.value) return null
-  var all = globalSkills.value.concat(projectSkills.value)
+  const all = globalSkills.value.concat(projectSkills.value)
   return all.find(function (s) { return s.id === selectedId.value }) || null
 })
 
 /** 全局 skill 列表过滤 */
 const filteredGlobal = computed(function () {
-  var q = search.value.toLowerCase().trim()
+  const q = search.value.toLowerCase().trim()
   if (!q) return globalSkills.value
   return globalSkills.value.filter(function (s) {
-    var name = (s.alias || s.name || s.id).toLowerCase()
-    var tags = (s.tags || []).join(' ').toLowerCase()
+    const name = (s.alias || s.name || s.id).toLowerCase()
+    const tags = (s.tags || []).join(' ').toLowerCase()
     return name.indexOf(q) !== -1 || tags.indexOf(q) !== -1
   })
 })
 
 /** 项目树：按项目名分组 */
 const projectTree = computed(function () {
-  var map = {}
+  const map = {}
   projectSkills.value.forEach(function (s) {
-    var pn = s.path && s.path.indexOf('.codewhale') !== -1 ? 'codewhale-tool' : 'unknown'
+    const pn = s.path && s.path.indexOf('.codewhale') !== -1 ? 'codewhale-tool' : 'unknown'
     if (!map[pn]) map[pn] = { name: pn, alias: pn, skills: [] }
     map[pn].skills.push(s)
   })
@@ -206,7 +206,7 @@ const projectTree = computed(function () {
 
 /** 项目树过滤 */
 const filteredProjectTree = computed(function () {
-  var q = search.value.toLowerCase().trim()
+  const q = search.value.toLowerCase().trim()
   if (!q) return projectTree.value
   return projectTree.value
     .map(function (node) {
@@ -214,8 +214,8 @@ const filteredProjectTree = computed(function () {
         name: node.name,
         alias: node.alias,
         skills: node.skills.filter(function (s) {
-          var name = (s.alias || s.name || s.id).toLowerCase()
-          var tags = (s.tags || []).join(' ').toLowerCase()
+          const name = (s.alias || s.name || s.id).toLowerCase()
+          const tags = (s.tags || []).join(' ').toLowerCase()
           return name.indexOf(q) !== -1 || tags.indexOf(q) !== -1
         })
       }
@@ -230,7 +230,7 @@ function loadSkills() {
       globalSkills.value = results[0] || []
       projectSkills.value = (results[1] || []).map(function (s) { s.level = 'project'; return s })
       if (selectedId.value) {
-        var all = globalSkills.value.concat(projectSkills.value)
+        const all = globalSkills.value.concat(projectSkills.value)
         if (!all.find(function (s) { return s.id === selectedId.value })) {
           selectedId.value = null
         }

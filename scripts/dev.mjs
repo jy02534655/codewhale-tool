@@ -40,7 +40,7 @@ function waitForServer(url, timeoutMs = 15000) {
   const start = Date.now();
   return new Promise((resolve, reject) => {
     const check = () => {
-      http.get(url, (res) => {
+      http.get(url, () => {
         resolve();
       }).on('error', () => {
         if (Date.now() - start > timeoutMs) {

@@ -1,0 +1,28 @@
+// VS Code ESLint 扩展配置 —— 确保 .vue 文件在编辑器中被校验
+{
+  // 强制启用 flat config 模式（ESLint v9+ eslint.config.js）
+  "eslint.useFlatConfig": true,
+
+  // v2.x 兼容：显式声明需要校验的语言
+  "eslint.validate": [
+    "javascript",
+    "javascriptreact",
+    "typescript",
+    "typescriptreact",
+    "vue"
+  ],
+
+  // v3.x 兼容：替代 eslint.validate
+  "eslint.probe": [
+    "javascript",
+    "javascriptreact",
+    "typescript",
+    "typescriptreact",
+    "vue"
+  ],
+
+  // monorepo 自动探测各子包的工作目录
+  "eslint.workingDirectories": [
+    { "mode": "auto" }
+  ]
+}

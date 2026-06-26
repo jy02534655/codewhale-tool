@@ -45,7 +45,7 @@ export class ProjectSkillEngine {
   static detectPath() {
     const cwd = process.cwd();
     let dir = cwd;
-    // eslint-disable-next-line no-constant-condition
+     
     while (true) {
       const candidate = join(dir, '.codewhale', 'skills.json');
       if (existsSync(candidate)) return candidate;

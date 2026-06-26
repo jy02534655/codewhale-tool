@@ -4,7 +4,7 @@
   页面提供增删改查功能
 -->
 <template>
-  <div class="proxy-view" v-loading="maskingStore.isLoading">
+  <div v-loading="maskingStore.isLoading" class="proxy-view">
     <div class="toolbar">
       <h2>{{ $t('proxy.title') }}</h2>
       <div class="toolbar-actions">
@@ -71,7 +71,7 @@
 
 <script setup>
 import { ref, reactive, onMounted } from 'vue'
-import { ElMessage, ElMessageBox } from 'element-plus'
+import { ElMessageBox } from 'element-plus'
 import { useI18n } from 'vue-i18n'
 import { getProxyList, addProxy, editProxy, removeProxy, setDefaultProxy } from '@/api/proxy'
 import { useMaskingStore } from '@/stores/masking'
@@ -141,7 +141,7 @@ function resetForm() {
 function onSubmit() {
   formRef.value.validate().then(function () {
     submitting.value = true
-    var payload = {
+    const payload = {
       alias: formData.alias,
       type: formData.type,
       host: formData.host,
@@ -150,7 +150,7 @@ function onSubmit() {
         ? { username: formData.username || '', password: formData.password || '' }
         : undefined,
     }
-    var promise
+    let promise
     if (isEdit.value) {
       promise = editProxy({ id: editingId.value, ...payload })
     } else {

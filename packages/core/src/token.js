@@ -66,6 +66,7 @@ export class TokenManager {
     const idx = tokens.findIndex((t) => t.id === id);
     if (idx === -1) return failMsg('TOKEN_NOT_FOUND');
 
+    // eslint-disable-next-line no-unused-vars
     const { id: _id, ...safe } = updates;
     tokens[idx] = { ...tokens[idx], ...safe };
     this._engine.setTokens(tokens);

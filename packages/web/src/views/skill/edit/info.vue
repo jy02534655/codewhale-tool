@@ -26,18 +26,16 @@
 
 <script setup>
 import { reactive, computed } from 'vue'
-import { useI18n } from 'vue-i18n'
 import { assign } from 'lodash'
 import { updateMeta } from '@/api/skill'
 import { useMaskingStore } from '@/stores/masking'
 import { compositionDialogForm } from '@/composition/dialog/Form'
 
-var { t } = useI18n({ useScope: 'global' })
-var maskingStore = useMaskingStore()
-var currentId = ''
+const maskingStore = useMaskingStore()
+let currentId = ''
 
 // 表单数据（tagsInput 仅用于输入框，tags 提交时解析）
-var formData = reactive({
+const formData = reactive({
   alias: '',
   remark: '',
   tagsInput: '',
@@ -45,7 +43,7 @@ var formData = reactive({
 })
 
 // 标签列表（computed 从 formData.tags 派生）
-var tagsList = computed(function () {
+const tagsList = computed(function () {
   return formData.tags || []
 })
 
@@ -65,7 +63,7 @@ function doUpdate(params) {
 }
 
 // compositionDialogForm：addFun/editFun 同一函数，initfun 中用 assign 填充
-const { isEdit, isShow, showDialog, hideDialog, resetForm, showDialogByData, submitDialogForm } = compositionDialogForm({
+const { isShow, showDialog, hideDialog, resetForm, showDialogByData, submitDialogForm } = compositionDialogForm({
   formName: 'form',
   addFun: doUpdate,
   editFun: doUpdate,

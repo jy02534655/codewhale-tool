@@ -118,15 +118,15 @@ function _parseGitHubUrl(repoUrl) {
 function _sseLogSafe(onLog, level, message) {
   if (!onLog) return;
   try {
-    var d = new Date();
-    var ts = d.getFullYear() + '-' +
+    const d = new Date();
+    const ts = d.getFullYear() + '-' +
       String(d.getMonth() + 1).padStart(2, '0') + '-' +
       String(d.getDate()).padStart(2, '0') + ' ' +
       String(d.getHours()).padStart(2, '0') + ':' +
       String(d.getMinutes()).padStart(2, '0') + ':' +
       String(d.getSeconds()).padStart(2, '0') + '.' +
       String(d.getMilliseconds()).padStart(3, '0');
-    var line = '[' + ts + '] [' + level + '] ' + message;
+    const line = '[' + ts + '] [' + level + '] ' + message;
     onLog({ level: level, message: line });
   } catch { /* 日志失败不阻塞安装 */ }
 }
@@ -185,7 +185,9 @@ export class SkillManager {
    * @returns {{success: boolean, data?: {entry: object|null, readme: string, level: string|null}, message?: string, errorCode?: string}}
    */
   show(skillId, level) {
+    // eslint-disable-next-line no-useless-assignment
     let entry = null;
+    // eslint-disable-next-line no-useless-assignment
     let resolvedLevel = null;
 
     if (level === 'global') {
@@ -805,12 +807,13 @@ export class SkillManager {
 
     const downloadFile = async (file) => {
       const rawUrl = `https://raw.githubusercontent.com/${owner}/${repo}/${branch}/${file.path}`;
-      let relativePath = file.path.replace(skillPrefix, '');
+      const relativePath = file.path.replace(skillPrefix, '');
       const localPath = join(targetDir, relativePath);
       mkdirSync(dirname(localPath), { recursive: true });
 
       for (let attempt = 1; attempt <= 3; attempt++) {
         let res = null;
+        let nodeBody = null;
         try {
           // AbortSignal 30s 超时控制，防止 fetch 永远挂起
           const ctrl = new AbortController();
@@ -826,7 +829,7 @@ export class SkillManager {
           }
           if (!res.ok) throw new Error(`HTTP ${res.status}`);
           if (!res.body) throw new Error('响应没有 body');
-          const nodeBody = Readable.fromWeb(res.body);
+          nodeBody = Readable.fromWeb(res.body);
 
           const writer = createWriteStream(localPath);
           let fileDownloaded = 0;
@@ -885,6 +888,7 @@ export class SkillManager {
           const isTimeout = err.name === 'AbortError' || err.message?.includes('abort');
           const retryMsg = attempt < 3 ? ` (重试 ${attempt + 1}/3...)` : '';
           console.warn(`[Skill] 下载 ${file.path} 第${attempt}次失败: ${err.message}${isTimeout ? ' (超时)' : ''}${retryMsg}`);
+          // eslint-disable-next-line preserve-caught-error
           if (attempt === 3) throw new Error(`下载 ${file.path} 失败: ${err.message}`);
           await new Promise((r) => setTimeout(r, 1000 * attempt));
         }
@@ -982,7 +986,7 @@ export class SkillManager {
    * @param {Function}     [onProgress] - 进度回调
    * @returns {Promise<{success: boolean, data?: any, message?: string, errorCode?: string}>}
    */
-  async installFromGitHub(repoUrl, skillPath, level, proxyUrl, onProgress, onLog) {
+  async installFromGitHub(repoUrl, skillPath, level, proxyUrl, onProgress) {
     // 兼容新旧两种调用方式
     if (typeof repoUrl === 'object' && repoUrl !== null) {
       return this._installFromGitHubV2(repoUrl, skillPath, level);
@@ -1016,6 +1020,10 @@ export class SkillManager {
       const agent = this._createAgent(proxyUrl);
       const branch = 'main';
 
+      const skillName = skillPath || repo;
+      let skillPrefix = '';
+      let fallbackPrefixes = [];
+
       if (proxyUrl) {
         // ── 有代理：优先 git sparse clone（原生代理穿透，快），失败回退 Tar ──
         let downloaded = false;
@@ -1029,6 +1037,8 @@ export class SkillManager {
           // 回退：Tar 流式下载
           if (skillPath) {
             const { prefix } = await this._detectSkillPrefix(owner, repo, skillPath, branch, agent);
+            skillPrefix = prefix;
+            fallbackPrefixes = [`skills/${skillName}/`, `${skillName}/`];
             await this._downloadViaTar({
               owner, repo, branch, skillPrefix: prefix,
               targetDir, agent, onProgress,
@@ -1044,13 +1054,10 @@ export class SkillManager {
         if (!downloaded) throw new Error('下载失败');
       } else {
         // ── 无代理：始终优先 Tar 流式下载，失败回退 API ──
-        const skillName = skillPath || repo;
         const { prefix } = await this._detectSkillPrefix(owner, repo, skillName, branch, agent);
-        const skillPrefix = skillPath ? prefix : '';
-        // 候选 fallback 前缀（demo 同款策略）
-        const fallbackPrefixes = [`skills/${skillName}/`, `${skillName}/`];
+        skillPrefix = skillPath ? prefix : '';
+        fallbackPrefixes = [`skills/${skillName}/`, `${skillName}/`];
 
-        let tarFailed = false;
         try {
           if (onProgress) {
             onProgress({ stage: 'downloading', percent: 15, message: 'Tarball 流式下载...' });
@@ -1060,7 +1067,6 @@ export class SkillManager {
             targetDir, agent, onProgress,
           });
         } catch (tarErr) {
-          tarFailed = true;
           if (onProgress) {
             onProgress({ stage: 'fallback', percent: 15, message: `Tar 下载失败 (${tarErr.message}), 回退 API 并发下载...` });
           }
@@ -1196,7 +1202,7 @@ export class SkillManager {
 
     const parsed = _parseGitHubUrl(repoUrl);
     if (!parsed) return failMsg('SKILL_INVALID_REPO_URL');
-    const { owner, repo } = parsed;
+    const { repo } = parsed;
 
     const skillId = skillPath ? basename(skillPath) : repo;
     const targetDir = targetLevel === 'project'
@@ -1228,7 +1234,7 @@ export class SkillManager {
       }
 
       // 解析 Token
-      let token = undefined;
+      let token;
       if (tokenId) {
         const tokenEntry = this._engine.findToken(tokenId);
         if (tokenEntry) token = tokenEntry.token;
@@ -1289,7 +1295,7 @@ export class SkillManager {
    * @param {string}       [proxyUrl] - 代理地址（可选，如 socks5://127.0.0.1:1080 或 http://127.0.0.1:10808）
    * @returns {Promise<{success: boolean, data?: any, message?: string, errorCode?: string}>}
    */
-  async installFromZip(zipSource, level, proxyUrl) {
+  async installFromZip(zipSource, level, proxyUrl, onProgress) {
     const targetLevel = level || 'global';
 
     const tempDir = join(tmpdir(), `skill-extract-${randomUUID()}`);
@@ -1459,7 +1465,7 @@ export class SkillManager {
    * @returns {{success: boolean, data?: any, message?: string, errorCode?: string}}
    */
   remove(skillId, level) {
-    return this._mutate(skillId, (entries, idx, entry, resolvedLevel) => {
+    return this._mutate(skillId, (entries, idx, entry) => {
       if (entry.path && existsSync(entry.path)) {
         try {
           rmSync(entry.path, { recursive: true, force: true });
@@ -1481,7 +1487,7 @@ export class SkillManager {
    * @returns {Promise<{success: boolean, data?: any, message?: string, errorCode?: string}>}
    */
   async update(skillId, level) {
-    return this._mutateAsync(skillId, async (entries, idx, entry, resolvedLevel) => {
+    return this._mutateAsync(skillId, async (entries, idx, entry) => {
       if (entry.source !== 'community') {
         return failMsg('SKILL_NOT_COMMUNITY');
       }
@@ -1561,7 +1567,6 @@ export class SkillManager {
 
     const scanFn = (dir, targetLevel) => {
       if (!existsSync(dir)) return;
-      const entries = [];
       try {
         const names = readdirSync(dir, { withFileTypes: true });
         for (const dirent of names) {

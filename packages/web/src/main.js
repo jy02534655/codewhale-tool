@@ -17,9 +17,9 @@ import { i18n } from './i18n';
 
 const elLocales = {
   'zh-Hans': zhCn,
-  'en':      enLoc,
-  'ja':      jaLoc,
-  'pt-BR':   ptBrLoc,
+  'en': enLoc,
+  'ja': jaLoc,
+  'pt-BR': ptBrLoc,
 };
 
 const app = createApp(App);

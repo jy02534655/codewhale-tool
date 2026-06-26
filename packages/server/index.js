@@ -69,8 +69,8 @@ app.use('/api', noCache);
 app.post('/api/lang', (req, res) => {
   const { locale } = req.body;
   if (locale) {
-    engine.setLocale(locale);   // 持久化到 store.json
-    setLocale(locale);          // 运行时生效
+    engine.setLocale(locale); // 持久化到 store.json
+    setLocale(locale); // 运行时生效
     res.json(ok(null));
   } else {
     res.json({ success: false, message: 'locale is required' });

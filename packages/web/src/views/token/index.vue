@@ -4,7 +4,7 @@
   页面提供增删改查功能
 -->
 <template>
-  <div class="token-view" v-loading="maskingStore.isLoading">
+  <div v-loading="maskingStore.isLoading" class="token-view">
     <div class="toolbar">
       <h2>{{ $t('token.title') }}</h2>
       <div class="toolbar-actions">
@@ -112,14 +112,14 @@ function resetForm() {
 function onSubmit() {
   formRef.value.validate().then(function () {
     submitting.value = true
-    var payload = {
+    const payload = {
       alias: formData.alias,
     }
     // 新增时 token 必填，编辑时仅当输入了新 token 才更新
     if (!isEdit.value || formData.token) {
       payload.token = formData.token
     }
-    var promise
+    let promise
     if (isEdit.value) {
       promise = editToken({ id: editingId.value, ...payload })
     } else {

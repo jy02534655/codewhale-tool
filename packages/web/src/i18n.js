@@ -18,9 +18,9 @@ export const i18n = createI18n({
   fallbackLocale: 'zh-Hans',
   messages: {
     'zh-Hans': zhMessages,
-    'en':      enMessages,
-    'ja':      jaMessages,
-    'pt-BR':   ptBrMessages,
+    'en': enMessages,
+    'ja': jaMessages,
+    'pt-BR': ptBrMessages,
   },
 });
 

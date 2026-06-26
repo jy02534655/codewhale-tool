@@ -16,7 +16,7 @@
     <div class="smart-paste">
       <el-input v-model="smartInput" :placeholder="$t('skill.smartInputPlaceholder')" size="small" @input="onSmartInput">
         <template #append>
-          <el-button @click="parseSmartInput" :disabled="!smartInput.trim()">{{ $t('skill.parse') }}</el-button>
+          <el-button :disabled="!smartInput.trim()" @click="parseSmartInput">{{ $t('skill.parse') }}</el-button>
         </template>
       </el-input>
     </div>
@@ -123,11 +123,11 @@ const canSubmit = computed(function () {
 // ─── 智能识别 ──────────────────────────────────────────────
 
 function parseSmartInput() {
-  var text = smartInput.value.trim()
+  const text = smartInput.value.trim()
   if (!text) return
 
   // 匹配 npx skills add <url> --skill <path> 格式
-  var match = text.match(/npx\s+skills\s+add\s+(\S+)(?:\s+--skill\s+(\S+))?/)
+  let match = text.match(/npx\s+skills\s+add\s+(\S+)(?:\s+--skill\s+(\S+))?/)
   if (!match) {
     // 匹配直接粘贴 URL 格式
     match = text.match(/^(https?:\/\/[^\s]+)/)
@@ -164,7 +164,7 @@ const { isShow, showDialog, hideDialog, showDialogByData } = compositionDialogBa
     getProxyList().then(function (data) {
       proxyList.value = data || []
       // 自动选中默认代理
-      var def = (data || []).find(function (p) { return p.default })
+      const def = (data || []).find(function (p) { return p.default })
       if (def) selectedProxyId.value = def.id
     }).catch(function () {
       proxyList.value = []
@@ -172,7 +172,7 @@ const { isShow, showDialog, hideDialog, showDialogByData } = compositionDialogBa
     getTokenList().then(function (data) {
       tokenList.value = data || []
       // 自动选中默认 Token
-      var def = (data || []).find(function (t) { return t.default })
+      const def = (data || []).find(function (t) { return t.default })
       if (def) selectedTokenId.value = def.id
     }).catch(function () {
       tokenList.value = []
@@ -201,7 +201,7 @@ function onSubmit() {
   installing.value = true
 
   // 构建 SSE URL 参数
-  var params = new URLSearchParams({
+  const params = new URLSearchParams({
     repoUrl: repoUrl.value.trim(),
     skillPath: skillPath.value.trim() || '',
     level: level.value,
@@ -216,7 +216,7 @@ function onSubmit() {
     params.append('projectPath', projectPath.value.trim())
   }
 
-  var url = '/api/skill/install-github-stream?' + params.toString()
+  const url = '/api/skill/install-github-stream?' + params.toString()
 
   // 打开进度浮层
   if (progressRef.value) {

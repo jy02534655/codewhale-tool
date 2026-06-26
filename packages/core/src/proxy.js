@@ -8,7 +8,7 @@
  */
 
 import { randomUUID } from 'node:crypto';
-import { ok, fail } from './result.js';
+import { ok } from './result.js';
 import { failMsg } from './i18n.js';
 
 /**
@@ -69,6 +69,7 @@ export class ProxyManager {
     if (idx === -1) return failMsg('PROXY_NOT_FOUND');
 
     // 不允许修改 id
+    // eslint-disable-next-line no-unused-vars
     const { id: _id, ...safe } = updates;
     proxies[idx] = { ...proxies[idx], ...safe };
     if (proxies[idx].auth && !proxies[idx].auth.username && !proxies[idx].auth.password) {

@@ -34,9 +34,9 @@ export const SUPPORTED_LOCALES = ['zh-Hans', 'en', 'ja', 'pt-BR'];
 /** @type {Record<Locale, string>} */
 export const LOCALE_LABELS = {
   'zh-Hans': '简体中文',
-  'en':      'English',
-  'ja':      '日本語',
-  'pt-BR':   'Português (BR)',
+  'en': 'English',
+  'ja': '日本語',
+  'pt-BR': 'Português (BR)',
 };
 
 /**
@@ -44,19 +44,19 @@ export const LOCALE_LABELS = {
  * key = provider id，value = Record<Locale, string>
  */
 export const PROVIDER_I18N = {
-  deepseek:    { 'zh-Hans': 'DeepSeek',       en: 'DeepSeek',       ja: 'DeepSeek',       'pt-BR': 'DeepSeek' },
-  siliconflow: { 'zh-Hans': '硅基流动',        en: 'SiliconFlow',    ja: 'SiliconFlow',    'pt-BR': 'SiliconFlow' },
-  openrouter:  { 'zh-Hans': 'OpenRouter',     en: 'OpenRouter',     ja: 'OpenRouter',     'pt-BR': 'OpenRouter' },
-  'nvidia-nim': { 'zh-Hans': 'NVIDIA NIM',    en: 'NVIDIA NIM',    ja: 'NVIDIA NIM',    'pt-BR': 'NVIDIA NIM' },
-  atlascloud:  { 'zh-Hans': 'AtlasCloud',     en: 'AtlasCloud',     ja: 'AtlasCloud',     'pt-BR': 'AtlasCloud' },
-  'wanjie-ark': { 'zh-Hans': '万界方舟',       en: 'Wanjie Ark',     ja: '万界方舟',        'pt-BR': 'Wanjie Ark' },
-  'xiaomi-mimo': { 'zh-Hans': '小米 MiMo',     en: 'Xiaomi MiMo',    ja: 'Xiaomi MiMo',    'pt-BR': 'Xiaomi MiMo' },
-  novita:      { 'zh-Hans': 'Novita',        en: 'Novita',        ja: 'Novita',        'pt-BR': 'Novita' },
-  fireworks:   { 'zh-Hans': 'Fireworks',     en: 'Fireworks',     ja: 'Fireworks',     'pt-BR': 'Fireworks' },
-  openai:      { 'zh-Hans': 'OpenAI（兼容）',  en: 'OpenAI / Compat', ja: 'OpenAI（互換）',  'pt-BR': 'OpenAI / Compat' },
-  sglang:      { 'zh-Hans': 'SGLang（自托管）', en: 'SGLang (Self)',  ja: 'SGLang（自前）',  'pt-BR': 'SGLang (Self)' },
-  vllm:        { 'zh-Hans': 'vLLM（自托管）',   en: 'vLLM (Self)',    ja: 'vLLM（自前）',    'pt-BR': 'vLLM (Self)' },
-  ollama:      { 'zh-Hans': 'Ollama（本地）',   en: 'Ollama (Local)',  ja: 'Ollama（ローカル）', 'pt-BR': 'Ollama (Local)' },
+  deepseek: { 'zh-Hans': 'DeepSeek', en: 'DeepSeek', ja: 'DeepSeek', 'pt-BR': 'DeepSeek' },
+  siliconflow: { 'zh-Hans': '硅基流动', en: 'SiliconFlow', ja: 'SiliconFlow', 'pt-BR': 'SiliconFlow' },
+  openrouter: { 'zh-Hans': 'OpenRouter', en: 'OpenRouter', ja: 'OpenRouter', 'pt-BR': 'OpenRouter' },
+  'nvidia-nim': { 'zh-Hans': 'NVIDIA NIM', en: 'NVIDIA NIM', ja: 'NVIDIA NIM', 'pt-BR': 'NVIDIA NIM' },
+  atlascloud: { 'zh-Hans': 'AtlasCloud', en: 'AtlasCloud', ja: 'AtlasCloud', 'pt-BR': 'AtlasCloud' },
+  'wanjie-ark': { 'zh-Hans': '万界方舟', en: 'Wanjie Ark', ja: '万界方舟', 'pt-BR': 'Wanjie Ark' },
+  'xiaomi-mimo': { 'zh-Hans': '小米 MiMo', en: 'Xiaomi MiMo', ja: 'Xiaomi MiMo', 'pt-BR': 'Xiaomi MiMo' },
+  novita: { 'zh-Hans': 'Novita', en: 'Novita', ja: 'Novita', 'pt-BR': 'Novita' },
+  fireworks: { 'zh-Hans': 'Fireworks', en: 'Fireworks', ja: 'Fireworks', 'pt-BR': 'Fireworks' },
+  openai: { 'zh-Hans': 'OpenAI（兼容）', en: 'OpenAI / Compat', ja: 'OpenAI（互換）', 'pt-BR': 'OpenAI / Compat' },
+  sglang: { 'zh-Hans': 'SGLang（自托管）', en: 'SGLang (Self)', ja: 'SGLang（自前）', 'pt-BR': 'SGLang (Self)' },
+  vllm: { 'zh-Hans': 'vLLM（自托管）', en: 'vLLM (Self)', ja: 'vLLM（自前）', 'pt-BR': 'vLLM (Self)' },
+  ollama: { 'zh-Hans': 'Ollama（本地）', en: 'Ollama (Local)', ja: 'Ollama（ローカル）', 'pt-BR': 'Ollama (Local)' },
 };
 
 /**
@@ -90,12 +90,12 @@ export function getKnownProviders(locale) {
  */
 export function getDefaultBaseUrl(providerId) {
   const urls = {
-    deepseek:    'https://api.deepseek.com',
+    deepseek: 'https://api.deepseek.com',
     siliconflow: 'https://api.siliconflow.cn/v1',
-    openrouter:  'https://openrouter.ai/api/v1',
-    openai:      'https://api.openai.com/v1',
-    novita:      'https://api.novita.ai/v3/openai',
-    fireworks:   'https://api.fireworks.ai/inference/v1',
+    openrouter: 'https://openrouter.ai/api/v1',
+    openai: 'https://api.openai.com/v1',
+    novita: 'https://api.novita.ai/v3/openai',
+    fireworks: 'https://api.fireworks.ai/inference/v1',
   };
   return urls[providerId] || '';
 }
