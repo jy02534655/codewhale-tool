@@ -35,7 +35,7 @@
       :title="isEdit ? $t('token.edit_title') : $t('token.add_title')"
       width="480px" :close-on-click-modal="false" @close="resetForm">
       <el-form ref="formRef" :model="formData" :rules="rules" label-position="top">
-        <el-form-item :label="$t('token.alias')" prop="alias">
+        <el-form-item :label="$t('common.alias')" prop="alias">
           <el-input v-model="formData.alias" :placeholder="$t('token.alias_placeholder')" />
         </el-form-item>
         <el-form-item :label="$t('token.token_value')" :prop="isEdit ? null : 'token'">
@@ -76,8 +76,8 @@ const formData = reactive({
 })
 
 const rules = {
-  alias: [{ required: true, message: () => t('token.alias_required'), trigger: 'blur' }],
-  token: [{ required: true, message: () => t('token.token_required'), trigger: 'blur' }],
+  alias: [{ required: true, message: () => t('common.required'), trigger: 'blur' }],
+  token: [{ required: true, message: () => t('common.required'), trigger: 'blur' }],
 }
 
 function loadList() {
@@ -136,7 +136,7 @@ function onSubmit() {
 
 function onRemove(row) {
   ElMessageBox.confirm(
-    t('token.confirm_delete') + ' "' + row.alias + '"?',
+    t('common.confirm_delete') + ' "' + row.alias + '"?',
     t('common.confirm'),
     { type: 'warning' }
   ).then(function () {

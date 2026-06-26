@@ -24,14 +24,14 @@
       <div v-else class="official-list">
         <div v-for="k in officialKeys" :key="k.id" :class="['official-item', { 'official-active': k.active }]">
           <div class="official-info">
-            <el-tag v-if="k.active" size="small" type="success" effect="dark">{{ $t('official.current') }}</el-tag>
+            <el-tag v-if="k.active" size="small" type="success" effect="dark">{{ $t('common.current') }}</el-tag>
             <span class="official-alias">{{ k.alias }}</span>
             <el-tag size="small" type="info" effect="plain">{{ k.api_key_preview }}</el-tag>
           </div>
           <div class="official-actions">
-            <el-button v-if="!k.active" size="small" type="primary" @click="activateOfficial(k.id)">{{ $t('official.activate') }}</el-button>
-            <el-button size="small" @click="dialogCtrl.showEditDialog({ id: k.id, alias: k.alias }, 'officialKey')">{{ $t('official.alias') }}</el-button>
-            <el-button size="small" type="danger" @click="removeOfficial(k.id)">{{ $t('official.delete') }}</el-button>
+            <el-button v-if="!k.active" size="small" type="primary" @click="activateOfficial(k.id)">{{ $t('common.activate') }}</el-button>
+            <el-button size="small" @click="dialogCtrl.showEditDialog({ id: k.id, alias: k.alias }, 'officialKey')">{{ $t('common.alias') }}</el-button>
+            <el-button size="small" type="danger" @click="removeOfficial(k.id)">{{ $t('common.delete') }}</el-button>
           </div>
         </div>
       </div>
@@ -44,7 +44,7 @@
           <span class="section-title">{{ $t('third_party.title') }}</span>
           <div style="display:flex;align-items:center;gap:10px">
             <el-tag v-if="hasActiveProvider" size="small" type="warning" effect="plain">
-              {{ $t('third_party.current') }}：{{ activeProviderDisplay }}
+              {{ $t('common.current') }}：{{ activeProviderDisplay }}
             </el-tag>
             <el-button v-if="hasActiveProvider" size="small" type="info" @click="deactivateAll">{{ $t('third_party.deactivate') }}</el-button>
           </div>
@@ -67,14 +67,14 @@
           <template #header>
             <div class="card-header">
               <div class="card-title">
-                <el-tag v-if="p.active" size="small" type="primary" effect="dark">{{ $t('third_party.current') }}</el-tag>
+                <el-tag v-if="p.active" size="small" type="primary" effect="dark">{{ $t('common.current') }}</el-tag>
                 <span class="provider-name">{{ p.label }}</span>
                 <span class="provider-type">{{ p.provider }}</span>
               </div>
               <div class="card-actions">
-                <el-button size="small" :type="p.active ? 'default' : 'primary'" :disabled="p.active" @click="activateProviderAction(p.id)">{{ $t('third_party.activate') }}</el-button>
-                <el-button size="small" @click="dialogCtrl.showEditDialog(p, 'provider')">{{ $t('third_party.edit') }}</el-button>
-                <el-button size="small" type="danger" @click="removeProviderSubmit(p.id)">{{ $t('third_party.delete') }}</el-button>
+                <el-button size="small" :type="p.active ? 'default' : 'primary'" :disabled="p.active" @click="activateProviderAction(p.id)">{{ $t('common.activate') }}</el-button>
+                <el-button size="small" @click="dialogCtrl.showEditDialog(p, 'provider')">{{ $t('common.edit') }}</el-button>
+                <el-button size="small" type="danger" @click="removeProviderSubmit(p.id)">{{ $t('common.delete') }}</el-button>
               </div>
             </div>
           </template>
@@ -149,7 +149,7 @@ function loadConfig() {
 function activateOfficial(id) { activateOfficialKey(id).then(() => loadConfig()); }
 
 function removeOfficial(id) {
-  ElMessageBox.confirm(t('official.confirm_delete'), t('common.confirm'), { type: 'warning' })
+  ElMessageBox.confirm(t('common.confirm_delete'), t('common.confirm'), { type: 'warning' })
     .then(() => removeOfficialKey(id))
     .then(() => loadConfig());
 }
@@ -158,13 +158,13 @@ function activateProviderAction(id) { activateProvider(id).then(() => loadConfig
 function deactivateAll() { deactivateProvider().then(() => loadConfig()); }
 
 function removeProviderSubmit(id) {
-  ElMessageBox.confirm(t('third_party.confirm_delete_provider') + ' "' + id + '"?', t('third_party.confirm_delete'), { type: 'warning' })
+  ElMessageBox.confirm(t('common.confirm_delete') + ' "' + id + '"?', t('common.confirm_delete'), { type: 'warning' })
     .then(() => removeProvider(id))
     .then(() => loadConfig());
 }
 
 function removeModelSubmit(id, name) {
-  ElMessageBox.confirm(t('third_party.confirm_delete_model') + ' "' + name + '"?', t('third_party.confirm_delete'), { type: 'warning' })
+  ElMessageBox.confirm(t('common.confirm_delete') + ' "' + name + '"?', t('common.confirm_delete'), { type: 'warning' })
     .then(() => removeModel({ id, name }))
     .then(() => loadConfig());
 }

@@ -10,10 +10,10 @@
       <h2>{{ $t('skill.title') }}</h2>
       <div class="toolbar-actions">
         <el-button size="small" type="primary"
-          @click="dialogCtrl.showAddDialog(null, 'installDialog')">{{ $t('skill.install') }}</el-button>
+          @click="dialogCtrl.showAddDialog(null, 'installDialog')">{{ $t('common.install') }}</el-button>
         <el-button size="small" text @click="doViewLog">{{ $t('skill.viewLog') }}</el-button>
         <el-button size="small" text type="danger" @click="doClearLog">{{ $t('skill.clearLog') }}</el-button>
-        <el-button size="small" @click="loadSkills">{{ $t('skill.refresh') }}</el-button>
+        <el-button size="small" @click="loadSkills">{{ $t('common.refresh') }}</el-button>
       </div>
     </div>
 

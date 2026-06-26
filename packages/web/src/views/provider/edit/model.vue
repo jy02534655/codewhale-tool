@@ -33,7 +33,7 @@ const { t } = useI18n({ useScope: 'global' });
 const formData = reactive({ name: undefined, id: undefined });
 
 const rules = {
-  name: [{ required: true, message: () => t('third_party.model_name_required'), trigger: 'blur' }],
+  name: [{ required: true, message: () => t('common.required'), trigger: 'blur' }],
 };
 
 const { isShow, showDialog, hideDialog, resetForm, showDialogByData, submitDialogForm } = compositionDialogForm({

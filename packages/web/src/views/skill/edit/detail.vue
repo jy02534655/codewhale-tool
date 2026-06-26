@@ -19,7 +19,7 @@
       </div>
       <!-- 别名 -->
       <div class="detail-section">
-        <div class="section-header"><span>{{ $t('skill.alias') }}</span></div>
+        <div class="section-header"><span>{{ $t('common.alias') }}</span></div>
         <p class="field-value">{{ skill.alias || skill.name || skill.id }}</p>
       </div>
       <!-- 备注 -->
@@ -99,7 +99,7 @@ function doToggle() {
 function doRemove() {
   if (!props.skill) return
   ElMessageBox.confirm(
-    t('skill.confirmDelete', { id: props.skill.id }),
+    t('common.confirm_delete') + ' "' + props.skill.id + '"?',
     t('common.confirm'),
     { confirmButtonText: t('common.confirm'), cancelButtonText: t('common.cancel'), type: 'warning' }
   )

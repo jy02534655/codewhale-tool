@@ -37,7 +37,7 @@
       :title="isEdit ? $t('proxy.edit_title') : $t('proxy.add_title')"
       width="480px" :close-on-click-modal="false" @close="resetForm">
       <el-form ref="formRef" :model="formData" :rules="rules" label-position="top">
-        <el-form-item :label="$t('proxy.alias')" prop="alias">
+        <el-form-item :label="$t('common.alias')" prop="alias">
           <el-input v-model="formData.alias" :placeholder="$t('proxy.alias_placeholder')" />
         </el-form-item>
         <el-form-item :label="$t('proxy.type')" prop="type">
@@ -96,10 +96,10 @@ const formData = reactive({
 })
 
 const rules = {
-  alias: [{ required: true, message: t('proxy.rule_alias'), trigger: 'blur' }],
-  type: [{ required: true, message: t('proxy.rule_type'), trigger: 'change' }],
-  host: [{ required: true, message: t('proxy.rule_host'), trigger: 'blur' }],
-  port: [{ required: true, message: t('proxy.rule_port'), trigger: 'blur' }],
+  alias: [{ required: true, message: () => t('common.required'), trigger: 'blur' }],
+  type: [{ required: true, message: () => t('common.required'), trigger: 'change' }],
+  host: [{ required: true, message: () => t('common.required'), trigger: 'blur' }],
+  port: [{ required: true, message: () => t('common.required'), trigger: 'blur' }],
 }
 
 function loadList() {
@@ -167,7 +167,7 @@ function onSubmit() {
 
 function onRemove(row) {
   ElMessageBox.confirm(
-    t('proxy.confirm_delete') + ' "' + row.alias + '"?',
+    t('common.confirm_delete') + ' "' + row.alias + '"?',
     t('common.confirm'),
     { type: 'warning' }
   ).then(function () {

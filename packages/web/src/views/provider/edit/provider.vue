@@ -8,12 +8,12 @@
     width="520px" :close-on-click-modal="false" @close="resetForm">
     <el-form ref="form" :model="formData" :rules="rules" label-position="top">
       <el-form-item :label="$t('third_party.provider_type')" prop="provider">
-        <el-select v-model="formData.provider" :placeholder="$t('third_party.select_placeholder')"
+        <el-select v-model="formData.provider" :placeholder="$t('common.select_placeholder')"
           style="width:100%" :disabled="isEdit" filterable @change="onProviderSelect">
           <el-option v-for="v in vendorOptions" :key="v.id" :label="v.label" :value="v.id" />
         </el-select>
       </el-form-item>
-      <el-form-item :label="$t('third_party.alias_label')" prop="label">
+      <el-form-item :label="$t('common.alias')" prop="label">
         <el-input v-model="formData.label" :placeholder="vendorLabel(formData.provider)" />
       </el-form-item>
       <el-form-item v-if="!isEdit" :label="$t('third_party.api_key_label')" prop="api_key">
@@ -60,8 +60,8 @@ const formData = reactive({
 });
 
 const rules = {
-  provider: [{ required: true, message: () => t('third_party.provider_required'), trigger: 'change' }],
-  api_key: [{ required: true, message: () => t('third_party.api_key_required'), trigger: 'blur' }],
+  provider: [{ required: true, message: () => t('common.required'), trigger: 'change' }],
+  api_key: [{ required: true, message: () => t('common.required'), trigger: 'blur' }],
 };
 
 const { isEdit, isShow, showDialog, hideDialog, resetForm, showDialogByData, submitDialogForm } = compositionDialogForm({

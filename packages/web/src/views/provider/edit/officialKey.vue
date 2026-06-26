@@ -8,7 +8,7 @@
     :title="isEdit ? $t('official.edit_alias_title') : $t('official.add_dialog_title')"
     width="450px" :close-on-click-modal="false" @close="resetForm">
     <el-form ref="form" :model="formData" :rules="rules" label-position="top">
-      <el-form-item :label="$t('official.alias_label')" prop="alias">
+      <el-form-item :label="$t('common.alias')" prop="alias">
         <el-input v-model="formData.alias" :placeholder="$t('official.alias_placeholder')" />
       </el-form-item>
       <el-form-item v-if="!isEdit" :label="$t('official.api_key_label')" prop="api_key">
@@ -40,8 +40,8 @@ const formData = reactive({ alias: t('official.alias_default'), api_key: undefin
 
 // 新增/编辑均校验别名，新增时需额外校验 api_key（通过 v-if 隐藏的表单项不参与校验）
 const rules = {
-  alias: [{ required: true, message: () => t('official.alias_required'), trigger: 'blur' }],
-  api_key: [{ required: true, message: () => t('official.api_key_required'), trigger: 'blur' }],
+  alias: [{ required: true, message: () => t('common.required'), trigger: 'blur' }],
+  api_key: [{ required: true, message: () => t('common.required'), trigger: 'blur' }],
 };
 
 const { isEdit, isShow, showDialog, hideDialog, resetForm, showDialogByData, submitDialogForm } = compositionDialogForm({
