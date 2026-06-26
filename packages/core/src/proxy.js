@@ -9,6 +9,7 @@
 
 import { randomUUID } from 'node:crypto';
 import { ok, fail } from './result.js';
+import { failMsg } from './i18n.js';
 
 /**
  * @typedef {import('./types.js').ProxyEntry} ProxyEntry
@@ -41,11 +42,12 @@ export class ProxyManager {
    */
   add(input) {
     if (!input.alias || !input.type || !input.host || !input.port) {
-      return fail('alias/type/host/port 为必填项', 'VALIDATION_ERROR');
+      return failMsg('VALIDATION_ERROR');
     }
     const entry = {
       id: `proxy:${randomUUID()}`,
       alias: input.alias,
+      default: this._engine.getProxies().length === 0,
       type: input.type,
       host: input.host,
       port: input.port,
@@ -64,7 +66,7 @@ export class ProxyManager {
   update(id, updates) {
     const proxies = this._engine.getProxies();
     const idx = proxies.findIndex((p) => p.id === id);
-    if (idx === -1) return fail('代理未找到', 'NOT_FOUND');
+    if (idx === -1) return failMsg('PROXY_NOT_FOUND');
 
     // 不允许修改 id
     const { id: _id, ...safe } = updates;
@@ -84,7 +86,7 @@ export class ProxyManager {
   remove(id) {
     const proxies = this._engine.getProxies();
     const filtered = proxies.filter((p) => p.id !== id);
-    if (filtered.length === proxies.length) return fail('代理未找到', 'NOT_FOUND');
+    if (filtered.length === proxies.length) return failMsg('PROXY_NOT_FOUND');
     this._engine.setProxies(filtered);
     return ok({ removed: true });
   }
@@ -106,7 +108,7 @@ export class ProxyManager {
   setDefault(id) {
     const proxies = this._engine.getProxies();
     const idx = proxies.findIndex((p) => p.id === id);
-    if (idx === -1) return fail('代理未找到', 'NOT_FOUND');
+    if (idx === -1) return failMsg('PROXY_NOT_FOUND');
     proxies.forEach((p) => (p.default = p.id === id));
     this._engine.setProxies(proxies);
     return ok(proxies[idx]);

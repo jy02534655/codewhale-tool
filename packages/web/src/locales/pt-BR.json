@@ -17,6 +17,7 @@
     "alias_placeholder": "ex: Principal, Reserva",
     "api_key_label": "API Key",
     "edit_alias_title": "Editar Apelido",
+    "alias_default": "Key Oficial DeepSeek",
     "confirm_delete": "Excluir esta chave?",
     "confirm": "OK",
     "cancel": "Cancelar"
@@ -58,7 +59,10 @@
     "loading_failed": "Falha ao carregar",
     "confirm": "OK",
     "cancel": "Cancelar",
-    "refresh": "Atualizar"
+    "refresh": "Atualizar",
+    "provider_required": "Selecione o tipo de fornecedor",
+    "api_key_required": "API Key é obrigatório",
+    "model_name_required": "Insira o nome do modelo"
   },
   "skill": {
     "title": "Skills",
@@ -67,6 +71,8 @@
     "refresh": "Atualizar",
     "searchPlaceholder": "Buscar nome, alias, observação ou tags...",
     "searchCommunity": "Comunidade",
+    "enabled": "Ativado",
+    "disabled": "Desativado",
     "global": "Global",
     "project": "Projeto",
     "alias": "Apelido",
@@ -114,6 +120,40 @@
     "noLog": "Nenhum registro de log",
     "viewLog": "Ver Log",
     "clearLog": "Limpar Log",
+    "browse": "Navegar",
+    "quickPasteTitle": "Colar Rápido",
+    "quickPasteDesc": "Cole o comando npx diretamente, detecção automática de repositório e caminho",
+    "smartInputPlaceholder": "Cole o comando de instalação, ex: npx skills add https://github.com/vercel-labs/skills --skill find-skills",
+    "parse": "Interpretar",
+    "repoUrlPlaceholder": "https://github.com/anthropics/skills",
+    "skillPathPlaceholder": "ex: frontend-design (opcional)",
+    "projectPathPlaceholder": "ex: D:/Code/my-project (padrão: projeto atual)",
+    "progressTitle": "Progresso da Instalação",
+    "installDone": "Instalação concluída",
+    "waitingStart": "Aguardando início...",
+    "installingMsg": "Instalando...",
+    "close": "Fechar",
+    "preparing": "Preparando conexão...",
+    "installFailed": "Falha na instalação",
+    "stageConnecting": "Conectando ao repositório",
+    "stageDownloading": "Baixando arquivos",
+    "stageExtracting": "Extraindo arquivos",
+    "stageInstalling": "Registrando Skill",
+    "stageVerifying": "Verificando SKILL.md",
+    "stageDone": "Instalação completa",
+    "stageFallback": "Tentativa de reversão",
+    "stageCloning": "Git clonando",
+    "stageCheckout": "Verificando arquivos",
+    "stageCopying": "Copiando arquivos",
+    "stageCloned": "Clone completo",
+    "stageFinding": "Localizando diretório",
+    "stageExtracted": "Extração completa",
+    "stageApiComplete": "Download da API completo",
+    "stageDetected": "Detectado",
+    "downloadProgress": "Progresso do Download",
+    "parseFailed": "Não foi possível interpretar, insira manualmente",
+    "confirmClearLog": "Limpar todos os logs de instalação?",
+    "confirmClearLogTitle": "Confirmar",
     "browse": "Navegar"
   },
   "message": {
@@ -122,6 +162,13 @@
   "common": {
     "confirm": "OK",
     "cancel": "Cancelar",
+    "collapse": "Recolher",
+    "edit": "Editar",
+    "save": "Salvar",
+    "preview": "Visualizar",
+    "add": "Adicionar",
+    "delete": "Excluir",
+    "close": "Fechar",
     "refresh": "Atualizar"
   },
   "proxy": {
@@ -143,7 +190,12 @@
     "add_title": "Adicionar Proxy",
     "edit_title": "Editar Proxy",
     "confirm_delete": "Excluir este proxy?",
-    "setDefault": "Definir Padrão"
+    "default": "Padrão",
+    "setDefault": "Definir Padrão",
+    "rule_alias": "Apelido é obrigatório",
+    "rule_type": "Tipo é obrigatório",
+    "rule_host": "Host é obrigatório",
+    "rule_port": "Porta é obrigatória"
   },
   "token": {
     "title": "Gerenciador de Token",
@@ -157,6 +209,9 @@
     "add_title": "Adicionar Token",
     "edit_title": "Editar Token",
     "confirm_delete": "Excluir este token?",
-    "setDefault": "Definir Padrão"
+    "default": "Padrão",
+    "setDefault": "Definir Padrão",
+    "alias_required": "Apelido é obrigatório",
+    "token_required": "GitHub Token é obrigatório"
   }
 }

@@ -4,7 +4,7 @@
   第二行：总进度条 + 子进度条（下载进度）
   第三行：download-skill.log 格式化日志实时推送
 --><template>
-  <el-dialog v-model="visible" title="安装进度" width="680px" top="5vh" :close-on-click-modal="false" :close-on-press-escape="!running" :show-close="!running" :destroy-on-close="true">
+  <el-dialog v-model="visible" :title="$t('skill.progressTitle')" width="680px" top="5vh" :close-on-click-modal="false" :close-on-press-escape="!running" :show-close="!running" :destroy-on-close="true">
     <!-- 第一行：当前步骤（简单位置指示，不显示日志） -->
     <div class="ip-step-row" v-if="activeStepLabel">
       <span class="ip-step-icon">{{ running ? '⏳' : '✅' }}</span>
@@ -24,7 +24,7 @@
         <div class="ip-sub-progress-bar">
           <el-progress v-if="showSubProgress" :percentage="downloadPercent" :stroke-width="6" color="#67C23A" />
         </div>
-        <span v-if="showSubProgress" class="ip-sub-label">下载进度</span>
+        <span v-if="showSubProgress" class="ip-sub-label">{{ $t('skill.downloadProgress') }}</span>
       </div>
     </div>
 
@@ -33,42 +33,44 @@
     <!-- 第三行：download-skill.log 格式化日志（来自 _onLog 回调，已是 [时间戳] [LEVEL] 格式） -->
     <div class="ip-log" ref="logRef">
       <div v-for="(entry, i) in logEntries" :key="i" class="ip-log-line" :class="'ip-log--' + entry.level.toLowerCase()">{{ entry.message }}</div>
-      <div v-if="logEntries.length === 0 && !running" class="ip-log-empty">安装已完成</div>
-      <div v-if="logEntries.length === 0 && running" class="ip-log-empty">等待开始...</div>
+      <div v-if="logEntries.length === 0 && !running" class="ip-log-empty">{{ $t('skill.installDone') }}</div>
+      <div v-if="logEntries.length === 0 && running" class="ip-log-empty">{{ $t('skill.waitingStart') }}</div>
     </div>
 
     <template #footer>
-      <el-button v-if="!running" type="primary" @click="closeDialog">关闭</el-button>
-      <el-button v-else disabled type="info">安装中...</el-button>
+      <el-button v-if="!running" type="primary" @click="closeDialog">{{ $t('skill.close') }}</el-button>
+      <el-button v-else disabled type="info">{{ $t('skill.installingMsg') }}</el-button>
     </template>
   </el-dialog>
 </template>
 
 <script setup>
 import { ref, nextTick } from 'vue'
+import { useI18n } from 'vue-i18n'
 
 const emit = defineEmits(['complete'])
+const { t } = useI18n({ useScope: 'global' })
 
 // ─── 步骤映射 ──────────────────────────────────────────────
 var STAGE_MAP = {
-  connecting: '连接仓库',
-  downloading: '下载文件',
-  extracting: '解压文件',
-  installing: '注册 Skill',
-  registering: '注册 Skill',
-  verifying: '验证 SKILL.md',
-  done: '安装完成',
-  fallback: '回退重试',
-  cloning: 'Git 克隆',
-  checkout: '检出文件',
-  checking_out: '检出文件',
-  copying: '复制文件',
-  cloned: '克隆完成',
-  finding: '定位目录',
-  extracted: '解压完成',
-  api_complete: 'API 下载完成',
-  download: '下载中',
-  detected: '已探测',
+  connecting: t('skill.stageConnecting'),
+  downloading: t('skill.stageDownloading'),
+  extracting: t('skill.stageExtracting'),
+  installing: t('skill.stageInstalling'),
+  registering: t('skill.stageInstalling'),
+  verifying: t('skill.stageVerifying'),
+  done: t('skill.stageDone'),
+  fallback: t('skill.stageFallback'),
+  cloning: t('skill.stageCloning'),
+  checkout: t('skill.stageCheckout'),
+  checking_out: t('skill.stageCheckout'),
+  copying: t('skill.stageCopying'),
+  cloned: t('skill.stageCloned'),
+  finding: t('skill.stageFinding'),
+  extracted: t('skill.stageExtracted'),
+  api_complete: t('skill.stageApiComplete'),
+  download: t('skill.stageDownloading'),
+  detected: t('skill.stageDetected'),
 }
 
 // ─── 基本状态 ──────────────────────────────────────────────
@@ -98,7 +100,7 @@ function formatBytes(bytes) {
 // ─── 启动 ──────────────────────────────────────────────────
 function start(url) {
   logEntries.value = []
-  activeStepLabel.value = '准备连接...'
+  activeStepLabel.value = t('skill.preparing')
   stepDetail.value = ''
   totalPercent.value = 0; downloadPercent.value = 0
   downloadBytes.value = 0; totalBytes.value = 0
@@ -132,7 +134,7 @@ function start(url) {
   // ── complete ──
   es.addEventListener('complete', function () {
     es.close()
-    activeStepLabel.value = '安装完成'
+    activeStepLabel.value = t('skill.stageDone')
     stepDetail.value = ''; totalPercent.value = 100
     downloadPercent.value = 100; running.value = false
     showSubProgress.value = false
@@ -144,7 +146,7 @@ function start(url) {
   es.addEventListener('error', function (e) {
     es.close(); running.value = false
     showSubProgress.value = false
-    var msg = '安装失败'
+    var msg = t('skill.installFailed')
     try {
       var data = JSON.parse(e.data)
       if (data && data.message) msg = data.message

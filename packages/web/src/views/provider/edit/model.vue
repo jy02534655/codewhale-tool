@@ -12,9 +12,9 @@
       </el-form-item>
     </el-form>
     <template #footer>
-      <el-button @click="hideDialog">{{ $t('third_party.cancel') }}</el-button>
+      <el-button @click="hideDialog">{{ $t('common.cancel') }}</el-button>
       <el-button type="primary" :loading="maskingStore.isLoading" @click="onSubmit">
-        {{ $t('third_party.confirm') }}
+        {{ $t('common.confirm') }}
       </el-button>
     </template>
   </el-dialog>
@@ -22,16 +22,18 @@
 
 <script setup>
 import { reactive } from 'vue';
+import { useI18n } from 'vue-i18n';
 import { addModel } from '@/api/provider';
 import { useMaskingStore } from '@/stores/masking';
 import { compositionDialogForm } from '@/composition/dialog/Form';
 
 const maskingStore = useMaskingStore();
+const { t } = useI18n({ useScope: 'global' });
 
 const formData = reactive({ name: undefined, id: undefined });
 
 const rules = {
-  name: [{ required: true, message: '请输入模型名称', trigger: 'blur' }],
+  name: [{ required: true, message: () => t('third_party.model_name_required'), trigger: 'blur' }],
 };
 
 const { isShow, showDialog, hideDialog, resetForm, showDialogByData, submitDialogForm } = compositionDialogForm({

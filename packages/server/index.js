@@ -16,7 +16,6 @@ import {
   ProxyManager,
   TokenManager,
   SkillManager,
-  SkillhubCLI,
   SyncManager,
   setLocale,
   ok,
@@ -46,7 +45,6 @@ const officialKeyMgr = new OfficialKeyManager(engine);
 const proxyMgr = new ProxyManager(engine);
 const tokenMgr = new TokenManager(engine);
 const skillMgr = new SkillManager(engine, projectSkillEngine);
-const skillhubCli = new SkillhubCLI(skillMgr);
 const syncMgr = new SyncManager(engine, providerMgr, officialKeyMgr);
 
 // 从持久化存储恢复语言偏好
@@ -85,7 +83,7 @@ app.use('/api/official-key', createOfficialKeyRouter(officialKeyMgr, syncMgr));
 app.use('/api/provider', createProviderRouter(providerMgr, syncMgr));
 app.use('/api/proxy', createProxyRouter(proxyMgr));
 app.use('/api/token', createTokenRouter(tokenMgr));
-app.use('/api/skill', createSkillRouter(skillMgr, skillhubCli));
+app.use('/api/skill', createSkillRouter(skillMgr));
 app.use('/api', createSyncRouter(syncMgr));
 
 // ─── 启动服务 ──────────────────────────────────────────────────

@@ -17,8 +17,11 @@
     "alias_placeholder": "如 主账号、备用账号",
     "api_key_label": "API Key",
     "edit_alias_title": "修改别名",
+    "alias_default": "DeepSeek 官方 Key",
     "confirm_delete": "确认删除该 key？",
     "confirm": "确认",
+    "alias_required": "请输入别名",
+    "api_key_required": "请输入 API Key",
     "cancel": "取消"
   },
   "third_party": {
@@ -48,7 +51,21 @@
     "base_url_label": "Base URL（可选）",
     "base_url_placeholder": "如 https://api.siliconflow.cn/v1",
     "initial_models": "初始模型（逗号分隔，留空默认 V4-Pro）",
-    "error_update": "更新失败"
+    "models_placeholder": "V4-Pro,V4-Flash",
+    "add_model_dialog_title": "添加模型",
+    "model_name_placeholder": "如 deepseek-ai/DeepSeek-V4-Flash",
+    "confirm_delete": "确认删除",
+    "confirm_delete_provider": "确认删除该供应商？",
+    "confirm_delete_model": "确认删除该模型？",
+    "fetch_failed": "获取失败",
+    "loading_failed": "加载失败",
+    "confirm": "确认",
+    "cancel": "取消",
+    "refresh": "刷新",
+    "error_update": "更新失败",
+    "provider_required": "请选择供应商类型",
+    "api_key_required": "请输入 API Key",
+    "model_name_required": "请输入模型名称"
   },
   "message": {
     "networkError": "网络异常，请重试"
@@ -107,6 +124,39 @@
     "noLog": "暂无日志记录",
     "viewLog": "查看日志",
     "clearLog": "清除日志",
+    "quickPasteTitle": "快速粘贴",
+    "quickPasteDesc": "可直接粘贴 npx 命令，自动识别仓库和路径",
+    "smartInputPlaceholder": "粘贴安装命令，如 npx skills add https://github.com/vercel-labs/skills --skill find-skills",
+    "parse": "识别",
+    "repoUrlPlaceholder": "https://github.com/anthropics/skills",
+    "skillPathPlaceholder": "如 frontend-design（可选）",
+    "projectPathPlaceholder": "如 D:/Code/my-project（默认为当前项目目录）",
+    "progressTitle": "安装进度",
+    "installDone": "安装已完成",
+    "waitingStart": "等待开始...",
+    "installingMsg": "安装中...",
+    "close": "关闭",
+    "preparing": "准备连接...",
+    "installFailed": "安装失败",
+    "stageConnecting": "连接仓库",
+    "stageDownloading": "下载文件",
+    "stageExtracting": "解压文件",
+    "stageInstalling": "注册 Skill",
+    "stageVerifying": "验证 SKILL.md",
+    "stageDone": "安装完成",
+    "stageFallback": "回退重试",
+    "stageCloning": "Git 克隆",
+    "stageCheckout": "检出文件",
+    "stageCopying": "复制文件",
+    "stageCloned": "克隆完成",
+    "stageFinding": "定位目录",
+    "stageExtracted": "解压完成",
+    "stageApiComplete": "API 下载完成",
+    "stageDetected": "已探测",
+    "parseFailed": "无法识别，请手动输入",
+    "confirmClearLog": "确认清除所有安装日志？",
+    "confirmClearLogTitle": "提示",
+    "downloadProgress": "下载进度",
     "browse": "浏览"
   },
   "common": {
@@ -118,7 +168,8 @@
     "save": "保存",
     "preview": "预览",
     "add": "添加",
-    "delete": "删除"
+    "delete": "删除",
+    "close": "关闭"
   },
   "proxy": {
     "title": "代理管理",
@@ -139,7 +190,12 @@
     "add_title": "添加代理",
     "edit_title": "编辑代理",
     "confirm_delete": "确认删除代理",
-    "setDefault": "设为默认"
+    "default": "默认",
+    "setDefault": "设为默认",
+    "rule_alias": "请输入别名",
+    "rule_type": "请选择类型",
+    "rule_host": "请输入主机地址",
+    "rule_port": "请输入端口"
   },
   "token": {
     "title": "Token 管理",
@@ -153,6 +209,9 @@
     "add_title": "添加 Token",
     "edit_title": "编辑 Token",
     "confirm_delete": "确认删除 Token",
+    "alias_required": "请输入别名",
+    "token_required": "请输入 GitHub Token",
+    "default": "默认",
     "setDefault": "设为默认"
   }
 }

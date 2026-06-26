@@ -43,7 +43,7 @@
         <el-button :type="skill.enabled ? 'default' : 'success'" size="small" @click="doToggle">
           {{ skill.enabled ? $t('skill.disable') : $t('skill.enable') }}
         </el-button>
-        <el-button size="small" type="danger" @click="doRemove">{{ $t('skill.delete') }}</el-button>
+        <el-button size="small" type="danger" @click="doRemove">{{ $t('common.delete') }}</el-button>
         <el-button v-if="skill.source === 'community'" size="small" :loading="updating" @click="doUpdate">
           {{ $t('skill.gitUpdate') }}
         </el-button>

@@ -90,7 +90,7 @@ export class SyncManager {
           existingKeys.forEach((k) => (k.active = false));
           existingKeys.push({
             id: 'official:' + cwCfg.api_key,
-            alias: '从 CodeWhale 导入',
+            alias: getServerMessage('IMPORTED_ALIAS'),
             api_key: cwCfg.api_key,
             active: true,
           });
@@ -158,7 +158,7 @@ export class SyncManager {
 
       this._engine.setProviders(localProviders);
 
-      return ok({ merged: mergedCount }, `已从 CodeWhale 同步 ${mergedCount} 个新条目`);
+      return ok({ merged: mergedCount }, getServerMessage('SYNC_MERGED', { count: mergedCount }));
     } catch (err) {
       return failMsg('CONFIG_PARSE_ERROR');
     }

@@ -19,7 +19,7 @@
       <div v-for="t in list" :key="t.id" class="token-item">
         <div class="token-info">
           <span class="token-alias">{{ t.alias }}</span>
-          <el-tag v-if="t.default" size="small" type="success" effect="dark">默认</el-tag>
+          <el-tag v-if="t.default" size="small" type="success" effect="dark">{{ $t('token.default') }}</el-tag>
           <el-tag size="small" type="info" effect="plain">{{ t.token }}</el-tag>
         </div>
         <div class="token-actions">
@@ -76,8 +76,8 @@ const formData = reactive({
 })
 
 const rules = {
-  alias: [{ required: true, message: '请输入别名', trigger: 'blur' }],
-  token: [{ required: true, message: '请输入 GitHub Token', trigger: 'blur' }],
+  alias: [{ required: true, message: () => t('token.alias_required'), trigger: 'blur' }],
+  token: [{ required: true, message: () => t('token.token_required'), trigger: 'blur' }],
 }
 
 function loadList() {

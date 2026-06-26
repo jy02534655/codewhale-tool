@@ -28,9 +28,9 @@
       </el-form-item>
     </el-form>
     <template #footer>
-      <el-button @click="hideDialog">{{ $t('third_party.cancel') }}</el-button>
+      <el-button @click="hideDialog">{{ $t('common.cancel') }}</el-button>
       <el-button type="primary" :loading="maskingStore.isLoading" @click="onSubmit">
-        {{ $t('third_party.confirm') }}
+        {{ $t('common.confirm') }}
       </el-button>
     </template>
   </el-dialog>
@@ -46,7 +46,7 @@ import { useMaskingStore } from '@/stores/masking';
 import { compositionDialogForm } from '@/composition/dialog/Form';
 
 const maskingStore = useMaskingStore();
-const { locale } = useI18n({ useScope: 'global' });
+const { t, locale } = useI18n({ useScope: 'global' });
 const vendorOptions = computed(() => getKnownProviders(locale.value));
 const vendorLabel = (id) => getProviderI18nLabel(id, locale.value);
 
@@ -60,8 +60,8 @@ const formData = reactive({
 });
 
 const rules = {
-  provider: [{ required: true, message: '请选择供应商类型', trigger: 'change' }],
-  api_key: [{ required: true, message: '请输入 API Key', trigger: 'blur' }],
+  provider: [{ required: true, message: () => t('third_party.provider_required'), trigger: 'change' }],
+  api_key: [{ required: true, message: () => t('third_party.api_key_required'), trigger: 'blur' }],
 };
 
 const { isEdit, isShow, showDialog, hideDialog, resetForm, showDialogByData, submitDialogForm } = compositionDialogForm({

@@ -19,7 +19,7 @@
       <div v-for="p in list" :key="p.id" class="proxy-item">
         <div class="proxy-info">
           <span class="proxy-alias">{{ p.alias }}</span>
-          <el-tag v-if="p.default" size="small" type="success" effect="dark">默认</el-tag>
+          <el-tag v-if="p.default" size="small" type="success" effect="dark">{{ $t('proxy.default') }}</el-tag>
           <el-tag size="small" type="info" effect="plain">{{ p.type }}</el-tag>
           <span class="proxy-addr">{{ p.host }}:{{ p.port }}</span>
           <span v-if="p.auth && p.auth.username" class="proxy-auth">{{ p.auth.username }}:{{ p.auth.password }}</span>
@@ -96,10 +96,10 @@ const formData = reactive({
 })
 
 const rules = {
-  alias: [{ required: true, message: '请输入别名', trigger: 'blur' }],
-  type: [{ required: true, message: '请选择类型', trigger: 'change' }],
-  host: [{ required: true, message: '请输入主机地址', trigger: 'blur' }],
-  port: [{ required: true, message: '请输入端口', trigger: 'blur' }],
+  alias: [{ required: true, message: t('proxy.rule_alias'), trigger: 'blur' }],
+  type: [{ required: true, message: t('proxy.rule_type'), trigger: 'change' }],
+  host: [{ required: true, message: t('proxy.rule_host'), trigger: 'blur' }],
+  port: [{ required: true, message: t('proxy.rule_port'), trigger: 'blur' }],
 }
 
 function loadList() {

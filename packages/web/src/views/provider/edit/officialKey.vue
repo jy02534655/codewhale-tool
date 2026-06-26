@@ -17,9 +17,9 @@
       </el-form-item>
     </el-form>
     <template #footer>
-      <el-button @click="hideDialog">{{ $t('official.cancel') }}</el-button>
+      <el-button @click="hideDialog">{{ $t('common.cancel') }}</el-button>
       <el-button type="primary" :loading="maskingStore.isLoading" @click="onSubmit">
-        {{ $t('official.confirm') }}
+        {{ $t('common.confirm') }}
       </el-button>
     </template>
   </el-dialog>
@@ -27,19 +27,21 @@
 
 <script setup>
 import { reactive } from 'vue';
+import { useI18n } from 'vue-i18n';
 import { assign } from 'lodash';
 import { addOfficialKey, editOfficialKey } from '@/api/officialKey';
 import { useMaskingStore } from '@/stores/masking';
 import { compositionDialogForm } from '@/composition/dialog/Form';
 
 const maskingStore = useMaskingStore();
+const { t } = useI18n({ useScope: 'global' });
 
-const formData = reactive({ alias: 'DeepSeek 官方 Key', api_key: undefined, id: undefined });
+const formData = reactive({ alias: t('official.alias_default'), api_key: undefined, id: undefined });
 
 // 新增/编辑均校验别名，新增时需额外校验 api_key（通过 v-if 隐藏的表单项不参与校验）
 const rules = {
-  alias: [{ required: true, message: '请输入别名', trigger: 'blur' }],
-  api_key: [{ required: true, message: '请输入 API Key', trigger: 'blur' }],
+  alias: [{ required: true, message: () => t('official.alias_required'), trigger: 'blur' }],
+  api_key: [{ required: true, message: () => t('official.api_key_required'), trigger: 'blur' }],
 };
 
 const { isEdit, isShow, showDialog, hideDialog, resetForm, showDialogByData, submitDialogForm } = compositionDialogForm({

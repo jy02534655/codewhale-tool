@@ -149,7 +149,7 @@ function loadConfig() {
 function activateOfficial(id) { activateOfficialKey(id).then(() => loadConfig()); }
 
 function removeOfficial(id) {
-  ElMessageBox.confirm(t('official.confirm_delete'), t('official.confirm'), { type: 'warning' })
+  ElMessageBox.confirm(t('official.confirm_delete'), t('common.confirm'), { type: 'warning' })
     .then(() => removeOfficialKey(id))
     .then(() => loadConfig());
 }

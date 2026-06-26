@@ -9,7 +9,8 @@
  */
 
 import { randomUUID } from 'node:crypto';
-import { ok, fail } from './result.js';
+import { ok } from './result.js';
+import { failMsg } from './i18n.js';
 
 /**
  * @typedef {import('./types.js').TokenEntry} TokenEntry
@@ -42,11 +43,12 @@ export class TokenManager {
    */
   add(input) {
     if (!input.alias || !input.token) {
-      return fail('alias 和 token 为必填项', 'VALIDATION_ERROR');
+      return failMsg('VALIDATION_ERROR');
     }
     const entry = {
       id: `token:${randomUUID()}`,
       alias: input.alias,
+      default: this._engine.getTokens().length === 0,
       token: input.token,
     };
     this._engine.setTokens([...this._engine.getTokens(), entry]);
@@ -62,7 +64,7 @@ export class TokenManager {
   update(id, updates) {
     const tokens = this._engine.getTokens();
     const idx = tokens.findIndex((t) => t.id === id);
-    if (idx === -1) return fail('Token 未找到', 'NOT_FOUND');
+    if (idx === -1) return failMsg('TOKEN_NOT_FOUND');
 
     const { id: _id, ...safe } = updates;
     tokens[idx] = { ...tokens[idx], ...safe };
@@ -78,7 +80,7 @@ export class TokenManager {
   remove(id) {
     const tokens = this._engine.getTokens();
     const filtered = tokens.filter((t) => t.id !== id);
-    if (filtered.length === tokens.length) return fail('Token 未找到', 'NOT_FOUND');
+    if (filtered.length === tokens.length) return failMsg('TOKEN_NOT_FOUND');
     this._engine.setTokens(filtered);
     return ok({ removed: true });
   }
@@ -100,7 +102,7 @@ export class TokenManager {
   setDefault(id) {
     const tokens = this._engine.getTokens();
     const idx = tokens.findIndex((t) => t.id === id);
-    if (idx === -1) return fail('Token 未找到', 'NOT_FOUND');
+    if (idx === -1) return failMsg('TOKEN_NOT_FOUND');
     tokens.forEach((t) => (t.default = t.id === id));
     this._engine.setTokens(tokens);
     return ok(tokens[idx]);

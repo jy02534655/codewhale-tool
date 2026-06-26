@@ -139,6 +139,11 @@ export const SERVER_MSG = {
     CONFIG_NOT_EXISTS: 'CodeWhale 配置不存在，跳过同步',
     CONFIG_PARSE_ERROR: '读取 CodeWhale 配置失败',
     OFFICIAL_MGR_NOT_READY: 'OfficialKeyManager 未初始化',
+    VALIDATION_ERROR: '请填写完整信息',
+    PROXY_NOT_FOUND: '代理未找到',
+    TOKEN_NOT_FOUND: 'Token 未找到',
+    SYNC_MERGED: '已从 CodeWhale 同步 {count} 个新条目',
+    IMPORTED_ALIAS: '从 CodeWhale 导入',
     SKILL_ALREADY_INSTALLED: '该技能已安装',
     SKILL_DIR_NOT_EXISTS: '本地路径不存在',
     SKILL_DIR_NO_README: '目录中没有 SKILL.md 文件',
@@ -155,13 +160,6 @@ export const SERVER_MSG = {
     SKILL_ZIP_EXTRACT_FAILED: 'ZIP 解压失败，文件可能已损坏',
     SKILL_INVALID_REPO_URL: '无效的 GitHub 仓库 URL',
     SKILL_MULTI_SKILL_REPO: '此仓库包含多个 Skill，请指定 skill 名称',
-
-    // ── Skillhub ──
-    SKILLHUB_NOT_INSTALLED: 'Skillhub 命令行工具未安装，请先通过 Web UI 安装',
-    SKILLHUB_INSTALL_FAILED: 'Skillhub 安装失败，请检查网络连接',
-    SKILLHUB_SEARCH_FAILED: 'Skillhub 搜索失败',
-    SKILLHUB_INSTALL_SKILL_OK: '技能已通过 Skillhub 安装成功',
-    SKILLHUB_INSTALL_SKILL_FAILED: '通过 Skillhub 安装技能失败',
   },
   'en': {
     providerNotFound: 'Vendor not found',
@@ -193,6 +191,11 @@ export const SERVER_MSG = {
     CONFIG_NOT_EXISTS: 'CodeWhale config not found, skip sync',
     CONFIG_PARSE_ERROR: 'Failed to read CodeWhale config',
     OFFICIAL_MGR_NOT_READY: 'OfficialKeyManager not initialized',
+    VALIDATION_ERROR: 'Please fill in all required fields',
+    PROXY_NOT_FOUND: 'Proxy not found',
+    TOKEN_NOT_FOUND: 'Token not found',
+    SYNC_MERGED: 'Synced {count} new entries from CodeWhale',
+    IMPORTED_ALIAS: 'Imported from CodeWhale',
     SKILL_ALREADY_INSTALLED: 'Skill already installed',
     SKILL_DIR_NOT_EXISTS: 'Local path does not exist',
     SKILL_DIR_NO_README: 'SKILL.md not found in directory',
@@ -209,13 +212,6 @@ export const SERVER_MSG = {
     SKILL_ZIP_EXTRACT_FAILED: 'ZIP extraction failed, file may be corrupted',
     SKILL_INVALID_REPO_URL: 'Invalid GitHub repository URL',
     SKILL_MULTI_SKILL_REPO: 'This repo contains multiple skills, please specify a skill name',
-
-    // ── Skillhub ──
-    SKILLHUB_NOT_INSTALLED: 'Skillhub CLI not installed, please install via Web UI first',
-    SKILLHUB_INSTALL_FAILED: 'Skillhub installation failed, check network connection',
-    SKILLHUB_SEARCH_FAILED: 'Skillhub search failed',
-    SKILLHUB_INSTALL_SKILL_OK: 'Skill installed successfully via Skillhub',
-    SKILLHUB_INSTALL_SKILL_FAILED: 'Failed to install skill via Skillhub',
   },
   'ja': {
     providerNotFound: 'ベンダーが見つかりません',
@@ -247,6 +243,11 @@ export const SERVER_MSG = {
     CONFIG_NOT_EXISTS: 'CodeWhale設定が見つかりません',
     CONFIG_PARSE_ERROR: 'CodeWhale設定の読み取りに失敗しました',
     OFFICIAL_MGR_NOT_READY: 'OfficialKeyManager が初期化されていません',
+    VALIDATION_ERROR: '必須項目を入力してください',
+    PROXY_NOT_FOUND: 'プロキシが見つかりません',
+    TOKEN_NOT_FOUND: 'トークンが見つかりません',
+    SYNC_MERGED: 'CodeWhale から {count} 件の新規エントリーを同期しました',
+    IMPORTED_ALIAS: 'CodeWhale からインポート',
     SKILL_ALREADY_INSTALLED: 'スキルは既にインストールされています',
     SKILL_DIR_NOT_EXISTS: 'ローカルパスが存在しません',
     SKILL_DIR_NO_README: 'ディレクトリにSKILL.mdがありません',
@@ -262,14 +263,7 @@ export const SERVER_MSG = {
     SKILL_INSTALL_FAILED: 'スキルのインストールに失敗しました',
     SKILL_ZIP_EXTRACT_FAILED: 'ZIP の解凍に失敗しました。ファイルが破損している可能性があります',
     SKILL_INVALID_REPO_URL: '無効な GitHub リポジトリ URL です',
-    SKILL_MULTI_SKILL_REPO: 'このリポジトリには複数のスキルが含まれています。スキル名を指定してください',
-
-    // ── Skillhub ──
-    SKILLHUB_NOT_INSTALLED: 'Skillhub CLI がインストールされていません。Web UI からインストールしてください',
-    SKILLHUB_INSTALL_FAILED: 'Skillhub のインストールに失敗しました。ネットワークを確認してください',
-    SKILLHUB_SEARCH_FAILED: 'Skillhub の検索に失敗しました',
-    SKILLHUB_INSTALL_SKILL_OK: 'スキルが Skillhub 経由で正常にインストールされました',
-    SKILLHUB_INSTALL_SKILL_FAILED: 'Skillhub 経由でのスキルインストールに失敗しました',
+    SKILL_MULTI_SKILL_REPO: '無効な GitHub リポジトリ URL です',
   },
   'pt-BR': {
     providerNotFound: 'Fornecedor não encontrado',
@@ -301,6 +295,11 @@ export const SERVER_MSG = {
     CONFIG_NOT_EXISTS: 'Config do CodeWhale não encontrada',
     CONFIG_PARSE_ERROR: 'Falha ao ler config do CodeWhale',
     OFFICIAL_MGR_NOT_READY: 'OfficialKeyManager não inicializado',
+    VALIDATION_ERROR: 'Preencha todos os campos obrigatórios',
+    PROXY_NOT_FOUND: 'Proxy não encontrado',
+    TOKEN_NOT_FOUND: 'Token não encontrado',
+    SYNC_MERGED: 'Sincronizado {count} novas entradas do CodeWhale',
+    IMPORTED_ALIAS: 'Importado do CodeWhale',
     SKILL_ALREADY_INSTALLED: 'Skill já instalada',
     SKILL_DIR_NOT_EXISTS: 'Caminho local não existe',
     SKILL_DIR_NO_README: 'SKILL.md não encontrado no diretório',
@@ -316,26 +315,25 @@ export const SERVER_MSG = {
     SKILL_INSTALL_FAILED: 'Falha na instalação da skill',
     SKILL_ZIP_EXTRACT_FAILED: 'Falha ao extrair ZIP, arquivo pode estar corrompido',
     SKILL_INVALID_REPO_URL: 'URL de repositório GitHub inválida',
-    SKILL_MULTI_SKILL_REPO: 'Este repositório contém múltiplos skills, especifique um nome',
-
-    // ── Skillhub ──
-    SKILLHUB_NOT_INSTALLED: 'Skillhub CLI não instalado, instale via Web UI primeiro',
-    SKILLHUB_INSTALL_FAILED: 'Falha na instalação do Skillhub, verifique a rede',
-    SKILLHUB_SEARCH_FAILED: 'Falha na busca do Skillhub',
-    SKILLHUB_INSTALL_SKILL_OK: 'Skill instalada com sucesso via Skillhub',
-    SKILLHUB_INSTALL_SKILL_FAILED: 'Falha ao instalar skill via Skillhub',
+    SKILL_MULTI_SKILL_REPO: 'URL de repositório GitHub inválida',
   },
 };
 
 /**
  * 获取服务器消息在指定语言下的文本
- * @param {Locale} locale
- * @param {string} key
+ * @param {string} key - SERVER_MSG 中的消息 key
+ * @param {Object} [params] - 可选插值参数，如 { count: 3 }
  * @returns {string}
  */
-export function getServerMessage(key) {
+export function getServerMessage(key, params = {}) {
   const locale = getLocale();
-  return (SERVER_MSG[locale] && SERVER_MSG[locale][key]) || SERVER_MSG['zh-Hans'][key] || '';
+  let msg = (SERVER_MSG[locale] && SERVER_MSG[locale][key]) || SERVER_MSG['zh-Hans'][key] || '';
+  if (params && typeof params === 'object') {
+    for (const [k, v] of Object.entries(params)) {
+      msg = msg.replace(new RegExp(`\\{${k}\\}`, 'g'), String(v));
+    }
+  }
+  return msg;
 }
 
 /**

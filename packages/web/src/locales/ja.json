@@ -17,6 +17,7 @@
     "alias_placeholder": "例: メイン、予備",
     "api_key_label": "API Key",
     "edit_alias_title": "別名の編集",
+    "alias_default": "DeepSeek 公式 Key",
     "confirm_delete": "このキーを削除しますか？",
     "confirm": "確認",
     "cancel": "キャンセル"
@@ -58,7 +59,10 @@
     "loading_failed": "読み込み失敗",
     "confirm": "確認",
     "cancel": "キャンセル",
-    "refresh": "更新"
+    "refresh": "更新",
+    "provider_required": "ベンダータイプを選択してください",
+    "api_key_required": "APIキーは必須です",
+    "model_name_required": "モデル名を入力してください"
   },
   "skill": {
     "title": "スキル管理",
@@ -67,6 +71,8 @@
     "refresh": "更新",
     "searchPlaceholder": "名前・別名・備考・タグで検索...",
     "searchCommunity": "コミュニティ",
+    "enabled": "有効",
+    "disabled": "無効",
     "global": "グローバル",
     "project": "プロジェクト",
     "alias": "別名",
@@ -114,6 +120,40 @@
     "noLog": "ログ記録なし",
     "viewLog": "ログ表示",
     "clearLog": "ログ削除",
+    "browse": "参照",
+    "quickPasteTitle": "クイック貼り付け",
+    "quickPasteDesc": "npx コマンドを直接貼り付け、リポジトリとパスを自動認識",
+    "smartInputPlaceholder": "インストールコマンドを貼り付け（例: npx skills add https://github.com/vercel-labs/skills --skill find-skills）",
+    "parse": "解析",
+    "repoUrlPlaceholder": "https://github.com/anthropics/skills",
+    "skillPathPlaceholder": "例: frontend-design（任意）",
+    "projectPathPlaceholder": "例: D:/Code/my-project（デフォルト: 現在のプロジェクト）",
+    "progressTitle": "インストール進捗",
+    "installDone": "インストール完了",
+    "waitingStart": "開始を待機中...",
+    "installingMsg": "インストール中...",
+    "close": "閉じる",
+    "preparing": "接続準備中...",
+    "installFailed": "インストール失敗",
+    "stageConnecting": "リポジトリに接続",
+    "stageDownloading": "ファイルをダウンロード",
+    "stageExtracting": "ファイルを解凍",
+    "stageInstalling": "スキルを登録",
+    "stageVerifying": "SKILL.md を検証",
+    "stageDone": "インストール完了",
+    "stageFallback": "ロールバック再試行",
+    "stageCloning": "Git クローン",
+    "stageCheckout": "ファイルをチェックアウト",
+    "stageCopying": "ファイルをコピー",
+    "stageCloned": "クローン完了",
+    "stageFinding": "ディレクトリを検索",
+    "stageExtracted": "解凍完了",
+    "stageApiComplete": "API ダウンロード完了",
+    "stageDetected": "検出済み",
+    "downloadProgress": "ダウンロード進捗",
+    "parseFailed": "解析できませんでした。手動で入力してください",
+    "confirmClearLog": "すべてのインストールログを削除しますか？",
+    "confirmClearLogTitle": "確認",
     "browse": "参照"
   },
   "message": {
@@ -122,6 +162,13 @@
   "common": {
     "confirm": "確認",
     "cancel": "キャンセル",
+    "collapse": "折りたたむ",
+    "edit": "編集",
+    "save": "保存",
+    "preview": "プレビュー",
+    "add": "追加",
+    "delete": "削除",
+    "close": "閉じる",
     "refresh": "更新"
   },
   "proxy": {
@@ -143,7 +190,12 @@
     "add_title": "プロキシ追加",
     "edit_title": "プロキシ編集",
     "confirm_delete": "このプロキシを削除しますか？",
-    "setDefault": "デフォルトに設定"
+    "default": "デフォルト",
+    "setDefault": "デフォルトに設定",
+    "rule_alias": "別名を入力してください",
+    "rule_type": "タイプを選択してください",
+    "rule_host": "ホストを入力してください",
+    "rule_port": "ポートを入力してください"
   },
   "token": {
     "title": "トークン管理",
@@ -157,6 +209,9 @@
     "add_title": "トークン追加",
     "edit_title": "トークン編集",
     "confirm_delete": "このトークンを削除しますか？",
-    "setDefault": "デフォルトに設定"
+    "default": "デフォルト",
+    "setDefault": "デフォルトに設定",
+    "alias_required": "別名は必須です",
+    "token_required": "GitHub トークンは必須です"
   }
 }

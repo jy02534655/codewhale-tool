@@ -11,8 +11,8 @@
       <div class="toolbar-actions">
         <el-button size="small" type="primary"
           @click="dialogCtrl.showAddDialog(null, 'installDialog')">{{ $t('skill.install') }}</el-button>
-        <el-button size="small" text @click="doViewLog">{{ $t('skill.viewLog') || '查看日志' }}</el-button>
-        <el-button size="small" text type="danger" @click="doClearLog">{{ $t('skill.clearLog') || '清除日志' }}</el-button>
+        <el-button size="small" text @click="doViewLog">{{ $t('skill.viewLog') }}</el-button>
+        <el-button size="small" text type="danger" @click="doClearLog">{{ $t('skill.clearLog') }}</el-button>
         <el-button size="small" @click="loadSkills">{{ $t('skill.refresh') }}</el-button>
       </div>
     </div>
@@ -41,7 +41,7 @@
               <!-- 第1行：名称 + 状态 + 来源标签（右上） -->
               <div class="master-item-row">
                 <el-tag :type="s.enabled ? 'success' : 'danger'" size="small" effect="dark">
-                  {{ s.enabled ? '开' : '关' }}
+                  {{ s.enabled ? $t('skill.enabled') : $t('skill.disabled') }}
                 </el-tag>
                 <span class="master-item-name">{{ displayName(s) }}</span>
                 <span class="master-item-source"><el-tag size="small" type="info" effect="plain">{{ sourceName(s.source) }}</el-tag></span>
@@ -78,7 +78,7 @@
                 <!-- 第1行：名称 + 状态 + 来源标签（右上） -->
                 <div class="master-item-row">
                   <el-tag :type="s.enabled ? 'success' : 'danger'" size="small" effect="dark">
-                    {{ s.enabled ? '开' : '关' }}
+                    {{ s.enabled ? $t('skill.enabled') : $t('skill.disabled') }}
                   </el-tag>
                   <span class="master-item-name">{{ displayName(s) }}</span>
                   <span class="master-item-source"><el-tag size="small" type="info" effect="plain">{{ sourceName(s.source) }}</el-tag></span>
@@ -262,7 +262,7 @@ function doViewLog() {
 }
 
 function doClearLog() {
-  ElMessageBox.confirm('确认清除所有安装日志？', '提示', {
+  ElMessageBox.confirm(t('skill.confirmClearLog'), t('skill.confirmClearLogTitle'), {
     confirmButtonText: t('common.confirm'),
     cancelButtonText: t('common.cancel'),
     type: 'warning'

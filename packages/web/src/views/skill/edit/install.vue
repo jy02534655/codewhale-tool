@@ -10,23 +10,23 @@
   <el-dialog v-model="isShow" :title="$t('skill.install')" width="560px" :close-on-click-modal="false" @close="resetForm">
 
     <!-- 快速粘贴提示 -->
-    <el-alert title="快速粘贴" description="可直接粘贴 npx 命令，自动识别仓库和路径" type="info" show-icon :closable="false" class="mode-tip" />
+    <el-alert :title="$t('skill.quickPasteTitle')" :description="$t('skill.quickPasteDesc')" type="info" show-icon :closable="false" class="mode-tip" />
 
     <!-- 智能识别输入框 — 始终显示 -->
     <div class="smart-paste">
-      <el-input v-model="smartInput" placeholder="粘贴安装命令，如 npx skills add https://github.com/vercel-labs/skills --skill find-skills" size="small" @input="onSmartInput">
+      <el-input v-model="smartInput" :placeholder="$t('skill.smartInputPlaceholder')" size="small" @input="onSmartInput">
         <template #append>
-          <el-button @click="parseSmartInput" :disabled="!smartInput.trim()">识别</el-button>
+          <el-button @click="parseSmartInput" :disabled="!smartInput.trim()">{{ $t('skill.parse') }}</el-button>
         </template>
       </el-input>
     </div>
 
     <el-form label-position="top" class="install-form">
       <el-form-item :label="$t('skill.repoUrl')">
-        <el-input v-model="repoUrl" placeholder="https://github.com/anthropics/skills" />
+        <el-input v-model="repoUrl" :placeholder="$t('skill.repoUrlPlaceholder')" />
       </el-form-item>
       <el-form-item :label="$t('skill.skillPath')">
-        <el-input v-model="skillPath" placeholder="如 frontend-design（可选）" />
+        <el-input v-model="skillPath" :placeholder="$t('skill.skillPathPlaceholder')" />
       </el-form-item>
 
       <el-divider />
@@ -41,7 +41,7 @@
 
       <!-- 项目目录（仅项目级别显示）—— 后端获取默认目录 -->
       <el-form-item v-if="level === 'project'" :label="$t('skill.projectPath')">
-        <el-input v-model="projectPath" placeholder="如 D:/Code/my-project（默认为当前项目目录）" />
+        <el-input v-model="projectPath" :placeholder="$t('skill.projectPathPlaceholder')" />
       </el-form-item>
 
       <!-- 代理选择下拉 — 不标注默认 -->
@@ -132,7 +132,7 @@ function parseSmartInput() {
     // 匹配直接粘贴 URL 格式
     match = text.match(/^(https?:\/\/[^\s]+)/)
     if (!match) {
-      ElMessage.warning('无法识别，请手动输入')
+      ElMessage.warning(t('skill.parseFailed'))
       return
     }
     repoUrl.value = match[1]
