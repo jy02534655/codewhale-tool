@@ -149,7 +149,9 @@
     "tagsPlaceholder": "Separado por vírgula, ex: mcp, server, debug"
   },
   "message": {
-    "networkError": "Erro de rede, tente novamente"
+    "networkError": "Erro de rede, tente novamente",
+    "invalidUrl": "Insira uma URL http/https válida",
+    "invalidHost": "Insira um endereço IP ou hostname válido"
   },
   "common": {
     "confirm": "OK",
@@ -201,6 +203,7 @@
     "token_edit_placeholder": "Deixe vazio para manter atual",
     "add_title": "Adicionar Token",
     "edit_title": "Editar Token",
+    "edit_alias": "Editar Apelido",
     "default": "Padrão",
     "setDefault": "Definir Padrão"
   }

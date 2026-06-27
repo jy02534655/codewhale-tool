@@ -179,16 +179,16 @@ defineExpose({ start, close })
 
 <style scoped>
 /* 第一行：步骤标签 */
-.ip-step-row { display: flex; align-items: center; gap: 8px; font-size: 15px; font-weight: 600; margin-bottom: 10px; padding: 8px 12px; background: #ecf5ff; border-radius: 6px; color: #409eff; height: 40px; }
+.ip-step-row { display: flex; align-items: center; gap: 8px; font-size: 15px; font-weight: 600; margin-bottom: 10px; padding: 8px 12px; background: var(--el-color-primary-light-9, #ecf5ff); border-radius: 6px; color: var(--el-color-primary, #409eff); height: 40px; }
 .ip-step-icon { font-size: 16px; }
-.ip-step-label-active { color: #409eff; }
-.ip-step-detail { font-size: 12px; font-weight: 400; color: #909399; margin-left: auto; }
+.ip-step-label-active { color: var(--el-color-primary, #409eff); }
+.ip-step-detail { font-size: 12px; font-weight: 400; color: var(--text-secondary); margin-left: auto; }
 
 /* 第二行：进度块（固定高度防抖动） */
 .ip-progress-block { min-height: 68px; margin-bottom: 4px; }
 .ip-progress-row { display: flex; align-items: center; gap: 12px; height: 32px; }
 .ip-progress-bar { flex: 1; }
-.ip-progress-stats { font-size: 12px; color: #606266; white-space: nowrap; min-width: 160px; }
+.ip-progress-stats { font-size: 12px; color: var(--text-secondary); white-space: nowrap; min-width: 160px; }
 .ip-sub-progress-row { display: flex; align-items: center; gap: 8px; overflow: hidden; transition: opacity 0.2s, height 0.2s; }
 .ip-sub-progress-bar { flex: 1; }
 .ip-sub-label { font-size: 11px; color: #67C23A; white-space: nowrap; }

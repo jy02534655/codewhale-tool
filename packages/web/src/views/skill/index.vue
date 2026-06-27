@@ -3,15 +3,23 @@
   使用 SplitLayout 统一分栏，保持全局/项目 Tab 切换
 --><template>
   <div v-loading="maskingStore.isLoading" class="page-wrapper">
-    <SplitLayout leftWidth="320px">
+    <SplitLayout leftWidth="400px">
       <template #left>
         <div class="panel-left">
           <!-- 顶部操作栏 -->
           <div class="left-toolbar">
             <el-button size="small" type="primary"
-              @click="dialogCtrl.showAddDialog(null, 'installDialog')">{{ $t('common.install') }}</el-button>
-            <el-button size="small" text @click="doViewLog">{{ $t('skill.viewLog') }}</el-button>
-            <el-button size="small" text type="danger" @click="doClearLog">{{ $t('skill.clearLog') }}</el-button>
+              @click="dialogCtrl.showAddDialog(null, 'installDialog')">
+              <el-icon><Plus /></el-icon>
+              {{ $t('common.install') }}</el-button>
+            <el-button size="small" plain @click="doViewLog">
+              <el-icon><List /></el-icon>
+              {{ $t('skill.viewLog') }}
+            </el-button>
+            <el-button size="small" plain type="danger" @click="doClearLog">
+              <el-icon><Delete /></el-icon>
+              {{ $t('skill.clearLog') }}
+            </el-button>
           </div>
 
           <!-- Tab 切换 -->
@@ -33,14 +41,15 @@
           <div class="list-scroll">
             <!-- 全局 Tab -->
             <template v-if="activeTab === 'global'">
-              <div
-                v-for="s in filteredGlobal"
-                :key="s.id"
-                :class="['list-item', { active: selectedId === s.id }]"
-                @click="selectSkill(s)"
-              >
-<div class="item-main">
+<div
+                  v-for="s in filteredGlobal"
+                  :key="s.id"
+                  :class="['list-item', { active: selectedId === s.id }]"
+                  @click="selectSkill(s)"
+                >
+                  <div class="item-main">
                     <span class="item-name">{{ displayName(s) }}</span>
+                    <el-tag v-for="tag in (s.tags || [])" :key="tag" size="small" type="warning" effect="plain">{{ tag }}</el-tag>
                     <el-tag :type="s.enabled ? 'success' : 'danger'" size="small" effect="dark">
                       {{ s.enabled ? $t('skill.enabled') : $t('skill.disabled') }}
                     </el-tag>
@@ -51,9 +60,6 @@
                   </div>
                   <div v-if="s.remark" class="item-field">
                     <span class="field-value-text remark-text">{{ s.remark }}</span>
-                  </div>
-                  <div v-if="s.tags && s.tags.length" class="item-tags">
-                    <el-tag v-for="tag in s.tags" :key="tag" size="small" type="info" effect="plain">{{ tag }}</el-tag>
                   </div>
                 </div>
                 <el-empty v-if="filteredGlobal.length === 0"
@@ -74,6 +80,7 @@
                 >
                   <div class="item-main">
                     <span class="item-name">{{ displayName(s) }}</span>
+                    <el-tag v-for="tag in (s.tags || [])" :key="tag" size="small" type="warning" effect="plain">{{ tag }}</el-tag>
                     <el-tag :type="s.enabled ? 'success' : 'danger'" size="small" effect="dark">
                       {{ s.enabled ? $t('skill.enabled') : $t('skill.disabled') }}
                     </el-tag>
@@ -84,9 +91,6 @@
                   </div>
                   <div v-if="s.remark" class="item-field">
                     <span class="field-value-text remark-text">{{ s.remark }}</span>
-                  </div>
-                  <div v-if="s.tags && s.tags.length" class="item-tags">
-                    <el-tag v-for="tag in s.tags" :key="tag" size="small" type="info" effect="plain">{{ tag }}</el-tag>
                   </div>
                 </div>
               </template>
@@ -213,11 +217,10 @@ function loadSkills() {
     .then(function (results) {
       globalSkills.value = results[0] || []
       projectSkills.value = (results[1] || []).map(function (s) { s.level = 'project'; return s })
-      if (selectedId.value) {
-        const all = globalSkills.value.concat(projectSkills.value)
-        if (!all.find(function (s) { return s.id === selectedId.value })) {
-          selectedId.value = null
-        }
+      // 如果当前 Tab 有数据且未选中任何项，自动选中第一个
+      if (!selectedId.value) {
+        var list = activeTab.value === 'global' ? globalSkills.value : projectSkills.value
+        if (list && list.length > 0) selectedId.value = list[0].id
       }
     })
 }
@@ -261,7 +264,7 @@ onMounted(loadSkills)
 .page-wrapper { height: 100%; }
 
 /* ─── 左面板 ─── */
-.panel-left { display: flex; flex-direction: column; gap: 8px; padding: 12px; height: 100%; }
+.panel-left { display: flex; flex-direction: column; gap: 8px; padding: 12px; height: 100%; background: var(--bg-secondary); }
 .left-toolbar { display: flex; gap: 6px; align-items: center; }
 .panel-left :deep(.el-tabs__header) { margin-bottom: 0; }
 .panel-left :deep(.el-tabs__item) { padding: 0 8px; font-size: 13px; }
@@ -282,7 +285,6 @@ onMounted(loadSkills)
 .project-skill { padding-left: 20px; }
 .item-main { display: flex; align-items: center; gap: 6px; flex: 1; }
 .item-name { font-size: 13px; font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-right: auto; }
-.item-tags { display: flex; gap: 2px; flex-wrap: wrap; }
 
 .item-field { display: flex; align-items: center; gap: 4px; font-size: 11px; color: var(--text-secondary); margin-top: 2px; flex-wrap: wrap; }
 .field-value-text { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }

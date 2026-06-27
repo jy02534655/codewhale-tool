@@ -20,7 +20,7 @@
         <el-input v-model="formData.api_key" type="password" show-password
           placeholder="sk-..." />
       </el-form-item>
-      <el-form-item :label="$t('third_party.base_url_label')">
+      <el-form-item :label="$t('third_party.base_url_label')" prop="base_url">
         <el-input v-model="formData.base_url" :placeholder="$t('third_party.base_url_placeholder')" />
       </el-form-item>
       <el-form-item v-if="!isEdit" :label="$t('third_party.initial_models')">
@@ -59,9 +59,24 @@ const formData = reactive({
   id: undefined,
 });
 
+/** 校验 base_url：可选，但填了必须是合法 http/https URL */
+function validateBaseUrl(rule, value, callback) {
+  if (!value) return callback();
+  try {
+    const url = new URL(value);
+    if (url.protocol !== 'http:' && url.protocol !== 'https:') {
+      return callback(new Error(t('message.invalidUrl')));
+    }
+  } catch {
+    return callback(new Error(t('message.invalidUrl')));
+  }
+  callback();
+}
+
 const rules = {
   provider: [{ required: true, message: () => t('common.required'), trigger: 'change' }],
   api_key: [{ required: true, message: () => t('common.required'), trigger: 'blur' }],
+  base_url: [{ validator: validateBaseUrl, trigger: 'blur' }],
 };
 
 const { isEdit, isShow, showDialog, hideDialog, resetForm, showDialogByData, submitDialogForm } = compositionDialogForm({

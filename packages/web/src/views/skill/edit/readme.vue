@@ -92,7 +92,7 @@ defineExpose({ showDialog, hideDialog, showDialogByData })
 .pane-header { font-size: 12px; font-weight: 600; color: var(--text-secondary); padding-bottom: 6px; border-bottom: 1px solid var(--border); margin-bottom: 8px; }
 .md-textarea { flex: 1; resize: none; font-family: monospace; font-size: 13px; line-height: 1.6; padding: 12px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--bg-primary); color: var(--text-primary); }
 .md-textarea:focus { outline: none; border-color: var(--el-color-primary); }
-.md-preview { flex: 1; overflow-y: auto; padding: 12px; border: 1px solid var(--border-secondary, #eee); border-radius: var(--radius); font-size: 14px; line-height: 1.7; word-wrap: break-word; background: var(--bg-primary); }
+.md-preview { flex: 1; overflow-y: auto; padding: 12px; border: 1px solid var(--border); border-radius: var(--radius); font-size: 14px; line-height: 1.7; word-wrap: break-word; background: var(--bg-primary); }
 .md-preview :deep(h1) { font-size: 1.6em; margin: 0.5em 0 0.3em; }
 .md-preview :deep(h2) { font-size: 1.3em; }
 .md-preview :deep(h3) { font-size: 1.1em; }

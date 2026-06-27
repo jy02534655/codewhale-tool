@@ -16,7 +16,9 @@
           <el-select v-model="locale" size="small" style="width:120px" @change="onLocaleChange">
             <el-option v-for="l in locales" :key="l.value" :label="l.label" :value="l.value" />
           </el-select>
-          <el-button :icon="isDark ? Sunny : Moon" circle size="small" @click="toggleTheme" />
+          <el-select v-model="theme" size="small" style="width:100px" @change="onThemeChange">
+            <el-option v-for="t in themeOptions" :key="t.value" :label="t.label" :value="t.value" />
+          </el-select>
         </div>
       </header>
 
@@ -40,7 +42,11 @@
 
         <!-- 内容区 -->
         <main class="content">
-          <router-view />
+          <router-view v-slot="{ Component }">
+            <keep-alive>
+              <component :is="Component" />
+            </keep-alive>
+          </router-view>
         </main>
       </div>
 
@@ -49,11 +55,10 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, watch } from 'vue';
-import { useRouter, useRoute } from 'vue-router';
+import { ref, computed, onMounted } from 'vue';
+import { useRoute } from 'vue-router';
 import { useI18n } from 'vue-i18n';
 import {
-  Sunny, Moon,
   Monitor, Collection, Link, Key,
 } from '@element-plus/icons-vue';
 
@@ -66,7 +71,6 @@ import { setLang } from '@/api/lang';
 
 const elLocaleMap = { 'zh-Hans': zhCn, 'en': enLoc, 'ja': jaLoc, 'pt-BR': ptBrLoc };
 
-const router = useRouter();
 const route = useRoute();
 const { locale } = useI18n({ useScope: 'global' });
 
@@ -79,12 +83,35 @@ const locales = [
 
 const elLocale = computed(() => elLocaleMap[locale.value] || zhCn);
 
+/** 主题配置 */
+const themeOptions = [
+  { value: 'light', label: '暖白' },
+  { value: 'sage', label: '森林' },
+  { value: 'ocean', label: '海洋' },
+  { value: 'rose', label: '玫瑰' },
+  { value: 'lavender', label: '淡紫' },
+  { value: 'dark', label: '暗黑' },
+];
+
+const theme = ref('light');
+
+function applyTheme(val) {
+  const html = document.documentElement;
+  html.setAttribute('data-theme', val);
+  html.classList.toggle('dark', val === 'dark');
+  localStorage.setItem('codewhale-theme', val);
+}
+
+function onThemeChange(val) {
+  applyTheme(val);
+}
+
 /** 导航项定义 */
 const navItems = [
   { route: 'provider', icon: Monitor, i18nKey: 'app.model_management' },
-  { route: 'skill',    icon: Collection, i18nKey: 'skill.title' },
-  { route: 'proxy',    icon: Link, i18nKey: 'proxy.title' },
-  { route: 'token',    icon: Key, i18nKey: 'token.title' },
+  { route: 'skill', icon: Collection, i18nKey: 'skill.title' },
+  { route: 'proxy', icon: Link, i18nKey: 'proxy.title' },
+  { route: 'token', icon: Key, i18nKey: 'token.title' },
 ];
 
 function onLocaleChange(val) {
@@ -92,24 +119,10 @@ function onLocaleChange(val) {
   setLang(val);
 }
 
-const isDark = ref(false);
-
-function toggleTheme() {
-  const html = document.documentElement;
-  const cur = html.getAttribute('data-theme') || 'light';
-  const next = cur === 'dark' ? 'light' : 'dark';
-  html.setAttribute('data-theme', next);
-  html.classList.toggle('dark', next === 'dark');
-  isDark.value = next === 'dark';
-  localStorage.setItem('codewhale-theme', next);
-}
-
 onMounted(() => {
   const saved = localStorage.getItem('codewhale-theme') || 'light';
-  const html = document.documentElement;
-  html.setAttribute('data-theme', saved);
-  html.classList.toggle('dark', saved === 'dark');
-  isDark.value = saved === 'dark';
+  theme.value = saved;
+  applyTheme(saved);
 });
 </script>
 

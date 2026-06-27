@@ -4,16 +4,22 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>CodeWhale Tool — 配置管理</title>
-  <!-- 双主题基础样式：普通（亮色） / 暗黑 -->
   <style>
-    /* ─── 亮色主题（默认）──────────────────────────────────── */
-    :root {
-      --bg-primary: #ffffff;
-      --bg-secondary: #f6f8fa;
-      --bg-tertiary: #e8eaed;
-      --border: #d0d7de;
+    /* ════════════════════════════════════════════════════════════════
+     * 多主题基础样式
+     * data-theme 属性切换主题，html.dark 标记暗黑模式
+     * ════════════════════════════════════════════════════════════════ */
+
+    /* ─── Light（暖白）──────────────────────────────────────── */
+    :root,
+    [data-theme="light"] {
+      --bg-primary: #faf8f5;
+      --bg-secondary: #f2efe9;
+      --bg-tertiary: #e8e4dc;
+      --bg-card: #ffffff;
+      --border: #dbd7d0;
       --text-primary: #1f2328;
-      --text-secondary: #656d76;
+      --text-secondary: #6b6f76;
       --accent: #0969da;
       --accent-hover: #0550b5;
       --success: #1a7f37;
@@ -22,11 +28,81 @@
       --radius: 6px;
     }
 
-    /* ─── 暗黑主题 ──────────────────────────────────────────── */
-    [data-theme="dark"] {
+    /* ─── Sage（森林绿）────────────────────────────────────── */
+    [data-theme="sage"] {
+      --bg-primary: #f5f7f3;
+      --bg-secondary: #edf0e8;
+      --bg-tertiary: #e3e7dc;
+      --bg-card: #ffffff;
+      --border: #d5dbcc;
+      --text-primary: #1f2328;
+      --text-secondary: #5d6b5a;
+      --accent: #2d8a4e;
+      --accent-hover: #23703e;
+      --success: #1a7f37;
+      --danger: #cf222e;
+      --warning: #9a6700;
+      --radius: 6px;
+    }
+
+    /* ─── Ocean（海洋蓝）────────────────────────────────────── */
+    [data-theme="ocean"] {
+      --bg-primary: #f4f6fa;
+      --bg-secondary: #eceff5;
+      --bg-tertiary: #e2e6ef;
+      --bg-card: #ffffff;
+      --border: #d4d8e0;
+      --text-primary: #1f2328;
+      --text-secondary: #5d6a7a;
+      --accent: #1a73e8;
+      --accent-hover: #1457b3;
+      --success: #1a7f37;
+      --danger: #cf222e;
+      --warning: #9a6700;
+      --radius: 6px;
+    }
+
+    /* ─── Rose（玫瑰粉）────────────────────────────────────── */
+    [data-theme="rose"] {
+      --bg-primary: #faf5f6;
+      --bg-secondary: #f3edef;
+      --bg-tertiary: #ebe2e6;
+      --bg-card: #ffffff;
+      --border: #dbd0d3;
+      --text-primary: #1f2328;
+      --text-secondary: #705a61;
+      --accent: #c43e6b;
+      --accent-hover: #a83258;
+      --success: #1a7f37;
+      --danger: #cf222e;
+      --warning: #9a6700;
+      --radius: 6px;
+    }
+
+    /* ─── Lavender（淡紫）──────────────────────────────────── */
+    [data-theme="lavender"] {
+      --bg-primary: #f7f5fa;
+      --bg-secondary: #efecf5;
+      --bg-tertiary: #e5e2ef;
+      --bg-card: #ffffff;
+      --border: #d8d4dd;
+      --text-primary: #1f2328;
+      --text-secondary: #645d72;
+      --accent: #7c3aed;
+      --accent-hover: #662ecc;
+      --success: #1a7f37;
+      --danger: #cf222e;
+      --warning: #9a6700;
+      --radius: 6px;
+    }
+
+    /* ─── Dark（暗黑）────────────────────────────────────────── */
+    [data-theme="dark"],
+    html.dark {
       --bg-primary: #0d1117;
       --bg-secondary: #161b22;
       --bg-tertiary: #21262d;
+      --bg-card: #1c2128;
       --border: #30363d;
       --text-primary: #e6edf3;
       --text-secondary: #8b949e;
@@ -35,6 +111,29 @@
       --success: #3fb950;
       --danger: #f85149;
       --warning: #d29922;
+      --radius: 6px;
+    }
+
+    /* ─── Element Plus 暗黑模式适配 ─────────────────────────── */
+    html.dark {
+      --el-bg-color: var(--bg-primary);
+      --el-bg-color-overlay: var(--bg-card);
+      --el-border-color: var(--border);
+      --el-border-color-light: var(--border);
+      --el-text-color-primary: var(--text-primary);
+      --el-text-color-regular: var(--text-primary);
+      --el-text-color-secondary: var(--text-secondary);
+      --el-fill-color: var(--bg-secondary);
+      --el-fill-color-light: var(--bg-tertiary);
+      --el-fill-color-blank: var(--bg-card);
+      --el-bg-color-page: var(--bg-primary);
+      --el-color-primary-light-9: #1a2533;
+      --el-color-primary-light-8: #1f3054;
+      --el-color-primary-light-7: #2a4373;
+      --el-color-primary: var(--accent);
+      --el-color-success: #3fb950;
+      --el-color-warning: #d29922;
+      --el-color-danger: #f85149;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -44,10 +143,55 @@
       color: var(--text-primary);
       line-height: 1.6;
     }
+
+    /* ─── Element Plus 暗黑模式组件适配 ─────────────────────── */
+    html.dark .el-card { --el-card-bg-color: var(--bg-card); }
+    html.dark .el-dialog { --el-dialog-bg-color: var(--bg-card); }
+    html.dark .el-tag.el-tag--info {
+      --el-tag-bg-color: var(--bg-tertiary);
+      --el-tag-text-color: var(--text-secondary);
+      --el-tag-border-color: var(--border);
+    }
+    html.dark .el-alert--info { --el-alert-bg-color: var(--bg-tertiary); }
+    html.dark .el-button--primary {
+      --el-button-bg-color: #1a3055;
+      --el-button-border-color: #1a3055;
+      --el-button-text-color: #79c0ff;
+      --el-button-hover-bg-color: #1f3d6a;
+      --el-button-hover-border-color: #1f3d6a;
+      --el-button-active-bg-color: #162849;
+    }
+    html.dark .el-button--primary.is-plain {
+      --el-button-bg-color: transparent;
+      --el-button-border-color: #2a5090;
+      --el-button-text-color: #58a6ff;
+      --el-button-hover-bg-color: #1a3055;
+      --el-button-hover-border-color: #3a70b0;
+    }
+    html.dark .el-tag.el-tag--success {
+      --el-tag-bg-color: #1c3a28;
+      --el-tag-text-color: #7ee787;
+      --el-tag-border-color: #238636;
+    }
+    html.dark .el-tag.el-tag--primary {
+      --el-tag-bg-color: #1a2533;
+      --el-tag-text-color: #79c0ff;
+      --el-tag-border-color: #2a5090;
+    }
+    html.dark .el-tag.el-tag--warning {
+      --el-tag-bg-color: #2d2a14;
+      --el-tag-text-color: #d29922;
+      --el-tag-border-color: #5a4d1a;
+    }
+    html.dark .el-tag.el-tag--danger {
+      --el-tag-bg-color: #3d1a1a;
+      --el-tag-text-color: #f87171;
+      --el-tag-border-color: #8b1a1a;
+    }
   </style>
 </head>
 <body>
   <div id="app"></div>
   <script type="module" src="/src/main.js"></script>
 </body>
-</html>
+</html>", "path": "packages/web/index.html"}

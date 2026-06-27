@@ -149,7 +149,9 @@
     "tagsPlaceholder": "カンマ区切り、例: mcp, server, debug"
   },
   "message": {
-    "networkError": "ネットワークエラー、再試行してください"
+    "networkError": "ネットワークエラー、再試行してください",
+    "invalidUrl": "有効な http/https URL を入力してください",
+    "invalidHost": "有効な IP アドレスまたはホスト名を入力してください"
   },
   "common": {
     "confirm": "確認",
@@ -201,6 +203,7 @@
     "token_edit_placeholder": "空欄のままにすると変更なし",
     "add_title": "トークン追加",
     "edit_title": "トークン編集",
+    "edit_alias": "別名の編集",
     "default": "デフォルト",
     "setDefault": "デフォルトに設定"
   }

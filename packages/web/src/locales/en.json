@@ -149,7 +149,9 @@
     "tagsPlaceholder": "Comma separated, e.g. mcp, server, debug"
   },
   "message": {
-    "networkError": "Network error, please try again"
+    "networkError": "Network error, please try again",
+    "invalidUrl": "Please enter a valid http/https URL",
+    "invalidHost": "Please enter a valid IP address or hostname"
   },
   "common": {
     "confirm": "OK",
@@ -201,6 +203,7 @@
     "token_edit_placeholder": "Leave empty to keep current",
     "add_title": "Add Token",
     "edit_title": "Edit Token",
+    "edit_alias": "Edit Alias",
     "default": "Default",
     "setDefault": "Set Default"
   }

@@ -12,13 +12,24 @@
  * @module provider
  */
 
-import { getProviderI18nLabel, getDefaultBaseUrl, getLocale } from './i18n.js';
+import { getProviderI18nLabel, getDefaultBaseUrl, getLocale, getServerMessage } from './i18n.js';
 import { ok, okMsg, failMsg } from './result.js';
 
 /** 掩码显示 API key（前5位 + ... + 后4位） */
 function maskKey(key) {
   if (!key || key.length < 9) return key ? key.slice(0, 3) + '...' : '';
   return key.slice(0, 5) + '...' + key.slice(-4);
+}
+
+/** 校验 URL：可选字段，填了必须是 http/https 格式 */
+function isValidUrl(str) {
+  if (!str) return true;
+  try {
+    const url = new URL(str);
+    return url.protocol === 'http:' || url.protocol === 'https:';
+  } catch {
+    return false;
+  }
 }
 
 // ════════════════════════════════════════════════════════════════
@@ -198,6 +209,7 @@ export class ProviderManager {
   addProvider({ provider, api_key, label, base_url, models } = {}) {
     if (!provider) return failMsg('PROVIDER_REQUIRED');
     if (!api_key) return failMsg('KEY_REQUIRED');
+    if (base_url && !isValidUrl(base_url)) return failMsg('INVALID_BASE_URL');
     const id = `${provider}:${api_key}`;
     if (this._engine.findProvider(id)) {
       return failMsg('PROVIDER_DUPLICATE');
@@ -218,6 +230,7 @@ export class ProviderManager {
   /** @param {{id: string, label?: string, base_url?: string}} param */
   updateProvider({ id, label, base_url } = {}) {
     return this._mutate(id, (all, idx, p) => {
+      if (base_url !== undefined && !isValidUrl(base_url)) return failMsg('INVALID_BASE_URL');
       if (label !== undefined) p.label = label;
       if (base_url !== undefined) p.base_url = base_url;
       return okMsg('updated');

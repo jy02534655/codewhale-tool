@@ -1,7 +1,7 @@
 <!--
   edit.vue — GitHub Token 新增/编辑弹窗
   新增模式：显示 alias + token 两个字段
-  编辑模式：仅显示 alias，token 留空表示不修改
+  编辑模式：仅显示 alias，token 隐藏不可编辑（同模型 API Key 模式）
 -->
 <template>
   <el-dialog v-model="isShow"
@@ -11,9 +11,9 @@
       <el-form-item :label="$t('common.alias')" prop="alias">
         <el-input v-model="formData.alias" :placeholder="$t('token.alias_placeholder')" />
       </el-form-item>
-      <el-form-item :label="$t('token.token_value')" :prop="isEdit ? null : 'token'">
+      <el-form-item v-if="!isEdit" :label="$t('token.token_value')" prop="token">
         <el-input v-model="formData.token" type="password" show-password
-          :placeholder="isEdit ? $t('token.token_edit_placeholder') : $t('token.token_placeholder')" />
+          :placeholder="$t('token.token_placeholder')" />
       </el-form-item>
     </el-form>
     <template #footer>
@@ -55,10 +55,9 @@ const { isEdit, isShow, showDialog, hideDialog, resetForm, showDialogByData, sub
   });
 
 function onSubmit() {
-  // 编辑时：token 留空表示不修改，从 payload 中移除
-  if (isEdit.value && !formData.token) {
-    const payload = { ...formData };
-    delete payload.token;
+  // 编辑时：不发送 token，后端只更新 alias
+  if (isEdit.value) {
+    const payload = { id: formData.id, alias: formData.alias };
     submitDialogForm(payload);
   } else {
     submitDialogForm(formData);

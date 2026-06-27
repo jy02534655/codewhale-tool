@@ -71,7 +71,7 @@
 
     <template #footer>
       <el-button :disabled="installing" @click="hideDialog">{{ $t('common.cancel') }}</el-button>
-      <el-button type="primary" :disabled="!canSubmit" :loading="installing" @click="onSubmit">
+      <el-button type="primary" :loading="installing" @click="onSubmit">
         {{ $t('common.confirm') }}
       </el-button>
     </template>
@@ -113,12 +113,6 @@ const tokenList = ref([])
 // ─── 进度浮层 ──────────────────────────────────────────────
 
 const progressRef = ref(null)
-
-// ─── 提交按钮启用条件 ──────────────────────────────────────
-
-const canSubmit = computed(function () {
-  return repoUrl.value.trim() !== '' && !installing.value
-})
 
 // ─── 智能识别 ──────────────────────────────────────────────
 
@@ -198,6 +192,10 @@ function resetForm() {
 // ─── 提交 ──────────────────────────────────────────────────
 
 function onSubmit() {
+  if (!repoUrl.value.trim()) {
+    ElMessage.warning(t('skill.repoUrlPlaceholder'))
+    return
+  }
   installing.value = true
 
   // 构建 SSE URL 参数
@@ -238,6 +236,9 @@ defineExpose({ showDialog, hideDialog, showDialogByData })
 <style scoped>
 .mode-tip {
   margin-bottom: 12px;
+}
+.mode-tip :deep(.el-alert__description) {
+  font-size: 12px;
 }
 .install-form {
   margin-top: 12px;

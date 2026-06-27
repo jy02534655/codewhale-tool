@@ -60,10 +60,34 @@ const formData = reactive({
   id: undefined,
 });
 
+/** 校验 host：必填，合法格式 = IPv4 / IPv6 / hostname */
+function validateHost(rule, value, callback) {
+  if (!value) return callback(new Error(t('common.required')));
+  // IPv4
+  const ipv4 = /^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/;
+  if (ipv4.test(value)) {
+    const parts = value.split('.').map(Number);
+    if (parts.every(function (n) { return n >= 0 && n <= 255; })) return callback();
+    return callback(new Error(t('message.invalidHost')));
+  }
+  // IPv6 (包含冒号，且只有 hex 字符、冒号和点号)
+  if (value.indexOf(':') !== -1) {
+    // 简单校验：允许十六进制 + 冒号 + 点号
+    if (/^[0-9a-fA-F:.]+$/.test(value)) return callback();
+    return callback(new Error(t('message.invalidHost')));
+  }
+  // Hostname：字母数字、点、连字符，不以连字符开头或结尾，不含连续点
+  if (/^[a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(\.[a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/.test(value)) return callback();
+  return callback(new Error(t('message.invalidHost')));
+}
+
 const rules = {
   alias: [{ required: true, message: () => t('common.required'), trigger: 'blur' }],
   type: [{ required: true, message: () => t('common.required'), trigger: 'change' }],
-  host: [{ required: true, message: () => t('common.required'), trigger: 'blur' }],
+  host: [
+    { required: true, message: () => t('common.required'), trigger: 'blur' },
+    { validator: validateHost, trigger: 'blur' },
+  ],
   port: [{ required: true, message: () => t('common.required'), trigger: 'blur' }],
 };
 

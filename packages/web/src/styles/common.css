@@ -1,0 +1,117 @@
+/* ════════════════════════════════════════════════════════════════
+ * common.css — 管理页面共用样式
+ * 在 App.vue 或 main.js 中引入，所有管理页面共享
+ * ════════════════════════════════════════════════════════════════ */
+
+/* ─── 页面通用布局 ─── */
+.page-view {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 20px 24px;
+}
+
+/* ─── 分区标题（单独一行） ─── */
+.section-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 10px;
+}
+.section-title {
+  font-weight: 600;
+  font-size: 16px;
+}
+
+/* ─── 分区操作行（标题下方，按钮区） ─── */
+.section-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+/* ─── 分区内容容器（外层包裹卡） ─── */
+.page-section > .el-card {
+  background: var(--bg-secondary);
+  border: none;
+  border-radius: var(--radius);
+}
+
+/* ─── 卡片网格 ─── */
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+  gap: 12px;
+}
+.card-grid .el-card {
+  background: var(--bg-card);
+  border: none;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+}
+.card-grid .el-card .el-card__body {
+  padding: 14px;
+}
+.card-grid .el-card.card-active {
+  box-shadow: 0 0 0 2px var(--el-color-primary);
+}
+
+/* ─── 卡片头部 ─── */
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+.card-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.card-actions {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+/* ─── 字段行（卡片正文中的键值对） ─── */
+.field-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.field-label {
+  font-size: 12px;
+  color: var(--text-secondary);
+  min-width: 50px;
+  flex-shrink: 0;
+}
+.field-value {
+  font-size: 13px;
+}
+.mono {
+  font-family: monospace;
+}
+
+/* ─── 提示块 ─── */
+.hint-block {
+  display: flex;
+  align-items: center;
+  padding: 14px;
+  margin-bottom: 12px;
+  color: var(--text-secondary);
+  font-size: 13px;
+  background: var(--bg-tertiary);
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+}
+
+/* 禁用tag动画，避免影响布局 */
+.el-tag,
+.el-tag__close,
+.el-tag .el-icon {
+  transition-duration: 0s !important;
+}
