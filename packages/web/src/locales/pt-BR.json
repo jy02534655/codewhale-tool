@@ -126,7 +126,27 @@
     "parseFailed": "Não foi possível interpretar, insira manualmente",
     "confirmClearLog": "Limpar todos os logs de instalação?",
     "confirmClearLogTitle": "Confirmar",
-    "browse": "Navegar"
+    "browse": "Navegar",
+    "originalName": "Nome Original",
+    "enable": "Ativar",
+    "disable": "Desativar",
+    "gitUpdate": "Git Update",
+    "viewReadme": "Ver SKILL.md",
+    "editReadme": "Editar SKILL.md",
+    "editInfo": "Editar Info",
+    "selectHint": "Selecione uma skill para ver detalhes",
+    "noSkill": "Nenhuma skill instalada",
+    "noMatch": "Nenhuma skill correspondente",
+    "noProject": "Nenhuma skill de projeto",
+    "noRemark": "Sem observação",
+    "noTags": "Sem tags",
+    "noReadme": "Sem SKILL.md",
+    "collapseReadme": "Recolher SKILL.md",
+    "discoverSuccess": "Encontrado {found}, adicionado {added}",
+    "discoverNone": "Nenhuma nova skill encontrada",
+    "aliasPlaceholder": "ex: Delegação, Ferramenta de Documentos",
+    "remarkPlaceholder": "Escreva uma observação em português...",
+    "tagsPlaceholder": "Separado por vírgula, ex: mcp, server, debug"
   },
   "message": {
     "networkError": "Erro de rede, tente novamente"

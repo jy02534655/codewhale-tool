@@ -17,10 +17,15 @@
           {{ skill.level === 'global' ? $t('skill.global') : $t('skill.project') }}
         </el-tag>
       </div>
-      <!-- 别名 -->
+      <!-- 名称 -->
       <div class="detail-section">
         <div class="section-header"><span>{{ $t('common.alias') }}</span></div>
         <p class="field-value">{{ skill.alias || skill.name || skill.id }}</p>
+      </div>
+      <!-- 原始名称 -->
+      <div v-if="skill.alias" class="detail-section">
+        <div class="section-header"><span>{{ $t('skill.originalName') }}</span></div>
+        <p class="field-value">{{ skill.name || skill.id }}</p>
       </div>
       <!-- 备注 -->
       <div class="detail-section">

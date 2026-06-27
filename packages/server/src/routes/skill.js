@@ -113,7 +113,7 @@ export function createSkillRouter(skillMgr) {
 
     // 设置 SSE 响应头
     res.writeHead(200, {
-      'Content-Type': 'text/event-stream',
+      'Content-Type': 'text/event-stream; charset=utf-8',
       'Cache-Control': 'no-cache',
       'Connection': 'keep-alive',
       'X-Accel-Buffering': 'no',
@@ -124,9 +124,7 @@ export function createSkillRouter(skillMgr) {
 
     function sendSSE(event, data) {
       if (!clientConnected) return;
-      res.write(`event: ${event}
-                  data: ${JSON.stringify(data)}
-                  `);
+      res.write('event: ' + event + '\ndata: ' + JSON.stringify(data) + '\n\n');
     }
 
 const onProgress = (progress) => {

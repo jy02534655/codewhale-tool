@@ -126,7 +126,27 @@
     "parseFailed": "Could not parse, please enter manually",
     "confirmClearLog": "Clear all install logs?",
     "confirmClearLogTitle": "Confirm",
-    "browse": "Browse"
+    "browse": "Browse",
+    "originalName": "Original Name",
+    "enable": "Enable",
+    "disable": "Disable",
+    "gitUpdate": "Git Update",
+    "viewReadme": "View SKILL.md",
+    "editReadme": "Edit SKILL.md",
+    "editInfo": "Edit Info",
+    "selectHint": "Select a skill to view details",
+    "noSkill": "No skills installed",
+    "noMatch": "No matching skills",
+    "noProject": "No project skills",
+    "noRemark": "No remark",
+    "noTags": "No tags",
+    "noReadme": "No SKILL.md",
+    "collapseReadme": "Collapse SKILL.md",
+    "discoverSuccess": "Found {found}, added {added}",
+    "discoverNone": "No new skills found",
+    "aliasPlaceholder": "e.g. Delegation, Document Tool",
+    "remarkPlaceholder": "Write a remark description...",
+    "tagsPlaceholder": "Comma separated, e.g. mcp, server, debug"
   },
   "message": {
     "networkError": "Network error, please try again"

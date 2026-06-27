@@ -9,7 +9,7 @@ export { ProxyManager } from './proxy.js';
 export { TokenManager } from './token.js';
 export { SkillManager } from './skill/index.js';
 export { SyncManager } from './sync.js';
-export { downloadSkillFromGitHub } from './skill/download.js';
+export { downloadSkillFromGitHub } from './download/index.js';
 export { guard, guardAsync, ok, fail } from './result.js';
 export {
   getKnownProviders,

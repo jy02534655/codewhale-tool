@@ -59,23 +59,12 @@ export const PROVIDER_I18N = {
   ollama: { 'zh-Hans': 'Ollama（本地）', en: 'Ollama (Local)', ja: 'Ollama（ローカル）', 'pt-BR': 'Ollama (Local)' },
 };
 
-/**
- * 获取供应商在指定语言下的 label
- * @param {string} providerId
- * @param {Locale} locale
- * @returns {string}
- */
 export function getProviderI18nLabel(providerId, locale) {
   const map = PROVIDER_I18N[providerId];
   if (!map) return providerId;
   return map[locale] || map['zh-Hans'] || providerId;
 }
 
-/**
- * 获取所有供应商列表（指定语言）
- * @param {Locale} locale
- * @returns {{id:string, label:string}[]}
- */
 export function getKnownProviders(locale) {
   return Object.entries(PROVIDER_I18N).map(([id, labels]) => ({
     id,
@@ -83,11 +72,6 @@ export function getKnownProviders(locale) {
   }));
 }
 
-/**
- * 根据 provider id 获取默认 base_url
- * @param {string} providerId
- * @returns {string}
- */
 export function getDefaultBaseUrl(providerId) {
   const urls = {
     deepseek: 'https://api.deepseek.com',
@@ -125,7 +109,6 @@ export const SERVER_MSG = {
     notFound: '未找到',
     synced: '同步完成',
 
-    // ── 业务错误消息 ──
     KEY_REQUIRED: 'api_key 不能为空',
     KEY_DUPLICATE: '该 API key 已存在',
     KEY_NOT_FOUND: 'API key 不存在',
@@ -160,6 +143,62 @@ export const SERVER_MSG = {
     SKILL_ZIP_EXTRACT_FAILED: 'ZIP 解压失败，文件可能已损坏',
     SKILL_INVALID_REPO_URL: '无效的 GitHub 仓库 URL',
     SKILL_MULTI_SKILL_REPO: '此仓库包含多个 Skill，请指定 skill 名称',
+
+    // ── 错误消息 ──
+    SKILL_ERROR_UNSUPPORTED_PROXY: '不支持的代理协议: {type}',
+    SKILL_ERROR_INVALID_GITHUB_URL: '无效的 GitHub URL: {url}',
+    SKILL_ERROR_SKILL_NOT_FOUND_REPO: '{owner}/{repo} 中未找到 {skillName}（共 {count} 个条目）',
+    SKILL_ERROR_ALL_STRATEGIES_FAILED: '所有下载策略均失败',
+    SKILL_ERROR_API_ALL_PREFIXES_FAILED: 'API 下载失败：所有前缀均未找到 SKILL.md',
+    SKILL_ERROR_README_NOT_FOUND: 'SKILL.md 未找到',
+    SKILL_ERROR_PROXY_DOWNLOAD: '代理下载失败: HTTP {status}',
+
+    // ── 诊断日志 ──
+    SKILL_LOG_NEW_LOG: '========== 新建诊断日志 ==========',
+    SKILL_LOG_DOWNLOAD_START: '========== 下载开始 ==========',
+    SKILL_LOG_PARAMS: '参数',
+    SKILL_LOG_REPO_INFO: '仓库信息',
+    SKILL_LOG_PREFIX_PROBE: '探测前缀 ...',
+    SKILL_LOG_PREFIX_RESULT: '结果: {prefix}',
+    SKILL_LOG_TARBALL_PROBE: '探测 Tarball 大小 ...',
+    SKILL_LOG_SIZE: '大小: {size}',
+    SKILL_LOG_SIZE_UNKNOWN: '无法探测',
+    SKILL_LOG_TRY_PREFIXES: '尝试前缀列表（去重）',
+    SKILL_LOG_STRATEGY_ROUTE: '策略路由',
+    SKILL_LOG_STRATEGY_TAR: '走 Tar 策略',
+    SKILL_LOG_STRATEGY_API: '走 API 策略',
+    SKILL_LOG_TAR_ATTEMPT: 'Tar 尝试 #{n}',
+    SKILL_LOG_EXTRACT_RESULT: '提取结果',
+    SKILL_LOG_SUCCESS_N_FILES: '成功 ({n} 个文件)',
+    SKILL_LOG_FAILED: '失败: {msg}',
+    SKILL_LOG_ERROR: '异常: {msg}',
+    SKILL_LOG_API_ATTEMPT: 'API 尝试 #{n}',
+    SKILL_LOG_SUCCESS_WITH_README: '成功 (有 SKILL.md)',
+    SKILL_LOG_DOWNLOAD_DONE: '========== 下载完成 ==========',
+    SKILL_LOG_FINAL_VERIFY_FAILED: '最终验证失败: SKILL.md 不存在',
+
+    // ── 进度消息 ──
+    SKILL_PROGRESS_PARSING_REPO: '解析仓库信息...',
+    SKILL_PROGRESS_DETECTED_PREFIX: '已检测到前缀: {prefix}',
+    SKILL_PROGRESS_TARBALL_SIZE: 'Tarball 大小: {size}',
+    SKILL_PROGRESS_CANNOT_DETECT_SIZE: '无法探测 Tarball 大小',
+    SKILL_PROGRESS_TAR_STREAMING: 'Tar 流式下载...',
+    SKILL_PROGRESS_FETCHING_TREE: '获取文件列表 (Tree API)...',
+    SKILL_PROGRESS_EXTRACT_NO_README: '{n} 个文件，无 SKILL.md，尝试其他前缀',
+    SKILL_PROGRESS_TAR_FAILED: 'Tar 失败: {msg}',
+    SKILL_PROGRESS_FALLBACK_API: '回退 API 并发下载...',
+    SKILL_PROGRESS_ALSO_FAILED: '前缀 "{prefix}" 也失败: {msg}',
+    SKILL_PROGRESS_REGISTERING: '注册 Skill...',
+    SKILL_PROGRESS_DONE: '安装完成',
+    SKILL_PROGRESS_CONNECTING_GITHUB: '连接 GitHub...',
+    SKILL_PROGRESS_DOWNLOADING_PCT: '下载中 {pct}%',
+    SKILL_PROGRESS_EXTRACTING: '解压中...',
+    SKILL_PROGRESS_GIT_SPARSE_CLONE: 'git sparse clone...',
+    SKILL_PROGRESS_SPARSE_CHECKOUT: 'sparse-checkout: {path}...',
+    SKILL_PROGRESS_CHECKOUT_FILES: 'checkout files...',
+    SKILL_PROGRESS_COPYING: '复制到目标目录...',
+    SKILL_PROGRESS_CLONE_DONE: 'clone 完成',
+    SKILL_PROGRESS_FINDING_SKILL_DIR: '定位 Skill 目录...',
   },
   'en': {
     providerNotFound: 'Vendor not found',
@@ -212,6 +251,59 @@ export const SERVER_MSG = {
     SKILL_ZIP_EXTRACT_FAILED: 'ZIP extraction failed, file may be corrupted',
     SKILL_INVALID_REPO_URL: 'Invalid GitHub repository URL',
     SKILL_MULTI_SKILL_REPO: 'This repo contains multiple skills, please specify a skill name',
+
+    SKILL_ERROR_UNSUPPORTED_PROXY: 'Unsupported proxy type: {type}',
+    SKILL_ERROR_INVALID_GITHUB_URL: 'Invalid GitHub URL: {url}',
+    SKILL_ERROR_SKILL_NOT_FOUND_REPO: '{skillName} not found in {owner}/{repo} ({count} entries)',
+    SKILL_ERROR_ALL_STRATEGIES_FAILED: 'All download strategies failed',
+    SKILL_ERROR_API_ALL_PREFIXES_FAILED: 'API download failed: SKILL.md not found in any prefix',
+    SKILL_ERROR_README_NOT_FOUND: 'SKILL.md not found',
+    SKILL_ERROR_PROXY_DOWNLOAD: 'Proxy download failed: HTTP {status}',
+
+    SKILL_LOG_NEW_LOG: '========== New Log ==========',
+    SKILL_LOG_DOWNLOAD_START: '========== Download Start ==========',
+    SKILL_LOG_PARAMS: 'Parameters',
+    SKILL_LOG_REPO_INFO: 'Repository Info',
+    SKILL_LOG_PREFIX_PROBE: 'Probe prefix ...',
+    SKILL_LOG_PREFIX_RESULT: 'Result: {prefix}',
+    SKILL_LOG_TARBALL_PROBE: 'Probe tarball size ...',
+    SKILL_LOG_SIZE: 'Size: {size}',
+    SKILL_LOG_SIZE_UNKNOWN: 'Cannot detect',
+    SKILL_LOG_TRY_PREFIXES: 'Try prefixes (deduped)',
+    SKILL_LOG_STRATEGY_ROUTE: 'Strategy route',
+    SKILL_LOG_STRATEGY_TAR: 'Tar strategy',
+    SKILL_LOG_STRATEGY_API: 'API strategy',
+    SKILL_LOG_TAR_ATTEMPT: 'Tar attempt #{n}',
+    SKILL_LOG_EXTRACT_RESULT: 'Extract result',
+    SKILL_LOG_SUCCESS_N_FILES: 'Success ({n} files)',
+    SKILL_LOG_FAILED: 'Failed: {msg}',
+    SKILL_LOG_ERROR: 'Error: {msg}',
+    SKILL_LOG_API_ATTEMPT: 'API attempt #{n}',
+    SKILL_LOG_SUCCESS_WITH_README: 'Success (with SKILL.md)',
+    SKILL_LOG_DOWNLOAD_DONE: '========== Download Complete ==========',
+    SKILL_LOG_FINAL_VERIFY_FAILED: 'Final verify failed: SKILL.md not found',
+
+    SKILL_PROGRESS_PARSING_REPO: 'Parsing repo info...',
+    SKILL_PROGRESS_DETECTED_PREFIX: 'Detected prefix: {prefix}',
+    SKILL_PROGRESS_TARBALL_SIZE: 'Tarball size: {size}',
+    SKILL_PROGRESS_CANNOT_DETECT_SIZE: 'Cannot detect tarball size',
+    SKILL_PROGRESS_TAR_STREAMING: 'Tar streaming...',
+    SKILL_PROGRESS_FETCHING_TREE: 'Fetching tree (Tree API)...',
+    SKILL_PROGRESS_EXTRACT_NO_README: '{n} files, no SKILL.md, trying other prefixes',
+    SKILL_PROGRESS_TAR_FAILED: 'Tar failed: {msg}',
+    SKILL_PROGRESS_FALLBACK_API: 'Fallback to API concurrent download...',
+    SKILL_PROGRESS_ALSO_FAILED: 'Prefix "{prefix}" also failed: {msg}',
+    SKILL_PROGRESS_REGISTERING: 'Registering skill...',
+    SKILL_PROGRESS_DONE: 'Installation complete',
+    SKILL_PROGRESS_CONNECTING_GITHUB: 'Connecting to GitHub...',
+    SKILL_PROGRESS_DOWNLOADING_PCT: 'Downloading {pct}%',
+    SKILL_PROGRESS_EXTRACTING: 'Extracting...',
+    SKILL_PROGRESS_GIT_SPARSE_CLONE: 'git sparse clone...',
+    SKILL_PROGRESS_SPARSE_CHECKOUT: 'sparse-checkout: {path}...',
+    SKILL_PROGRESS_CHECKOUT_FILES: 'checkout files...',
+    SKILL_PROGRESS_COPYING: 'Copying to target...',
+    SKILL_PROGRESS_CLONE_DONE: 'clone complete',
+    SKILL_PROGRESS_FINDING_SKILL_DIR: 'Locating skill directory...',
   },
   'ja': {
     providerNotFound: 'ベンダーが見つかりません',
@@ -259,11 +351,64 @@ export const SERVER_MSG = {
     GITHUB_API_ERROR: 'GitHub API リクエストに失敗しました',
     NETWORK_ERROR: 'ネットワークリクエストに失敗しました',
     DELETE_DIR_FAILED: 'ディレクトリの削除に失敗しました',
-    SKILL_ZIP_DOWNLOAD_FAILED: 'ZIP のダウンロードに失敗しました。ネットワークを確認してください',
+    SKILL_ZIP_DOWNLOAD_FAILED: 'ZIP のダウンロードに失敗しました',
     SKILL_INSTALL_FAILED: 'スキルのインストールに失敗しました',
-    SKILL_ZIP_EXTRACT_FAILED: 'ZIP の解凍に失敗しました。ファイルが破損している可能性があります',
+    SKILL_ZIP_EXTRACT_FAILED: 'ZIP の解凍に失敗しました',
     SKILL_INVALID_REPO_URL: '無効な GitHub リポジトリ URL です',
-    SKILL_MULTI_SKILL_REPO: '無効な GitHub リポジトリ URL です',
+    SKILL_MULTI_SKILL_REPO: '複数のスキルが含まれています',
+
+    SKILL_ERROR_UNSUPPORTED_PROXY: '未対応のプロキシプロトコル: {type}',
+    SKILL_ERROR_INVALID_GITHUB_URL: '無効な GitHub URL: {url}',
+    SKILL_ERROR_SKILL_NOT_FOUND_REPO: '{owner}/{repo} に {skillName} が見つかりません',
+    SKILL_ERROR_ALL_STRATEGIES_FAILED: 'すべてのダウンロード戦略が失敗しました',
+    SKILL_ERROR_API_ALL_PREFIXES_FAILED: 'API ダウンロード失敗',
+    SKILL_ERROR_README_NOT_FOUND: 'SKILL.md が見つかりません',
+    SKILL_ERROR_PROXY_DOWNLOAD: 'プロキシダウンロード失敗: HTTP {status}',
+
+    SKILL_LOG_NEW_LOG: '========== 新規ログ ==========',
+    SKILL_LOG_DOWNLOAD_START: '========== ダウンロード開始 ==========',
+    SKILL_LOG_PARAMS: 'パラメータ',
+    SKILL_LOG_REPO_INFO: 'リポジトリ情報',
+    SKILL_LOG_PREFIX_PROBE: 'プレフィックス探索 ...',
+    SKILL_LOG_PREFIX_RESULT: '結果: {prefix}',
+    SKILL_LOG_TARBALL_PROBE: 'Tarball サイズ探索 ...',
+    SKILL_LOG_SIZE: 'サイズ: {size}',
+    SKILL_LOG_SIZE_UNKNOWN: '検出不可',
+    SKILL_LOG_TRY_PREFIXES: 'プレフィックス一覧',
+    SKILL_LOG_STRATEGY_ROUTE: '戦略ルート',
+    SKILL_LOG_STRATEGY_TAR: 'Tar 戦略',
+    SKILL_LOG_STRATEGY_API: 'API 戦略',
+    SKILL_LOG_TAR_ATTEMPT: 'Tar 試行 #{n}',
+    SKILL_LOG_EXTRACT_RESULT: '抽出結果',
+    SKILL_LOG_SUCCESS_N_FILES: '成功 ({n} ファイル)',
+    SKILL_LOG_FAILED: '失敗: {msg}',
+    SKILL_LOG_ERROR: 'エラー: {msg}',
+    SKILL_LOG_API_ATTEMPT: 'API 試行 #{n}',
+    SKILL_LOG_SUCCESS_WITH_README: '成功 (SKILL.md あり)',
+    SKILL_LOG_DOWNLOAD_DONE: '========== ダウンロード完了 ==========',
+    SKILL_LOG_FINAL_VERIFY_FAILED: '最終検証失敗',
+
+    SKILL_PROGRESS_PARSING_REPO: 'リポジトリ情報解析中...',
+    SKILL_PROGRESS_DETECTED_PREFIX: 'プレフィックス検出: {prefix}',
+    SKILL_PROGRESS_TARBALL_SIZE: 'Tarball サイズ: {size}',
+    SKILL_PROGRESS_CANNOT_DETECT_SIZE: 'Tarball サイズ検出不可',
+    SKILL_PROGRESS_TAR_STREAMING: 'Tar ストリーミング...',
+    SKILL_PROGRESS_FETCHING_TREE: 'ファイル一覧取得中...',
+    SKILL_PROGRESS_EXTRACT_NO_README: '{n} ファイル、SKILL.md なし',
+    SKILL_PROGRESS_TAR_FAILED: 'Tar 失敗: {msg}',
+    SKILL_PROGRESS_FALLBACK_API: 'API 並列ダウンロードに切替中...',
+    SKILL_PROGRESS_ALSO_FAILED: 'プレフィックス "{prefix}" も失敗: {msg}',
+    SKILL_PROGRESS_REGISTERING: 'スキル登録中...',
+    SKILL_PROGRESS_DONE: 'インストール完了',
+    SKILL_PROGRESS_CONNECTING_GITHUB: 'GitHub 接続中...',
+    SKILL_PROGRESS_DOWNLOADING_PCT: 'ダウンロード中 {pct}%',
+    SKILL_PROGRESS_EXTRACTING: '解凍中...',
+    SKILL_PROGRESS_GIT_SPARSE_CLONE: 'git sparse clone...',
+    SKILL_PROGRESS_SPARSE_CHECKOUT: 'sparse-checkout: {path}...',
+    SKILL_PROGRESS_CHECKOUT_FILES: 'checkout files...',
+    SKILL_PROGRESS_COPYING: 'コピー中...',
+    SKILL_PROGRESS_CLONE_DONE: 'clone 完了',
+    SKILL_PROGRESS_FINDING_SKILL_DIR: 'スキルディレクトリ検索中...',
   },
   'pt-BR': {
     providerNotFound: 'Fornecedor não encontrado',
@@ -311,11 +456,64 @@ export const SERVER_MSG = {
     GITHUB_API_ERROR: 'Falha na requisição à API do GitHub',
     NETWORK_ERROR: 'Falha na requisição de rede',
     DELETE_DIR_FAILED: 'Falha ao excluir diretório',
-    SKILL_ZIP_DOWNLOAD_FAILED: 'Falha no download do ZIP, verifique a rede',
+    SKILL_ZIP_DOWNLOAD_FAILED: 'Falha no download do ZIP',
     SKILL_INSTALL_FAILED: 'Falha na instalação da skill',
-    SKILL_ZIP_EXTRACT_FAILED: 'Falha ao extrair ZIP, arquivo pode estar corrompido',
+    SKILL_ZIP_EXTRACT_FAILED: 'Falha ao extrair ZIP',
     SKILL_INVALID_REPO_URL: 'URL de repositório GitHub inválida',
-    SKILL_MULTI_SKILL_REPO: 'URL de repositório GitHub inválida',
+    SKILL_MULTI_SKILL_REPO: 'Este repositório contém múltiplas skills',
+
+    SKILL_ERROR_UNSUPPORTED_PROXY: 'Tipo de proxy não suportado: {type}',
+    SKILL_ERROR_INVALID_GITHUB_URL: 'URL GitHub inválida: {url}',
+    SKILL_ERROR_SKILL_NOT_FOUND_REPO: '{skillName} não encontrado em {owner}/{repo}',
+    SKILL_ERROR_ALL_STRATEGIES_FAILED: 'Todas as estratégias de download falharam',
+    SKILL_ERROR_API_ALL_PREFIXES_FAILED: 'Falha no download via API',
+    SKILL_ERROR_README_NOT_FOUND: 'SKILL.md não encontrado',
+    SKILL_ERROR_PROXY_DOWNLOAD: 'Falha no download via proxy: HTTP {status}',
+
+    SKILL_LOG_NEW_LOG: '========== Novo Log ==========',
+    SKILL_LOG_DOWNLOAD_START: '========== Início do Download ==========',
+    SKILL_LOG_PARAMS: 'Parâmetros',
+    SKILL_LOG_REPO_INFO: 'Info do Repositório',
+    SKILL_LOG_PREFIX_PROBE: 'Procurar prefixo ...',
+    SKILL_LOG_PREFIX_RESULT: 'Resultado: {prefix}',
+    SKILL_LOG_TARBALL_PROBE: 'Medir tarball ...',
+    SKILL_LOG_SIZE: 'Tamanho: {size}',
+    SKILL_LOG_SIZE_UNKNOWN: 'Não foi possível detectar',
+    SKILL_LOG_TRY_PREFIXES: 'Tentar prefixos',
+    SKILL_LOG_STRATEGY_ROUTE: 'Rota de estratégia',
+    SKILL_LOG_STRATEGY_TAR: 'Estratégia Tar',
+    SKILL_LOG_STRATEGY_API: 'Estratégia API',
+    SKILL_LOG_TAR_ATTEMPT: 'Tentativa Tar #{n}',
+    SKILL_LOG_EXTRACT_RESULT: 'Resultado da extração',
+    SKILL_LOG_SUCCESS_N_FILES: 'Sucesso ({n} arquivos)',
+    SKILL_LOG_FAILED: 'Falhou: {msg}',
+    SKILL_LOG_ERROR: 'Erro: {msg}',
+    SKILL_LOG_API_ATTEMPT: 'Tentativa API #{n}',
+    SKILL_LOG_SUCCESS_WITH_README: 'Sucesso (com SKILL.md)',
+    SKILL_LOG_DOWNLOAD_DONE: '========== Download Completo ==========',
+    SKILL_LOG_FINAL_VERIFY_FAILED: 'Falha na verificação final',
+
+    SKILL_PROGRESS_PARSING_REPO: 'Analisando repositório...',
+    SKILL_PROGRESS_DETECTED_PREFIX: 'Prefixo detectado: {prefix}',
+    SKILL_PROGRESS_TARBALL_SIZE: 'Tamanho do tarball: {size}',
+    SKILL_PROGRESS_CANNOT_DETECT_SIZE: 'Não foi possível detectar o tamanho',
+    SKILL_PROGRESS_TAR_STREAMING: 'Streaming Tar...',
+    SKILL_PROGRESS_FETCHING_TREE: 'Obtendo lista de arquivos...',
+    SKILL_PROGRESS_EXTRACT_NO_README: '{n} arquivos, sem SKILL.md',
+    SKILL_PROGRESS_TAR_FAILED: 'Tar falhou: {msg}',
+    SKILL_PROGRESS_FALLBACK_API: 'Alternando para download via API...',
+    SKILL_PROGRESS_ALSO_FAILED: 'Prefixo "{prefix}" também falhou: {msg}',
+    SKILL_PROGRESS_REGISTERING: 'Registrando skill...',
+    SKILL_PROGRESS_DONE: 'Instalação completa',
+    SKILL_PROGRESS_CONNECTING_GITHUB: 'Conectando ao GitHub...',
+    SKILL_PROGRESS_DOWNLOADING_PCT: 'Baixando {pct}%',
+    SKILL_PROGRESS_EXTRACTING: 'Extraindo...',
+    SKILL_PROGRESS_GIT_SPARSE_CLONE: 'git sparse clone...',
+    SKILL_PROGRESS_SPARSE_CHECKOUT: 'sparse-checkout: {path}...',
+    SKILL_PROGRESS_CHECKOUT_FILES: 'checkout files...',
+    SKILL_PROGRESS_COPYING: 'Copiando...',
+    SKILL_PROGRESS_CLONE_DONE: 'clone completo',
+    SKILL_PROGRESS_FINDING_SKILL_DIR: 'Localizando diretório da skill...',
   },
 };
 

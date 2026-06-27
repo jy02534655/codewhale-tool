@@ -38,7 +38,7 @@
     </div>
 
     <template #footer>
-      <el-button v-if="!running" type="primary" @click="closeDialog">{{ $t('skill.close') }}</el-button>
+      <el-button v-if="!running" type="primary" @click="closeDialog">{{ $t('common.close') }}</el-button>
       <el-button v-else disabled type="info">{{ $t('skill.installingMsg') }}</el-button>
     </template>
   </el-dialog>

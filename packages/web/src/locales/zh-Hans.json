@@ -125,7 +125,8 @@
     "confirmClearLog": "确认清除所有安装日志？",
     "confirmClearLogTitle": "提示",
     "downloadProgress": "下载进度",
-    "browse": "浏览"
+    "browse": "浏览",
+    "originalName": "原始名称"
   },
   "common": {
     "confirm": "确认",

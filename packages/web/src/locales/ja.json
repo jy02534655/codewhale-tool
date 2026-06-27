@@ -126,7 +126,27 @@
     "parseFailed": "解析できませんでした。手動で入力してください",
     "confirmClearLog": "すべてのインストールログを削除しますか？",
     "confirmClearLogTitle": "確認",
-    "browse": "参照"
+    "browse": "参照",
+    "originalName": "元の名前",
+    "enable": "有効",
+    "disable": "無効",
+    "gitUpdate": "Git 更新",
+    "viewReadme": "SKILL.md を表示",
+    "editReadme": "SKILL.md を編集",
+    "editInfo": "情報編集",
+    "selectHint": "左側のスキルを選択",
+    "noSkill": "インストールされたスキルはありません",
+    "noMatch": "一致するスキルがありません",
+    "noProject": "プロジェクトスキルはありません",
+    "noRemark": "備考なし",
+    "noTags": "タグなし",
+    "noReadme": "SKILL.md なし",
+    "collapseReadme": "SKILL.md を折りたたむ",
+    "discoverSuccess": "{found} 件発見、{added} 件追加",
+    "discoverNone": "新しいスキルは見つかりませんでした",
+    "aliasPlaceholder": "例: 委任、文書ツール",
+    "remarkPlaceholder": "備考を日本語で入力...",
+    "tagsPlaceholder": "カンマ区切り、例: mcp, server, debug"
   },
   "message": {
     "networkError": "ネットワークエラー、再試行してください"
