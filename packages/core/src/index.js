@@ -10,13 +10,12 @@ export { TokenManager } from './token.js';
 export { SkillManager } from './skill/index.js';
 export { SyncManager } from './sync.js';
 export { downloadSkillFromGitHub } from './download/index.js';
-export { guard, guardAsync, ok, fail } from './result.js';
+export { guard, guardAsync, ok, fail, okMsg, failMsg } from './result.js';
 export {
   getKnownProviders,
   getProviderI18nLabel,
   getDefaultBaseUrl,
   getServerMessage,
-  failMsg,
   setLocale,
   getLocale,
   SERVER_MSG,

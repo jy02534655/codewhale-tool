@@ -538,6 +538,7 @@ export function getServerMessage(key, params = {}) {
  * 直接返回标准失败响应（含翻译消息 + errorCode）
  * @param {string} key - SERVER_MSG 中的消息 key
  * @returns {{success: false, data: null, message: string, errorCode: string}}
+ * @deprecated 请使用 result.js 中的 failMsg()
  */
 export function failMsg(key) {
   const locale = getLocale();

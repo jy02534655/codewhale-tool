@@ -23,8 +23,8 @@ import { parse, stringify } from 'smol-toml';
 import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'node:fs';
 import { homedir } from 'node:os';
 import { join, dirname } from 'node:path';
-import { getServerMessage, failMsg } from './i18n.js';
-import { ok } from './result.js';
+import { getServerMessage } from './i18n.js';
+import { ok, failMsg } from './result.js';
 
 function codeWhalePath() {
   return join(homedir(), '.codewhale', 'config.toml');

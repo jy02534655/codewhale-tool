@@ -260,21 +260,22 @@ addItem(opts) {
 在 server 路由中，所有 handler 包裹在 `@codewhale/core` 的 `guard()` 或 `guardAsync()` 中：
 
 ```javascript
-router.post('/add', (req, res) => {
-  const l = langOf(req);
-  res.json(guard(() => {
-    const r = myMgr.add(req.body);
-    return r.success ? ok(null, getServerMessage(l, 'added')) : fail(r.message);
-  }));
-});
-```
+  router.post('/add', (req, res) => {
+    res.json(guard(() => {
+      const r = myMgr.add(req.body);
+      return r.success ? okMsg('added') : fail(r.message);
+    }));
+  });
+  ```
 
-- `guard()` — 同步 handler 的错误捕获
-- `guardAsync()` — 异步 handler 的错误捕获
-- `ok(data, message)` — 构造成功响应
-- `fail(message)` — 构造失败响应
-- `langOf(req)` — 从 query/body 中提取语言代码
-- `getServerMessage(locale, key)` — 按语言获取服务器提示消息
+  - `guard()` — 同步 handler 的错误捕获
+  - `guardAsync()` — 异步 handler 的错误捕获
+  - `ok(data, message)` — 构造成功响应（低层函数）
+  - `okMsg(key, data, params)` — 按 SERVER_MSG key 构建成功响应（自动翻译）
+  - `fail(message, errorCode)` — 构造失败响应（低层函数）
+  - `failMsg(key, params)` — 按 SERVER_MSG key 构建失败响应（自动翻译，errorCode = key）
+  - `langOf(req)` — 从 query/body 中提取语言代码
+  - **注意**：`okMsg` / `failMsg` 自动调用 `getServerMessage` 获取当前语言翻译，不再需要手动传 locale
 
 ### 7. 类型定义
 
@@ -427,8 +428,8 @@ export { MyModuleManager } from './my-module.js';
  */
 
 import { Router } from 'express';
-import { guard, getServerMessage } from '@codewhale/core';
-import { ok, fail, langOf } from '../helpers.js';
+import { guard, okMsg, failMsg } from '@codewhale/core';
+import { fail, langOf } from '../helpers.js';
 
 /**
  * 创建 <MyModule> 路由
@@ -446,19 +447,17 @@ export function createMyModuleRouter(myModuleMgr) {
 
   /** 添加条目 */
   router.post('/add', (req, res) => {
-    const l = langOf(req);
     res.json(guard(() => {
       const r = myModuleMgr.add(req.body);
-      return r.success ? ok(null, getServerMessage(l, 'added')) : fail(r.message);
+      return r.success ? okMsg('added') : fail(r.message);
     }));
   });
 
   /** 删除条目 */
   router.delete('/:id', (req, res) => {
-    const l = langOf(req);
     res.json(guard(() => {
       const r = myModuleMgr.remove(req.params.id);
-      return r.success ? ok(null, getServerMessage(l, 'deleted')) : fail(r.message);
+      return r.success ? okMsg('deleted') : fail(r.message);
     }));
   });
 
@@ -807,7 +806,7 @@ export const SERVER_MSG = {
 - [ ] 所有公共方法都有 JSDoc 注释
 - [ ] core 层的 Manager 返回 `{ success, data, message }` 标准格式
 - [ ] server 路由 handler 全部包裹在 `guard()` / `guardAsync()` 中
-- [ ] 错误消息使用 `getServerMessage(locale, key)` 多语言
+- [ ] 成功/失败消息使用 `okMsg(key)` / `failMsg(key)` 自动翻译（替代手动组合 `ok(data, getServerMessage(key))`）
 - [ ] 前端请求使用 `ajaxBack` / `ajaxPostBack` / `ajaxPutBack` / `ajaxDeleteBack`
 - [ ] 弹窗组件使用 `compositionDialogBase` 或 `compositionDialogForm`
 - [ ] 父组件使用 `compositionDialogContainer` 统一管理弹窗

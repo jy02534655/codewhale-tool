@@ -1,14 +1,13 @@
 <!--
   index.vue — 代理管理页面
-  每个代理有别名(alias)、类型(type)、地址(host:port)、认证(auth)
-  页面提供增删改查功能
+  弹窗组件位于 edit.vue（新增/编辑共用）
 -->
 <template>
   <div v-loading="maskingStore.isLoading" class="proxy-view">
     <div class="toolbar">
       <h2>{{ $t('proxy.title') }}</h2>
       <div class="toolbar-actions">
-        <el-button type="primary" @click="showAddDialog">{{ $t('proxy.add') }}</el-button>
+        <el-button type="primary" @click="dialogCtrl.showAddDialog(null)">{{ $t('proxy.add') }}</el-button>
         <el-button @click="loadList">{{ $t('common.refresh') }}</el-button>
       </div>
     </div>
@@ -26,143 +25,36 @@
         </div>
         <div class="proxy-actions">
           <el-button v-if="!p.default" size="small" @click="onSetDefault(p)">{{ $t('proxy.setDefault') }}</el-button>
-          <el-button size="small" @click="showEditDialog(p)">{{ $t('common.edit') }}</el-button>
+          <el-button size="small" @click="dialogCtrl.showEditDialog(p)">{{ $t('common.edit') }}</el-button>
           <el-button size="small" type="danger" @click="onRemove(p)">{{ $t('common.delete') }}</el-button>
         </div>
       </div>
     </div>
 
     <!-- 新增/编辑弹窗 -->
-    <el-dialog v-model="dialogVisible"
-      :title="isEdit ? $t('proxy.edit_title') : $t('proxy.add_title')"
-      width="480px" :close-on-click-modal="false" @close="resetForm">
-      <el-form ref="formRef" :model="formData" :rules="rules" label-position="top">
-        <el-form-item :label="$t('common.alias')" prop="alias">
-          <el-input v-model="formData.alias" :placeholder="$t('proxy.alias_placeholder')" />
-        </el-form-item>
-        <el-form-item :label="$t('proxy.type')" prop="type">
-          <el-select v-model="formData.type" :placeholder="$t('proxy.type_placeholder')" style="width:100%">
-            <el-option label="HTTP" value="http" />
-            <el-option label="SOCKS5" value="socks5" />
-          </el-select>
-        </el-form-item>
-        <el-form-item :label="$t('proxy.host')" prop="host">
-          <el-input v-model="formData.host" :placeholder="$t('proxy.host_placeholder')" />
-        </el-form-item>
-        <el-form-item :label="$t('proxy.port')" prop="port">
-          <el-input v-model.number="formData.port" type="number" :placeholder="$t('proxy.port_placeholder')" />
-        </el-form-item>
-        <el-form-item :label="$t('proxy.auth_username')">
-          <el-input v-model="formData.username" :placeholder="$t('proxy.auth_username_placeholder')" />
-        </el-form-item>
-        <el-form-item :label="$t('proxy.auth_password')">
-          <el-input v-model="formData.password" type="password" show-password :placeholder="$t('proxy.auth_password_placeholder')" />
-        </el-form-item>
-      </el-form>
-      <template #footer>
-        <el-button @click="dialogVisible = false">{{ $t('common.cancel') }}</el-button>
-        <el-button type="primary" :loading="submitting" @click="onSubmit">
-          {{ $t('common.confirm') }}
-        </el-button>
-      </template>
-    </el-dialog>
+    <ProxyEdit ref="dialog" @submitSuccess="loadList" />
   </div>
 </template>
 
 <script setup>
-import { ref, reactive, onMounted } from 'vue'
-import { ElMessageBox } from 'element-plus'
-import { useI18n } from 'vue-i18n'
-import { getProxyList, addProxy, editProxy, removeProxy, setDefaultProxy } from '@/api/proxy'
-import { useMaskingStore } from '@/stores/masking'
+import { ref, onMounted } from 'vue';
+import { useI18n } from 'vue-i18n';
+import { ElMessageBox } from 'element-plus';
+import { getProxyList, removeProxy, setDefaultProxy } from '@/api/proxy';
+import { useMaskingStore } from '@/stores/masking';
+import { compositionDialogContainer } from '@/composition/dialog/Container';
+import ProxyEdit from './edit.vue';
 
-const { t } = useI18n({ useScope: 'global' })
-const maskingStore = useMaskingStore()
+const { t } = useI18n({ useScope: 'global' });
+const maskingStore = useMaskingStore();
+const dialogCtrl = compositionDialogContainer();
 
-const list = ref([])
-const formRef = ref(null)
-const dialogVisible = ref(false)
-const isEdit = ref(false)
-const editingId = ref('')
-const submitting = ref(false)
-
-const formData = reactive({
-  alias: '',
-  type: 'socks5',
-  host: '',
-  port: undefined,
-  username: '',
-  password: '',
-})
-
-const rules = {
-  alias: [{ required: true, message: () => t('common.required'), trigger: 'blur' }],
-  type: [{ required: true, message: () => t('common.required'), trigger: 'change' }],
-  host: [{ required: true, message: () => t('common.required'), trigger: 'blur' }],
-  port: [{ required: true, message: () => t('common.required'), trigger: 'blur' }],
-}
+const list = ref([]);
 
 function loadList() {
   getProxyList().then(function (data) {
-    list.value = data || []
-  })
-}
-
-function showAddDialog() {
-  resetForm()
-  isEdit.value = false
-  editingId.value = ''
-  dialogVisible.value = true
-}
-
-function showEditDialog(row) {
-  resetForm()
-  isEdit.value = true
-  editingId.value = row.id
-  formData.alias = row.alias
-  formData.type = row.type || 'socks5'
-  formData.host = row.host || ''
-  formData.port = row.port || undefined
-  formData.username = (row.auth && row.auth.username) || ''
-  formData.password = (row.auth && row.auth.password) || ''
-  dialogVisible.value = true
-}
-
-function resetForm() {
-  formData.alias = ''
-  formData.type = 'socks5'
-  formData.host = ''
-  formData.port = undefined
-  formData.username = ''
-  formData.password = ''
-  if (formRef.value) formRef.value.resetFields()
-}
-
-function onSubmit() {
-  formRef.value.validate().then(function () {
-    submitting.value = true
-    const payload = {
-      alias: formData.alias,
-      type: formData.type,
-      host: formData.host,
-      port: formData.port,
-      auth: (formData.username || formData.password)
-        ? { username: formData.username || '', password: formData.password || '' }
-        : undefined,
-    }
-    let promise
-    if (isEdit.value) {
-      promise = editProxy({ id: editingId.value, ...payload })
-    } else {
-      promise = addProxy(payload)
-    }
-    promise.then(function () {
-      dialogVisible.value = false
-      loadList()
-    }).finally(function () {
-      submitting.value = false
-    })
-  }).catch(function () { /* validation failed */ })
+    list.value = data || [];
+  });
 }
 
 function onRemove(row) {
@@ -171,15 +63,15 @@ function onRemove(row) {
     t('common.confirm'),
     { type: 'warning' }
   ).then(function () {
-    removeProxy(row.id).then(function () { loadList() })
-  })
+    removeProxy(row.id).then(function () { loadList(); });
+  });
 }
 
 function onSetDefault(row) {
-  setDefaultProxy(row.id).then(function () { loadList() })
+  setDefaultProxy(row.id).then(function () { loadList(); });
 }
 
-onMounted(loadList)
+onMounted(loadList);
 </script>
 
 <style scoped>

@@ -1,14 +1,13 @@
 <!--
   index.vue — GitHub Token 管理页面
-  每个 Token 有别名(alias) 和 token 值
-  页面提供增删改查功能
+  弹窗组件位于 edit.vue（新增/编辑共用）
 -->
 <template>
   <div v-loading="maskingStore.isLoading" class="token-view">
     <div class="toolbar">
       <h2>{{ $t('token.title') }}</h2>
       <div class="toolbar-actions">
-        <el-button type="primary" @click="showAddDialog">{{ $t('token.add') }}</el-button>
+        <el-button type="primary" @click="dialogCtrl.showAddDialog(null)">{{ $t('token.add') }}</el-button>
         <el-button @click="loadList">{{ $t('common.refresh') }}</el-button>
       </div>
     </div>
@@ -24,114 +23,36 @@
         </div>
         <div class="token-actions">
           <el-button v-if="!t.default" size="small" @click="onSetDefault(t)">{{ $t('token.setDefault') }}</el-button>
-          <el-button size="small" @click="showEditDialog(t)">{{ $t('common.edit') }}</el-button>
+          <el-button size="small" @click="dialogCtrl.showEditDialog(t)">{{ $t('common.edit') }}</el-button>
           <el-button size="small" type="danger" @click="onRemove(t)">{{ $t('common.delete') }}</el-button>
         </div>
       </div>
     </div>
 
     <!-- 新增/编辑弹窗 -->
-    <el-dialog v-model="dialogVisible"
-      :title="isEdit ? $t('token.edit_title') : $t('token.add_title')"
-      width="480px" :close-on-click-modal="false" @close="resetForm">
-      <el-form ref="formRef" :model="formData" :rules="rules" label-position="top">
-        <el-form-item :label="$t('common.alias')" prop="alias">
-          <el-input v-model="formData.alias" :placeholder="$t('token.alias_placeholder')" />
-        </el-form-item>
-        <el-form-item :label="$t('token.token_value')" :prop="isEdit ? null : 'token'">
-          <el-input v-model="formData.token" type="password" show-password
-            :placeholder="isEdit ? $t('token.token_edit_placeholder') : $t('token.token_placeholder')" />
-        </el-form-item>
-      </el-form>
-      <template #footer>
-        <el-button @click="dialogVisible = false">{{ $t('common.cancel') }}</el-button>
-        <el-button type="primary" :loading="submitting" @click="onSubmit">
-          {{ $t('common.confirm') }}
-        </el-button>
-      </template>
-    </el-dialog>
+    <TokenEdit ref="dialog" @submitSuccess="loadList" />
   </div>
 </template>
 
 <script setup>
-import { ref, reactive, onMounted } from 'vue'
-import { ElMessageBox } from 'element-plus'
-import { useI18n } from 'vue-i18n'
-import { getTokenList, addToken, editToken, removeToken, setDefaultToken } from '@/api/token'
-import { useMaskingStore } from '@/stores/masking'
+import { ref, onMounted } from 'vue';
+import { useI18n } from 'vue-i18n';
+import { ElMessageBox } from 'element-plus';
+import { getTokenList, removeToken, setDefaultToken } from '@/api/token';
+import { useMaskingStore } from '@/stores/masking';
+import { compositionDialogContainer } from '@/composition/dialog/Container';
+import TokenEdit from './edit.vue';
 
-const { t } = useI18n({ useScope: 'global' })
-const maskingStore = useMaskingStore()
+const { t } = useI18n({ useScope: 'global' });
+const maskingStore = useMaskingStore();
+const dialogCtrl = compositionDialogContainer();
 
-const list = ref([])
-const formRef = ref(null)
-const dialogVisible = ref(false)
-const isEdit = ref(false)
-const editingId = ref('')
-const submitting = ref(false)
-
-const formData = reactive({
-  alias: '',
-  token: '',
-})
-
-const rules = {
-  alias: [{ required: true, message: () => t('common.required'), trigger: 'blur' }],
-  token: [{ required: true, message: () => t('common.required'), trigger: 'blur' }],
-}
+const list = ref([]);
 
 function loadList() {
   getTokenList().then(function (data) {
-    list.value = data || []
-  })
-}
-
-function showAddDialog() {
-  resetForm()
-  isEdit.value = false
-  editingId.value = ''
-  dialogVisible.value = true
-}
-
-function showEditDialog(row) {
-  resetForm()
-  isEdit.value = true
-  editingId.value = row.id
-  formData.alias = row.alias
-  // 编辑时不回填 token（保持掩码状态），留空表示不修改
-  formData.token = ''
-  dialogVisible.value = true
-}
-
-function resetForm() {
-  formData.alias = ''
-  formData.token = ''
-  if (formRef.value) formRef.value.resetFields()
-}
-
-function onSubmit() {
-  formRef.value.validate().then(function () {
-    submitting.value = true
-    const payload = {
-      alias: formData.alias,
-    }
-    // 新增时 token 必填，编辑时仅当输入了新 token 才更新
-    if (!isEdit.value || formData.token) {
-      payload.token = formData.token
-    }
-    let promise
-    if (isEdit.value) {
-      promise = editToken({ id: editingId.value, ...payload })
-    } else {
-      promise = addToken(payload)
-    }
-    promise.then(function () {
-      dialogVisible.value = false
-      loadList()
-    }).finally(function () {
-      submitting.value = false
-    })
-  }).catch(function () { /* validation failed */ })
+    list.value = data || [];
+  });
 }
 
 function onRemove(row) {
@@ -140,15 +61,15 @@ function onRemove(row) {
     t('common.confirm'),
     { type: 'warning' }
   ).then(function () {
-    removeToken(row.id).then(function () { loadList() })
-  })
+    removeToken(row.id).then(function () { loadList(); });
+  });
 }
 
 function onSetDefault(row) {
-  setDefaultToken(row.id).then(function () { loadList() })
+  setDefaultToken(row.id).then(function () { loadList(); });
 }
 
-onMounted(loadList)
+onMounted(loadList);
 </script>
 
 <style scoped>

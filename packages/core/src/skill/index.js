@@ -25,8 +25,8 @@ import { homedir, tmpdir } from 'node:os';
 import { join, basename } from 'node:path';
 import { execSync } from 'node:child_process';
 import { randomUUID } from 'node:crypto';
-import { getServerMessage, failMsg } from '../i18n.js';
-import { ok, fail } from '../result.js';
+import { getServerMessage } from '../i18n.js';
+import { ok, fail, failMsg } from '../result.js';
 import AdmZip from 'adm-zip';
 import { downloadSkillFromGitHub, downloadAndExtractZip } from '../download/index.js';
 

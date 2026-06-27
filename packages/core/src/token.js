@@ -9,8 +9,7 @@
  */
 
 import { randomUUID } from 'node:crypto';
-import { ok } from './result.js';
-import { failMsg } from './i18n.js';
+import { ok, failMsg } from './result.js';
 
 /**
  * @typedef {import('./types.js').TokenEntry} TokenEntry

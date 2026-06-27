@@ -12,8 +12,8 @@
  * @module provider
  */
 
-import { getProviderI18nLabel, getDefaultBaseUrl, getServerMessage, getLocale, failMsg } from './i18n.js';
-import { ok } from './result.js';
+import { getProviderI18nLabel, getDefaultBaseUrl, getLocale } from './i18n.js';
+import { ok, okMsg, failMsg } from './result.js';
 
 /** 掩码显示 API key（前5位 + ... + 后4位） */
 function maskKey(key) {
@@ -77,7 +77,7 @@ export class OfficialKeyManager {
     }
     keys.push({ id, alias: alias || '默认', api_key, active: keys.length === 0 });
     this._engine.setOfficialKeys(keys);
-    return ok({ id }, getServerMessage('keyAdded'));
+    return okMsg('keyAdded', { id });
   }
 
   /**
@@ -88,7 +88,7 @@ export class OfficialKeyManager {
   activate(id) {
     return this._mutateKey(id, (keys) => {
       keys.forEach((kk) => (kk.active = kk.id === id));
-      return ok(null, getServerMessage('keyActivated'));
+      return okMsg('keyActivated');
     });
   }
 
@@ -100,7 +100,7 @@ export class OfficialKeyManager {
   updateAlias({ id, alias }) {
     return this._mutateKey(id, (keys, idx, k) => {
       k.alias = alias;
-      return ok(null, getServerMessage('aliasUpdated'));
+      return okMsg('aliasUpdated');
     });
   }
 
@@ -114,7 +114,7 @@ export class OfficialKeyManager {
       const wasActive = k.active;
       keys.splice(idx, 1);
       if (wasActive && keys.length > 0) keys[0].active = true;
-      return ok(null, getServerMessage('deleted'));
+      return okMsg('deleted');
     });
   }
 }
@@ -212,7 +212,7 @@ export class ProviderManager {
       ...this._engine.getProviders(),
       { id, provider, label: label || getProviderI18nLabel(provider, getLocale()), api_key, base_url: base_url || getDefaultBaseUrl(provider), models: modelList, active: false },
     ]);
-    return ok({ id }, getServerMessage('added'));
+    return okMsg('added', { id });
   }
 
   /** @param {{id: string, label?: string, base_url?: string}} param */
@@ -220,7 +220,7 @@ export class ProviderManager {
     return this._mutate(id, (all, idx, p) => {
       if (label !== undefined) p.label = label;
       if (base_url !== undefined) p.base_url = base_url;
-      return ok(null, getServerMessage('updated'));
+      return okMsg('updated');
     });
   }
 
@@ -230,7 +230,7 @@ export class ProviderManager {
       const wasActive = p.active;
       all.splice(idx, 1);
       if (wasActive) all.forEach((pp) => (pp.active = false));
-      return ok(null, getServerMessage('deleted'));
+      return okMsg('deleted');
     });
   }
 
