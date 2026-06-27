@@ -1,33 +1,43 @@
 <!--
-  index.vue — GitHub Token 管理页面
-  弹窗组件位于 edit.vue（新增/编辑共用）
+  index.vue — Token 管理页面（卡片布局）
+  侧边栏导航替换了页面标题，内容区用卡片网格展示
 -->
 <template>
   <div v-loading="maskingStore.isLoading" class="token-view">
-    <div class="toolbar">
-      <h2>{{ $t('token.title') }}</h2>
-      <div class="toolbar-actions">
-        <el-button type="primary" @click="dialogCtrl.showAddDialog(null)">{{ $t('token.add') }}</el-button>
-        <el-button @click="loadList">{{ $t('common.refresh') }}</el-button>
-      </div>
-    </div>
-
-    <el-empty v-if="list.length === 0" :description="$t('token.empty')" />
-
-    <div v-else class="token-list">
-      <div v-for="t in list" :key="t.id" class="token-item">
-        <div class="token-info">
-          <span class="token-alias">{{ t.alias }}</span>
-          <el-tag v-if="t.default" size="small" type="success" effect="dark">{{ $t('token.default') }}</el-tag>
-          <el-tag size="small" type="info" effect="plain">{{ t.token }}</el-tag>
+    <el-card class="section-card" shadow="hover">
+      <template #header>
+        <div class="section-header">
+          <span class="section-title">{{ $t('token.title') }}</span>
+          <el-button type="primary" size="small" @click="dialogCtrl.showAddDialog(null)">
+            {{ $t('token.add') }}
+          </el-button>
         </div>
-        <div class="token-actions">
-          <el-button v-if="!t.default" size="small" @click="onSetDefault(t)">{{ $t('token.setDefault') }}</el-button>
-          <el-button size="small" @click="dialogCtrl.showEditDialog(t)">{{ $t('common.edit') }}</el-button>
-          <el-button size="small" type="danger" @click="onRemove(t)">{{ $t('common.delete') }}</el-button>
-        </div>
+      </template>
+      <el-empty v-if="list.length === 0" :description="$t('token.empty')" />
+      <div v-else class="card-grid">
+        <el-card v-for="t in list" :key="t.id" :class="['token-card', { 'card-default': t.default }]" shadow="hover">
+          <template #header>
+            <div class="card-header">
+              <div class="card-title">
+                <span class="card-alias">{{ t.alias }}</span>
+                <el-tag v-if="t.default" size="small" type="success" effect="dark">{{ $t('token.default') }}</el-tag>
+              </div>
+              <div class="card-actions">
+                <el-button v-if="!t.default" size="small" @click="onSetDefault(t)">{{ $t('token.setDefault') }}</el-button>
+                <el-button size="small" @click="dialogCtrl.showEditDialog(t)">{{ $t('common.edit') }}</el-button>
+                <el-button size="small" type="danger" @click="onRemove(t)">{{ $t('common.delete') }}</el-button>
+              </div>
+            </div>
+          </template>
+          <div class="token-fields">
+            <div class="field-row">
+              <span class="field-label">{{ $t('token.token_value') }}</span>
+              <el-tag size="small" type="info" effect="plain">{{ t.token }}</el-tag>
+            </div>
+          </div>
+        </el-card>
       </div>
-    </div>
+    </el-card>
 
     <!-- 新增/编辑弹窗 -->
     <TokenEdit ref="dialog" @submitSuccess="loadList" />
@@ -73,14 +83,18 @@ onMounted(loadList);
 </script>
 
 <style scoped>
-.token-view { display:flex;flex-direction:column;gap:16px; }
-.toolbar { display:flex;justify-content:space-between;align-items:center; }
-.toolbar h2 { font-size:20px;margin:0; }
-.toolbar-actions { display:flex;gap:8px; }
+.token-view { padding: 20px 24px; }
+.section-header { display:flex;justify-content:space-between;align-items:center; }
+.section-title { font-weight:600;font-size:15px; }
 
-.token-list { display:flex;flex-direction:column;gap:8px; }
-.token-item { display:flex;justify-content:space-between;align-items:center;padding:10px 16px;background:var(--bg-secondary);border-radius:8px; }
-.token-info { display:flex;align-items:center;gap:10px; }
-.token-alias { font-weight:600;font-size:14px; }
-.token-actions { display:flex;gap:6px; }
+.card-grid { display:grid;grid-template-columns:repeat(auto-fill,minmax(380px,1fr));gap:12px; }
+.token-card.card-default { border-color:var(--el-color-primary);border-width:2px; }
+.card-header { display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:4px; }
+.card-title { display:flex;align-items:center;gap:8px; }
+.card-alias { font-weight:600;font-size:15px; }
+.card-actions { display:flex;gap:4px;flex-wrap:wrap; }
+
+.token-fields { display:flex;flex-direction:column;gap:8px; }
+.field-row { display:flex;align-items:center;gap:8px; }
+.field-label { font-size:12px;color:var(--text-secondary);min-width:50px;flex-shrink:0; }
 </style>

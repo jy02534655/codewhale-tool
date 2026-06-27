@@ -1,14 +1,8 @@
 <!--
-  index.vue — 模型管理页面（provider 模块入口）
-  统一使用 maskingStore.isLoading 控制全局加载状态
-  弹窗组件位于 ./edit/ 子目录
--->
-<template>
+  index.vue — 模型管理页面（卡片布局版）
+  侧边栏导航替换了页面标题，内容区用 Card 分区展示
+--><template>
   <div v-loading="maskingStore.isLoading" class="model-view">
-    <div class="toolbar">
-      <h2>{{ $t('app.model_management') }}</h2>
-      <el-button @click="loadConfig">{{ $t('common.refresh') }}</el-button>
-    </div>
 
     <!-- ========== 官方 API Key ========== -->
     <el-card class="section-card" shadow="hover">
@@ -116,7 +110,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { ElMessageBox } from 'element-plus';
 import { InfoFilled } from '@element-plus/icons-vue';
@@ -146,43 +140,37 @@ function loadConfig() {
 }
 
 function activateOfficial(id) { activateOfficialKey(id).then(() => loadConfig()); }
-
 function removeOfficial(id) {
   ElMessageBox.confirm(t('common.confirm_delete'), t('common.confirm'), { type: 'warning' })
     .then(() => removeOfficialKey(id))
     .then(() => loadConfig());
 }
-
 function activateProviderAction(id) { activateProvider(id).then(() => loadConfig()); }
 function deactivateAll() { deactivateProvider().then(() => loadConfig()); }
-
 function removeProviderSubmit(id) {
   ElMessageBox.confirm(t('common.confirm_delete') + ' "' + id + '"?', t('common.confirm_delete'), { type: 'warning' })
     .then(() => removeProvider(id))
     .then(() => loadConfig());
 }
-
 function removeModelSubmit(id, name) {
   ElMessageBox.confirm(t('common.confirm_delete') + ' "' + name + '"?', t('common.confirm_delete'), { type: 'warning' })
     .then(() => removeModel({ id, name }))
     .then(() => loadConfig());
 }
-
 function setActiveModelAction(id, name) { setActiveModel({ id, name }).then(() => loadConfig()); }
 
 onMounted(loadConfig);
 </script>
 
 <style scoped>
-.model-view { display:flex;flex-direction:column;gap:16px; }
-.toolbar { display:flex;justify-content:space-between;align-items:center; }
-.toolbar h2 { font-size:20px;margin:0; }
+.model-view { display:flex;flex-direction:column;gap:16px;padding:20px 24px; }
 .section-card { margin-bottom:4px; }
 .section-header { display:flex;justify-content:space-between;align-items:center; }
 .section-title { font-weight:600;font-size:15px; }
 .hint-block { display:flex;align-items:center;padding:16px;margin-bottom:12px;color:var(--text-secondary);font-size:13px;background:var(--bg-secondary);border-radius:var(--radius); }
 .toolbar-row { margin-bottom:12px; }
 
+/* ─── 官方 Key 列表 ─── */
 .official-list { display:flex;flex-direction:column;gap:8px; }
 .official-item { display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:var(--bg-secondary);border-radius:8px; }
 .official-item.official-active { border:1px solid var(--el-color-primary);background:var(--el-color-primary-light-9); }
@@ -190,6 +178,7 @@ onMounted(loadConfig);
 .official-alias { font-weight:600;font-size:14px; }
 .official-actions { display:flex;gap:6px; }
 
+/* ─── 供应商卡片网格 ─── */
 .card-grid { display:grid;grid-template-columns:repeat(auto-fill,minmax(440px,1fr));gap:12px; }
 .provider-card.card-active { border-color:var(--el-color-primary);border-width:2px; }
 .card-header { display:flex;justify-content:space-between;align-items:center; }
@@ -197,13 +186,11 @@ onMounted(loadConfig);
 .provider-name { font-weight:600;font-size:15px; }
 .provider-type { color:var(--text-secondary);font-size:12px;font-family:monospace; }
 .card-actions { display:flex;gap:4px; }
-
 .provider-info { display:flex;flex-direction:column;gap:6px;margin-bottom:10px; }
 .info-row { display:flex;align-items:center;gap:8px; }
 .info-label { font-size:12px;color:var(--text-secondary);min-width:60px; }
 .info-value { font-size:12px; }
 .mono { font-family:monospace; }
-
 .model-section { border-top:1px solid var(--border);padding-top:10px; }
 .model-header { display:flex; justify-content:space-between; align-items:center;margin-bottom:6px; }
 .model-title { font-size:13px;color:var(--text-secondary); }

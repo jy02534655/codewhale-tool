@@ -1,35 +1,51 @@
 <!--
-  index.vue — 代理管理页面
-  弹窗组件位于 edit.vue（新增/编辑共用）
+  index.vue — 代理管理页面（卡片布局）
+  侧边栏导航替换了页面标题，内容区用卡片网格展示
 -->
 <template>
   <div v-loading="maskingStore.isLoading" class="proxy-view">
-    <div class="toolbar">
-      <h2>{{ $t('proxy.title') }}</h2>
-      <div class="toolbar-actions">
-        <el-button type="primary" @click="dialogCtrl.showAddDialog(null)">{{ $t('proxy.add') }}</el-button>
-        <el-button @click="loadList">{{ $t('common.refresh') }}</el-button>
-      </div>
-    </div>
-
-    <el-empty v-if="list.length === 0" :description="$t('proxy.empty')" />
-
-    <div v-else class="proxy-list">
-      <div v-for="p in list" :key="p.id" class="proxy-item">
-        <div class="proxy-info">
-          <span class="proxy-alias">{{ p.alias }}</span>
-          <el-tag v-if="p.default" size="small" type="success" effect="dark">{{ $t('proxy.default') }}</el-tag>
-          <el-tag size="small" type="info" effect="plain">{{ p.type }}</el-tag>
-          <span class="proxy-addr">{{ p.host }}:{{ p.port }}</span>
-          <span v-if="p.auth && p.auth.username" class="proxy-auth">{{ p.auth.username }}:{{ p.auth.password }}</span>
+    <el-card class="section-card" shadow="hover">
+      <template #header>
+        <div class="section-header">
+          <span class="section-title">{{ $t('proxy.title') }}</span>
+          <el-button type="primary" size="small" @click="dialogCtrl.showAddDialog(null)">
+            {{ $t('proxy.add') }}
+          </el-button>
         </div>
-        <div class="proxy-actions">
-          <el-button v-if="!p.default" size="small" @click="onSetDefault(p)">{{ $t('proxy.setDefault') }}</el-button>
-          <el-button size="small" @click="dialogCtrl.showEditDialog(p)">{{ $t('common.edit') }}</el-button>
-          <el-button size="small" type="danger" @click="onRemove(p)">{{ $t('common.delete') }}</el-button>
-        </div>
+      </template>
+      <el-empty v-if="list.length === 0" :description="$t('proxy.empty')" />
+      <div v-else class="card-grid">
+        <el-card v-for="p in list" :key="p.id" :class="['proxy-card', { 'card-default': p.default }]" shadow="hover">
+          <template #header>
+            <div class="card-header">
+              <div class="card-title">
+                <span class="card-alias">{{ p.alias }}</span>
+                <el-tag v-if="p.default" size="small" type="success" effect="dark">{{ $t('proxy.default') }}</el-tag>
+              </div>
+              <div class="card-actions">
+                <el-button v-if="!p.default" size="small" @click="onSetDefault(p)">{{ $t('proxy.setDefault') }}</el-button>
+                <el-button size="small" @click="dialogCtrl.showEditDialog(p)">{{ $t('common.edit') }}</el-button>
+                <el-button size="small" type="danger" @click="onRemove(p)">{{ $t('common.delete') }}</el-button>
+              </div>
+            </div>
+          </template>
+          <div class="proxy-fields">
+            <div class="field-row">
+              <span class="field-label">{{ $t('proxy.type') }}</span>
+              <el-tag size="small" type="info" effect="plain">{{ p.type }}</el-tag>
+            </div>
+            <div class="field-row">
+              <span class="field-label">{{ $t('proxy.host') }}</span>
+              <span class="field-value mono">{{ p.host }}:{{ p.port }}</span>
+            </div>
+            <div v-if="p.auth && p.auth.username" class="field-row">
+              <span class="field-label">{{ $t('proxy.auth_username') }}</span>
+              <span class="field-value">{{ p.auth.username }}:****</span>
+            </div>
+          </div>
+        </el-card>
       </div>
-    </div>
+    </el-card>
 
     <!-- 新增/编辑弹窗 -->
     <ProxyEdit ref="dialog" @submitSuccess="loadList" />
@@ -75,16 +91,21 @@ onMounted(loadList);
 </script>
 
 <style scoped>
-.proxy-view { display:flex;flex-direction:column;gap:16px; }
-.toolbar { display:flex;justify-content:space-between;align-items:center; }
-.toolbar h2 { font-size:20px;margin:0; }
-.toolbar-actions { display:flex;gap:8px; }
+.proxy-view { padding: 20px 24px; }
+.section-card { }
+.section-header { display:flex;justify-content:space-between;align-items:center; }
+.section-title { font-weight:600;font-size:15px; }
 
-.proxy-list { display:flex;flex-direction:column;gap:8px; }
-.proxy-item { display:flex;justify-content:space-between;align-items:center;padding:10px 16px;background:var(--bg-secondary);border-radius:8px; }
-.proxy-info { display:flex;align-items:center;gap:10px; }
-.proxy-alias { font-weight:600;font-size:14px; }
-.proxy-addr { font-family:monospace;font-size:13px;color:var(--text-secondary); }
-.proxy-auth { font-family:monospace;font-size:12px;color:var(--text-secondary); }
-.proxy-actions { display:flex;gap:6px; }
+.card-grid { display:grid;grid-template-columns:repeat(auto-fill,minmax(380px,1fr));gap:12px; }
+.proxy-card.card-default { border-color:var(--el-color-primary);border-width:2px; }
+.card-header { display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:4px; }
+.card-title { display:flex;align-items:center;gap:8px; }
+.card-alias { font-weight:600;font-size:15px; }
+.card-actions { display:flex;gap:4px;flex-wrap:wrap; }
+
+.proxy-fields { display:flex;flex-direction:column;gap:8px; }
+.field-row { display:flex;align-items:center;gap:8px; }
+.field-label { font-size:12px;color:var(--text-secondary);min-width:50px;flex-shrink:0; }
+.field-value { font-size:13px; }
+.mono { font-family:monospace; }
 </style>

@@ -1,129 +1,124 @@
 <!--
-  index.vue — Skill 管理页面
-  工具栏含安装日志查看/清除
-  左侧列表简化：名称+状态 | 别名+来源标签 | 标签
+  index.vue — Skill 管理页面（重构）
+  使用 SplitLayout 统一分栏，保持全局/项目 Tab 切换
 --><template>
-  <div v-loading="maskingStore.isLoading" class="skill-view">
+  <div v-loading="maskingStore.isLoading" class="page-wrapper">
+    <SplitLayout leftWidth="320px">
+      <template #left>
+        <div class="panel-left">
+          <!-- 顶部操作栏 -->
+          <div class="left-toolbar">
+            <el-button size="small" type="primary"
+              @click="dialogCtrl.showAddDialog(null, 'installDialog')">{{ $t('common.install') }}</el-button>
+            <el-button size="small" text @click="doViewLog">{{ $t('skill.viewLog') }}</el-button>
+            <el-button size="small" text type="danger" @click="doClearLog">{{ $t('skill.clearLog') }}</el-button>
+          </div>
 
-    <!-- 工具栏 -->
-    <div class="toolbar">
-      <h2>{{ $t('skill.title') }}</h2>
-      <div class="toolbar-actions">
-        <el-button size="small" type="primary"
-          @click="dialogCtrl.showAddDialog(null, 'installDialog')">{{ $t('common.install') }}</el-button>
-        <el-button size="small" text @click="doViewLog">{{ $t('skill.viewLog') }}</el-button>
-        <el-button size="small" text type="danger" @click="doClearLog">{{ $t('skill.clearLog') }}</el-button>
-        <el-button size="small" @click="loadSkills">{{ $t('common.refresh') }}</el-button>
-      </div>
-    </div>
+          <!-- Tab 切换 -->
+          <el-tabs v-model="activeTab" @tab-change="onTabChange">
+            <el-tab-pane :label="$t('skill.global')" name="global" />
+            <el-tab-pane :label="$t('skill.project')" name="project" />
+          </el-tabs>
 
-    <!-- 搜索栏 -->
-    <div class="search-bar">
-      <el-input v-model="search" :placeholder="$t('skill.searchPlaceholder')" clearable size="small" />
-    </div>
+          <!-- 搜索栏 -->
+          <el-input
+            v-model="search"
+            :placeholder="$t('skill.searchPlaceholder')"
+            clearable
+            size="small"
+            prefix-icon="Search"
+          />
 
-    <!-- 主从布局 -->
-    <div class="master-detail">
-
-      <!-- 左面板 — 简化列表：名称 | 别名+来源 | 标签 -->
-      <div class="master-panel">
-        <el-tabs v-model="activeTab" @tab-change="onTabChange">
-          <el-tab-pane :label="$t('skill.global')" name="global" />
-          <el-tab-pane :label="$t('skill.project')" name="project" />
-        </el-tabs>
-        <div class="master-list">
-
-          <!-- 全局 Tab -->
-          <template v-if="activeTab === 'global'">
-            <div v-for="s in filteredGlobal" :key="s.id"
-              :class="['master-item', { active: selectedId === s.id }]"
-              @click="selectSkill(s)">
-              <!-- 第1行：名称 + 状态 + 来源标签（右上） -->
-              <div class="master-item-row">
-                <el-tag :type="s.enabled ? 'success' : 'danger'" size="small" effect="dark">
-                  {{ s.enabled ? $t('skill.enabled') : $t('skill.disabled') }}
-                </el-tag>
-                <span class="master-item-name">{{ displayName(s) }}</span>
-                <span class="master-item-source"><el-tag size="small" type="info" effect="plain">{{ sourceName(s.source) }}</el-tag></span>
-              </div>
-              <!-- 第2行：原名（name） -->
-              <div v-if="s.name && s.name !== (s.alias || s.id)" class="master-item-field">
-                <span class="field-value-text">{{ s.name }}</span>
-              </div>
-              <!-- 第3行：备注 -->
-              <div v-if="s.remark" class="master-item-field">
-                <span class="field-value-text remark-text">{{ s.remark }}</span>
-              </div>
-              <!-- 第4行：标签 -->
-              <div v-if="s.tags && s.tags.length" class="master-item-field">
-                <el-tag v-for="tag in s.tags" :key="tag" size="small" type="info" effect="plain" class="tag-item">{{ tag }}</el-tag>
-              </div>
-            </div>
-            <el-empty v-if="filteredGlobal.length === 0"
-              :description="search ? $t('skill.noMatch') : $t('skill.noSkill')" />
-          </template>
-
-          <!-- 项目 Tab：树形展开 -->
-          <template v-if="activeTab === 'project'">
-            <el-empty v-if="projectTree.length === 0" :description="$t('skill.noProject')" />
-            <template v-for="node in filteredProjectTree" :key="node.name">
-              <div class="project-group-header">
-                <el-tag size="small" type="warning" effect="dark">P</el-tag>
-                <span class="project-group-name">{{ node.alias || node.name }}</span>
-                <span v-if="node.alias && node.alias !== node.name" class="sub-original">{{ node.name }}</span>
-              </div>
-              <div v-for="s in node.skills" :key="s.id"
-                :class="['master-item', 'project-skill-item', { active: selectedId === s.id }]"
-                @click="selectSkill(s)">
-                <!-- 第1行：名称 + 状态 + 来源标签（右上） -->
-                <div class="master-item-row">
-                  <el-tag :type="s.enabled ? 'success' : 'danger'" size="small" effect="dark">
-                    {{ s.enabled ? $t('skill.enabled') : $t('skill.disabled') }}
-                  </el-tag>
-                  <span class="master-item-name">{{ displayName(s) }}</span>
-                  <span class="master-item-source"><el-tag size="small" type="info" effect="plain">{{ sourceName(s.source) }}</el-tag></span>
+          <!-- 列表 -->
+          <div class="list-scroll">
+            <!-- 全局 Tab -->
+            <template v-if="activeTab === 'global'">
+              <div
+                v-for="s in filteredGlobal"
+                :key="s.id"
+                :class="['list-item', { active: selectedId === s.id }]"
+                @click="selectSkill(s)"
+              >
+<div class="item-main">
+                    <span class="item-name">{{ displayName(s) }}</span>
+                    <el-tag :type="s.enabled ? 'success' : 'danger'" size="small" effect="dark">
+                      {{ s.enabled ? $t('skill.enabled') : $t('skill.disabled') }}
+                    </el-tag>
+                    <el-tag size="small" type="info" effect="plain">{{ sourceName(s.source) }}</el-tag>
+                  </div>
+                  <div v-if="s.name && s.name !== (s.alias || s.id)" class="item-field">
+                    <span class="field-value-text">{{ s.name }}</span>
+                  </div>
+                  <div v-if="s.remark" class="item-field">
+                    <span class="field-value-text remark-text">{{ s.remark }}</span>
+                  </div>
+                  <div v-if="s.tags && s.tags.length" class="item-tags">
+                    <el-tag v-for="tag in s.tags" :key="tag" size="small" type="info" effect="plain">{{ tag }}</el-tag>
+                  </div>
                 </div>
-                <!-- 第2行：原名（name） -->
-                <div v-if="s.name && s.name !== (s.alias || s.id)" class="master-item-field">
-                  <span class="field-value-text">{{ s.name }}</span>
-                </div>
-                <!-- 第3行：备注 -->
-                <div v-if="s.remark" class="master-item-field">
-                  <span class="field-value-text remark-text">{{ s.remark }}</span>
-                </div>
-                <!-- 第4行：标签 -->
-                <div v-if="s.tags && s.tags.length" class="master-item-field">
-                  <el-tag v-for="tag in s.tags" :key="tag" size="small" type="info" effect="plain" class="tag-item">{{ tag }}</el-tag>
-                </div>
-              </div>
+                <el-empty v-if="filteredGlobal.length === 0"
+                :description="search ? $t('skill.noMatch') : $t('skill.noSkill')" />
             </template>
-          </template>
 
+            <!-- 项目 Tab -->
+            <template v-if="activeTab === 'project'">
+              <el-empty v-if="projectTree.length === 0" :description="$t('skill.noProject')" />
+              <template v-for="node in filteredProjectTree" :key="node.name">
+                <div class="project-group-header">
+                  <span class="project-group-name">{{ node.alias || node.name }}</span>
+                </div>
+                <div
+                  v-for="s in node.skills" :key="s.id"
+                  :class="['list-item', 'project-skill', { active: selectedId === s.id }]"
+                  @click="selectSkill(s)"
+                >
+                  <div class="item-main">
+                    <span class="item-name">{{ displayName(s) }}</span>
+                    <el-tag :type="s.enabled ? 'success' : 'danger'" size="small" effect="dark">
+                      {{ s.enabled ? $t('skill.enabled') : $t('skill.disabled') }}
+                    </el-tag>
+                    <el-tag size="small" type="info" effect="plain">{{ sourceName(s.source) }}</el-tag>
+                  </div>
+                  <div v-if="s.name && s.name !== (s.alias || s.id)" class="item-field">
+                    <span class="field-value-text">{{ s.name }}</span>
+                  </div>
+                  <div v-if="s.remark" class="item-field">
+                    <span class="field-value-text remark-text">{{ s.remark }}</span>
+                  </div>
+                  <div v-if="s.tags && s.tags.length" class="item-tags">
+                    <el-tag v-for="tag in s.tags" :key="tag" size="small" type="info" effect="plain">{{ tag }}</el-tag>
+                  </div>
+                </div>
+              </template>
+            </template>
+          </div>
         </div>
-      </div>
+      </template>
 
-      <!-- 右面板 -->
-      <div class="detail-wrapper">
-        <detail :skill="selectedSkill"
+      <template #right>
+        <!-- 右侧详情 -->
+        <detail
+          :skill="selectedSkill"
           @refresh="loadSkills"
           @openEdit="onOpenEdit"
-          @openReadme="onOpenReadme" />
-      </div>
+          @openReadme="onOpenReadme"
+        />
+      </template>
+    </SplitLayout>
 
-    </div>
+    <!-- 弹窗 -->
+    <install ref="installDialog" @submitSuccess="loadSkills" />
+    <info ref="infoDialog" @submitSuccess="loadSkills" />
+    <readme ref="readmeDialog" @submitSuccess="loadSkills" />
 
-    <!-- 安装日志查看弹窗 -->
+    <!-- 安装日志弹窗 -->
     <el-dialog v-model="logVisible" :title="$t('skill.installLog')" width="720px" top="5vh" :destroy-on-close="true">
       <pre class="log-content-dialog">{{ logContent || $t('skill.noLog') }}</pre>
       <template #footer>
         <el-button @click="logVisible = false">{{ $t('common.close') }}</el-button>
+        <el-button v-if="logContent" type="danger" text @click="doClearLog">{{ $t('skill.clearLog') }}</el-button>
       </template>
     </el-dialog>
-
-    <!-- 弹窗组件 -->
-    <install ref="installDialog" @submitSuccess="loadSkills" />
-    <info ref="infoDialog" @submitSuccess="loadSkills" />
-    <readme ref="readmeDialog" @submitSuccess="loadSkills" />
   </div>
 </template>
 
@@ -134,6 +129,7 @@ import { ElMessageBox } from 'element-plus'
 import { getGlobalSkillList, getProjectSkillList, getInstallLog, clearInstallLog } from '@/api/skill'
 import { useMaskingStore } from '@/stores/masking'
 import { compositionDialogContainer } from '@/composition/dialog/Container'
+import SplitLayout from '@/composition/layout/SplitLayout.vue'
 import install from './edit/install.vue'
 import detail from './edit/detail.vue'
 import info from './edit/info.vue'
@@ -141,11 +137,8 @@ import readme from './edit/readme.vue'
 
 const { t } = useI18n({ useScope: 'global' })
 const maskingStore = useMaskingStore()
-
-/** 弹窗容器 */
 const dialogCtrl = compositionDialogContainer()
 
-/** 响应式数据 */
 const globalSkills = ref([])
 const projectSkills = ref([])
 const search = ref('')
@@ -154,35 +147,29 @@ const selectedId = ref(null)
 const logVisible = ref(false)
 const logContent = ref('')
 
-/** 显示名称：别名优先 */
 function displayName(s) {
   return s.alias || s.name || s.id
 }
 
-/** 来源本地化文本 */
 function sourceName(source) {
   const key = 'skill.source.' + (source || 'local')
   return t(key) || source
 }
 
-/** 选中 skill */
 function selectSkill(s) {
   selectedId.value = s.id
 }
 
-/** Tab 切换时重置选中 */
 function onTabChange() {
   selectedId.value = null
 }
 
-/** 当前选中技能对象 */
 const selectedSkill = computed(function () {
   if (!selectedId.value) return null
   const all = globalSkills.value.concat(projectSkills.value)
   return all.find(function (s) { return s.id === selectedId.value }) || null
 })
 
-/** 全局 skill 列表过滤 */
 const filteredGlobal = computed(function () {
   const q = search.value.toLowerCase().trim()
   if (!q) return globalSkills.value
@@ -193,7 +180,6 @@ const filteredGlobal = computed(function () {
   })
 })
 
-/** 项目树：按项目名分组 */
 const projectTree = computed(function () {
   const map = {}
   projectSkills.value.forEach(function (s) {
@@ -204,7 +190,6 @@ const projectTree = computed(function () {
   return Object.values(map)
 })
 
-/** 项目树过滤 */
 const filteredProjectTree = computed(function () {
   const q = search.value.toLowerCase().trim()
   if (!q) return projectTree.value
@@ -223,7 +208,6 @@ const filteredProjectTree = computed(function () {
     .filter(function (node) { return node.skills.length > 0 })
 })
 
-/** 加载全局 + 项目 skill 列表 */
 function loadSkills() {
   Promise.all([getGlobalSkillList(), getProjectSkillList()])
     .then(function (results) {
@@ -238,21 +222,17 @@ function loadSkills() {
     })
 }
 
-/** 打开编辑信息弹窗 */
 function onOpenEdit() {
   if (selectedSkill.value) {
     dialogCtrl.showEditDialog(selectedSkill.value, 'infoDialog')
   }
 }
 
-/** 打开 SKILL.md 编辑弹窗 */
 function onOpenReadme() {
   if (selectedSkill.value) {
     dialogCtrl.showEditDialog(selectedSkill.value, 'readmeDialog')
   }
 }
-
-// ─── 日志查看 / 清除 ──────────────────────────────────────
 
 function doViewLog() {
   getInstallLog().then(function (res) {
@@ -270,6 +250,7 @@ function doClearLog() {
     return clearInstallLog()
   }).then(function () {
     logContent.value = ''
+    logVisible.value = false
   })
 }
 
@@ -277,29 +258,59 @@ onMounted(loadSkills)
 </script>
 
 <style scoped>
-.skill-view { display: flex; flex-direction: column; height: 100%; gap: 8px; }
-.toolbar { display: flex; justify-content: space-between; align-items: center; }
-.toolbar h2 { font-size: 18px; margin: 0; }
-.toolbar-actions { display: flex; gap: 6px; align-items: center; }
-.search-bar { display: flex; gap: 8px; }
-.search-bar :deep(.el-input) { flex: 1; }
-.master-detail { display: flex; gap: 16px; flex: 1; min-height: 0; }
-.master-panel { width: 320px; min-width: 260px; display: flex; flex-direction: column; border-right: 1px solid var(--border); padding-right: 12px; flex-shrink: 0; }
-.master-panel :deep(.el-tabs__item) { padding: 0 8px; font-size: 13px; }
-.master-list { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 2px; }
-.master-item { position: relative; padding: 6px 10px; border-radius: 4px; cursor: pointer; border-left: 3px solid transparent; }
-.master-item:hover { background: var(--bg-secondary, #f5f5f5); }
-.master-item.active { background: var(--el-color-primary-light-9); border-left-color: var(--el-color-primary); }
-.project-skill-item { padding-left: 24px; }
-.master-item-row { display: flex; align-items: center; gap: 6px; margin-bottom: 2px; padding-right: 60px; }
-.master-item-name { font-weight: 500; font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.master-item-field { display: flex; align-items: center; gap: 4px; font-size: 11px; color: var(--text-secondary); margin-top: 2px; margin-left: 26px; flex-wrap: wrap; }
-.master-item-source { position: absolute; top: 6px; right: 10px; }
+.page-wrapper { height: 100%; }
+
+/* ─── 左面板 ─── */
+.panel-left { display: flex; flex-direction: column; gap: 8px; padding: 12px; height: 100%; }
+.left-toolbar { display: flex; gap: 6px; align-items: center; }
+.panel-left :deep(.el-tabs__header) { margin-bottom: 0; }
+.panel-left :deep(.el-tabs__item) { padding: 0 8px; font-size: 13px; }
+
+.list-scroll { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 2px; }
+.list-item {
+  padding: 6px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  border-left: 3px solid transparent;
+  transition: background 0.1s;
+}
+.list-item:hover { background: var(--bg-secondary); }
+.list-item.active {
+  background: var(--el-color-primary-light-9);
+  border-left-color: var(--el-color-primary);
+}
+.project-skill { padding-left: 20px; }
+.item-main { display: flex; align-items: center; gap: 6px; flex: 1; }
+.item-name { font-size: 13px; font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-right: auto; }
+.item-tags { display: flex; gap: 2px; flex-wrap: wrap; }
+
+.item-field { display: flex; align-items: center; gap: 4px; font-size: 11px; color: var(--text-secondary); margin-top: 2px; flex-wrap: wrap; }
 .field-value-text { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.tag-item { margin-left: 2px; }
-.project-group-header { display: flex; align-items: center; gap: 6px; padding: 8px 4px 4px; font-weight: 600; font-size: 13px; border-bottom: 1px solid var(--border); margin-bottom: 4px; }
+.remark-text { font-size: 11px; color: var(--text-secondary); }
+
+.project-group-header {
+  display: flex;
+  align-items: center;
+  padding: 8px 4px 4px;
+  font-weight: 600;
+  font-size: 13px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 4px;
+  margin-top: 4px;
+}
 .project-group-name { font-weight: 500; }
-.sub-original { color: var(--text-secondary); font-size: 11px; }
-.detail-wrapper { flex: 1; min-width: 0; overflow-y: auto; contain: layout style; }
-.log-content-dialog { max-height: 400px; overflow: auto; background: #1e1e1e; color: #d4d4d4; font-family: monospace; font-size: 12px; padding: 12px; border-radius: 4px; white-space: pre-wrap; margin: 0; }
+
+/* ─── 日志内容 ─── */
+.log-content-dialog {
+  max-height: 400px;
+  overflow: auto;
+  background: #1e1e1e;
+  color: #d4d4d4;
+  font-family: monospace;
+  font-size: 12px;
+  padding: 12px;
+  border-radius: 4px;
+  white-space: pre-wrap;
+  margin: 0;
+}
 </style>
