@@ -130,7 +130,7 @@ export class SkillManager {
     this._engine = engine;
     this._projectEngine = projectEngine || null;
     this._skillsDir = skillsDir || join(homedir(), '.codewhale', 'skills');
-    this._projectSkillsDir = '.codewhale/skills';
+    this._projectSkillsDir = 'skills';
   }
 
   // ─── 列表查询 ───────────────────────────────────────────────

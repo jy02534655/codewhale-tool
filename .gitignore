@@ -10,3 +10,5 @@ pnpm-workspace.yaml
 /.deepseek/
 /download-skill.log
 /.codewhale/
+/skills.json
+/skills.json.bak

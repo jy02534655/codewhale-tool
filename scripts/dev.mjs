@@ -19,6 +19,9 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const root = join(__dirname, '..');
 const PORT = 7000;
 
+/** Windows 终端切换到 UTF-8 编码 */
+const UTF8 = 'chcp 65001 >nul && ';
+
 /** 清理占用端口的旧进程（Windows） */
 function killPortProcess(port) {
   try {
@@ -30,6 +33,7 @@ function killPortProcess(port) {
       if (m) pids.add(m[1]);
     }
     for (const pid of pids) {
+      if (pid === '0') continue; // 跳过系统空闲进程
       execSync(`taskkill /PID ${pid} /F`, { shell: 'powershell.exe', timeout: 5000 });
     }
   } catch { /* 无人占用，跳过 */ }
@@ -59,11 +63,10 @@ console.log('🔧 启动后端 (localhost:' + PORT + ') ...');
 // 先清理旧进程
 killPortProcess(PORT);
 
-// 启动后端
-const backend = spawn('node', ['packages/server/index.js'], {
+// 启动后端（切换到 UTF-8 编码防止乱码）
+const backend = spawn('cmd.exe', ['/c', UTF8 + 'node packages/server/index.js'], {
   cwd: root,
   stdio: 'inherit',
-  shell: true,
 });
 
 // 等待后端就绪后启动前端
@@ -71,10 +74,9 @@ try {
   await waitForServer('http://localhost:' + PORT + '/api/provider/list');
   console.log('✅ 后端就绪，启动前端 ...');
 
-  const frontend = spawn('npx', ['vite', '--host', '--port', '7200'], {
+  const frontend = spawn('cmd.exe', ['/c', UTF8 + 'npx vite --host --port 7200'], {
     cwd: join(root, 'packages', 'web'),
     stdio: 'inherit',
-    shell: true,
   });
 
   frontend.on('close', (code) => {
