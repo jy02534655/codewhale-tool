@@ -7,7 +7,7 @@
  *
  * Skill 文件位置：
  *   全局 → ~/.codewhale/skills/<skill-id>/SKILL.md
- *   项目 → <project>/.codewhale/skills/<skill-id>/SKILL.md
+ *   项目 → <project>/skills/<skill-id>/SKILL.md
  *
  * 安装模式：
  *   - community：从 deepseek-ai/codewhale-skills 社区仓库安装（git clone --sparse）
@@ -20,13 +20,13 @@
  * @module skill
  */
 
-import { existsSync, rmSync, readFileSync, readdirSync, writeFileSync, mkdirSync } from 'node:fs';
+import { existsSync, readFileSync, readdirSync, mkdirSync, writeFileSync, rmSync, unlinkSync } from 'node:fs';
 import { homedir, tmpdir } from 'node:os';
 import { join, basename } from 'node:path';
 import { execSync } from 'node:child_process';
 import { randomUUID } from 'node:crypto';
-import { getServerMessage } from '../i18n.js';
-import { ok, fail, failMsg } from '../result.js';
+import { getServerMessage } from '../utils/i18n.js';
+import { ok, fail, failMsg, okMsg } from '../utils/result.js';
 import AdmZip from 'adm-zip';
 import { downloadSkillFromGitHub, downloadAndExtractZip } from '../download/index.js';
 
@@ -184,7 +184,7 @@ export class SkillManager {
     return this._mutate(skillId, (entries, idx) => {
       entries[idx].remark = remark;
       entries[idx].updated_at = Date.now();
-      return ok(null, getServerMessage('updated'));
+      return okMsg('updated');
     }, hintLevel);
   }
 
@@ -192,7 +192,7 @@ export class SkillManager {
     return this._mutate(skillId, (entries, idx) => {
       entries[idx].tags = tags;
       entries[idx].updated_at = Date.now();
-      return ok(null, getServerMessage('updated'));
+      return okMsg('updated');
     }, hintLevel);
   }
 
@@ -200,7 +200,7 @@ export class SkillManager {
     return this._mutate(skillId, (entries, idx) => {
       entries[idx].alias = alias;
       entries[idx].updated_at = Date.now();
-      return ok(null, getServerMessage('updated'));
+      return okMsg('updated');
     }, hintLevel);
   }
 
@@ -212,7 +212,7 @@ export class SkillManager {
       if (meta.remark != null) entries[idx].remark = meta.remark;
       if (meta.tags != null) entries[idx].tags = meta.tags;
       entries[idx].updated_at = Date.now();
-      return ok(null, getServerMessage('updated'));
+      return okMsg('updated');
     }, hintLevel);
   }
 
@@ -228,14 +228,14 @@ export class SkillManager {
     const entries = this._getLevelInstalled(level || 'global');
     for (const e of entries) e.enabled = true;
     this._setLevelInstalled(level || 'global', entries);
-    return ok(null, getServerMessage('updated'));
+    return okMsg('updated');
   }
 
   disableAll(level) {
     const entries = this._getLevelInstalled(level || 'global');
     for (const e of entries) e.enabled = false;
     this._setLevelInstalled(level || 'global', entries);
-    return ok(null, getServerMessage('updated'));
+    return okMsg('updated');
   }
 
   // ─── 安装 ───────────────────────────────────────────────────
@@ -336,7 +336,7 @@ export class SkillManager {
         onProgress({ stage: 'done', percent: 100, message: getServerMessage('SKILL_PROGRESS_DONE') });
       }
 
-      return ok(null, getServerMessage('synced'));
+      return okMsg('synced');
     } catch (err) {
       try { if (existsSync(targetDir)) rmSync(targetDir, { recursive: true, force: true }); } catch { /* ignore */ }
       return fail(getServerMessage('SKILL_INSTALL_FAILED') + ': ' + err.message, 'SKILL_INSTALL_FAILED');
@@ -409,7 +409,7 @@ export class SkillManager {
       }
 
       try { rmSync(tempDir, { recursive: true, force: true }); } catch { /* ignore */ }
-      return ok(null, getServerMessage('synced'));
+      return okMsg('synced');
     } catch (err) {
       try { if (existsSync(targetDir)) rmSync(targetDir, { recursive: true, force: true }); } catch { /* ignore */ }
       return fail(getServerMessage('SKILL_INSTALL_FAILED') + ': ' + err.message, 'SKILL_INSTALL_FAILED');
@@ -456,7 +456,7 @@ export class SkillManager {
         updated_at: Date.now(),
       }, targetLevel);
 
-      return ok(null, getServerMessage('synced'));
+      return okMsg('synced');
     } catch (err) {
       try { if (existsSync(targetDir)) rmSync(targetDir, { recursive: true, force: true }); } catch { /* ignore */ }
       return fail(getServerMessage('SKILL_INSTALL_FAILED') + ': ' + err.message, 'SKILL_INSTALL_FAILED');
@@ -470,7 +470,7 @@ export class SkillManager {
     return this._mutate(skillId, (entries, idx, entry, level) => {
       entries.splice(idx, 1);
       this._setLevelInstalled(level, entries);
-      return ok(null, getServerMessage('synced'));
+      return okMsg('synced');
     }, hintLevel);
   }
 
@@ -516,9 +516,9 @@ export class SkillManager {
 
       this._mutate(skillId, (entries, idx) => {
         entries[idx].updated_at = Date.now();
-        return ok(null, getServerMessage('updated'));
+        return okMsg('updated');
       }, hintLevel);
-      return ok(null, getServerMessage('updated'));
+      return okMsg('updated');
     } catch (err) {
       return fail(getServerMessage('update_failed') + ': ' + err.message);
     }
@@ -618,14 +618,14 @@ export class SkillManager {
 
   // ─── 社区搜索（带缓存） ─────────────────────────────────────
 
-  async searchCommunity(force) {
+  async searchCommunity(force, q) {
     const skillsCfg = this._engine.getSkills();
     const cache = skillsCfg.community_cache || [];
     const cachedAt = skillsCfg.cached_at || 0;
     const now = Date.now();
 
     if (!force && cache.length > 0 && (now - cachedAt) < CACHE_TTL) {
-      return ok(cache);
+      return ok(q ? cache.filter((s) => s.id.toLowerCase().includes(q.toLowerCase())) : cache);
     }
 
     try {
@@ -646,11 +646,31 @@ export class SkillManager {
       skillsCfg.cached_at = Date.now();
       this._engine.setSkills(skillsCfg);
 
-      return ok(skills);
+      return ok(q ? skills.filter((s) => s.id.toLowerCase().includes(q.toLowerCase())) : skills);
     } catch (err) {
-      if (cache.length > 0) return ok(cache);
+      if (cache.length > 0) return ok(q ? cache.filter((s) => s.id.toLowerCase().includes(q.toLowerCase())) : cache);
       return fail(`Request failed: ${err.message}`);
     }
+  }
+
+  // ─── 安装日志 ────────────────────────────────────────────────
+
+  getInstallLog() {
+    const LOG_PATH = join(process.cwd(), 'download-skill.log');
+    if (!existsSync(LOG_PATH)) return ok('');
+    const content = readFileSync(LOG_PATH, 'utf-8');
+    const lines = content.split('\n');
+    return ok(lines.slice(Math.max(0, lines.length - 200)).join('\n'));
+  }
+
+  clearInstallLog() {
+    const LOG_PATH = join(process.cwd(), 'download-skill.log');
+    if (existsSync(LOG_PATH)) unlinkSync(LOG_PATH);
+    return okMsg('skillLogCleared');
+  }
+
+  getCurrentProject() {
+    return ok(process.cwd());
   }
 
   // ─── 内部方法 ───────────────────────────────────────────────
@@ -765,7 +785,7 @@ export class SkillManager {
     return this._mutate(skillId, (entries, idx) => {
       entries[idx].enabled = enabled;
       entries[idx].updated_at = Date.now();
-      return ok(null, getServerMessage('updated'));
+      return okMsg('updated');
     }, hintLevel);
   }
 

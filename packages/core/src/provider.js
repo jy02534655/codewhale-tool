@@ -12,8 +12,8 @@
  * @module provider
  */
 
-import { getProviderI18nLabel, getDefaultBaseUrl, getLocale, getServerMessage } from './i18n.js';
-import { ok, okMsg, failMsg } from './result.js';
+import { getProviderI18nLabel, getDefaultBaseUrl, getLocale } from './utils/i18n.js';
+import { ok, okMsg, failMsg } from './utils/result.js';
 
 /** 掩码显示 API key（前5位 + ... + 后4位） */
 function maskKey(key) {
@@ -195,7 +195,23 @@ export class ProviderManager {
     return ok(m ? { provider_id: active.id, model_name: m.name } : null);
   }
 
-  // ─── Provider 增删改 ───────────────────────────────────────
+  /**
+   * 在单次调用中同时返回激活的供应商与激活的模型
+   *
+   * 避免路由层调用 getActiveProvider() + getActiveModel() 导致
+   * getActiveProvider() 被内部调用两次的问题。
+   *
+   * @returns {{success: boolean, data: {active: object|null, active_model: {provider_id:string, model_name:string}|null}, message: string}}
+   */
+  getActiveInfo() {
+    const active = this._engine.getProviders().find((p) => p.active) || null;
+    if (!active) return ok({ active: null, active_model: null });
+    const model = active.models?.find((x) => x.active);
+    return ok({
+      active,
+      active_model: model ? { provider_id: active.id, model_name: model.name } : null,
+    });
+  }
 
   /**
    * @param {object} opts
@@ -255,7 +271,7 @@ export class ProviderManager {
       if (!p.models) p.models = [];
       if (p.models.some((m) => m.name === name)) return failMsg('MODEL_DUPLICATE');
       p.models.push({ name, active: false });
-      return ok(null, getServerMessage('modelAdded'));
+      return okMsg('modelAdded');
     });
   }
 
@@ -268,7 +284,7 @@ export class ProviderManager {
       const wasActive = p.models[mi].active;
       p.models.splice(mi, 1);
       if (wasActive) p.models[0].active = true;
-      return ok(null, getServerMessage('modelDeleted'));
+      return okMsg('modelDeleted');
     });
   }
 
@@ -279,7 +295,7 @@ export class ProviderManager {
       const target = p.models.find((m) => m.name === name);
       if (!target) return failMsg('MODEL_NOT_FOUND');
       p.models.forEach((m) => (m.active = m.name === name));
-      return ok(null, getServerMessage('modelSet'));
+      return okMsg('modelSet');
     });
   }
 
@@ -292,7 +308,7 @@ export class ProviderManager {
       if (p.models && p.models.length > 0 && !p.models.some((m) => m.active)) {
         p.models[0].active = true;
       }
-      return ok(null, getServerMessage('activated'));
+      return okMsg('activated');
     });
   }
 

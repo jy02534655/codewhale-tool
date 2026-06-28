@@ -17,10 +17,10 @@ import { homedir } from 'node:os';
 import { join, dirname } from 'node:path';
 
 /**
- * @typedef {import('./types.js').ProviderEntry} ProviderEntry
- * @typedef {import('./types.js').OfficialKeyEntry} OfficialKeyEntry
- * @typedef {import('./types.js').StoreData} StoreData
- * @typedef {import('./types.js').SkillsConfig} SkillsConfig
+ * @typedef {import('../types.js').ProviderEntry} ProviderEntry
+ * @typedef {import('../types.js').OfficialKeyEntry} OfficialKeyEntry
+ * @typedef {import('../types.js').StoreData} StoreData
+ * @typedef {import('../types.js').SkillsConfig} SkillsConfig
  */
 
 /** @type {StoreData} 默认存储骨架 */
@@ -148,10 +148,10 @@ export class ConfigEngine {
 
   // ─── Proxy 方法 ────────────────────────────────────────────
 
-  /** @returns {import('./types.js').ProxyEntry[]} */
+  /** @returns {import('../types.js').ProxyEntry[]} */
   getProxies() { return this.read().proxies; }
 
-  /** @param {import('./types.js').ProxyEntry[]} proxies */
+  /** @param {import('../types.js').ProxyEntry[]} proxies */
   setProxies(proxies) {
     this.update((d) => { d.proxies = proxies; return d; });
   }
@@ -163,10 +163,10 @@ export class ConfigEngine {
 
   // ─── Token 方法 ────────────────────────────────────────────
 
-  /** @returns {import('./types.js').TokenEntry[]} */
+  /** @returns {import('../types.js').TokenEntry[]} */
   getTokens() { return this.read().tokens; }
 
-  /** @param {import('./types.js').TokenEntry[]} tokens */
+  /** @param {import('../types.js').TokenEntry[]} tokens */
   setTokens(tokens) {
     this.update((d) => { d.tokens = tokens; return d; });
   }

@@ -23,8 +23,8 @@ import { parse, stringify } from 'smol-toml';
 import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'node:fs';
 import { homedir } from 'node:os';
 import { join, dirname } from 'node:path';
-import { getServerMessage } from './i18n.js';
-import { ok, failMsg } from './result.js';
+import { getServerMessage } from './utils/i18n.js';
+import { okMsg, failMsg } from './utils/result.js';
 
 function codeWhalePath() {
   return join(homedir(), '.codewhale', 'config.toml');
@@ -73,7 +73,7 @@ export class SyncManager {
   initSync() {
     const cwPath = codeWhalePath();
     if (!existsSync(cwPath)) {
-      return ok({ merged: 0 }, getServerMessage('CONFIG_NOT_EXISTS'));
+      return okMsg('CONFIG_NOT_EXISTS', { merged: 0 });
     }
 
     try {
@@ -158,7 +158,7 @@ export class SyncManager {
 
       this._engine.setProviders(localProviders);
 
-      return ok({ merged: mergedCount }, getServerMessage('SYNC_MERGED', { count: mergedCount }));
+      return okMsg('SYNC_MERGED', { merged: mergedCount }, { count: mergedCount });
     } catch {
       return failMsg('CONFIG_PARSE_ERROR');
     }
@@ -234,7 +234,7 @@ export class SyncManager {
       'utf-8'
     );
 
-    return ok(null, getServerMessage('synced'));
+    return okMsg('synced');
   }
 
   // ─── 组合操作 ────────────────────────────────────────────────

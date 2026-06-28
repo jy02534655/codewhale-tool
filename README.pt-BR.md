@@ -1,12 +1,23 @@
 # codewhale-tool
 
-Kit de Configuração do CodeWhale — um toolkit visual para gerenciar provedores de modelos de IA e skills.
+Kit de Configuração do CodeWhale — visual, multilíngue, sincronização em tempo real de providers e modelos.
+
+[简体中文](./README.md) | [English](./README.en.md) | [日本語](./README.ja.md)
+
+---
 
 ## Funcionalidades
 
-- **Gerenciamento de Provedores**: Configuração em três níveis (provedor → alias da chave API → modelos) com troca dinâmica
-- **Gerenciamento de Skills**: Instalação visual, ativar/desativar, remover e busca na comunidade
-- **Web UI com Vue 3 e API programática**
+- **Gerenciamento de Chave API Oficial**: Múltiplas chaves DeepSeek com aliases e troca rápida
+- **Gerenciamento de Providers**: CRUD de providers terceiros (chave primária = tipo + api_key)
+- **Gerenciamento de Modelos**: Múltiplos modelos por provider, ativação com um clique
+- **Gerenciamento de Proxy**: Configuração HTTP / SOCKS5 para downloads de Skills
+- **Gerenciamento de Tokens**: Tokens GitHub e outros tokens de acesso
+- **Gerenciamento de Skills**: Instalar/ativar/desativar/atualizar Skills da comunidade, progresso via SSE
+- **Sincronização em Tempo Real**: Alterações salvas automaticamente na config do CodeWhale
+- **Multilíngue**: 简体中文, English, 日本語, Português (BR)
+
+---
 
 ## Início Rápido
 
@@ -14,67 +25,73 @@ Kit de Configuração do CodeWhale — um toolkit visual para gerenciar provedor
 # Instalar dependências
 pnpm install
 
-# Modo Web UI (terminal 1: backend API, terminal 2: servidor dev frontend)
-node packages/server/server.js          # Backend API → localhost:3456
-pnpm --filter @codewhale/web dev      # Frontend Vite → localhost:5163
+# Iniciar com um clique (backend :7000 + frontend :7200)
+pnpm dev
 ```
+
+Abra `http://localhost:7200` para a Web UI.
+
+---
 
 ## Estrutura do Projeto
 
 ```
 codewhale-tool/
 ├── packages/
-│   ├── core/          # @codewhale/core — Biblioteca de lógica central
+│   ├── core/               # @codewhale/core — lógica central
 │   │   └── src/
-│   │       ├── config.js    # ConfigEngine — Leitura/escrita segura de TOML
-│   │       ├── provider.js  # ProviderManager — Gerenciamento em três níveis
-│   │       ├── skill.js     # SkillManager — Ciclo de vida das skills
-│   │       ├── i18n.js       # Mapeamento i18n (rótulos providers + mensagens servidor)
-│   │       ├── result.js     # guard/guardAsync wrapper de erro
-│   ├── server/       # @codewhale/server — Serviço Express API
-│   │   └── server.js         # Rotas REST API
-│   └── web/           # @codewhale/web — Web UI
+│   │       ├── utils/          # infraestrutura
+│   │       │   ├── config.js   # ConfigEngine — armazenamento JSON
+│   │       │   ├── i18n.js     # i18n (rótulos de providers + mensagens)
+│   │       │   ├── logger.js   # logger unificado (arquivo + callbacks SSE)
+│   │       │   └── result.js   # ok / okMsg / fail / failMsg
+│   │       ├── provider.js     # ProviderManager + OfficialKeyManager
+│   │       ├── proxy.js        # ProxyManager
+│   │       ├── token.js        # TokenManager
+│   │       ├── sync.js         # SyncManager — store.json ↔ config.toml
+│   │       ├── download/       # motor de download de Skills do GitHub
+│   │       ├── skill/          # SkillManager + ProjectSkillEngine
+│   │       └── index.js        # exportações unificadas
+│   │
+│   ├── server/             # Express API — camada de passagem pura
+│   │   ├── index.js            # entrada: inicializa motores, monta rotas, inicia
+│   │   └── src/
+│   │       ├── utils/guard.js  # guard / guardAsync / withSync / ok
+│   │       └── routes/
+│   │           ├── lang.js, officialKey.js, provider.js,
+│   │           ├── proxy.js, token.js, skill.js, sync.js
+│   │
+│   └── web/                # @codewhale/web — Vue 3 + Element Plus
 │       └── src/
-│           ├── App.vue               # Componente raiz
-│           └── views/
-│               ├── ProviderView.vue  # Gerenciamento de provedores
-│               └── SkillView.vue     # Gerenciamento de skills
-├── config.toml        # Arquivo de configuração de exemplo
-├── PROGRESS.md         # Registro de progresso do desenvolvimento
-└── README.md           # Este arquivo
+│           ├── App.vue, main.js
+│           ├── api/
+│           ├── views/{provider,proxy,skill,token}/
+│           ├── composition/dialog/
+│           ├── stores/, locales/, utils/
+├── store.json              # armazenamento JSON local
+├── DESIGN.md               # documento de design
+└── README.pt-BR.md         # este arquivo
 ```
 
-## Formato de Configuração
+---
 
-Exemplo de `config.toml`:
+## Arquitetura
 
-```toml
-[model]
-active_provider = "deepseek"
-active_api_key = "personal"
-active_model = "deepseek-ai/DeepSeek-V4-Pro"
+| Camada | Pacote | Função | Proibido |
+|--------|--------|--------|----------|
+| **core** | `@codewhale/core` | Lógica de negócio, armazenamento, sincronização | Sem HTTP |
+| **server** | app express | Registro de rotas, extração de parâmetros, wrapper guard | Sem lógica de negócio |
+| **web** | `@codewhale/web` | Componentes Vue 3, chamadas API | Sem acesso direto ao store |
 
-[providers.deepseek]
-label = "DeepSeek"
-
-[providers.deepseek.api_keys.personal]
-key = "sk-xxxxxxxxxxxxxxxx"
-label = "Pessoal"
-models = ["deepseek-ai/DeepSeek-V4-Pro", "deepseek-ai/DeepSeek-V4-Flash"]
-default_model = "deepseek-ai/DeepSeek-V4-Pro"
-
-[skills]
-enabled = true
-installed = [
-  { id = "pdf", path = "~/.codewhale/skills/pdf", enabled = true, source = "community" },
-]
-```
+---
 
 ## Idiomas
 
-| Idioma | Documento |
-|--------|-----------|
-| English | [README.en.md](./README.en.md) |
-| 日本語 | [README.ja.md](./README.ja.md) |
-| 简体中文 | [README.md](./README.md) |
-| Português (BR) | Este arquivo |
+| Idioma | Código | Documento |
+|--------|--------|-----------|
+| 简体中文 | `zh-Hans` | [README.md](./README.md) |
+| English | `en` | [README.en.md](./README.en.md) |
+| 日本語 | `ja` | [README.ja.md](./README.ja.md) |
+| Português (BR) | `pt-BR` | Este arquivo |
+
+Alterne o idioma pelo seletor no canto superior direito da Web UI; a preferência persiste no store.json.

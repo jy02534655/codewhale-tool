@@ -219,7 +219,7 @@ function loadSkills() {
       projectSkills.value = (results[1] || []).map(function (s) { s.level = 'project'; return s })
       // 如果当前 Tab 有数据且未选中任何项，自动选中第一个
       if (!selectedId.value) {
-        var list = activeTab.value === 'global' ? globalSkills.value : projectSkills.value
+        const list = activeTab.value === 'global' ? globalSkills.value : projectSkills.value
         if (list && list.length > 0) selectedId.value = list[0].id
       }
     })

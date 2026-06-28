@@ -12,7 +12,7 @@ import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import { execSync } from 'node:child_process';
 import { randomUUID } from 'node:crypto';
-import { getServerMessage } from '../i18n.js';
+import { getServerMessage } from '../utils/i18n.js';
 
 /**
  * 将结构化代理配置转换为 git CLI 可用的 url 字符串

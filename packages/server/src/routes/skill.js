@@ -7,9 +7,7 @@
  */
 
 import { Router } from 'express';
-import { guard, guardAsync } from '@codewhale/core';
-import { existsSync, readFileSync, unlinkSync } from 'node:fs';
-import { join } from 'node:path';
+import { guard, guardAsync } from '../utils/guard.js';
 
 /**
  * @param {import('@codewhale/core').SkillManager} skillMgr
@@ -127,9 +125,9 @@ export function createSkillRouter(skillMgr) {
       res.write('event: ' + event + '\ndata: ' + JSON.stringify(data) + '\n\n');
     }
 
-const onProgress = (progress) => {
-  sendSSE('progress', progress);
-};
+    const onProgress = (progress) => {
+      sendSSE('progress', progress);
+    };
 
     // 日志回调 → SSE log 事件（转发 download-skill.log 内容）
     const onLog = (logEntry) => {
@@ -165,12 +163,7 @@ const onProgress = (progress) => {
   router.get('/search', async (req, res) => {
     res.json(await guardAsync(async () => {
       const force = req.query.force === '1' || req.query.force === 'true';
-      const r = await skillMgr.searchCommunity(force);
-      if (r.success && req.query.q) {
-        const q = req.query.q.toLowerCase();
-        r.data = r.data.filter((s) => s.id.toLowerCase().includes(q));
-      }
-      return r;
+      return await skillMgr.searchCommunity(force, req.query.q);
     }));
   });
 
@@ -178,35 +171,17 @@ const onProgress = (progress) => {
 
   /** GET /api/skill/install-log — 读取最近安装日志 */
   router.get('/install-log', (_req, res) => {
-    try {
-      const LOG_PATH = join(process.cwd(), 'download-skill.log');
-      if (!existsSync(LOG_PATH)) {
-        return res.json({ success: true, data: '' });
-      }
-      const content = readFileSync(LOG_PATH, 'utf-8');
-      // 只返回最后 200 行避免日志过大
-      const lines = content.split('\n');
-      const tail = lines.slice(Math.max(0, lines.length - 200)).join('\n');
-      res.json({ success: true, data: tail });
-    } catch (err) {
-      res.json({ success: false, message: err.message });
-    }
+    res.json(guard(() => skillMgr.getInstallLog()));
   });
 
   /** DELETE /api/skill/install-log — 清除安装日志 */
   router.delete('/install-log', (_req, res) => {
-    try {
-      const LOG_PATH = join(process.cwd(), 'download-skill.log');
-      if (existsSync(LOG_PATH)) unlinkSync(LOG_PATH);
-      res.json({ success: true, message: '日志已清除' });
-    } catch (err) {
-      res.json({ success: false, message: err.message });
-    }
+    res.json(guard(() => skillMgr.clearInstallLog()));
   });
 
   /** GET /api/skill/current-project — 返回当前项目工作目录 */
   router.get('/current-project', (_req, res) => {
-    res.json({ success: true, data: process.cwd() });
+    res.json(guard(() => skillMgr.getCurrentProject()));
   });
 
   return router;

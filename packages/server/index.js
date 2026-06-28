@@ -18,8 +18,8 @@ import {
   SkillManager,
   SyncManager,
   setLocale,
-  ok,
 } from '@codewhale/core';
+import { createLangRouter } from './src/routes/lang.js';
 import { createOfficialKeyRouter } from './src/routes/officialKey.js';
 import { createProviderRouter } from './src/routes/provider.js';
 import { createProxyRouter } from './src/routes/proxy.js';
@@ -64,21 +64,9 @@ const app = express();
 app.use(express.json());
 app.use('/api', noCache);
 
-// ─── 语言切换路由 ──────────────────────────────────────────────
-
-app.post('/api/lang', (req, res) => {
-  const { locale } = req.body;
-  if (locale) {
-    engine.setLocale(locale); // 持久化到 store.json
-    setLocale(locale); // 运行时生效
-    res.json(ok(null));
-  } else {
-    res.json({ success: false, message: 'locale is required' });
-  }
-});
-
 // ─── 挂载路由模块 ──────────────────────────────────────────────
 
+app.use('/api', createLangRouter(engine));
 app.use('/api/official-key', createOfficialKeyRouter(officialKeyMgr, syncMgr));
 app.use('/api/provider', createProviderRouter(providerMgr, syncMgr));
 app.use('/api/proxy', createProxyRouter(proxyMgr));

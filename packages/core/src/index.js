@@ -2,7 +2,7 @@
  * @codewhale/core — 统一导出入口
  */
 
-export { ConfigEngine } from './config.js';
+export { ConfigEngine } from './utils/config.js';
 export { ProjectSkillEngine } from './skill/project.js';
 export { ProviderManager, OfficialKeyManager } from './provider.js';
 export { ProxyManager } from './proxy.js';
@@ -10,7 +10,7 @@ export { TokenManager } from './token.js';
 export { SkillManager } from './skill/index.js';
 export { SyncManager } from './sync.js';
 export { downloadSkillFromGitHub } from './download/index.js';
-export { guard, guardAsync, ok, fail, okMsg, failMsg } from './result.js';
+export { ok, fail, okMsg, failMsg } from './utils/result.js';
 export {
   getKnownProviders,
   getProviderI18nLabel,
@@ -21,4 +21,4 @@ export {
   SERVER_MSG,
   SUPPORTED_LOCALES,
   LOCALE_LABELS,
-} from './i18n.js';
+} from './utils/i18n.js';

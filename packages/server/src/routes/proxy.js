@@ -18,20 +18,17 @@ export function createProxyRouter(proxyMgr) {
 
   // 新增代理
   router.post('/add', (req, res) => {
-    const result = proxyMgr.add(req.body);
-    res.json(result);
+    res.json(proxyMgr.add(req.body));
   });
 
   // 更新代理
   router.put('/:id', (req, res) => {
-    const result = proxyMgr.update(req.params.id, req.body);
-    res.json(result);
+    res.json(proxyMgr.update(req.params.id, req.body));
   });
 
   // 删除代理
   router.delete('/:id', (req, res) => {
-    const result = proxyMgr.remove(req.params.id);
-    res.json(result);
+    res.json(proxyMgr.remove(req.params.id));
   });
 
   // 设为默认代理

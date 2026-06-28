@@ -7,16 +7,10 @@
  */
 
 import { Router } from 'express';
-import { guard, ok } from '@codewhale/core';
+import { guard, withSync } from '../utils/guard.js';
 
 export function createProviderRouter(providerMgr, syncMgr) {
   const router = Router();
-
-  function withSync(fn) {
-    const r = fn();
-    if (r.success) syncMgr.syncToCodeWhale();
-    return r;
-  }
 
   // ── 供应商列表与状态 ────────────────
 
@@ -27,23 +21,19 @@ export function createProviderRouter(providerMgr, syncMgr) {
 
   /** 获取当前激活的供应商和模型 */
   router.get('/active', (_req, res) => {
-    res.json(guard(() => {
-      const ap = providerMgr.getActiveProvider();
-      const am = providerMgr.getActiveModel();
-      return ok({ active: ap.data, active_model: am.data });
-    }));
+    res.json(guard(() => providerMgr.getActiveInfo()));
   });
 
   // ── 模型管理（必须在 :id 通配路由之前） ─
 
   /** 添加模型 */
   router.post('/models/add', (req, res) => {
-    res.json(guard(() => withSync(() => providerMgr.addModel(req.body))));
+    res.json(guard(() => withSync(syncMgr, () => providerMgr.addModel(req.body))));
   });
 
   /** 删除模型 */
   router.post('/models/delete', (req, res) => {
-    res.json(guard(() => withSync(() => providerMgr.removeModel(req.body))));
+    res.json(guard(() => withSync(syncMgr, () => providerMgr.removeModel(req.body))));
   });
 
   /** 激活模型 */
@@ -60,17 +50,17 @@ export function createProviderRouter(providerMgr, syncMgr) {
 
   /** 添加供应商 */
   router.post('/add', (req, res) => {
-    res.json(guard(() => withSync(() => providerMgr.addProvider(req.body))));
+    res.json(guard(() => withSync(syncMgr, () => providerMgr.addProvider(req.body))));
   });
 
   /** 更新供应商 */
   router.put('/:id', (req, res) => {
-    res.json(guard(() => withSync(() => providerMgr.updateProvider({ id: req.params.id, ...req.body }))));
+    res.json(guard(() => withSync(syncMgr, () => providerMgr.updateProvider({ id: req.params.id, ...req.body }))));
   });
 
   /** 删除供应商 */
   router.delete('/:id', (req, res) => {
-    res.json(guard(() => withSync(() => providerMgr.removeProvider(req.params.id))));
+    res.json(guard(() => withSync(syncMgr, () => providerMgr.removeProvider(req.params.id))));
   });
 
   /** 激活供应商 */

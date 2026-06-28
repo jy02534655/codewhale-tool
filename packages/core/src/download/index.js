@@ -8,13 +8,13 @@
 
 import path from 'node:path';
 import fs from 'node:fs';
-import { Logger, formatBytes } from '../logger.js';
+import { Logger, formatBytes } from '../utils/logger.js';
 import {
   downloadViaTar, downloadViaApi,
   detectTarballSize, detectSkillPrefix,
 } from './http.js';
 import { createAgent, parseRepoUrl } from './utils.js';
-import { getServerMessage } from '../i18n.js';
+import { getServerMessage } from '../utils/i18n.js';
 
 // ===================== 主入口 =====================
 

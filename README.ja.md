@@ -1,12 +1,23 @@
 # codewhale-tool
 
-CodeWhale 構成管理ツールキット — AI モデルプロバイダーとスキルを管理するビジュアルツールキット。
+CodeWhale 構成管理ツールキット — 多言語、ビジュアル、プロバイダーとモデルのリアルタイム同期。
+
+[简体中文](./README.md) | [English](./README.en.md) | [Português (BR)](./README.pt-BR.md)
+
+---
 
 ## 機能
 
-- **プロバイダー管理**: プロバイダー → API キーエイリアス → モデルの3階層構成、動的切り替え
-- **スキル管理**: インストール、有効/無効、削除、コミュニティ検索をビジュアル操作
-- **Web UI とプログラム可能な API**
+- **公式 API キー管理**: 複数の DeepSeek API キー、エイリアス、ワンクリック切替
+- **プロバイダー管理**: サードパーティプロバイダーの CRUD（主キー = プロバイダータイプ + api_key）
+- **モデル管理**: プロバイダーごとに複数モデル、ワンクリック有効化
+- **プロキシ管理**: HTTP / SOCKS5 プロキシ設定（Skill ダウンロード用）
+- **トークン管理**: GitHub トークン等のアクセストークン管理
+- **Skill 管理**: コミュニティ Skill のインストール/有効/無効/更新、SSE ストリーミング進捗
+- **リアルタイム同期**: すべての変更は自動的に CodeWhale ランタイム設定に反映
+- **多言語**: 简体中文、English、日本語、Português (BR)
+
+---
 
 ## クイックスタート
 
@@ -14,67 +25,73 @@ CodeWhale 構成管理ツールキット — AI モデルプロバイダーと�
 # 依存関係のインストール
 pnpm install
 
-# Web UI モード（ターミナル1：API バックエンド、ターミナル2：フロントエンド dev サーバー）
-node packages/server/server.js          # API バックエンド → localhost:3456
-pnpm --filter @codewhale/web dev      # Vite フロントエンド → localhost:5163
+# ワンクリック開発起動（バックエンド :7000 + フロントエンド :7200）
+pnpm dev
 ```
+
+`http://localhost:7200` で Web UI を開く。
+
+---
 
 ## プロジェクト構造
 
 ```
 codewhale-tool/
 ├── packages/
-│   ├── core/          # @codewhale/core — コアロジックライブラリ
+│   ├── core/               # @codewhale/core — コアロジック
 │   │   └── src/
-│   │       ├── config.js    # ConfigEngine — 安全な TOML 読み書き
-│   │       ├── provider.js  # ProviderManager — 3階層構成管理
-│   │       ├── skill.js     # SkillManager — スキルライフサイクル
-│   │       ├── i18n.js       # 多言語マッピング（プロバイダー + サーバーメッセージ）
-│   │       ├── result.js     # guard/guardAsync エラーラッパー
-│   ├── server/       # @codewhale/server — Express API サービス
-│   │   └── server.js         # REST API ルート
-│   └── web/           # @codewhale/web — Web UI
+│   │       ├── utils/          # インフラ
+│   │       │   ├── config.js   # ConfigEngine — JSON ストレージ
+│   │       │   ├── i18n.js     # 多言語（プロバイダー名 + サーバーメッセージ）
+│   │       │   ├── logger.js   # 統合ロガー（ファイル + SSE コールバック）
+│   │       │   └── result.js   # ok / okMsg / fail / failMsg
+│   │       ├── provider.js     # ProviderManager + OfficialKeyManager
+│   │       ├── proxy.js        # ProxyManager
+│   │       ├── token.js        # TokenManager
+│   │       ├── sync.js         # SyncManager — store.json ↔ config.toml
+│   │       ├── download/       # GitHub Skill ダウンロードエンジン
+│   │       ├── skill/          # SkillManager + ProjectSkillEngine
+│   │       └── index.js        # 統合エクスポート
+│   │
+│   ├── server/             # Express API — 純粋な中継層
+│   │   ├── index.js            # 起動: エンジン初期化、ルート登録、起動
+│   │   └── src/
+│   │       ├── utils/guard.js  # guard / guardAsync / withSync / ok
+│   │       └── routes/
+│   │           ├── lang.js, officialKey.js, provider.js,
+│   │           ├── proxy.js, token.js, skill.js, sync.js
+│   │
+│   └── web/                # @codewhale/web — Vue 3 + Element Plus
 │       └── src/
-│           ├── App.vue               # ルートコンポーネント
-│           └── views/
-│               ├── ProviderView.vue  # プロバイダー管理
-│               └── SkillView.vue     # スキル管理
-├── config.toml        # 設定ファイル例
-├── PROGRESS.md         # 開発進捗ログ
-└── README.md           # このファイル
+│           ├── App.vue, main.js
+│           ├── api/
+│           ├── views/{provider,proxy,skill,token}/
+│           ├── composition/dialog/
+│           ├── stores/, locales/, utils/
+├── store.json              # ローカル JSON ストレージ
+├── DESIGN.md               # 設計ドキュメント
+└── README.ja.md            # このファイル
 ```
 
-## 設定ファイル形式
+---
 
-`config.toml` の例：
+## アーキテクチャ
 
-```toml
-[model]
-active_provider = "deepseek"
-active_api_key = "personal"
-active_model = "deepseek-ai/DeepSeek-V4-Pro"
+| 層 | パッケージ | 責務 | 禁止事項 |
+|----|----------|------|---------|
+| **core** | `@codewhale/core` | ビジネスロジック、ストレージ、同期 | HTTP 処理不可 |
+| **server** | express アプリ | ルート登録、パラメータ抽出、guard ラップ | ビジネスロジック実装不可 |
+| **web** | `@codewhale/web` | Vue 3 コンポーネント、API 呼出 | ストア直接操作不可 |
 
-[providers.deepseek]
-label = "DeepSeek"
-
-[providers.deepseek.api_keys.personal]
-key = "sk-xxxxxxxxxxxxxxxx"
-label = "個人アカウント"
-models = ["deepseek-ai/DeepSeek-V4-Pro", "deepseek-ai/DeepSeek-V4-Flash"]
-default_model = "deepseek-ai/DeepSeek-V4-Pro"
-
-[skills]
-enabled = true
-installed = [
-  { id = "pdf", path = "~/.codewhale/skills/pdf", enabled = true, source = "community" },
-]
-```
+---
 
 ## 対応言語
 
-| 言語 | ドキュメント |
-|------|-------------|
-| English | [README.en.md](./README.en.md) |
-| 日本語 | このファイル |
-| 简体中文 | [README.md](./README.md) |
-| Português (BR) | [README.pt-BR.md](./README.pt-BR.md) |
+| 言語 | コード | ドキュメント |
+|------|--------|-------------|
+| 简体中文 | `zh-Hans` | [README.md](./README.md) |
+| English | `en` | [README.en.md](./README.en.md) |
+| 日本語 | `ja` | このファイル |
+| Português (BR) | `pt-BR` | [README.pt-BR.md](./README.pt-BR.md) |
+
+Web UI 右上のセレクターで言語切替、設定は store.json に永続化されます。

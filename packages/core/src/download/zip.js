@@ -11,7 +11,7 @@ import { rmSync, createWriteStream, readdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import { randomUUID } from 'node:crypto';
-import { getServerMessage } from '../i18n.js';
+import { getServerMessage } from '../utils/i18n.js';
 import { createAgent } from './utils.js';
 import AdmZip from 'adm-zip';
 

@@ -10,8 +10,8 @@
 import path from 'node:path';
 import { HttpsProxyAgent } from 'https-proxy-agent';
 import { SocksProxyAgent } from 'socks-proxy-agent';
-import { getServerMessage } from '../i18n.js';
-import { formatBytes } from '../logger.js';
+import { getServerMessage } from '../utils/i18n.js';
+import { formatBytes } from '../utils/logger.js';
 
 export function createAgent(proxy) {
   if (!proxy || proxy.type === 'none' || proxy.type === '') return undefined;

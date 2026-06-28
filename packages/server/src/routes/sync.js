@@ -7,7 +7,7 @@
  */
 
 import { Router } from 'express';
-import { guard } from '@codewhale/core';
+import { guard } from '../utils/guard.js';
 
 /**
  * 创建同步路由

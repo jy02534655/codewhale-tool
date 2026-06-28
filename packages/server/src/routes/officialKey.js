@@ -6,16 +6,10 @@
  */
 
 import { Router } from 'express';
-import { guard } from '@codewhale/core';
+import { guard, withSync } from '../utils/guard.js';
 
 export function createOfficialKeyRouter(officialKeyMgr, syncMgr) {
   const router = Router();
-
-  function withSync(fn) {
-    const r = fn();
-    if (r.success) syncMgr.syncToCodeWhale();
-    return r;
-  }
 
   /** 获取所有官方 key */
   router.get('/list', (_req, res) => {
@@ -24,7 +18,7 @@ export function createOfficialKeyRouter(officialKeyMgr, syncMgr) {
 
   /** 添加官方 key */
   router.post('/add', (req, res) => {
-    res.json(guard(() => withSync(() => officialKeyMgr.add(req.body))));
+    res.json(guard(() => withSync(syncMgr, () => officialKeyMgr.add(req.body))));
   });
 
   /** 更新别名 */
@@ -39,7 +33,7 @@ export function createOfficialKeyRouter(officialKeyMgr, syncMgr) {
 
   /** 删除官方 key */
   router.delete('/:id', (req, res) => {
-    res.json(guard(() => withSync(() => officialKeyMgr.remove(req.params.id))));
+    res.json(guard(() => withSync(syncMgr, () => officialKeyMgr.remove(req.params.id))));
   });
 
   return router;

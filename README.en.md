@@ -1,12 +1,23 @@
 # codewhale-tool
 
-CodeWhale Configuration Toolkit — a visual toolkit for managing AI model providers and skills.
+CodeWhale Configuration Toolkit — visual, multi-language, real-time provider & model sync.
+
+[简体中文](./README.md) | [日本語](./README.ja.md) | [Português (BR)](./README.pt-BR.md)
+
+---
 
 ## Features
 
-- **Provider Management**: Three-tier configuration (provider → API key alias → models) with dynamic switching
-- **Skill Management**: Visual install, enable/disable, remove, and community search
-- **Vue 3 Web UI and programmable API**
+- **Official API Key Management**: Multiple DeepSeek API keys with aliases and one-click switching
+- **Provider Management**: Third-party provider CRUD, primary key = provider type + api_key
+- **Model Management**: Multiple models per provider, one-click activation
+- **Proxy Management**: HTTP / SOCKS5 proxy config for Skill downloads
+- **Token Management**: GitHub tokens and other access tokens
+- **Skill Management**: Community Skill install/enable/disable/update, SSE streaming progress
+- **Real-time Sync**: All changes auto-written to CodeWhale runtime config
+- **Multi-language**: 简体中文, English, 日本語, Português (BR)
+
+---
 
 ## Quick Start
 
@@ -14,70 +25,73 @@ CodeWhale Configuration Toolkit — a visual toolkit for managing AI model provi
 # Install dependencies
 pnpm install
 
-
-
-# Web UI mode (terminal 1: API backend, terminal 2: frontend dev server)
-node packages/server/server.js          # API backend → localhost:3456
-pnpm --filter @codewhale/web dev      # Vite frontend → localhost:5163
+# One-click dev (backend :7000 + frontend :7200)
+pnpm dev
 ```
+
+Open `http://localhost:7200` for Web UI.
+
+---
 
 ## Project Structure
 
 ```
 codewhale-tool/
 ├── packages/
-│   ├── core/          # @codewhale/core — Core logic library
+│   ├── core/               # @codewhale/core — core logic
 │   │   └── src/
-│   │       ├── config.js    # ConfigEngine — Safe TOML read/write
-│   │       ├── provider.js  # ProviderManager — Three-tier config management
-│   │       ├── skill.js     # SkillManager — Skill lifecycle
-│   │       ├── i18n.js       # i18n (provider labels + server messages)
-│   │       ├── result.js     # guard/guardAsync error wrapper
-
-│   ├── server/       # @codewhale/server — Express API service
-│   │   └── server.js         # REST API routes
-│   └── web/           # @codewhale/web — Web UI
+│   │       ├── utils/          # infrastructure
+│   │       │   ├── config.js   # ConfigEngine — JSON storage engine
+│   │       │   ├── i18n.js     # i18n (provider labels + server messages)
+│   │       │   ├── logger.js   # unified logger (file + SSE callbacks)
+│   │       │   └── result.js   # ok / okMsg / fail / failMsg
+│   │       ├── provider.js     # ProviderManager + OfficialKeyManager
+│   │       ├── proxy.js        # ProxyManager
+│   │       ├── token.js        # TokenManager
+│   │       ├── sync.js         # SyncManager — store.json ↔ config.toml
+│   │       ├── download/       # GitHub Skill download engine
+│   │       ├── skill/          # SkillManager + ProjectSkillEngine
+│   │       └── index.js        # unified exports
+│   │
+│   ├── server/             # Express API — pure passthrough layer
+│   │   ├── index.js            # entry: init engines, mount routes, start
+│   │   └── src/
+│   │       ├── utils/guard.js  # guard / guardAsync / withSync / ok
+│   │       └── routes/
+│   │           ├── lang.js, officialKey.js, provider.js,
+│   │           ├── proxy.js, token.js, skill.js, sync.js
+│   │
+│   └── web/                # @codewhale/web — Vue 3 + Element Plus
 │       └── src/
-│           ├── App.vue               # Root component
-│           └── views/
-│               ├── ProviderView.vue  # Provider management
-│               └── SkillView.vue     # Skill management
-├── config.toml        # Example config file
-├── PROGRESS.md         # Development progress log
-└── README.md           # This file
+│           ├── App.vue, main.js
+│           ├── api/
+│           ├── views/{provider,proxy,skill,token}/
+│           ├── composition/dialog/
+│           ├── stores/, locales/, utils/
+├── store.json              # local JSON storage
+├── DESIGN.md               # design doc
+└── README.en.md            # this file
 ```
 
-## Configuration Format
+---
 
-Example `config.toml`:
+## Architecture
 
-```toml
-[model]
-active_provider = "deepseek"
-active_api_key = "personal"
-active_model = "deepseek-ai/DeepSeek-V4-Pro"
+| Layer | Package | Role | Forbidden |
+|-------|---------|------|-----------|
+| **core** | `@codewhale/core` | Business logic, storage, sync | No HTTP |
+| **server** | express app | Route registration, param extraction, guard wrapping | No business logic |
+| **web** | `@codewhale/web` | Vue 3 components, API calls | No direct store access |
 
-[providers.deepseek]
-label = "DeepSeek"
-
-[providers.deepseek.api_keys.personal]
-key = "sk-xxxxxxxxxxxxxxxx"
-label = "Personal"
-models = ["deepseek-ai/DeepSeek-V4-Pro", "deepseek-ai/DeepSeek-V4-Flash"]
-default_model = "deepseek-ai/DeepSeek-V4-Pro"
-
-[skills]
-enabled = true
-installed = [
-  { id = "pdf", path = "~/.codewhale/skills/pdf", enabled = true, source = "community" },
-]
-```
+---
 
 ## Languages
 
-| Language | Document |
-|----------|----------|
-| English | This file |
-| 日本語 | [README.ja.md](./README.ja.md) |
-| 简体中文 | [README.md](./README.md) |
-| Português (BR) | [README.pt-BR.md](./README.pt-BR.md) |
+| Language | Code | Document |
+|----------|------|----------|
+| 简体中文 | `zh-Hans` | [README.md](./README.md) |
+| English | `en` | This file |
+| 日本語 | `ja` | [README.ja.md](./README.ja.md) |
+| Português (BR) | `pt-BR` | [README.pt-BR.md](./README.pt-BR.md) |
+
+Switch language via top-right selector in the Web UI; preference persists to store.json.

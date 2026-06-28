@@ -6,11 +6,11 @@
   "main": "./src/index.js",
   "exports": {
     ".": "./src/index.js",
-    "./config": "./src/config.js",
-    "./download-skill": "./src/skill/download.js",
-    "./i18n": "./src/i18n.js",
+    "./config": "./src/utils/config.js",
+    "./download-skill": "./src/download/index.js",
+    "./i18n": "./src/utils/i18n.js",
     "./provider": "./src/provider.js",
-    "./result": "./src/result.js",
+    "./result": "./src/utils/result.js",
     "./skill": "./src/skill/index.js"
   },
   "dependencies": {
