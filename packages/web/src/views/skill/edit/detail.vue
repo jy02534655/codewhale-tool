@@ -71,7 +71,7 @@
 import { ref, computed, watch } from 'vue'
 import { ElMessageBox } from 'element-plus'
 import { useI18n } from 'vue-i18n'
-import { getSkillDetail, enableSkill, disableSkill, removeSkill, updateSkill, getSkillFiles, readSkillFile } from '@/api/skill'
+import { enableSkill, disableSkill, removeSkill, updateSkill, getSkillFiles, readSkillFile } from '@/api/skill'
 
 const { t } = useI18n({ useScope: 'global' })
 const props = defineProps({ skill: { type: Object, default: null } })

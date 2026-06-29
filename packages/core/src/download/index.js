@@ -144,6 +144,12 @@ export async function downloadSkillFromGitHub({
           });
         }
         try { if (fs.existsSync(destDir)) fs.rmSync(destDir, { recursive: true, force: true }); } catch { /* ignore */ }
+        // 网络级错误（fetch failed / abort）换前缀无意义，直接跳到 API
+        const msg = tarErr.message || '';
+        if (msg.includes('fetch failed') || tarErr.name === 'AbortError') {
+          logger.log('WARN', 'SKILL_LOG_TAR_NETWORK_FAIL', null, { msg });
+          break;
+        }
       }
     }
 
@@ -183,6 +189,12 @@ export async function downloadSkillFromGitHub({
           try { if (fs.existsSync(destDir)) fs.rmSync(destDir, { recursive: true, force: true }); } catch { /* ignore */ }
           if (onProgress) {
             onProgress({ stage: 'fallback', percent: 50, message: getServerMessage('SKILL_PROGRESS_ALSO_FAILED', { prefix: candidatePrefix, msg: apiErr.message }) });
+          }
+          // 网络级错误换前缀无意义，直接跳出
+          const msg = apiErr.message || '';
+          if (msg.includes('fetch failed') || msg.includes('socket disconnected') || apiErr.name === 'AbortError') {
+            logger.log('WARN', 'SKILL_LOG_API_NETWORK_FAIL', null, { msg });
+            break;
           }
         }
       }

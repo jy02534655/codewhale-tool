@@ -61,34 +61,25 @@
     "proxy_select_placeholder": "プロキシを使用しない",
     "token_select": "GitHub トークン（任意）",
     "token_select_placeholder": "トークンを使用しない",
-    "zipFile": "ローカルファイル",
-    "zipOr": "または",
+    "githubPathUrl": "GitHub パス URL",
+    "githubPathPlaceholder": "https://github.com/owner/repo/tree/branch/path",
+    "uploadZip": "ZIP ファイルをアップロード",
+    "zipFile": "ZIP ファイル",
     "chooseFile": "ファイル選択",
     "clearFile": "クリア",
-    "communityLink": "📦 コミュニティスキル一覧",
-    "zipSource": "ZIP URL またはローカルパス",
-    "registryId": "レジストリ ID",
-    "installMode": {
+    "files": "ファイル一覧",
+    "noFiles": "ファイルなし",
+    "source": {
       "community": "コミュニティ",
+      "local": "ローカル",
+      "zip": "ZIP",
+      "custom": "カスタム"
+    },
+    "installMode": {
       "github": "GitHub リポジトリ",
-      "zip": "ZIP インポート",
-      "registry": "レジストリ",
-      "skillhub": "Skillhub 検索"
+      "zip": "ZIP アップロード",
+      "githubPath": "GitHub パス"
     },
-    "skillhub": {
-      "notInstalled": "Skillhub CLI がインストールされていません",
-      "installNow": "インストール",
-      "installing": "インストール中…",
-      "searchPlaceholder": "スキルを検索…",
-      "searching": "検索中…",
-      "searchFail": "検索失敗",
-      "noResults": "スキルが見つかりません",
-      "installSkill": "インストール",
-      "installingSkill": "インストール中…",
-      "installSuccess": "インストール成功",
-      "installFail": "インストール失敗"
-    },
-    "source": { "community": "コミュニティ", "local": "ローカル", "custom": "カスタム" },
     "name": "名前",
     "installLog": "インストールログ",
     "noLog": "ログ記録なし",
@@ -122,10 +113,10 @@
     "stageExtracted": "解凍完了",
     "stageApiComplete": "API ダウンロード完了",
     "stageDetected": "検出済み",
-    "downloadProgress": "ダウンロード進捗",
     "parseFailed": "解析できませんでした。手動で入力してください",
     "confirmClearLog": "すべてのインストールログを削除しますか？",
     "confirmClearLogTitle": "確認",
+    "downloadProgress": "ダウンロード進捗",
     "browse": "参照",
     "originalName": "元の名前",
     "enable": "有効",
@@ -147,22 +138,9 @@
     "aliasPlaceholder": "例: 委任、文書ツール",
     "remarkPlaceholder": "備考を日本語で入力...",
     "tagsPlaceholder": "カンマ区切り、例: mcp, server, debug",
-    "githubPathUrl": "GitHub パス URL",
-    "githubPathPlaceholder": "https://github.com/owner/repo/tree/branch/path",
-    "uploadZip": "ZIP ファイルをアップロード",
-    "zipFile": "ZIP ファイル",
-    "chooseFile": "ファイル選択",
-    "clearFile": "クリア",
-    "installMode": {
-      "github": "GitHub リポジトリ",
-      "zip": "ZIP アップロード",
-      "githubPath": "GitHub パス"
-    },
-"install": "スキルをインストール",
-      "files": "ファイル一覧",
-      "noFiles": "ファイルなし"
-    },
-    "message": {
+    "install": "スキルをインストール"
+  },
+  "message": {
     "networkError": "ネットワークエラー、再試行してください",
     "invalidUrl": "有効な http/https URL を入力してください",
     "invalidHost": "有効な IP アドレスまたはホスト名を入力してください"
@@ -170,6 +148,7 @@
   "common": {
     "confirm": "確認",
     "cancel": "キャンセル",
+    "refresh": "更新",
     "collapse": "折りたたむ",
     "edit": "編集",
     "save": "保存",
@@ -177,7 +156,6 @@
     "add": "追加",
     "delete": "削除",
     "close": "閉じる",
-    "refresh": "更新",
     "confirm_delete": "削除確認",
     "current": "現在",
     "activate": "有効化",

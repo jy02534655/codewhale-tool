@@ -744,8 +744,7 @@ export class SkillManager {
       const items = readdirSync(dir, { withFileTypes: true });
       for (const e of items) {
         if (e.name.startsWith('.') || e.name === 'node_modules') continue;
-        if (e.isDirectory()) { _walk(join(dir, e.name), prefix ? prefix + '/' + e.name : e.name); }
-        else { files.push(prefix ? prefix + '/' + e.name : e.name); }
+        if (e.isDirectory()) { _walk(join(dir, e.name), prefix ? prefix + '/' + e.name : e.name); } else { files.push(prefix ? prefix + '/' + e.name : e.name); }
       }
     };
     _walk(entry.path, '');

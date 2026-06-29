@@ -61,34 +61,25 @@
     "proxy_select_placeholder": "Sem proxy",
     "token_select": "GitHub Token (opcional)",
     "token_select_placeholder": "Sem token",
-    "zipFile": "Arquivo Local",
-    "zipOr": "ou",
+    "githubPathUrl": "URL do Caminho GitHub",
+    "githubPathPlaceholder": "https://github.com/owner/repo/tree/branch/path",
+    "uploadZip": "Enviar Arquivo ZIP",
+    "zipFile": "Arquivo ZIP",
     "chooseFile": "Escolher",
     "clearFile": "Limpar",
-    "communityLink": "📦 Explorar Skills",
-    "zipSource": "URL ZIP ou caminho local",
-    "registryId": "ID do Registro",
-    "installMode": {
+    "files": "Arquivos",
+    "noFiles": "Nenhum arquivo",
+    "source": {
       "community": "Comunidade",
+      "local": "Local",
+      "zip": "ZIP",
+      "custom": "Personalizado"
+    },
+    "installMode": {
       "github": "GitHub Repo",
-      "zip": "Importar ZIP",
-      "registry": "Registro",
-      "skillhub": "Buscar Skillhub"
+      "zip": "Enviar ZIP",
+      "githubPath": "Caminho GitHub"
     },
-    "skillhub": {
-      "notInstalled": "Skillhub CLI não instalado",
-      "installNow": "Instalar Agora",
-      "installing": "Instalando…",
-      "searchPlaceholder": "Buscar skills…",
-      "searching": "Buscando…",
-      "searchFail": "Busca falhou",
-      "noResults": "Nenhuma skill encontrada",
-      "installSkill": "Instalar",
-      "installingSkill": "Instalando…",
-      "installSuccess": "Instalação bem-sucedida",
-      "installFail": "Falha na instalação"
-    },
-    "source": { "community": "Comunidade", "local": "Local", "custom": "Personalizado" },
     "name": "Nome",
     "installLog": "Log de Instalação",
     "noLog": "Nenhum registro de log",
@@ -122,10 +113,10 @@
     "stageExtracted": "Extração completa",
     "stageApiComplete": "Download da API completo",
     "stageDetected": "Detectado",
-    "downloadProgress": "Progresso do Download",
     "parseFailed": "Não foi possível interpretar, insira manualmente",
     "confirmClearLog": "Limpar todos os logs de instalação?",
     "confirmClearLogTitle": "Confirmar",
+    "downloadProgress": "Progresso do Download",
     "browse": "Navegar",
     "originalName": "Nome Original",
     "enable": "Ativar",
@@ -147,22 +138,9 @@
     "aliasPlaceholder": "ex: Delegação, Ferramenta de Documentos",
     "remarkPlaceholder": "Escreva uma observação em português...",
     "tagsPlaceholder": "Separado por vírgula, ex: mcp, server, debug",
-    "githubPathUrl": "URL do Caminho GitHub",
-    "githubPathPlaceholder": "https://github.com/owner/repo/tree/branch/path",
-    "uploadZip": "Enviar Arquivo ZIP",
-    "zipFile": "Arquivo ZIP",
-    "chooseFile": "Escolher",
-    "clearFile": "Limpar",
-    "installMode": {
-      "github": "GitHub Repo",
-      "zip": "Enviar ZIP",
-      "githubPath": "Caminho GitHub"
-    },
-"install": "Instalar Skill",
-      "files": "Arquivos",
-      "noFiles": "Nenhum arquivo"
-    },
-    "message": {
+    "install": "Instalar Skill"
+  },
+  "message": {
     "networkError": "Erro de rede, tente novamente",
     "invalidUrl": "Insira uma URL http/https válida",
     "invalidHost": "Insira um endereço IP ou hostname válido"
@@ -170,6 +148,7 @@
   "common": {
     "confirm": "OK",
     "cancel": "Cancelar",
+    "refresh": "Atualizar",
     "collapse": "Recolher",
     "edit": "Editar",
     "save": "Salvar",
@@ -177,7 +156,6 @@
     "add": "Adicionar",
     "delete": "Excluir",
     "close": "Fechar",
-    "refresh": "Atualizar",
     "confirm_delete": "Confirmar Exclusão",
     "current": "Ativo",
     "activate": "Ativar",

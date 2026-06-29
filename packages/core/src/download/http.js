@@ -20,7 +20,15 @@ export async function downloadViaTar({ owner, repo, branch, skillPrefix, targetD
   const downloadUrl = `https://codeload.github.com/${owner}/${repo}/tar.gz/${branch}`;
   const repoPrefix = `${repo}-${branch}/`;
 
-  const res = await globalThis.fetch(downloadUrl, { agent, headers: { 'User-Agent': 'codewhale-downloader' } });
+  // 30s 超时 + 代理修复：用 dispatcher 而非 agent
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), 30000);
+  let res;
+  try {
+    res = await globalThis.fetch(downloadUrl, { dispatcher: agent, signal: ctrl.signal, headers: { 'User-Agent': 'codewhale-downloader' } });
+  } finally {
+    clearTimeout(timer);
+  }
   if (!res.ok) throw new Error(`Download failed: HTTP ${res.status}`);
   if (!res.body) throw new Error('Response has no body stream');
 
@@ -106,9 +114,9 @@ export async function downloadViaApi({ owner, repo, branch, skillPrefix, targetD
     tree = treeRes.data.tree;
   } catch (err) {
     if (err.status === 403 && String(err.message).includes('rate limit')) {
-      throw new Error('GitHub API rate limit reached, please provide a token');
+      throw new Error('GitHub API rate limit reached, please provide a token', { cause: err });
     }
-    throw new Error(`Tree API failed: ${err.status} ${err.message}`);
+    throw new Error(`Tree API failed: ${err.status} ${err.message}`, { cause: err });
   }
 
   const files = tree.filter((f) => f.type === 'blob' && f.path.startsWith(skillPrefix));
@@ -151,7 +159,7 @@ export async function downloadViaApi({ owner, repo, branch, skillPrefix, targetD
         return;
       } catch (err) {
         if (attempt === MAX_RETRIES) {
-          throw new Error(`Download ${file.path} (blob) failed: ${err.message}`);
+          throw new Error(`Download ${file.path} (blob) failed: ${err.message}`, { cause: err });
         }
         await new Promise((r) => setTimeout(r, 1000 * attempt));
       }

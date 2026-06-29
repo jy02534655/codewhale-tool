@@ -61,34 +61,25 @@
     "proxy_select_placeholder": "No proxy",
     "token_select": "GitHub Token (optional)",
     "token_select_placeholder": "No token",
-    "zipFile": "Local File",
-    "zipOr": "or",
+    "githubPathUrl": "GitHub Path URL",
+    "githubPathPlaceholder": "https://github.com/owner/repo/tree/branch/path",
+    "uploadZip": "Upload ZIP File",
+    "zipFile": "ZIP File",
     "chooseFile": "Choose File",
     "clearFile": "Clear",
-    "communityLink": "📦 Browse Community Skills",
-    "zipSource": "ZIP URL or local path",
-    "registryId": "Registry ID",
-    "installMode": {
+    "files": "Files",
+    "noFiles": "No files",
+    "source": {
       "community": "Community",
+      "local": "Local",
+      "zip": "ZIP",
+      "custom": "Custom"
+    },
+    "installMode": {
       "github": "GitHub Repo",
-      "zip": "ZIP Import",
-      "registry": "Registry",
-      "skillhub": "Skillhub Search"
+      "zip": "Upload ZIP",
+      "githubPath": "GitHub Path"
     },
-    "skillhub": {
-      "notInstalled": "Skillhub CLI not installed",
-      "installNow": "Install Now",
-      "installing": "Installing…",
-      "searchPlaceholder": "Search skills…",
-      "searching": "Searching…",
-      "searchFail": "Search failed",
-      "noResults": "No skills found",
-      "installSkill": "Install",
-      "installingSkill": "Installing…",
-      "installSuccess": "Install successful",
-      "installFail": "Install failed"
-    },
-    "source": { "community": "Community", "local": "Local", "custom": "Custom" },
     "name": "Name",
     "installLog": "Install Log",
     "noLog": "No log records",
@@ -122,10 +113,10 @@
     "stageExtracted": "Extraction complete",
     "stageApiComplete": "API download complete",
     "stageDetected": "Detected",
-    "downloadProgress": "Download Progress",
     "parseFailed": "Could not parse, please enter manually",
     "confirmClearLog": "Clear all install logs?",
     "confirmClearLogTitle": "Confirm",
+    "downloadProgress": "Download Progress",
     "browse": "Browse",
     "originalName": "Original Name",
     "enable": "Enable",
@@ -147,22 +138,9 @@
     "aliasPlaceholder": "e.g. Delegation, Document Tool",
     "remarkPlaceholder": "Write a remark description...",
     "tagsPlaceholder": "Comma separated, e.g. mcp, server, debug",
-    "githubPathUrl": "GitHub Path URL",
-    "githubPathPlaceholder": "https://github.com/owner/repo/tree/branch/path",
-    "uploadZip": "Upload ZIP File",
-    "zipFile": "ZIP File",
-    "chooseFile": "Choose File",
-    "clearFile": "Clear",
-    "installMode": {
-      "github": "GitHub Repo",
-      "zip": "Upload ZIP",
-      "githubPath": "GitHub Path"
-    },
-"install": "Install Skill",
-      "files": "Files",
-      "noFiles": "No files"
-    },
-    "message": {
+    "install": "Install Skill"
+  },
+  "message": {
     "networkError": "Network error, please try again",
     "invalidUrl": "Please enter a valid http/https URL",
     "invalidHost": "Please enter a valid IP address or hostname"
@@ -170,6 +148,7 @@
   "common": {
     "confirm": "OK",
     "cancel": "Cancel",
+    "refresh": "Refresh",
     "collapse": "Collapse",
     "edit": "Edit",
     "save": "Save",
@@ -177,7 +156,6 @@
     "add": "Add",
     "delete": "Delete",
     "close": "Close",
-    "refresh": "Refresh",
     "confirm_delete": "Confirm Delete",
     "current": "Active",
     "activate": "Activate",

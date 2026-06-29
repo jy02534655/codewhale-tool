@@ -1,40 +1,51 @@
-# Handoff — Skill 安装改进 + 文件浏览器
+# Handoff — 多语言配置修复 + ESLint 警告修复
 
 > 最后更新: 2026-06-29
 > 状态: **全部完成** ✅
 
 ## 本次改动
 
-### 1. Skill 文件浏览器（detail.vue）
+### 1. ESLint 警告修复（http.js）
 
-**后端新增 API:**
-- `GET /api/skill/files/:id?level=` — 返回 skill 目录下所有文件列表
-- `GET /api/skill/file/:id?path=xxx&level=` — 读取指定文件内容
+`preserve-caught-error`：3 处 `throw new Error(...)` 添加了 `{ cause: err }` 第二个参数：
+- 第 117 行：rate limit 错误
+- 第 119 行：Tree API 失败
+- 第 162 行：Blob 下载失败（重试耗尽后）
 
-**core 新增方法:**
-- `getSkillFiles(skillId, level)` — 递归扫描返回相对路径数组
-- `readSkillFile(skillId, filePath, level)` — 读取单个文件
-- `getReadme(skillId)` — 获取 SKILL.md（补全原 route 缺失的实现）
-- `saveReadme(skillId, content)` — 保存 SKILL.md（补全原 route 缺失的实现）
-- `_findEntry(skillId, level)` — 统一的条目录入（避免代码重复）
+### 2. detail.vue — 移除未使用导入
 
-**前端改进:**
-- `detail.vue` — 重写 SKILL.md 预览区域为文件浏览器（左侧文件树 + 右侧文件查看器）
-- `api/skill.js` — 新增 `getSkillFiles()` 和 `readSkillFile()`
-- 4 个 locale 文件 — 新增 `skill.files` / `skill.noFiles` 键
+移除 `getSkillDetail` 导入（`no-unused-vars` 警告）。
 
-### 2. install.vue 右侧加宽
+### 3. info.vue — alias 标签修复
 
-- `.install-right` 宽度从 240px → 280px
+`$t('skill.alias')` → `$t('common.alias')`
+原因：locale 文件中不存在 `skill.alias` 键，`common.alias` 已定义（zh-Hans: "别名", en: "Alias", ja: "別名", pt-BR: "Apelido"）。
+
+### 4. 多语言 JSON 结构修复（en.json / ja.json / pt-BR.json）
+
+以 zh-Hans.json 为结构模板，三个文件完全重写：
+
+**删除的重复键：**
+- 第二个 `installMode`（底部重复定义）
+- 重复的 `zipFile`/`chooseFile`/`clearFile`
+- 重复的 `githubPathUrl`/`githubPathPlaceholder`/`uploadZip`
+- 错误的 `message` 嵌套（从 `skill` 内部移至顶层）
+- 旧的 `installMode`（包含 `community`/`registry`/`skillhub` 等未使用值）
+- `skillhub` 子对象（代码中未引用）
+- `communityLink`/`zipSource`/`registryId`/`zipOr`（代码中未引用）
+- 错位的 `install`/`files`/`noFiles`
+
+**补全的键：**
+- `skill.source.zip` — "ZIP"（4 个文件均已补全）
+- `skill.files` / `skill.noFiles` — 文件浏览器用
+- `common.refresh` — 移至正确位置
+
+### 5. zh-Hans.json 补全
+
+`skill.source` 添加 `"zip": "ZIP"`。
 
 ## 建议下一步验证
-1. `pnpm install` + `pnpm dev`
-2. 选择已安装的 skill 查看文件列表（应显示 SKILL.md 及其他文件）
-3. 点击不同文件确认可以切换查看
-4. 打开安装弹窗确认右侧宽度合理
-
-## 上一轮已完成的内容
-- 三种安装模式（GitHub 仓库 / 上传 ZIP / GitHub Tree 路径）
-- SSE 流式安装进度
-- install.vue 左右布局
-- 多语言全覆盖
+1. `npm install` + `npm run dev`
+2. 切换四种语言确认各页面显示正常
+3. 打开 Skill 编辑弹窗确认 alias 标签显示为"别名"而非 "skill.alias"
+4. Skill 详情右侧文件浏览器的"文件列表"/"暂无文件"文案正常

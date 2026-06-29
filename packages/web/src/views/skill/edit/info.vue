@@ -4,7 +4,7 @@
 <template>
   <el-dialog v-model="isShow" :title="$t('skill.editInfo')" width="500px" :close-on-click-modal="false" @close="resetForm">
     <el-form ref="form" :model="formData" label-position="top">
-      <el-form-item :label="$t('skill.alias')">
+      <el-form-item :label="$t('common.alias')">
         <el-input v-model="formData.alias" :placeholder="$t('skill.aliasPlaceholder')" />
       </el-form-item>
       <el-form-item :label="$t('skill.remark')">
