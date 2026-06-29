@@ -6,6 +6,14 @@ CodeWhale Configuration Toolkit — visual, multi-language, real-time provider &
 
 ---
 
+## About
+
+This project explores the boundaries of AI-assisted development. **The author is a programmer, but every line of code was written through CodeWhale with zero manual edits.**
+
+From initial concept to architecture design, from code to multilingual translation, from bug fixes to documentation — all done by AI in conversation.
+
+---
+
 ## Features
 
 - **Official API Key Management**: Multiple DeepSeek API keys with aliases and one-click switching
@@ -23,10 +31,10 @@ CodeWhale Configuration Toolkit — visual, multi-language, real-time provider &
 
 ```bash
 # Install dependencies
-pnpm install
+npm install
 
 # One-click dev (backend :7000 + frontend :7200)
-pnpm dev
+npm run dev
 ```
 
 Open `http://localhost:7200` for Web UI.
@@ -38,50 +46,67 @@ Open `http://localhost:7200` for Web UI.
 ```
 codewhale-tool/
 ├── packages/
-│   ├── core/               # @codewhale/core — core logic
-│   │   └── src/
-│   │       ├── utils/          # infrastructure
-│   │       │   ├── config.js   # ConfigEngine — JSON storage engine
-│   │       │   ├── i18n.js     # i18n (provider labels + server messages)
-│   │       │   ├── logger.js   # unified logger (file + SSE callbacks)
-│   │       │   └── result.js   # ok / okMsg / fail / failMsg
-│   │       ├── provider.js     # ProviderManager + OfficialKeyManager
-│   │       ├── proxy.js        # ProxyManager
-│   │       ├── token.js        # TokenManager
-│   │       ├── sync.js         # SyncManager — store.json ↔ config.toml
-│   │       ├── download/       # GitHub Skill download engine
-│   │       ├── skill/          # SkillManager + ProjectSkillEngine
-│   │       └── index.js        # unified exports
-│   │
-│   ├── server/             # Express API — pure passthrough layer
-│   │   ├── index.js            # entry: init engines, mount routes, start
-│   │   └── src/
-│   │       ├── utils/guard.js  # guard / guardAsync / withSync / ok
-│   │       └── routes/
-│   │           ├── lang.js, officialKey.js, provider.js,
-│   │           ├── proxy.js, token.js, skill.js, sync.js
-│   │
-│   └── web/                # @codewhale/web — Vue 3 + Element Plus
-│       └── src/
-│           ├── App.vue, main.js
-│           ├── api/
-│           ├── views/{provider,proxy,skill,token}/
-│           ├── composition/dialog/
-│           ├── stores/, locales/, utils/
-├── store.json              # local JSON storage
-├── DESIGN.md               # design doc
-└── README.en.md            # this file
+│   ├── core/          # @codewhale/core — business logic, storage, sync
+│   ├── server/        # Express API passthrough layer
+│   └── web/           # @codewhale/web — Vue 3 + Element Plus
+├── skills/            # Project-level Skills (architecture, proxy, UI patterns)
+├── scripts/dev.mjs    # Unified dev startup script
+├── store.json         # Local JSON storage
+├── DESIGN.md          # Architecture, data flow, edge cases, version history
+└── PROGRESS.md        # Development progress
 ```
+
+> Full source tree and module index in [DESIGN.md](./DESIGN.md) → Architecture Layers.
 
 ---
 
 ## Architecture
+
+Three layers, one-way dependency:
 
 | Layer | Package | Role | Forbidden |
 |-------|---------|------|-----------|
 | **core** | `@codewhale/core` | Business logic, storage, sync | No HTTP |
 | **server** | express app | Route registration, param extraction, guard wrapping | No business logic |
 | **web** | `@codewhale/web` | Vue 3 components, API calls | No direct store access |
+
+---
+
+## Web UI Pages
+
+| Page | Path | Key Features |
+|------|------|-------------|
+| Provider Manager | `/views/provider/` | Official & third-party provider CRUD, model activation |
+| Proxy Manager | `/views/proxy/` | HTTP / SOCKS5 proxy add, edit, set default |
+| Skill Manager | `/views/skill/` | Install/search/enable/disable, SSE progress, SKILL.md editor |
+| Token Manager | `/views/token/` | GitHub token CRUD, safe masked display |
+
+---
+
+## Tech Stack
+
+| Layer | Technology |
+|-------|-----------|
+| Storage | Node.js native JSON (store.json) + smol-toml |
+| Web Frontend | Vue 3 + Element Plus + Vue I18n + Pinia |
+| API Server | Express |
+| Download Engine | node-fetch + tar + adm-zip + git sparse-checkout |
+| Build | Vite |
+| Package Manager | npm workspaces |
+
+---
+
+## Related Docs
+
+| Document | Description |
+|----------|------------|
+| [DESIGN.md](./DESIGN.md) | Architecture, storage design, sync strategy, error norms, edge cases, version history |
+| [PROGRESS.md](./PROGRESS.md) | Development progress: completed modules and changelog |
+| [skills/architecture/SKILL.md](./skills/architecture/SKILL.md) | Three-layer architecture rules |
+| [skills/proxy-manager/SKILL.md](./skills/proxy-manager/SKILL.md) | Proxy & Token module guide |
+| [skills/skill-manager/SKILL.md](./skills/skill-manager/SKILL.md) | Skill module guide |
+| [skills/ui-patterns/SKILL.md](./skills/ui-patterns/SKILL.md) | UI patterns (dialogs, forms, tables, i18n) |
+| [.codewhale/handoff.md](./.codewhale/handoff.md) | Latest session handoff (transient) |
 
 ---
 

@@ -170,12 +170,13 @@ failMsg('KEY_NOT_FOUND') // 自动翻译 → { success: false, message: '...', e
 | API 服务 | Express |
 | 下载引擎 | node-fetch + tar + adm-zip + git sparse-checkout |
 | 构建 | Vite |
-| 包管理 | pnpm workspaces |
+| 包管理 | npm workspaces |
 
 ## 版本历史
 
 | 版本 | 日期 | 变更 |
 |------|------|------|
+| 0.3.1 | 2026-06 | ESLint 警告修复、多语言 JSON 结构修复、文档全面更新 |
 | 0.3.0 | 2026-06 | 架构重组：core/utils/ + server/utils/guard.js + 三层职责分离 |
 | 0.2.0 | 2026-06 | JSON 存储、多供应商、模型管理、多语言、一体化启动 |
 | 0.1.0 | 初始 | TOML 存储、基本 CRUD |

@@ -6,6 +6,14 @@ Kit de Configuração do CodeWhale — visual, multilíngue, sincronização em 
 
 ---
 
+## Sobre
+
+Este projeto explora os limites do desenvolvimento assistido por IA. **O autor é programador, mas todas as linhas de código foram escritas através do CodeWhale, sem edições manuais.**
+
+Do conceito inicial ao design de arquitetura, da codificação à tradução multilíngue, das correções de bugs à documentação — todo o trabalho foi feito por IA em conversação.
+
+---
+
 ## Funcionalidades
 
 - **Gerenciamento de Chave API Oficial**: Múltiplas chaves DeepSeek com aliases e troca rápida
@@ -23,10 +31,10 @@ Kit de Configuração do CodeWhale — visual, multilíngue, sincronização em 
 
 ```bash
 # Instalar dependências
-pnpm install
+npm install
 
 # Iniciar com um clique (backend :7000 + frontend :7200)
-pnpm dev
+npm run dev
 ```
 
 Abra `http://localhost:7200` para a Web UI.
@@ -38,50 +46,67 @@ Abra `http://localhost:7200` para a Web UI.
 ```
 codewhale-tool/
 ├── packages/
-│   ├── core/               # @codewhale/core — lógica central
-│   │   └── src/
-│   │       ├── utils/          # infraestrutura
-│   │       │   ├── config.js   # ConfigEngine — armazenamento JSON
-│   │       │   ├── i18n.js     # i18n (rótulos de providers + mensagens)
-│   │       │   ├── logger.js   # logger unificado (arquivo + callbacks SSE)
-│   │       │   └── result.js   # ok / okMsg / fail / failMsg
-│   │       ├── provider.js     # ProviderManager + OfficialKeyManager
-│   │       ├── proxy.js        # ProxyManager
-│   │       ├── token.js        # TokenManager
-│   │       ├── sync.js         # SyncManager — store.json ↔ config.toml
-│   │       ├── download/       # motor de download de Skills do GitHub
-│   │       ├── skill/          # SkillManager + ProjectSkillEngine
-│   │       └── index.js        # exportações unificadas
-│   │
-│   ├── server/             # Express API — camada de passagem pura
-│   │   ├── index.js            # entrada: inicializa motores, monta rotas, inicia
-│   │   └── src/
-│   │       ├── utils/guard.js  # guard / guardAsync / withSync / ok
-│   │       └── routes/
-│   │           ├── lang.js, officialKey.js, provider.js,
-│   │           ├── proxy.js, token.js, skill.js, sync.js
-│   │
-│   └── web/                # @codewhale/web — Vue 3 + Element Plus
-│       └── src/
-│           ├── App.vue, main.js
-│           ├── api/
-│           ├── views/{provider,proxy,skill,token}/
-│           ├── composition/dialog/
-│           ├── stores/, locales/, utils/
-├── store.json              # armazenamento JSON local
-├── DESIGN.md               # documento de design
-└── README.pt-BR.md         # este arquivo
+│   ├── core/          # @codewhale/core — lógica de negócio, armazenamento, sincronização
+│   ├── server/        # Camada de passagem da API Express
+│   └── web/           # @codewhale/web — Vue 3 + Element Plus
+├── skills/            # Skills de nível de projeto (arquitetura, proxy, padrões UI)
+├── scripts/dev.mjs    # Script de inicialização unificado
+├── store.json         # Armazenamento JSON local
+├── DESIGN.md          # Arquitetura, fluxo de dados, casos limite, histórico de versões
+└── PROGRESS.md        # Progresso de desenvolvimento
 ```
+
+> Árvore de código completa e índice de módulos em [DESIGN.md](./DESIGN.md) → Camadas de Arquitetura.
 
 ---
 
 ## Arquitetura
+
+Três camadas, dependência unidirecional:
 
 | Camada | Pacote | Função | Proibido |
 |--------|--------|--------|----------|
 | **core** | `@codewhale/core` | Lógica de negócio, armazenamento, sincronização | Sem HTTP |
 | **server** | app express | Registro de rotas, extração de parâmetros, wrapper guard | Sem lógica de negócio |
 | **web** | `@codewhale/web` | Componentes Vue 3, chamadas API | Sem acesso direto ao store |
+
+---
+
+## Páginas da Web UI
+
+| Página | Caminho | Principais Funcionalidades |
+|------|---------|--------------------------|
+| Gerenciador de Providers | `/views/provider/` | CRUD de providers oficiais e terceiros, ativação de modelos |
+| Gerenciador de Proxy | `/views/proxy/` | Adicionar, editar, definir proxy HTTP / SOCKS5 padrão |
+| Gerenciador de Skills | `/views/skill/` | Instalar/buscar/ativar/desativar, progresso SSE, editor SKILL.md |
+| Gerenciador de Tokens | `/views/token/` | CRUD de tokens GitHub, exibição segura com máscara |
+
+---
+
+## Stack Tecnológica
+
+| Camada | Tecnologia |
+|--------|-----------|
+| Armazenamento | JSON nativo do Node.js (store.json) + smol-toml |
+| Frontend Web | Vue 3 + Element Plus + Vue I18n + Pinia |
+| Servidor API | Express |
+| Motor de Download | node-fetch + tar + adm-zip + git sparse-checkout |
+| Build | Vite |
+| Gerenciador de Pacotes | npm workspaces |
+
+---
+
+## Documentos Relacionados
+
+| Documento | Descrição |
+|-----------|----------|
+| [DESIGN.md](./DESIGN.md) | Arquitetura, design de armazenamento, estratégia de sincronização, normas de erro, casos limite, histórico de versões |
+| [PROGRESS.md](./PROGRESS.md) | Progresso de desenvolvimento: módulos concluídos e changelog |
+| [skills/architecture/SKILL.md](./skills/architecture/SKILL.md) | Regras de arquitetura de três camadas |
+| [skills/proxy-manager/SKILL.md](./skills/proxy-manager/SKILL.md) | Guia do módulo Proxy & Token |
+| [skills/skill-manager/SKILL.md](./skills/skill-manager/SKILL.md) | Guia do módulo Skill |
+| [skills/ui-patterns/SKILL.md](./skills/ui-patterns/SKILL.md) | Padrões UI (diálogos, formulários, tabelas, i18n) |
+| [.codewhale/handoff.md](./.codewhale/handoff.md) | Handoff da última sessão (transitório) |
 
 ---
 
