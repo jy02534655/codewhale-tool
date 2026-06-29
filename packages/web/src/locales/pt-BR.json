@@ -146,9 +146,23 @@
     "discoverNone": "Nenhuma nova skill encontrada",
     "aliasPlaceholder": "ex: Delegação, Ferramenta de Documentos",
     "remarkPlaceholder": "Escreva uma observação em português...",
-    "tagsPlaceholder": "Separado por vírgula, ex: mcp, server, debug"
-  },
-  "message": {
+    "tagsPlaceholder": "Separado por vírgula, ex: mcp, server, debug",
+    "githubPathUrl": "URL do Caminho GitHub",
+    "githubPathPlaceholder": "https://github.com/owner/repo/tree/branch/path",
+    "uploadZip": "Enviar Arquivo ZIP",
+    "zipFile": "Arquivo ZIP",
+    "chooseFile": "Escolher",
+    "clearFile": "Limpar",
+    "installMode": {
+      "github": "GitHub Repo",
+      "zip": "Enviar ZIP",
+      "githubPath": "Caminho GitHub"
+    },
+"install": "Instalar Skill",
+      "files": "Arquivos",
+      "noFiles": "Nenhum arquivo"
+    },
+    "message": {
     "networkError": "Erro de rede, tente novamente",
     "invalidUrl": "Insira uma URL http/https válida",
     "invalidHost": "Insira um endereço IP ou hostname válido"

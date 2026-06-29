@@ -1,12 +1,3 @@
-/**
- * download/utils.js — 下载模块公共工具
- *
- * 从原 download.js 提取的通用工具函数。
- * createAgent 只支持结构化代理配置 {type, host, port, auth}。
- *
- * @module download/utils
- */
-
 import path from 'node:path';
 import { HttpsProxyAgent } from 'https-proxy-agent';
 import { SocksProxyAgent } from 'socks-proxy-agent';
@@ -32,6 +23,23 @@ export function parseRepoUrl(repoUrl) {
   const match = cleaned.match(/github\.com\/([^/]+)\/([^/]+)$/);
   if (!match) throw new Error(getServerMessage('SKILL_ERROR_INVALID_GITHUB_URL', { url: repoUrl }));
   return { owner: match[1], repo: match[2] };
+}
+
+/**
+ * parseGithubTreeUrl — 解析 GitHub Tree URL
+ * 输入: https://github.com/owner/repo/tree/branch/path/to/skill
+ * 输出: { owner, repo, branch, path }
+ */
+export function parseGithubTreeUrl(url) {
+  const cleaned = url.replace(/\?.*$/, '').replace(/\/$/, '');
+  const match = cleaned.match(/github\.com\/([^/]+)\/([^/]+)\/tree\/([^/]+)\/(.+)/);
+  if (!match) {
+    // 尝试无 path 的情况: github.com/owner/repo/tree/branch
+    const simple = cleaned.match(/github\.com\/([^/]+)\/([^/]+)\/tree\/([^/]+)/);
+    if (!simple) return null;
+    return { owner: simple[1], repo: simple[2], branch: simple[3], path: '' };
+  }
+  return { owner: match[1], repo: match[2], branch: match[3], path: match[4] };
 }
 
 export class ProgressEmitter {

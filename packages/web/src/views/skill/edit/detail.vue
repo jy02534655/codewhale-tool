@@ -1,6 +1,6 @@
 <!--
-  detail.vue — 右侧详情展示面板（简化版）
-  顶部只显示别名作为标题，备注直接展示，操作按钮无缩进
+  detail.vue — 右侧详情展示面板
+  支持查看 skill 目录下的所有文件（不仅是 SKILL.md）
 --><template>
   <div class="detail-panel">
     <el-empty v-if="!skill" :description="$t('skill.selectHint')" />
@@ -37,19 +37,32 @@
           {{ $t('skill.gitUpdate') }}
         </el-button>
       </div>
-      <!-- SKILL.md 预览 -->
-      <div class="detail-section readme-section">
+      <!-- 文件浏览器 -->
+      <div class="file-browser-section">
         <div class="section-header">
-          <span>SKILL.md</span>
-          <el-button size="small" circle @click="showReadme = !showReadme">
-            <el-icon><ArrowUp v-if="showReadme" /><ArrowDown v-else /></el-icon>
-          </el-button>
+          <span>📁 {{ $t('skill.files') || 'Files' }}</span>
         </div>
-        <div v-show="showReadme">
-          <div v-if="readmeLoading" v-loading="true" class="readme-loading" />
-          <pre v-else-if="readmeContent" class="readme-content">{{ readmeContent }}</pre>
-          <p v-else class="field-empty">（{{ $t('skill.noReadme') }}）</p>
+        <div v-if="fileLoading" v-loading="true" class="file-loading" />
+        <div v-else-if="fileList.length > 0" class="file-browser">
+          <div class="file-tree">
+            <div
+              v-for="item in fileTree"
+              :key="item.path"
+              class="file-node"
+              :class="{ 'file-node--selected': activeFile === item.path, 'file-node--dir': item.isDir }"
+            >
+              <span v-if="item.isDir" class="file-icon">📁</span>
+              <span v-else class="file-icon">📄</span>
+              <span class="file-name" @click="selectFile(item)">{{ item.label }}</span>
+            </div>
+          </div>
+          <div class="file-viewer">
+            <div class="file-viewer-header">{{ activeFile || '' }}</div>
+            <div v-if="fileContentLoading" v-loading="true" class="file-viewer-loading" />
+            <pre v-else class="file-content">{{ fileContent }}</pre>
+          </div>
         </div>
+        <p v-else class="field-empty">（{{ $t('skill.noFiles') || 'No files' }}）</p>
       </div>
     </template>
   </div>
@@ -58,21 +71,48 @@
 import { ref, computed, watch } from 'vue'
 import { ElMessageBox } from 'element-plus'
 import { useI18n } from 'vue-i18n'
-import { getSkillDetail, enableSkill, disableSkill, removeSkill, updateSkill } from '@/api/skill'
+import { getSkillDetail, enableSkill, disableSkill, removeSkill, updateSkill, getSkillFiles, readSkillFile } from '@/api/skill'
 
 const { t } = useI18n({ useScope: 'global' })
 const props = defineProps({ skill: { type: Object, default: null } })
 const emit = defineEmits(['refresh', 'openEdit', 'openReadme'])
 
-const showReadme = ref(true)
-const readmeContent = ref('')
-const readmeLoading = ref(false)
 const updating = ref(false)
+const fileList = ref([])
+const fileLoading = ref(false)
+const activeFile = ref('')
+const fileContent = ref('')
+const fileContentLoading = ref(false)
 
 const displayTitle = computed(function () {
   if (!props.skill) return ''
   return props.skill.alias || props.skill.name || props.skill.id
 })
+
+const fileTree = computed(function () {
+  return fileList.value.map(function (p) {
+    const parts = p.split('/')
+    return { path: p, label: '\xA0'.repeat((parts.length - 1) * 4) + parts[parts.length - 1], isDir: false, depth: parts.length - 1 }
+  })
+})
+
+function selectFile(item) {
+  if (item.isDir) return
+  activeFile.value = item.path
+  fileContentLoading.value = true
+  fileContent.value = ''
+  const id = props.skill && (props.skill.id || props.skill)
+  readSkillFile(id, item.path)
+    .then(function (res) {
+      fileContent.value = res || ''
+    })
+    .catch(function () {
+      fileContent.value = t('skill.installFailed')
+    })
+    .finally(function () {
+      fileContentLoading.value = false
+    })
+}
 
 function doToggle() {
   if (!props.skill) return
@@ -99,37 +139,55 @@ function doUpdate() {
     .finally(function () { updating.value = false })
 }
 
-function loadReadme() {
+function loadFiles() {
   if (!props.skill) return
-  readmeLoading.value = true
-  getSkillDetail(props.skill.id)
+  fileLoading.value = true
+  fileList.value = []
+  activeFile.value = ''
+  fileContent.value = ''
+  const id = props.skill.id || props.skill
+  getSkillFiles(id)
     .then(function (res) {
-      readmeContent.value = (res && res.readme) ? res.readme : ''
+      fileList.value = (res && Array.isArray(res)) ? res : (res && res.data ? res.data : [])
+      // 默认选中 SKILL.md
+      const skillMd = fileList.value.find(function (f) { return f === 'SKILL.md' })
+      if (skillMd) {
+        selectFile({ path: skillMd, isDir: false })
+      }
     })
-    .catch(function () { readmeContent.value = '' })
+    .catch(function () {
+      fileList.value = []
+    })
     .finally(function () {
-      readmeLoading.value = false
+      fileLoading.value = false
     })
 }
 
 watch(function () { return props.skill }, function (neu) {
-  showReadme.value = true
-  readmeContent.value = ''
-  if (neu) loadReadme()
+  if (neu) loadFiles()
 }, { immediate: true })
 </script>
 <style scoped>
-.detail-panel { height: 100%; display: flex; flex-direction: column; gap: 12px; padding: 20px; }
-.detail-header { padding-bottom: 12px; border-bottom: 1px solid var(--border); }
+.detail-panel { height: 100%; display: flex; flex-direction: column; gap: 12px; padding: 20px; overflow: hidden; }
+.detail-header { padding-bottom: 12px; border-bottom: 1px solid var(--border); flex-shrink: 0; }
 .detail-title { font-size: 20px; font-weight: 600; margin: 0; }
-.detail-remark { padding: 4px 0; }
+.detail-remark { padding: 4px 0; flex-shrink: 0; }
 .remark-text { font-size: 14px; line-height: 1.6; margin: 0; color: var(--text-primary); }
 .field-empty { color: var(--text-secondary); font-size: 12px; margin: 0; }
-.detail-actions { display: flex; gap: 8px; flex-wrap: wrap; padding: 4px 0; }
-.detail-section { background: var(--bg-primary); border-radius: var(--radius); padding: 12px; border: 1px solid var(--border); }
-.section-header { display: flex; justify-content: space-between; align-items: center; font-size: 14px; font-weight: 500; margin-bottom: 8px; }
-.readme-section { flex: 1; min-height: 0; display: flex; flex-direction: column; }
-.readme-section .section-header { flex-shrink: 0; }
-.readme-loading { min-height: 100px; }
-.readme-content { flex: 1; background: var(--bg-secondary, #f6f6f6); border-radius: var(--radius); padding: 12px; font-size: 12px; white-space: pre-wrap; overflow: auto; margin: 0; }
+.detail-actions { display: flex; gap: 8px; flex-wrap: wrap; padding: 4px 0; flex-shrink: 0; }
+.file-browser-section { flex: 1; min-height: 0; display: flex; flex-direction: column; background: var(--bg-primary); border-radius: var(--radius); border: 1px solid var(--border); overflow: hidden; }
+.section-header { display: flex; justify-content: space-between; align-items: center; font-size: 14px; font-weight: 500; padding: 10px 12px; border-bottom: 1px solid var(--border); flex-shrink: 0; }
+.file-loading { min-height: 100px; }
+.file-browser { flex: 1; display: flex; min-height: 0; overflow: hidden; }
+.file-tree { width: 200px; flex-shrink: 0; border-right: 1px solid var(--border); overflow-y: auto; padding: 4px 0; }
+.file-node { display: flex; align-items: center; padding: 4px 12px; cursor: pointer; font-size: 12px; line-height: 1.8; color: var(--text-primary); white-space: nowrap; }
+.file-node:hover { background: var(--bg-secondary); }
+.file-node--selected { background: var(--el-color-primary-light-9, #ecf5ff); color: var(--el-color-primary, #409eff); }
+.file-node--dir { font-weight: 500; cursor: default; }
+.file-icon { width: 18px; flex-shrink: 0; text-align: center; }
+.file-name { flex: 1; overflow: hidden; text-overflow: ellipsis; }
+.file-viewer { flex: 1; display: flex; flex-direction: column; min-width: 0; overflow: hidden; }
+.file-viewer-header { padding: 8px 12px; font-size: 12px; font-weight: 500; color: var(--text-secondary); background: var(--bg-secondary); border-bottom: 1px solid var(--border); flex-shrink: 0; }
+.file-viewer-loading { min-height: 100px; }
+.file-content { flex: 1; margin: 0; padding: 12px; font-size: 12px; white-space: pre-wrap; overflow: auto; font-family: monospace; line-height: 1.6; }
 </style>

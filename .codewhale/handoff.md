@@ -1,40 +1,40 @@
-# Handoff — 会话结束，剩余任务
+# Handoff — Skill 安装改进 + 文件浏览器
 
-> 创建: 2026-06-27
+> 最后更新: 2026-06-29
+> 状态: **全部完成** ✅
 
-## 已完成
+## 本次改动
 
-- download/ 模块拆分（logger.js + download/{index, http, git, zip, utils}.js）
-- skill/index.js 从 1841 行精简到 ~775 行
-- downloadViaApi 使用 GitHub Content API（修复代理兼容性）
-- SSE 格式修正（sendSSE 无缩进空格 + charset=utf-8）
-- store.json 数据重建（删除 agent-browser，恢复所有别名/备注/标签）
-- updateMeta 扩展支持 alias/remark/tags
-- installFromGitHub V1→V2 合并
-- 13 处硬编码中文字符串改为 i18n
-- createAgent 仅支持结构化代理配置
-- ESLint warnings 大部分已修复
+### 1. Skill 文件浏览器（detail.vue）
 
-## 待完成
+**后端新增 API:**
+- `GET /api/skill/files/:id?level=` — 返回 skill 目录下所有文件列表
+- `GET /api/skill/file/:id?path=xxx&level=` — 读取指定文件内容
 
-### 1. 多语言配置补齐
+**core 新增方法:**
+- `getSkillFiles(skillId, level)` — 递归扫描返回相对路径数组
+- `readSkillFile(skillId, filePath, level)` — 读取单个文件
+- `getReadme(skillId)` — 获取 SKILL.md（补全原 route 缺失的实现）
+- `saveReadme(skillId, content)` — 保存 SKILL.md（补全原 route 缺失的实现）
+- `_findEntry(skillId, level)` — 统一的条目录入（避免代码重复）
 
-en/ja/pt-BR 的 web locale 缺少以下 skill key（只在 zh-Hans 中有）：
-`enable`, `disable`, `gitUpdate`, `viewReadme`, `editReadme`, `editInfo`,
-`selectHint`, `noSkill`, `noMatch`, `noProject`, `noRemark`, `noTags`,
-`noReadme`, `collapseReadme`, `discoverSuccess`, `discoverNone`,
-`aliasPlaceholder`, `remarkPlaceholder`, `tagsPlaceholder`, `preparing`
+**前端改进:**
+- `detail.vue` — 重写 SKILL.md 预览区域为文件浏览器（左侧文件树 + 右侧文件查看器）
+- `api/skill.js` — 新增 `getSkillFiles()` 和 `readSkillFile()`
+- 4 个 locale 文件 — 新增 `skill.files` / `skill.noFiles` 键
 
-文件: packages/web/src/locales/{en,ja,pt-BR}.json
+### 2. install.vue 右侧加宽
 
-### 2. 删除 agent-browser 磁盘目录
+- `.install-right` 宽度从 240px → 280px
 
-目录: C:\Users\53450\.codewhale\skills\agent-browser
-（已从 store.json 删除，但目录还在会被 discover 重新添加）
+## 建议下一步验证
+1. `pnpm install` + `pnpm dev`
+2. 选择已安装的 skill 查看文件列表（应显示 SKILL.md 及其他文件）
+3. 点击不同文件确认可以切换查看
+4. 打开安装弹窗确认右侧宽度合理
 
-### 3. 安装进度流验证
-重新安装 frontend-design 测试完整流程
-
-### 4. install/install-github-stream 数据流
-- 进度事件正常接收
-- 安装完成后前端显示正常
+## 上一轮已完成的内容
+- 三种安装模式（GitHub 仓库 / 上传 ZIP / GitHub Tree 路径）
+- SSE 流式安装进度
+- install.vue 左右布局
+- 多语言全覆盖

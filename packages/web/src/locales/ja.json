@@ -146,9 +146,23 @@
     "discoverNone": "新しいスキルは見つかりませんでした",
     "aliasPlaceholder": "例: 委任、文書ツール",
     "remarkPlaceholder": "備考を日本語で入力...",
-    "tagsPlaceholder": "カンマ区切り、例: mcp, server, debug"
-  },
-  "message": {
+    "tagsPlaceholder": "カンマ区切り、例: mcp, server, debug",
+    "githubPathUrl": "GitHub パス URL",
+    "githubPathPlaceholder": "https://github.com/owner/repo/tree/branch/path",
+    "uploadZip": "ZIP ファイルをアップロード",
+    "zipFile": "ZIP ファイル",
+    "chooseFile": "ファイル選択",
+    "clearFile": "クリア",
+    "installMode": {
+      "github": "GitHub リポジトリ",
+      "zip": "ZIP アップロード",
+      "githubPath": "GitHub パス"
+    },
+"install": "スキルをインストール",
+      "files": "ファイル一覧",
+      "noFiles": "ファイルなし"
+    },
+    "message": {
     "networkError": "ネットワークエラー、再試行してください",
     "invalidUrl": "有効な http/https URL を入力してください",
     "invalidHost": "有効な IP アドレスまたはホスト名を入力してください"

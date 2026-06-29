@@ -40,6 +40,22 @@ export function installFromGithubStream(repoUrl, skillPath, level) {
   return new EventSource('/api/skill/install-github-stream?' + params.toString())
 }
 
+/** 上传 ZIP 文件流式安装 skill — POST multipart，返回 Promise<{success, streamId}> */
+export function installFromZipStream(formData) {
+  return fetch('/api/skill/install-zip-stream', { method: 'POST', body: formData }).then(function (r) { return r.json() })
+}
+
+/** 通过 GitHub Tree URL 流式安装 skill（返回 EventSource 实例） */
+export function installFromGithubTreePath(githubUrl, level, proxyId, tokenId) {
+  const params = new URLSearchParams({
+    githubUrl: githubUrl || '',
+    level: level || 'global',
+  })
+  if (proxyId) params.append('proxyId', proxyId)
+  if (tokenId) params.append('tokenId', tokenId)
+  return new EventSource('/api/skill/install-github-path-stream?' + params.toString())
+}
+
 /** 合并更新元数据（alias + remark + tags） */
 export function updateMeta(id, data) { return ajaxPutBack('/skill/meta/' + id, data, { successMessage: true }) }
 
@@ -48,6 +64,14 @@ export function getReadme(id) { return ajaxBack('/skill/readme/' + id) }
 
 /** 保存 SKILL.md */
 export function saveReadme(id, content) { return ajaxPutBack('/skill/readme/' + id, { content }, { successMessage: true }) }
+
+/** 获取 skill 目录下的文件列表 */
+export function getSkillFiles(id) { return ajaxBack('/skill/files/' + id) }
+
+/** 读取 skill 目录下的指定文件 */
+export function readSkillFile(id, filePath) {
+  return ajaxBack('/skill/file/' + id + '?path=' + encodeURIComponent(filePath))
+}
 
 /** 获取安装日志 */
 export function getInstallLog() { return ajaxBack('/skill/install-log') }

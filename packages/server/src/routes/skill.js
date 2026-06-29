@@ -8,6 +8,8 @@
 
 import { Router } from 'express';
 import { guard, guardAsync } from '../utils/guard.js';
+import multer from 'multer';
+import { tmpdir } from 'node:os';
 
 /**
  * @param {import('@codewhale/core').SkillManager} skillMgr
@@ -56,6 +58,18 @@ export function createSkillRouter(skillMgr) {
 
   router.put('/readme/:id', (req, res) => {
     res.json(guard(() => skillMgr.saveReadme(req.params.id, req.body.content)));
+  });
+
+  // ─── Skill 文件浏览 ──────────────────────────────────────────
+
+  /** GET /api/skill/files/:id — 获取 skill 目录下所有文件列表 */
+  router.get('/files/:id', (req, res) => {
+    res.json(guard(() => skillMgr.getSkillFiles(req.params.id, req.query.level)));
+  });
+
+  /** GET /api/skill/file/:id — 读取 skill 目录下的指定文件（?path=相对路径） */
+  router.get('/file/:id', (req, res) => {
+    res.json(guard(() => skillMgr.readSkillFile(req.params.id, req.query.path, req.query.level)));
   });
 
   // ─── 操作 ──────────────────────────────────────────────────
@@ -158,7 +172,7 @@ export function createSkillRouter(skillMgr) {
     }
   });
 
-  // ─── 社区搜索 ──────────────────────────────────────────────
+  // ─── 社区搜索 ──────────────────────────────────────────────────────────────────────────────────────────
 
   router.get('/search', async (req, res) => {
     res.json(await guardAsync(async () => {
@@ -182,6 +196,120 @@ export function createSkillRouter(skillMgr) {
   /** GET /api/skill/current-project — 返回当前项目工作目录 */
   router.get('/current-project', (_req, res) => {
     res.json(guard(() => skillMgr.getCurrentProject()));
+  });
+
+  // ─── ZIP 上传安装 ──────────────────────────────────────────────
+
+  const _upload = multer({ dest: tmpdir() });
+  const _pendingZipInstalls = new Map();
+
+  /**
+   * POST /api/skill/install-zip-stream — 上传 ZIP 文件，返回 streamId
+   * body: multipart/form-data — file (ZIP), skillName, level
+   */
+  router.post('/install-zip-stream', _upload.single('file'), (req, res) => {
+    if (!req.file) {
+      res.json({ success: false, message: 'No file uploaded' })
+      return
+    }
+    const streamId = crypto.randomUUID();
+    _pendingZipInstalls.set(streamId, {
+      filePath: req.file.path,
+      skillName: req.body.skillName || '',
+      level: req.body.level || 'global',
+      createdAt: Date.now(),
+    });
+    res.json({ success: true, streamId });
+  });
+
+  /**
+   * GET /api/skill/install-zip-stream/sse/:streamId — SSE 流式安装进度
+   */
+  router.get('/install-zip-stream/sse/:streamId', async (req, res) => {
+    const pending = _pendingZipInstalls.get(req.params.streamId);
+    if (!pending) {
+      res.status(404).json({ success: false, message: 'Stream not found' });
+      return;
+    }
+    _pendingZipInstalls.delete(req.params.streamId);
+
+    res.writeHead(200, {
+      'Content-Type': 'text/event-stream; charset=utf-8',
+      'Cache-Control': 'no-cache',
+      'Connection': 'keep-alive',
+      'X-Accel-Buffering': 'no',
+    });
+
+    let clientConnected = true;
+    req.on('close', () => { clientConnected = false; });
+
+    const sendSSE = (event, data) => {
+      if (!clientConnected) return;
+      res.write('event: ' + event + '\ndata: ' + JSON.stringify(data) + '\n\n');
+    };
+
+    const onProgress = (progress) => sendSSE('progress', progress);
+    const onLog = (logEntry) => sendSSE('log', { level: logEntry.level || 'INFO', message: logEntry.message });
+
+    try {
+      const result = await skillMgr.installFromZipStream(pending.filePath, pending.skillName, pending.level, onProgress, onLog);
+      if (result.success) {
+        sendSSE('complete', { success: true, data: result.data });
+      } else {
+        sendSSE('error', { success: false, message: result.message });
+      }
+    } catch (err) {
+      sendSSE('error', { success: false, message: err.message });
+    } finally {
+      try { res.end(); } catch { /* ignore */ }
+    }
+  });
+
+  // ─── GitHub Tree 路径安装 ──────────────────────────────────────
+
+  /**
+   * GET /api/skill/install-github-path-stream — SSE 流式安装进度
+   * query: githubUrl, level, proxyId, tokenId
+   */
+  router.get('/install-github-path-stream', async (req, res) => {
+    const { githubUrl, level, proxyId, tokenId } = req.query;
+
+    if (!githubUrl) {
+      res.writeHead(400, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ success: false, message: 'githubUrl is required' }));
+      return;
+    }
+
+    res.writeHead(200, {
+      'Content-Type': 'text/event-stream; charset=utf-8',
+      'Cache-Control': 'no-cache',
+      'Connection': 'keep-alive',
+      'X-Accel-Buffering': 'no',
+    });
+
+    let clientConnected = true;
+    req.on('close', () => { clientConnected = false; });
+
+    const sendSSE = (event, data) => {
+      if (!clientConnected) return;
+      res.write('event: ' + event + '\ndata: ' + JSON.stringify(data) + '\n\n');
+    };
+
+    const onProgress = (progress) => sendSSE('progress', progress);
+    const onLog = (logEntry) => sendSSE('log', { level: logEntry.level || 'INFO', message: logEntry.message });
+
+    try {
+      const result = await skillMgr.installFromGithubTreePath(githubUrl, level, proxyId, tokenId, onProgress, onLog);
+      if (result.success) {
+        sendSSE('complete', { success: true, data: result.data });
+      } else {
+        sendSSE('error', { success: false, message: result.message });
+      }
+    } catch (err) {
+      sendSSE('error', { success: false, message: err.message });
+    } finally {
+      try { res.end(); } catch { /* ignore */ }
+    }
   });
 
   return router;

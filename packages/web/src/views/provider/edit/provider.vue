@@ -40,15 +40,43 @@
 import { reactive, computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { assign } from 'lodash';
-import { getKnownProviders, getProviderI18nLabel } from '@codewhale/core/i18n';
 import { addProvider, editProvider } from '@/api/provider';
 import { useMaskingStore } from '@/stores/masking';
 import { compositionDialogForm } from '@/composition/dialog/Form';
 
 const maskingStore = useMaskingStore();
 const { t, locale } = useI18n({ useScope: 'global' });
-const vendorOptions = computed(() => getKnownProviders(locale.value));
-const vendorLabel = (id) => getProviderI18nLabel(id, locale.value);
+
+// ── 供应商 i18n 映射（内联，不依赖 core 包）─────────────────
+const PROVIDER_I18N = {
+  deepseek: { 'zh-Hans': 'DeepSeek', en: 'DeepSeek', ja: 'DeepSeek', 'pt-BR': 'DeepSeek' },
+  siliconflow: { 'zh-Hans': '硅基流动', en: 'SiliconFlow', ja: 'SiliconFlow', 'pt-BR': 'SiliconFlow' },
+  openrouter: { 'zh-Hans': 'OpenRouter', en: 'OpenRouter', ja: 'OpenRouter', 'pt-BR': 'OpenRouter' },
+  'nvidia-nim': { 'zh-Hans': 'NVIDIA NIM', en: 'NVIDIA NIM', ja: 'NVIDIA NIM', 'pt-BR': 'NVIDIA NIM' },
+  atlascloud: { 'zh-Hans': 'AtlasCloud', en: 'AtlasCloud', ja: 'AtlasCloud', 'pt-BR': 'AtlasCloud' },
+  'wanjie-ark': { 'zh-Hans': '万界方舟', en: 'Wanjie Ark', ja: '万界方舟', 'pt-BR': 'Wanjie Ark' },
+  'xiaomi-mimo': { 'zh-Hans': '小米 MiMo', en: 'Xiaomi MiMo', ja: 'Xiaomi MiMo', 'pt-BR': 'Xiaomi MiMo' },
+  novita: { 'zh-Hans': 'Novita', en: 'Novita', ja: 'Novita', 'pt-BR': 'Novita' },
+  fireworks: { 'zh-Hans': 'Fireworks', en: 'Fireworks', ja: 'Fireworks', 'pt-BR': 'Fireworks' },
+  openai: { 'zh-Hans': 'OpenAI（兼容）', en: 'OpenAI / Compat', ja: 'OpenAI（互換）', 'pt-BR': 'OpenAI / Compat' },
+  sglang: { 'zh-Hans': 'SGLang（自托管）', en: 'SGLang (Self)', ja: 'SGLang（自前）', 'pt-BR': 'SGLang (Self)' },
+  vllm: { 'zh-Hans': 'vLLM（自托管）', en: 'vLLM (Self)', ja: 'vLLM（自前）', 'pt-BR': 'vLLM (Self)' },
+  ollama: { 'zh-Hans': 'Ollama（本地）', en: 'Ollama (Local)', ja: 'Ollama（ローカル）', 'pt-BR': 'Ollama (Local)' },
+};
+
+function getVendorLabel(id, loc) {
+  const map = PROVIDER_I18N[id];
+  return map ? (map[loc] || map['zh-Hans'] || id) : id;
+}
+
+function getVendorOptions(loc) {
+  return Object.entries(PROVIDER_I18N).map(function ([id, labels]) {
+    return { id: id, label: labels[loc] || labels['zh-Hans'] || id };
+  });
+}
+
+const vendorOptions = computed(function () { return getVendorOptions(locale.value); });
+const vendorLabel = function (id) { return getVendorLabel(id, locale.value); };
 
 const formData = reactive({
   provider: undefined,

@@ -74,7 +74,7 @@ try {
   await waitForServer('http://localhost:' + PORT + '/api/provider/list');
   console.log('✅ 后端就绪，启动前端 ...');
 
-  const frontend = spawn('cmd.exe', ['/c', UTF8 + 'npx vite --host --port 7200'], {
+  const frontend = spawn('cmd.exe', ['/c', UTF8 + 'node ' + join(root, 'node_modules', 'vite', 'bin', 'vite.js') + ' --host --port 7200'], {
     cwd: join(root, 'packages', 'web'),
     stdio: 'inherit',
   });

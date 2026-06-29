@@ -425,6 +425,62 @@ export class SkillManager {
   }
 
   /**
+   * 从本地 ZIP 文件流式安装 skill（带 SSE 进度和日志）
+   * @param {string} zipPath - 本地 ZIP 文件路径
+   * @param {string} skillName - skill 名称（可选）
+   * @param {'global'|'project'} [level='global']
+   * @param {Function} [onProgress] - 进度回调
+   * @param {Function} [onLog] - 日志回调
+   * @returns {Promise<{success: boolean, data?: any, message?: string}>}
+   */
+  async installFromZipStream(zipPath, skillName, level, onProgress, onLog) {
+    // 委派 installFromZip 完成实际安装
+    // 通过 onProgress/onLog 实现 SSE 流式输出
+    if (onLog) {
+      onLog({ level: 'INFO', message: getServerMessage('SKILL_PROGRESS_EXTRACTING') });
+    }
+    const result = await this.installFromZip(zipPath, skillName, level, undefined, onProgress);
+    if (onLog) {
+      if (result.success) {
+        onLog({ level: 'INFO', message: getServerMessage('SKILL_PROGRESS_DONE') });
+      } else {
+        onLog({ level: 'ERROR', message: result.message || getServerMessage('SKILL_INSTALL_FAILED') });
+      }
+    }
+    return result;
+  }
+
+  /**
+   * 从 GitHub Tree URL 安装 skill（解析 URL 后委派 installFromGitHub）
+   * 输入: https://github.com/owner/repo/tree/branch/path/to/skill
+   * @param {string} githubUrl - 完整 GitHub tree URL
+   * @param {'global'|'project'} [level='global']
+   * @param {string} [proxyId] - 代理 ID
+   * @param {string} [tokenId] - GitHub Token ID
+   * @param {Function} [onProgress] - 进度回调
+   * @param {Function} [onLog] - 日志回调
+   * @returns {Promise<{success: boolean, data?: any, message?: string}>}
+   */
+  async installFromGithubTreePath(githubUrl, level, proxyId, tokenId, onProgress, onLog) {
+    const { parseGithubTreeUrl } = await import('../download/utils.js');
+    const parsed = parseGithubTreeUrl(githubUrl);
+    if (!parsed) {
+      return failMsg('SKILL_INVALID_REPO_URL');
+    }
+
+    if (onLog) {
+      onLog({ level: 'INFO', message: `Parsed: owner=${parsed.owner}, repo=${parsed.repo}, branch=${parsed.branch}, path=${parsed.path}` });
+    }
+
+    const repoUrl = `https://github.com/${parsed.owner}/${parsed.repo}`;
+    const skillPath = parsed.path;
+
+    return this._installFromGitHubV2({
+      repoUrl, skillPath, level, proxyId, tokenId,
+    }, onProgress, onLog);
+  }
+
+  /**
    * 从本地目录安装 skill
    */
   installFromLocal(srcDir, skillName, level) {
@@ -673,6 +729,67 @@ export class SkillManager {
     return ok(process.cwd());
   }
 
+  // ─── Skill 文件浏览 ──────────────────────────────────────────
+
+  /**
+   * 获取 skill 目录下的所有文件列表（相对路径）
+   * @param {string} skillId
+   * @param {'global'|'project'} [level]
+   */
+  getSkillFiles(skillId, level) {
+    const entry = this._findEntry(skillId, level);
+    if (!entry) return failMsg('SKILL_NOT_FOUND');
+    const files = [];
+    const _walk = function (dir, prefix) {
+      const items = readdirSync(dir, { withFileTypes: true });
+      for (const e of items) {
+        if (e.name.startsWith('.') || e.name === 'node_modules') continue;
+        if (e.isDirectory()) { _walk(join(dir, e.name), prefix ? prefix + '/' + e.name : e.name); }
+        else { files.push(prefix ? prefix + '/' + e.name : e.name); }
+      }
+    };
+    _walk(entry.path, '');
+    return ok(files.sort());
+  }
+
+  /**
+   * 读取 skill 目录下的指定文件内容
+   * @param {string} skillId
+   * @param {string} filePath - 相对于 skill 根目录的路径
+   * @param {'global'|'project'} [level]
+   */
+  readSkillFile(skillId, filePath, level) {
+    const entry = this._findEntry(skillId, level);
+    if (!entry) return failMsg('SKILL_NOT_FOUND');
+    const fullPath = join(entry.path, filePath);
+    if (!existsSync(fullPath)) return failMsg('SKILL_FILE_NOT_FOUND');
+    try {
+      const content = readFileSync(fullPath, 'utf-8');
+      return ok(content);
+    } catch (err) {
+      return fail('Failed to read file: ' + err.message);
+    }
+  }
+
+  /**
+   * 获取 SKILL.md 内容
+   */
+  getReadme(skillId) {
+    const result = this.readSkillFile(skillId, 'SKILL.md');
+    return result.success ? ok(result.data) : ok('');
+  }
+
+  /**
+   * 保存 SKILL.md 内容
+   */
+  saveReadme(skillId, content) {
+    return this._mutate(skillId, (entries, idx) => {
+      writeFileSync(join(entries[idx].path, 'SKILL.md'), content, 'utf-8');
+      entries[idx].updated_at = Date.now();
+      return okMsg('updated');
+    });
+  }
+
   // ─── 内部方法 ───────────────────────────────────────────────
 
   _getLevelInstalled(level) {
@@ -681,6 +798,22 @@ export class SkillManager {
 
   _getLevelEngine(level) {
     return level === 'project' ? this._projectEngine : this._engine;
+  }
+
+  /**
+   * 统一的 skill 条目录入查找
+   * @param {string} skillId
+   * @param {'global'|'project'} [level]
+   * @returns {object|null}
+   */
+  _findEntry(skillId, level) {
+    if (level === 'global') return this._getGlobalInstalled().find((s) => s.id === skillId) || null;
+    if (level === 'project') return this._getProjectInstalled().find((s) => s.id === skillId) || null;
+    let entry = this._getGlobalInstalled().find((s) => s.id === skillId) || null;
+    if (!entry && this._projectEngine) {
+      entry = this._getProjectInstalled().find((s) => s.id === skillId) || null;
+    }
+    return entry;
   }
 
   _getGlobalInstalled() {
