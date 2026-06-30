@@ -9,11 +9,11 @@
     <div class="install-layout">
       <!-- 左侧：安装方式 -->
       <div class="install-left">
-        <el-radio-group v-model="installMode" class="install-mode-tabs">
-          <el-radio-button value="github">{{ $t('skill.installMode.github') }}</el-radio-button>
-          <el-radio-button value="zip">{{ $t('skill.installMode.zip') }}</el-radio-button>
-          <el-radio-button value="githubPath">{{ $t('skill.installMode.githubPath') }}</el-radio-button>
-        </el-radio-group>
+        <el-tabs v-model="installMode" class="install-mode-tabs">
+          <el-tab-pane name="github" :label="$t('skill.installMode.github')" />
+          <el-tab-pane name="zip" :label="$t('skill.installMode.zip')" />
+          <el-tab-pane name="githubPath" :label="$t('skill.installMode.githubPath')" />
+        </el-tabs>
 
         <!-- GitHub 仓库安装 -->
         <div v-if="installMode === 'github'" class="install-config">
@@ -353,10 +353,6 @@ defineExpose({ showDialog, hideDialog, showDialogByData })
 }
 .install-mode-tabs {
   margin-bottom: 16px;
-  width: 100%;
-}
-.install-mode-tabs .el-radio-button {
-  flex: 1;
 }
 .install-config {
   padding: 4px 0;

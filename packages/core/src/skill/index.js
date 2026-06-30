@@ -531,10 +531,22 @@ export class SkillManager {
   }
 
   /**
-   * 删除 skill（别名，兼容旧版 API 调用 remove）
+   * 删除 skill（从配置中移除并删除磁盘上对应的 skill 文件目录）
    */
-  remove(skillId) {
-    return this.uninstall(skillId);
+  remove(skillId, hintLevel) {
+    return this._mutate(skillId, (entries, idx, entry, level) => {
+      // 删除磁盘上的 skill 文件目录
+      try {
+        if (existsSync(entry.path)) {
+          rmSync(entry.path, { recursive: true, force: true });
+        }
+      } catch (err) {
+        // 文件删除失败不阻塞配置移除操作
+      }
+      entries.splice(idx, 1);
+      this._setLevelInstalled(level, entries);
+      return okMsg('synced');
+    }, hintLevel);
   }
 
   /**
