@@ -243,10 +243,24 @@ export class ProviderManager {
     return okMsg('added', { id });
   }
 
-  /** @param {{id: string, label?: string, base_url?: string}} param */
-  updateProvider({ id, label, base_url } = {}) {
+  /** @param {{id: string, provider?: string, label?: string, base_url?: string}} param */
+  updateProvider({ id, provider, label, base_url } = {}) {
     return this._mutate(id, (all, idx, p) => {
       if (base_url !== undefined && !isValidUrl(base_url)) return failMsg('INVALID_BASE_URL');
+
+      // 如果供应商类型变更，需重建主键：新id = 新provider:api_key
+      if (provider !== undefined && provider !== p.provider) {
+        const newId = `${provider}:${p.api_key}`;
+        if (all.some((x) => x.id === newId)) return failMsg('PROVIDER_DUPLICATE');
+        const updated = { ...p, id: newId, provider };
+        if (label !== undefined) updated.label = label;
+        if (base_url !== undefined) updated.base_url = base_url;
+        all.push(updated);
+        all.splice(idx, 1);
+        return okMsg('updated');
+      }
+
+      // 供应商类型不变，仅更新常规字段
       if (label !== undefined) p.label = label;
       if (base_url !== undefined) p.base_url = base_url;
       return okMsg('updated');
