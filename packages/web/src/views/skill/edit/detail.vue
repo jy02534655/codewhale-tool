@@ -15,7 +15,8 @@
       <div class="detail-actions">
         <el-button size="small" :type="skill.enabled ? 'warning' : 'success'" :icon="skill.enabled ? CircleClose : Check" @click="toggleSkillEnabled">{{ skill.enabled ? $t('skill.disable') : $t('skill.enable') }}</el-button>
         <el-button v-if="skill.source === 'community'" size="small" type="primary" :icon="Refresh" @click="updateCurrentSkill">{{ $t('skill.update') }}</el-button>
-        <el-button size="small" type="primary" :icon="Edit" @click="editReadme">{{ $t('skill.editReadme') }}</el-button>
+        <el-button size="small" type="success" :icon="Setting" @click="openEditDialog">{{ $t('skill.editInfo') }}</el-button>
+        <el-button size="small" type="default" :icon="Edit" @click="editReadme">{{ $t('skill.editReadme') }}</el-button>
         <el-button size="small" type="danger" :icon="Delete" @click="removeCurrentSkill">{{ $t('common.delete') }}</el-button>
       </div>
       <div class="detail-meta">
@@ -89,7 +90,7 @@ import { ref, computed, watch, nextTick } from 'vue'
 import { ElMessageBox, ElMessage } from 'element-plus'
 
 // 引入详情页用到的图标。
-import { ArrowDown, ArrowRight, Check, CircleClose, Delete, Edit, EditPen, Refresh } from '@element-plus/icons-vue'
+import { ArrowDown, ArrowRight, Check, CircleClose, Delete, Edit, EditPen, Refresh, Setting } from '@element-plus/icons-vue'
 
 // 引入国际化函数，生成按钮与提示文案。
 import { useI18n } from 'vue-i18n'
@@ -113,7 +114,7 @@ const { t } = useI18n({ useScope: 'global' })
 const props = defineProps({ skill: { type: Object, default: null } })
 
 // 定义对外事件，通知父层刷新列表和状态。
-const emit = defineEmits(['refresh'])
+const emit = defineEmits(['refresh', 'openEdit'])
 
 // 保存文件树原始列表。
 const fileList = ref([])
@@ -161,11 +162,6 @@ const sourceLabel = computed(function () {
 const scopeLabel = computed(function () {
   if (!props.skill) return '-'
   return props.skill.level || '-'
-})
-
-// 推导当前文件预览模式。
-const previewMode = computed(function () {
-  return getPreviewMode(activeFile.value)
 })
 
 // 推导当前文件预览标签。
@@ -270,7 +266,7 @@ function loadFiles() {
         })
       }
     }
-  }).catch(function (err) {
+  }).catch(function () {
     ElMessage.error(t('message.networkError') || 'Failed to load files')
   }).finally(function () {
     fileListLoading.value = false
@@ -284,7 +280,7 @@ function loadFileContent(path) {
   activeFile.value = path
   readSkillFile(props.skill.id, path).then(function (res) {
     fileContent.value = typeof res === 'string' ? res : (res && res.content || '')
-  }).catch(function (err) {
+  }).catch(function () {
     ElMessage.error(t('message.networkError') || 'Failed to load file')
   }).finally(function () {
     fileContentLoading.value = false
@@ -333,6 +329,11 @@ function editReadme() {
   openEditor('SKILL.md')
 }
 
+// 打开 Skill 信息编辑弹窗，由父层 infoDialog 承载。
+function openEditDialog() {
+  emit('openEdit')
+}
+
 // 文件保存后刷新预览与文件树，保持界面一致。
 function handleFileSaved() {
   loadFiles()
@@ -348,7 +349,7 @@ function toggleSkillEnabled() {
   const request = props.skill.enabled ? disableSkill(props.skill.id) : enableSkill(props.skill.id)
   request.then(function () {
     emit('refresh')
-  }).catch(function (err) {
+  }).catch(function () {
     ElMessage.error(t('message.networkError') || 'Operation failed')
   })
 }
@@ -358,7 +359,7 @@ function updateCurrentSkill() {
   if (!props.skill) return
   updateSkill(props.skill.id).then(function () {
     emit('refresh')
-  }).catch(function (err) {
+  }).catch(function () {
     ElMessage.error(t('message.networkError') || 'Update failed')
   })
 }
@@ -366,7 +367,7 @@ function updateCurrentSkill() {
 // 删除整个 Skill 前先做二次确认。
 function removeCurrentSkill() {
   if (!props.skill) return
-  ElMessageBox.confirm(t('skill.confirmDelete') + '：' + displayTitle.value, t('common.delete'), {
+  ElMessageBox.confirm(t('common.confirm_delete') + '：' + displayTitle.value, t('common.delete'), {
     confirmButtonText: t('common.confirm'),
     cancelButtonText: t('common.cancel'),
     type: 'warning'

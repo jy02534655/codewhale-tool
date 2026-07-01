@@ -28,7 +28,7 @@ import { randomUUID } from 'node:crypto';
 import { getServerMessage } from '../utils/i18n.js';
 import { ok, fail, failMsg, okMsg } from '../utils/result.js';
 import AdmZip from 'adm-zip';
-import { downloadSkillFromGitHub, downloadAndExtractZip } from '../download/index.js';
+import { downloadSkillFromGitHub, downloadAndExtractZip, writeSkillLog } from '../download/index.js';
 
 /** CodeWhale skill 社区仓库的基础 URL */
 const SKILL_REPO_BASE = 'https://github.com/deepseek-ai/codewhale-skills';
@@ -312,6 +312,7 @@ export class SkillManager {
       if (tokenId) {
         const tokenEntry = this._engine.findToken(tokenId);
         if (tokenEntry) token = tokenEntry.token;
+
       }
 
       await downloadSkillFromGitHub({

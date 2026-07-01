@@ -8,13 +8,23 @@
 
 import path from 'node:path';
 import fs from 'node:fs';
-import { Logger, formatBytes } from '../utils/logger.js';
+import { Logger, formatBytes, formatTimestamp } from '../utils/logger.js';
 import {
   downloadViaTar, downloadViaApi,
   detectTarballSize, detectSkillPrefix,
 } from './http.js';
 import { createAgent, parseRepoUrl } from './utils.js';
 import { getServerMessage } from '../utils/i18n.js';
+
+export function writeSkillLog(level, key, params, extra) {
+  try {
+    const ts = formatTimestamp();
+    const msg = getServerMessage(key, params);
+    const extraStr = extra ? ' | ' + JSON.stringify(extra, null, 0) : '';
+    const line = `[${ts}] [${level}] ${msg}${extraStr}`;
+    fs.appendFileSync(path.join(process.cwd(), 'download-skill.log'), line + '\n', 'utf-8');
+  } catch { /* 日志写入失败不阻塞流程 */ }
+}
 
 // ===================== 主入口 =====================
 
@@ -38,6 +48,13 @@ export async function downloadSkillFromGitHub({
   const agent = createAgent(proxy);
   const branch = 'main';
   logger.log('INFO', 'SKILL_LOG_REPO_INFO', null, { owner, repo, branch });
+
+  // 代理通道创建日志
+  if (agent && onLog) {
+    const proxyMsg = getServerMessage('SKILL_LOG_PROXY_AGENT_CREATED', { type: proxy?.type, host: proxy?.host, port: proxy?.port });
+    onLog({ level: 'INFO', message: proxyMsg });
+    writeSkillLog('INFO', 'SKILL_LOG_PROXY_AGENT_CREATED', { type: proxy?.type, host: proxy?.host, port: proxy?.port });
+  }
 
   if (onProgress) {
     onProgress({ stage: 'connecting', percent: 5, message: getServerMessage('SKILL_PROGRESS_PARSING_REPO'), speed: 0, speedFormatted: '' });

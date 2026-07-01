@@ -1,21 +1,25 @@
 import path from 'node:path';
-import { HttpsProxyAgent } from 'https-proxy-agent';
-import { SocksProxyAgent } from 'socks-proxy-agent';
+import ProxyAgent from 'proxy-agent';
 import { getServerMessage } from '../utils/i18n.js';
 import { formatBytes } from '../utils/logger.js';
 
 export function createAgent(proxy) {
   if (!proxy || proxy.type === 'none' || proxy.type === '') return undefined;
+  const protocolMap = {
+    http: 'http:',
+    https: 'https:',
+    socks5: 'socks5:',
+    socks4: 'socks4:',
+  };
+  const protocol = protocolMap[proxy.type];
+  if (!protocol) {
+    throw new Error(getServerMessage('SKILL_ERROR_UNSUPPORTED_PROXY', { type: proxy.type }));
+  }
   const auth = proxy.auth
     ? `${encodeURIComponent(proxy.auth.username || '')}:${encodeURIComponent(proxy.auth.password || '')}@`
     : '';
-  const url = proxy.type === 'http'
-    ? `http://${auth}${proxy.host}:${proxy.port}`
-    : `socks5://${auth}${proxy.host}:${proxy.port}`;
-
-  if (proxy.type === 'http') return new HttpsProxyAgent(url);
-  if (proxy.type === 'socks5') return new SocksProxyAgent(url);
-  throw new Error(getServerMessage('SKILL_ERROR_UNSUPPORTED_PROXY', { type: proxy.type }));
+  const url = `${protocol}//${auth}${proxy.host}:${proxy.port}`;
+  return new ProxyAgent(url);
 }
 
 export function parseRepoUrl(repoUrl) {

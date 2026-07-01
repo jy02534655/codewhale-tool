@@ -20,7 +20,6 @@
     "node": ">=18.0.0"
   },
   "dependencies": {
-    "https-proxy-agent": "^9.1.0"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",

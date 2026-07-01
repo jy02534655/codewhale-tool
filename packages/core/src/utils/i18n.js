@@ -180,6 +180,7 @@ export const SERVER_MSG = {
 
     // ── 进度消息 ──
     SKILL_PROGRESS_PARSING_REPO: '解析仓库信息...',
+    SKILL_LOG_PROXY_AGENT_CREATED: '代理通道已创建 ({type}://{host}:{port})',
     SKILL_PROGRESS_DETECTED_PREFIX: '已检测到前缀: {prefix}',
     SKILL_PROGRESS_TARBALL_SIZE: 'Tarball 大小: {size}',
     SKILL_PROGRESS_CANNOT_DETECT_SIZE: '无法探测 Tarball 大小',
@@ -287,6 +288,7 @@ export const SERVER_MSG = {
     SKILL_LOG_FINAL_VERIFY_FAILED: 'Final verification failed: SKILL.md not found',
 
     SKILL_PROGRESS_PARSING_REPO: 'Parsing repo info...',
+    SKILL_LOG_PROXY_AGENT_CREATED: 'Proxy agent created ({type}://{host}:{port})',
     SKILL_PROGRESS_DETECTED_PREFIX: 'Detected prefix: {prefix}',
     SKILL_PROGRESS_TARBALL_SIZE: 'Tarball size: {size}',
     SKILL_PROGRESS_CANNOT_DETECT_SIZE: 'Cannot detect tarball size',
@@ -394,6 +396,7 @@ export const SERVER_MSG = {
     SKILL_LOG_FINAL_VERIFY_FAILED: '最終検証失敗: SKILL.md が存在しません',
 
     SKILL_PROGRESS_PARSING_REPO: 'リポジトリ情報を解析中...',
+    SKILL_LOG_PROXY_AGENT_CREATED: 'プロキシチャネル作成済み ({type}://{host}:{port})',
     SKILL_PROGRESS_DETECTED_PREFIX: 'プレフィックスを検出: {prefix}',
     SKILL_PROGRESS_TARBALL_SIZE: 'Tarball サイズ: {size}',
     SKILL_PROGRESS_CANNOT_DETECT_SIZE: 'Tarball サイズを検出できません',
@@ -501,6 +504,7 @@ export const SERVER_MSG = {
     SKILL_LOG_FINAL_VERIFY_FAILED: 'Verificação final falhou: SKILL.md não encontrado',
 
     SKILL_PROGRESS_PARSING_REPO: 'Analisando informações do repositório...',
+    SKILL_LOG_PROXY_AGENT_CREATED: 'Agente proxy criado ({type}://{host}:{port})',
     SKILL_PROGRESS_DETECTED_PREFIX: 'Prefixo detectado: {prefix}',
     SKILL_PROGRESS_TARBALL_SIZE: 'Tamanho do tarball: {size}',
     SKILL_PROGRESS_CANNOT_DETECT_SIZE: 'Não foi possível detectar o tamanho do tarball',
