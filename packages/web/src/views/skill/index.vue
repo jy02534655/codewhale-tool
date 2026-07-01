@@ -3,7 +3,7 @@
   使用 SplitLayout 统一分栏，保持全局/项目 Tab 切换
 --><template>
   <div v-loading="maskingStore.isLoading" class="page-wrapper">
-    <SplitLayout leftWidth="400px">
+    <SplitLayout leftWidth="385px">
       <template #left>
         <div class="panel-left">
           <!-- 顶部操作栏 -->

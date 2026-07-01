@@ -1,6 +1,6 @@
 <!--
   App.vue — 根组件（重构）
-  布局：精简顶栏 + 左侧垂直导航 + 右侧内容区
+  布局：精简顶栏 + 左侧垂直导航（可折叠）+ 右侧内容区
   各页面内部使用 SplitLayout 实现左列表 + 右详情分栏
 -->
 <template>
@@ -10,6 +10,7 @@
       <!-- ═══ 顶栏 ═══ -->
       <header class="top-bar">
         <div class="top-bar-left">
+          <el-button class="collapse-btn" :icon="sidebarCollapsed ? Expand : Fold" text @click="toggleSidebar" />
           <h1 class="logo">{{ $t('app.title') }}</h1>
         </div>
         <div class="top-bar-right">
@@ -24,8 +25,8 @@
 
       <!-- ═══ 主体 ═══ -->
       <div class="app-body">
-        <!-- 侧边栏导航 -->
-        <aside class="sidebar">
+        <!-- 侧边栏导航（可折叠） -->
+        <aside class="sidebar" :class="{ collapsed: sidebarCollapsed }">
           <nav class="sidebar-nav">
             <router-link
               v-for="item in navItems"
@@ -33,9 +34,10 @@
               :to="{ name: item.route }"
               class="nav-item"
               :class="{ active: route.name === item.route }"
+              :title="$t(item.i18nKey)"
             >
               <el-icon class="nav-icon"><component :is="item.icon" /></el-icon>
-              <span class="nav-label">{{ $t(item.i18nKey) }}</span>
+              <span v-show="!sidebarCollapsed" class="nav-label">{{ $t(item.i18nKey) }}</span>
             </router-link>
           </nav>
         </aside>
@@ -59,7 +61,7 @@ import { ref, computed, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
 import { useI18n } from 'vue-i18n';
 import {
-  Monitor, Collection, Link, Key,
+  Monitor, Collection, Link, Key, Fold, Expand,
 } from '@element-plus/icons-vue';
 
 import zhCn from 'element-plus/dist/locale/zh-cn.mjs';
@@ -119,6 +121,13 @@ function onLocaleChange(val) {
   setLang(val);
 }
 
+/** 侧边栏折叠状态 */
+const sidebarCollapsed = ref(false);
+
+function toggleSidebar() {
+  sidebarCollapsed.value = !sidebarCollapsed.value;
+}
+
 onMounted(() => {
   const saved = localStorage.getItem('codewhale-theme') || 'light';
   theme.value = saved;
@@ -151,6 +160,10 @@ onMounted(() => {
   align-items: center;
   gap: 8px;
 }
+.collapse-btn {
+  font-size: 16px;
+  padding: 4px;
+}
 .logo {
   font-size: 16px;
   font-weight: 600;
@@ -180,6 +193,10 @@ onMounted(() => {
   flex-direction: column;
   padding: 8px 0;
   overflow-y: auto;
+  transition: width 0.2s ease;
+}
+.sidebar.collapsed {
+  width: 60px;
 }
 .sidebar-nav {
   display: flex;
@@ -198,6 +215,10 @@ onMounted(() => {
   transition: background 0.15s;
   cursor: pointer;
   position: relative;
+}
+.sidebar.collapsed .nav-item {
+  padding: 10px;
+  justify-content: center;
 }
 .nav-item:hover {
   background: var(--bg-tertiary);

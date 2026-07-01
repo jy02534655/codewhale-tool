@@ -72,6 +72,15 @@ export function createSkillRouter(skillMgr) {
     res.json(guard(() => skillMgr.readSkillFile(req.params.id, req.query.path, req.query.level)));
   });
 
+  /** PUT /api/skill/file/:id — 保存 skill 目录下的指定文件（body: { path, content }） */
+  router.put('/file/:id', (req, res) => {
+    res.json(guard(() => skillMgr.saveSkillFile(req.params.id, req.body.path, req.body.content, req.body.level)));
+  });
+  /** DELETE /api/skill/file/:id — 删除 skill 目录下的指定文件（body: { path }） */
+  router.delete('/file/:id', (req, res) => {
+    res.json(guard(() => skillMgr.removeSkillFile(req.params.id, req.body.path, req.body.level)));
+  });
+
   // ─── 操作 ──────────────────────────────────────────────────
 
   router.post('/discover', (req, res) => {

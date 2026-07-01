@@ -138,6 +138,15 @@
     "aliasPlaceholder": "ex: Delegação, Ferramenta de Documentos",
     "remarkPlaceholder": "Escreva uma observação em português...",
     "tagsPlaceholder": "Separado por vírgula, ex: mcp, server, debug",
+    "update": "Atualizar",
+    "sourceLabel": "Origem",
+    "scope": "Escopo",
+    "selectFileHint": "Selecione um arquivo",
+    "confirmDeleteFile": "Confirmar exclusão",
+    "confirmDeleteFileTitle": "Excluir Arquivo",
+    "editingFile": "Editando",
+    "syntaxOk": "Sintaxe OK",
+    "syntaxWarning": "Aviso de Sintaxe",
     "install": "Instalar Skill"
   },
   "message": {

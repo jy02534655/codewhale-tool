@@ -138,6 +138,15 @@
     "aliasPlaceholder": "例: 委任、文書ツール",
     "remarkPlaceholder": "備考を日本語で入力...",
     "tagsPlaceholder": "カンマ区切り、例: mcp, server, debug",
+    "update": "更新",
+    "sourceLabel": "ソース",
+    "scope": "スコープ",
+    "selectFileHint": "ファイルを選択してください",
+    "confirmDeleteFile": "ファイル削除の確認",
+    "confirmDeleteFileTitle": "ファイル削除",
+    "editingFile": "編集中",
+    "syntaxOk": "構文チェック通過",
+    "syntaxWarning": "構文警告",
     "install": "スキルをインストール"
   },
   "message": {

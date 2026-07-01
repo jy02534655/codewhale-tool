@@ -783,6 +783,41 @@ export class SkillManager {
   }
 
   /**
+   * 保存 skill 目录下的指定文件内容
+   * @param {string} skillId
+   * @param {string} filePath - 相对于 skill 根目录的路径
+   * @param {string} content
+   * @param {'global'|'project'} [level]
+   */
+  saveSkillFile(skillId, filePath, content, level) {
+    return this._mutate(skillId, (entries, idx) => {
+      const entry = entries[idx];
+      const fullPath = join(entry.path, filePath);
+      if (!existsSync(fullPath)) return failMsg('SKILL_FILE_NOT_FOUND');
+      writeFileSync(fullPath, content, 'utf-8');
+      entry.updated_at = Date.now();
+      return okMsg('updated');
+    }, level);
+  }
+
+  /**
+   * 删除 skill 目录下的指定文件
+   * @param {string} skillId
+   * @param {string} filePath - 相对于 skill 根目录的路径
+   * @param {'global'|'project'} [level]
+   */
+  removeSkillFile(skillId, filePath, level) {
+    return this._mutate(skillId, (entries, idx) => {
+      const entry = entries[idx];
+      const fullPath = join(entry.path, filePath);
+      if (!existsSync(fullPath)) return failMsg('SKILL_FILE_NOT_FOUND');
+      unlinkSync(fullPath);
+      entry.updated_at = Date.now();
+      return okMsg('updated');
+    }, level);
+  }
+
+  /**
    * 获取 SKILL.md 内容
    */
   getReadme(skillId) {
@@ -794,11 +829,7 @@ export class SkillManager {
    * 保存 SKILL.md 内容
    */
   saveReadme(skillId, content) {
-    return this._mutate(skillId, (entries, idx) => {
-      writeFileSync(join(entries[idx].path, 'SKILL.md'), content, 'utf-8');
-      entries[idx].updated_at = Date.now();
-      return okMsg('updated');
-    });
+    return this.saveSkillFile(skillId, 'SKILL.md', content);
   }
 
   // ─── 内部方法 ───────────────────────────────────────────────

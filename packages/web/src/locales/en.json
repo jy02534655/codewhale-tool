@@ -138,6 +138,15 @@
     "aliasPlaceholder": "e.g. Delegation, Document Tool",
     "remarkPlaceholder": "Write a remark description...",
     "tagsPlaceholder": "Comma separated, e.g. mcp, server, debug",
+    "update": "Update",
+    "sourceLabel": "Source",
+    "scope": "Scope",
+    "selectFileHint": "Select a file to view",
+    "confirmDeleteFile": "Confirm delete file",
+    "confirmDeleteFileTitle": "Delete File",
+    "editingFile": "Editing",
+    "syntaxOk": "Syntax OK",
+    "syntaxWarning": "Syntax Warning",
     "install": "Install Skill"
   },
   "message": {
