@@ -39,7 +39,7 @@
                 </div>
               </div>
             </template>
-            <div class="token-fields">
+            <div class="card-fields">
               <div class="field-row">
                 <span class="field-label">{{ $t('token.token_value') }}</span>
                 <el-tag size="small" type="info" effect="plain">{{ t.token }}</el-tag>
@@ -94,6 +94,4 @@ onMounted(loadList);
 </script>
 
 <style scoped>
-.token-fields { display:flex;flex-direction:column;gap:8px; }
-.card-alias { font-weight:600;font-size:15px; }
 </style>

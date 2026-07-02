@@ -22,7 +22,7 @@
             <template #header>
               <div class="card-header">
                 <div class="card-title">
-                  <span class="official-alias">{{ k.alias }}</span>
+                  <span class="card-title-text">{{ k.alias }}</span>
                   <el-tag v-if="k.active" size="small" type="success" effect="dark">{{ $t('common.current') }}</el-tag>
                 </div>
                 <div class="card-actions">
@@ -41,7 +41,7 @@
                 </div>
               </div>
             </template>
-            <div class="official-info">
+            <div class="info-fields">
               <div class="field-row">
                 <span class="field-label">API Key</span>
                 <el-tag size="small" type="info" effect="plain">{{ k.api_key_preview }}</el-tag>
@@ -81,7 +81,7 @@
             <template #header>
               <div class="card-header">
                 <div class="card-title">
-                  <span class="provider-name">{{ p.label }}</span>
+                  <span class="card-title-text">{{ p.label }}</span>
                   <span class="provider-type">{{ p.provider }}</span>
                   <el-tag v-if="p.active" size="small" type="primary" effect="dark">{{ $t('common.current') }}</el-tag>
                 </div>
@@ -207,26 +207,3 @@ function setActiveModelAction(id, name) { setActiveModel({ id, name }).then(() =
 
 onMounted(loadConfig);
 </script>
-
-<style scoped>
-/* ─── 官方 Key 卡片 ─── */
-.official-card.card-active { border-color:var(--el-color-success);border-width:2px; }
-.official-alias { font-weight:600;font-size:15px; }
-.official-info { display:flex;flex-direction:column;gap:6px; }
-
-/* ─── 供应商卡片 ─── */
-.provider-card.card-active { border-color:var(--el-color-primary);border-width:2px; }
-.provider-name { font-weight:600;font-size:15px; }
-.provider-type { color:var(--text-secondary);font-size:12px;font-family:monospace; }
-.provider-info { display:flex;flex-direction:column;gap:6px;margin-bottom:10px; }
-.provider-info .field-label { min-width:60px; }
-
-/* ─── 模型列表 ─── */
-.model-section { border-top:1px solid var(--border);padding-top:10px; }
-.model-header { display:flex; justify-content:space-between; align-items:center;margin-bottom:6px; }
-.model-title { font-size:13px;color:var(--text-secondary); }
-.model-list { display:flex;flex-direction:column;gap:4px; }
-.model-item { display:flex;justify-content:space-between;align-items:center;padding:4px 8px;background:var(--bg-secondary);border-radius:6px; }
-.model-item.model-active { background:var(--el-color-primary-light-9); }
-.model-name { font-size:13px;font-family:monospace; }
-</style>

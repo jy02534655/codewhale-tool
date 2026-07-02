@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="zh-Hans" data-theme="light">
+<html lang="zh-Hans" data-theme="light" style="transition: background-color .2s, color .2s">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -7,7 +7,7 @@
   <style>
     /* ════════════════════════════════════════════════════════════════
      * 多主题基础样式
-     * data-theme 属性切换主题，html.dark 标记暗黑模式
+     * data-theme 属性切换主题，html.dark 标记暗黑模式（保留回退）
      * ════════════════════════════════════════════════════════════════ */
 
     /* ─── Light（暖白）──────────────────────────────────────── */
@@ -26,6 +26,8 @@
       --danger: #cf222e;
       --warning: #9a6700;
       --radius: 6px;
+      --log-bg: #1e1e1e;
+      --log-color: #d4d4d4;
     }
 
     /* ─── Sage（森林绿）────────────────────────────────────── */
@@ -97,8 +99,7 @@
     }
 
     /* ─── Dark（暗黑）────────────────────────────────────────── */
-    [data-theme="dark"],
-    html.dark {
+    [data-theme="dark"] {
       --bg-primary: #0d1117;
       --bg-secondary: #161b22;
       --bg-tertiary: #21262d;
@@ -112,10 +113,8 @@
       --danger: #f85149;
       --warning: #d29922;
       --radius: 6px;
-    }
-
-    /* ─── Element Plus 暗黑模式适配 ─────────────────────────── */
-    html.dark {
+      --log-bg: #0d1117;
+      --log-color: #e6edf3;
       --el-bg-color: var(--bg-primary);
       --el-bg-color-overlay: var(--bg-card);
       --el-border-color: var(--border);
@@ -145,15 +144,15 @@
     }
 
     /* ─── Element Plus 暗黑模式组件适配 ─────────────────────── */
-    html.dark .el-card { --el-card-bg-color: var(--bg-card); }
-    html.dark .el-dialog { --el-dialog-bg-color: var(--bg-card); }
-    html.dark .el-tag.el-tag--info {
+    [data-theme="dark"] .el-card { --el-card-bg-color: var(--bg-card); }
+    [data-theme="dark"] .el-dialog { --el-dialog-bg-color: var(--bg-card); }
+    [data-theme="dark"] .el-tag.el-tag--info {
       --el-tag-bg-color: var(--bg-tertiary);
       --el-tag-text-color: var(--text-secondary);
       --el-tag-border-color: var(--border);
     }
-    html.dark .el-alert--info { --el-alert-bg-color: var(--bg-tertiary); }
-    html.dark .el-button--primary {
+    [data-theme="dark"] .el-alert--info { --el-alert-bg-color: var(--bg-tertiary); }
+    [data-theme="dark"] .el-button--primary {
       --el-button-bg-color: #1a3055;
       --el-button-border-color: #1a3055;
       --el-button-text-color: #79c0ff;
@@ -161,33 +160,36 @@
       --el-button-hover-border-color: #1f3d6a;
       --el-button-active-bg-color: #162849;
     }
-    html.dark .el-button--primary.is-plain {
+    [data-theme="dark"] .el-button--primary.is-plain {
       --el-button-bg-color: transparent;
       --el-button-border-color: #2a5090;
       --el-button-text-color: #58a6ff;
       --el-button-hover-bg-color: #1a3055;
       --el-button-hover-border-color: #3a70b0;
     }
-    html.dark .el-tag.el-tag--success {
+    [data-theme="dark"] .el-tag.el-tag--success {
       --el-tag-bg-color: #1c3a28;
       --el-tag-text-color: #7ee787;
       --el-tag-border-color: #238636;
     }
-    html.dark .el-tag.el-tag--primary {
+    [data-theme="dark"] .el-tag.el-tag--primary {
       --el-tag-bg-color: #1a2533;
       --el-tag-text-color: #79c0ff;
       --el-tag-border-color: #2a5090;
     }
-    html.dark .el-tag.el-tag--warning {
+    [data-theme="dark"] .el-tag.el-tag--warning {
       --el-tag-bg-color: #2d2a14;
       --el-tag-text-color: #d29922;
       --el-tag-border-color: #5a4d1a;
     }
-    html.dark .el-tag.el-tag--danger {
+    [data-theme="dark"] .el-tag.el-tag--danger {
       --el-tag-bg-color: #3d1a1a;
       --el-tag-text-color: #f87171;
       --el-tag-border-color: #8b1a1a;
     }
+
+    /* html.dark 回退（保持向后兼容） */
+    html.dark {}
   </style>
 </head>
 <body>

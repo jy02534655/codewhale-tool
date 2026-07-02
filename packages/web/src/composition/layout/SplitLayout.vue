@@ -30,7 +30,6 @@ defineProps({
   overflow: hidden;
 }
 .split-left {
-  overflow-y: auto;
   border-right: 1px solid var(--border);
 }
 .split-right {

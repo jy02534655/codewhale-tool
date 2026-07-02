@@ -39,7 +39,7 @@
                 </div>
               </div>
             </template>
-            <div class="proxy-fields">
+            <div class="card-fields">
               <div class="field-row">
                 <span class="field-label">{{ $t('proxy.type') }}</span>
                 <el-tag size="small" type="info" effect="plain">{{ p.type }}</el-tag>
@@ -102,6 +102,4 @@ onMounted(loadList);
 </script>
 
 <style scoped>
-.proxy-fields { display:flex;flex-direction:column;gap:8px; }
-.card-alias { font-weight:600;font-size:15px; }
 </style>

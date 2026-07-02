@@ -115,3 +115,178 @@
 .el-tag .el-icon {
   transition-duration: 0s !important;
 }
+
+/* ─── 卡片别名/标题文本 ─── */
+.card-alias,
+.card-title-text,
+.official-alias,
+.provider-name {
+  font-weight: 600;
+  font-size: 15px;
+}
+
+/* ─── 卡片字段容器 ─── */
+.card-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.info-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+/* ─── 卡片内分割线 ─── */
+.section-divider,
+.model-section {
+  border-top: 1px solid var(--border);
+  padding-top: 10px;
+}
+
+/* ─── 卡片内子标题行 ─── */
+.section-subheader,
+.model-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+/* ─── 卡片内子标题文本 ─── */
+.section-subtitle,
+.model-title {
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+/* ─── 供应商/官方卡片（provider 复用） ─── */
+.official-card.card-active {
+  border-color: var(--el-color-success);
+  border-width: 2px;
+}
+.official-info {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.provider-card.card-active {
+  border-color: var(--el-color-primary);
+  border-width: 2px;
+}
+.provider-type {
+  color: var(--text-secondary);
+  font-size: 12px;
+  font-family: monospace;
+}
+.provider-info {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+.provider-info .field-label {
+  min-width: 60px;
+}
+
+/* ─── 模型列表 ─── */
+.model-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.model-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 4px 8px;
+  background: var(--bg-secondary);
+  border-radius: 6px;
+}
+.model-item-active {
+  background: var(--el-color-primary-light-9);
+}
+.model-name {
+  font-size: 13px;
+  font-family: monospace;
+}
+
+/* ─── 分屏左栏 ─── */
+.panel-left {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px;
+  height: 100%;
+  background: var(--bg-secondary);
+}
+
+/* ─── 列表项 ─── */
+.list-item {
+  padding: 6px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  border-left: 3px solid transparent;
+  transition: background 0.1s;
+}
+.list-item:hover {
+  background: var(--bg-secondary);
+}
+.list-item.active {
+  background: var(--el-color-primary-light-9);
+  border-left-color: var(--el-color-primary);
+}
+
+/* ─── 列表项内部结构 ─── */
+.item-main {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex: 1;
+}
+.item-name {
+  font-size: 13px;
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  margin-right: auto;
+}
+.field-value-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.remark-text {
+  font-size: 11px;
+  color: var(--text-secondary);
+}
+
+/* ─── 项目组标题 ─── */
+.project-group-header {
+  display: flex;
+  align-items: center;
+  padding: 8px 4px 4px;
+  font-weight: 600;
+  font-size: 13px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 4px;
+  margin-top: 4px;
+}
+.project-group-name {
+  font-weight: 500;
+}
+
+/* ─── 日志内容 ─── */
+.log-content-dialog {
+  max-height: 400px;
+  overflow: auto;
+  background: var(--log-bg);
+  color: var(--log-color);
+  font-family: monospace;
+  font-size: 12px;
+  padding: 12px;
+  border-radius: 4px;
+  white-space: pre-wrap;
+  margin: 0;
+}

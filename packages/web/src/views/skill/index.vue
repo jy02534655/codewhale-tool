@@ -2,7 +2,7 @@
   index.vue — Skill 管理页面（重构）
   使用 SplitLayout 统一分栏，保持全局/项目 Tab 切换
 --><template>
-  <div v-loading="maskingStore.isLoading" class="page-wrapper">
+  <div v-loading="maskingStore.isLoading" class="page-view">
     <SplitLayout leftWidth="385px">
       <template #left>
         <div class="panel-left">
@@ -261,58 +261,17 @@ onMounted(loadSkills)
 </script>
 
 <style scoped>
-.page-wrapper { height: 100%; }
-
-/* ─── 左面板 ─── */
-.panel-left { display: flex; flex-direction: column; gap: 8px; padding: 12px; height: 100%; background: var(--bg-secondary); }
+.page-view {
+  flex: 1;
+  overflow: hidden;
+  min-height: 0;
+}
 .left-toolbar { display: flex; gap: 6px; align-items: center; }
 .panel-left :deep(.el-tabs__header) { margin-bottom: 0; }
 .panel-left :deep(.el-tabs__item) { padding: 0 8px; font-size: 13px; }
 
 .list-scroll { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 2px; }
-.list-item {
-  padding: 6px 10px;
-  border-radius: 6px;
-  cursor: pointer;
-  border-left: 3px solid transparent;
-  transition: background 0.1s;
-}
-.list-item:hover { background: var(--bg-secondary); }
-.list-item.active {
-  background: var(--el-color-primary-light-9);
-  border-left-color: var(--el-color-primary);
-}
 .project-skill { padding-left: 20px; }
-.item-main { display: flex; align-items: center; gap: 6px; flex: 1; }
-.item-name { font-size: 13px; font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-right: auto; }
 
 .item-field { display: flex; align-items: center; gap: 4px; font-size: 11px; color: var(--text-secondary); margin-top: 2px; flex-wrap: wrap; }
-.field-value-text { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.remark-text { font-size: 11px; color: var(--text-secondary); }
-
-.project-group-header {
-  display: flex;
-  align-items: center;
-  padding: 8px 4px 4px;
-  font-weight: 600;
-  font-size: 13px;
-  border-bottom: 1px solid var(--border);
-  margin-bottom: 4px;
-  margin-top: 4px;
-}
-.project-group-name { font-weight: 500; }
-
-/* ─── 日志内容 ─── */
-.log-content-dialog {
-  max-height: 400px;
-  overflow: auto;
-  background: #1e1e1e;
-  color: #d4d4d4;
-  font-family: monospace;
-  font-size: 12px;
-  padding: 12px;
-  border-radius: 4px;
-  white-space: pre-wrap;
-  margin: 0;
-}
 </style>

@@ -100,7 +100,6 @@ const theme = ref('light');
 function applyTheme(val) {
   const html = document.documentElement;
   html.setAttribute('data-theme', val);
-  html.classList.toggle('dark', val === 'dark');
   localStorage.setItem('codewhale-theme', val);
 }
 
@@ -247,9 +246,11 @@ onMounted(() => {
 }
 
 /* ─── 内容区 ─── */
-.content {
-  flex: 1;
-  overflow-y: auto;
-  background: var(--bg-primary);
-}
+  .content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    background: var(--bg-primary);
+  }
 </style>
