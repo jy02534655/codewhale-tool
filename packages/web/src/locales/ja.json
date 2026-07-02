@@ -147,7 +147,9 @@
     "editingFile": "編集中",
     "syntaxOk": "構文チェック通過",
     "syntaxWarning": "構文警告",
-    "install": "スキルをインストール"
+    "install": "スキルをインストール",
+    "copyToProject": "プロジェクトにコピー",
+    "copyToProjectSuccess": "プロジェクト skill ディレクトリにコピーしました"
   },
   "message": {
     "networkError": "ネットワークエラー、再試行してください",

@@ -139,6 +139,10 @@ export function createSkillRouter(skillMgr) {
     res.json(guard(() => skillMgr.remove(req.params.id)));
   });
 
+  router.post('/copy-to-project/:id', (req, res) => {
+    res.json(guard(() => skillMgr.copyToProject(req.params.id)));
+  });
+
   router.post('/update/:id', async (req, res) => {
     res.json(await guardAsync(() => skillMgr.update(req.params.id)));
   });

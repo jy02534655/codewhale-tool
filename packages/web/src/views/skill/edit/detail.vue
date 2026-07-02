@@ -17,6 +17,7 @@
         <el-button v-if="skill.source === 'community'" size="small" type="primary" :icon="Refresh" @click="updateCurrentSkill">{{ $t('skill.update') }}</el-button>
         <el-button size="small" type="success" :icon="Setting" @click="openEditDialog">{{ $t('skill.editInfo') }}</el-button>
         <el-button size="small" type="default" :icon="Edit" @click="editReadme">{{ $t('skill.editReadme') }}</el-button>
+        <el-button v-if="skill.level === 'global'" size="small" type="info" :icon="DocumentCopy" @click="copyCurrentSkill">{{ $t('skill.copyToProject') }}</el-button>
         <el-button size="small" type="danger" :icon="Delete" @click="removeCurrentSkill">{{ $t('common.delete') }}</el-button>
       </div>
       <div class="detail-meta">
@@ -90,13 +91,13 @@ import { ref, computed, watch, nextTick } from 'vue'
 import { ElMessageBox, ElMessage } from 'element-plus'
 
 // 引入详情页用到的图标。
-import { ArrowDown, ArrowRight, Check, CircleClose, Delete, Edit, EditPen, Refresh, Setting } from '@element-plus/icons-vue'
+import { ArrowDown, ArrowRight, Check, CircleClose, DocumentCopy, Delete, Edit, EditPen, Refresh, Setting } from '@element-plus/icons-vue'
 
 // 引入国际化函数，生成按钮与提示文案。
 import { useI18n } from 'vue-i18n'
 
 // 引入 Skill 相关接口。
-import { enableSkill, disableSkill, removeSkill, updateSkill, getSkillFiles, readSkillFile, removeSkillFile } from '@/api/skill'
+import { enableSkill, disableSkill, removeSkill, updateSkill, copySkillToProject, getSkillFiles, readSkillFile, removeSkillFile } from '@/api/skill'
 
 // 引入复用文件预览组件。
 import FilePreview from '@/composition/file/preview.vue'
@@ -377,6 +378,13 @@ function removeCurrentSkill() {
     emit('refresh')
   }).catch(function () {
     // 用户取消或请求失败，不做额外处理
+  })
+}
+
+function copyCurrentSkill() {
+  if (!props.skill) return
+  copySkillToProject(props.skill.id).then(function () {
+    emit('refresh')
   })
 }
 </script>

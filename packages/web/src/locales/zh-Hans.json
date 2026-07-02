@@ -152,7 +152,9 @@
     "editingFile": "正在编辑",
     "syntaxOk": "语法检查通过",
     "syntaxWarning": "语法警告",
-    "install": "安装 Skill"
+    "install": "安装 Skill",
+    "copyToProject": "复制到项目",
+    "copyToProjectSuccess": "已复制到项目 skill 目录"
   },
   "common": {
     "confirm": "确认",

@@ -187,7 +187,7 @@ const filteredGlobal = computed(function () {
 const projectTree = computed(function () {
   const map = {}
   projectSkills.value.forEach(function (s) {
-    const pn = s.path && s.path.indexOf('.codewhale') !== -1 ? 'codewhale-tool' : 'unknown'
+    const pn = s.project || (s.path && s.path.indexOf('.codewhale') !== -1 ? 'codewhale-tool' : 'unknown')
     if (!map[pn]) map[pn] = { name: pn, alias: pn, skills: [] }
     map[pn].skills.push(s)
   })
@@ -215,7 +215,7 @@ const filteredProjectTree = computed(function () {
 function loadSkills() {
   Promise.all([getGlobalSkillList(), getProjectSkillList()])
     .then(function (results) {
-      globalSkills.value = results[0] || []
+      globalSkills.value = (results[0] || []).map(function (s) { s.level = 'global'; return s })
       projectSkills.value = (results[1] || []).map(function (s) { s.level = 'project'; return s })
       // 如果当前 Tab 有数据且未选中任何项，自动选中第一个
       if (!selectedId.value) {

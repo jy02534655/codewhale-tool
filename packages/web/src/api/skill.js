@@ -27,6 +27,9 @@ export function disableSkill(id) { return ajaxPostBack('/skill/disable/' + id, {
 /** 删除 skill */
 export function removeSkill(id) { return ajaxDeleteBack('/skill/remove/' + id, {}, { successMessage: true }) }
 
+/** 将全局 skill 复制到项目 skill 目录 */
+export function copySkillToProject(id) { return ajaxPostBack('/skill/copy-to-project/' + id, {}, { successMessage: true }) }
+
 /** 更新 skill（git pull） */
 export function updateSkill(id) { return ajaxPostBack('/skill/update/' + id, {}, { successMessage: true }) }
 

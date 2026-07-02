@@ -147,7 +147,9 @@
     "editingFile": "Editando",
     "syntaxOk": "Sintaxe OK",
     "syntaxWarning": "Aviso de Sintaxe",
-    "install": "Instalar Skill"
+    "install": "Instalar Skill",
+    "copyToProject": "Copiar para o projeto",
+    "copyToProjectSuccess": "Copiado para o diretório de skills do projeto"
   },
   "message": {
     "networkError": "Erro de rede, tente novamente",

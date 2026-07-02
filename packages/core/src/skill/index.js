@@ -162,7 +162,12 @@ export class SkillManager {
   }
 
   listProject() {
-    return ok(this._getProjectInstalled());
+    const list = this._getProjectInstalled();
+    if (this._projectEngine) {
+      const info = this._projectEngine.getProjectInfo();
+      return ok(list.map(function (s) { return { ...s, project: info.name }; }));
+    }
+    return ok(list);
   }
 
   // ─── 单 Skill 操作 ──────────────────────────────────────────
@@ -606,6 +611,43 @@ export class SkillManager {
       return okMsg('updated');
     } catch (err) {
       return fail(getServerMessage('update_failed') + ': ' + err.message);
+    }
+  }
+
+  /**
+   * 将全局 skill 复制到项目 skill 目录
+   */
+  copyToProject(skillId) {
+    const entry = this._getGlobalInstalled().find(function (s) { return s.id === skillId; });
+    if (!entry) return failMsg('SKILL_NOT_FOUND');
+
+    const projectInstalled = this._getProjectInstalled();
+    if (projectInstalled.some(function (s) { return s.id === skillId; })) {
+      return failMsg('SKILL_ALREADY_INSTALLED');
+    }
+
+    const targetDir = join(process.cwd(), this._projectSkillsDir, skillId);
+
+    try {
+      if (existsSync(targetDir)) rmSync(targetDir, { recursive: true, force: true });
+      this._copyDir(entry.path, targetDir);
+
+      this._addToConfig({
+        id: skillId,
+        name: entry.name,
+        description: entry.description,
+        path: targetDir,
+        enabled: true,
+        source: entry.source || 'community',
+        version: entry.version || 'latest',
+        installed_at: Date.now(),
+        updated_at: Date.now(),
+      }, 'project');
+
+      return okMsg('synced');
+    } catch (err) {
+      try { if (existsSync(targetDir)) rmSync(targetDir, { recursive: true, force: true }); } catch { /* ignore */ }
+      return fail(getServerMessage('SKILL_INSTALL_FAILED') + ': ' + err.message);
     }
   }
 
