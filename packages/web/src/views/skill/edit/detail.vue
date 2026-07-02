@@ -390,13 +390,14 @@ function copyCurrentSkill() {
 </script>
 
 <style scoped>
-.detail-panel {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  height: 100%;
-  padding: 16px 18px;
-}
+ .detail-panel {
+   display: flex;
+   flex-direction: column;
+   gap: 16px;
+   height: 100%;
+   overflow-y: auto;
+   padding: 16px 18px;
+ }
 
 .detail-header {
   display: flex;
@@ -437,19 +438,28 @@ function copyCurrentSkill() {
   color: var(--text-secondary);
 }
 
-.file-browser-section {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  min-height: 0;
-  flex: 1;
-}
+ .file-browser-section {
+   display: flex;
+   flex-direction: column;
+   gap: 12px;
+   min-height: 0;
+   flex: 1;
+   position: sticky;
+   top: 0;
+   border-top: 1px solid var(--border);
+   padding-top: 12px;
+   margin-top: 4px;
+ }
 
-.section-header {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
+ .section-header {
+   display: flex;
+   align-items: center;
+   gap: 8px;
+   padding: 10px 12px;
+   background: var(--bg-secondary);
+   border: 1px solid var(--border);
+   border-radius: var(--radius);
+ }
 
 .section-collapse-btn {
   padding: 0 2px;
@@ -473,27 +483,29 @@ function copyCurrentSkill() {
   min-height: 0;
 }
 
-.file-tree-wrap {
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 12px;
-  overflow: auto;
-}
+ .file-tree-wrap {
+   border: 1px solid var(--border);
+   border-radius: var(--radius);
+   padding: 12px;
+   overflow: auto;
+   background: var(--bg-secondary);
+ }
 
 .file-viewer-wrap {
   display: flex;
 }
 
-.file-viewer {
-  flex: 1;
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 12px;
-  background: var(--bg-primary);
-}
+ .file-viewer {
+   flex: 1;
+   min-width: 0;
+   display: flex;
+   flex-direction: column;
+   border: 1px solid var(--border);
+   border-radius: var(--radius);
+   padding: 12px;
+   background: var(--bg-primary);
+   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+ }
 
 .file-viewer-header {
   display: flex;
