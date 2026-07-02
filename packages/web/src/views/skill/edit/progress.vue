@@ -1,7 +1,7 @@
 <!--
   progress.vue — 安装进度浮层组件
-  第一行：当前步骤标签（简单位置指示）
-  第二行：总进度条 + 下载字节统计
+  第一行：当前步骤标签 + 下载附加信息
+  第二行：总进度条
   第三行：download-skill.log 格式化日志实时推送
 --><template>
   <el-dialog v-model="visible" :title="$t('skill.progressTitle')" width="680px" top="5vh" :close-on-click-modal="false" :close-on-press-escape="!running" :show-close="!running" :destroy-on-close="true">
@@ -10,7 +10,8 @@
       <span class="ip-step-icon">{{ running ? '⏳' : '✅' }}</span>
       <span class="ip-step-label-active">{{ activeStepLabel }}</span>
       <span v-if="stepDetail" class="ip-step-detail">{{ stepDetail }}</span>
-      <span v-if="showStats" class="ip-step-speed">{{ speedText }}</span>
+      <span v-if="showStats" class="ip-step-meta">{{ formatBytes(downloadBytes) }} / {{ formatBytes(totalBytes) }}</span>
+      <span v-if="showStats && speedText" class="ip-step-speed">{{ speedText }}</span>
     </div>
 
     <!-- 第二行：进度 -->
@@ -19,7 +20,6 @@
         <div class="ip-progress-bar">
           <el-progress :percentage="totalPercent" :status="totalPercent >= 100 ? 'success' : ''" :stroke-width="10" />
         </div>
-        <span v-if="showStats" class="ip-progress-stats">{{ formatBytes(downloadBytes) }} / {{ formatBytes(totalBytes) }}</span>
       </div>
     </div>
 
@@ -138,15 +138,9 @@ function start(url) {
   })
 
   // ── error ──
-  es.addEventListener('error', function (e) {
+  es.addEventListener('error', function () {
     es.close(); running.value = false
     showSubProgress.value = false
-    let msg = t('skill.installFailed')
-    try {
-      const data = JSON.parse(e.data)
-      if (data && data.message) msg = data.message
-    } catch { /* ignore */ }
-    logEntries.value.push({ level: 'error', message: msg })
     nextTick(function () { scrollLog() })
     emit('complete', false)
   })
@@ -174,17 +168,17 @@ defineExpose({ start, close })
 
 <style scoped>
 /* 第一行：步骤标签 */
-.ip-step-row { display: flex; align-items: center; gap: 8px; font-size: 15px; font-weight: 600; margin-bottom: 10px; padding: 8px 12px; background: var(--el-color-primary-light-9, #ecf5ff); border-radius: 6px; color: var(--el-color-primary, #409eff); height: 40px; }
+.ip-step-row { display: flex; align-items: center; gap: 8px; font-size: 15px; font-weight: 600; margin-bottom: 10px; padding: 8px 12px; background: var(--el-color-primary-light-9, #ecf5ff); border-radius: 6px; color: var(--el-color-primary, #409eff); min-height: 40px; flex-wrap: wrap; }
 .ip-step-icon { font-size: 16px; }
 .ip-step-label-active { color: var(--el-color-primary, #409eff); }
 .ip-step-detail { font-size: 12px; font-weight: 400; color: var(--text-secondary); max-width: 240px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.ip-step-speed { font-size: 12px; font-weight: 500; color: var(--el-color-primary, #409eff); margin-left: auto; white-space: nowrap; }
+.ip-step-meta { font-size: 12px; font-weight: 500; color: var(--text-secondary); white-space: nowrap; }
+.ip-step-speed { font-size: 12px; font-weight: 500; color: var(--el-color-primary, #409eff); white-space: nowrap; }
 
 /* 第二行：进度块 */
 .ip-progress-block { margin-bottom: 4px; }
-.ip-progress-row { display: flex; align-items: center; gap: 12px; height: 32px; }
+.ip-progress-row { display: flex; align-items: center; gap: 12px; min-height: 32px; }
 .ip-progress-bar { flex: 1; }
-.ip-progress-stats { font-size: 12px; color: var(--text-secondary); white-space: nowrap; min-width: 160px; }
 
 /* 第三行：格式化日志（VSCode 暗色风格） */
 .ip-log { height: 350px; overflow-y: auto; background: #1e1e1e; color: #d4d4d4; font-family: 'Cascadia Code','Fira Code','Consolas',monospace; font-size: 12px; line-height: 1.65; padding: 8px 12px; border-radius: 4px; }

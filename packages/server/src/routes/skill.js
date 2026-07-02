@@ -18,6 +18,42 @@ import { tmpdir } from 'node:os';
 export function createSkillRouter(skillMgr) {
   const router = Router();
 
+  function createInstallSSEBridge(res) {
+    let clientConnected = true;
+
+    const close = () => {
+      clientConnected = false;
+    };
+
+    const sendSSE = (event, data) => {
+      if (!clientConnected) return;
+      res.write('event: ' + event + '\ndata: ' + JSON.stringify(data) + '\n\n');
+    };
+
+    const onProgress = (progress) => {
+      sendSSE('progress', progress);
+    };
+
+    const onLog = (logEntry) => {
+      sendSSE('log', { level: logEntry.level || 'INFO', message: logEntry.message });
+    };
+
+    const sendFailure = (message, errorCode) => {
+      onLog({ level: 'ERROR', message });
+      sendSSE('error', { success: false, message, errorCode });
+    };
+
+    const sendComplete = (data) => {
+      sendSSE('complete', { success: true, data });
+    };
+
+    const end = () => {
+      try { res.end(); } catch { /* ignore */ }
+    };
+
+    return { close, onProgress, onLog, sendFailure, sendComplete, end };
+  }
+
   // ─── 列表查询 ────────────────────────────────────────────────
 
   router.get('/list', (_req, res) => {
@@ -140,22 +176,8 @@ export function createSkillRouter(skillMgr) {
       'X-Accel-Buffering': 'no',
     });
 
-    let clientConnected = true;
-    req.on('close', () => { clientConnected = false; });
-
-    function sendSSE(event, data) {
-      if (!clientConnected) return;
-      res.write('event: ' + event + '\ndata: ' + JSON.stringify(data) + '\n\n');
-    }
-
-    const onProgress = (progress) => {
-      sendSSE('progress', progress);
-    };
-
-    // 日志回调 → SSE log 事件（转发 download-skill.log 内容）
-    const onLog = (logEntry) => {
-      sendSSE('log', { level: logEntry.level || 'INFO', message: logEntry.message });
-    };
+    const sse = createInstallSSEBridge(res);
+    req.on('close', sse.close);
 
     try {
       const result = await skillMgr.installFromGitHub({
@@ -166,18 +188,16 @@ export function createSkillRouter(skillMgr) {
         tokenId,
         proxyConfig,
         projectPath,
-      }, onProgress, onLog);
+      }, sse.onProgress, sse.onLog);
       if (result.success) {
-        sendSSE('complete', { success: true, data: result.data });
+        sse.sendComplete(result.data);
       } else {
-        sendSSE('error', { success: false, message: result.message, errorCode: result.errorCode });
+        sse.sendFailure(result.message, result.errorCode);
       }
     } catch (err) {
-      sendSSE('error', { success: false, message: err.message });
+      sse.sendFailure(err.message);
     } finally {
-      // 始终尝试结束响应，即使客户端已断开连接
-      // 如果客户端已断开，res.end() 是安全的空操作
-      try { res.end(); } catch { /* ignore */ }
+      sse.end();
     }
   });
 
@@ -249,28 +269,20 @@ export function createSkillRouter(skillMgr) {
       'X-Accel-Buffering': 'no',
     });
 
-    let clientConnected = true;
-    req.on('close', () => { clientConnected = false; });
-
-    const sendSSE = (event, data) => {
-      if (!clientConnected) return;
-      res.write('event: ' + event + '\ndata: ' + JSON.stringify(data) + '\n\n');
-    };
-
-    const onProgress = (progress) => sendSSE('progress', progress);
-    const onLog = (logEntry) => sendSSE('log', { level: logEntry.level || 'INFO', message: logEntry.message });
+    const sse = createInstallSSEBridge(res);
+    req.on('close', sse.close);
 
     try {
-      const result = await skillMgr.installFromZipStream(pending.filePath, pending.skillName, pending.level, onProgress, onLog);
+      const result = await skillMgr.installFromZipStream(pending.filePath, pending.skillName, pending.level, sse.onProgress, sse.onLog);
       if (result.success) {
-        sendSSE('complete', { success: true, data: result.data });
+        sse.sendComplete(result.data);
       } else {
-        sendSSE('error', { success: false, message: result.message });
+        sse.sendFailure(result.message);
       }
     } catch (err) {
-      sendSSE('error', { success: false, message: err.message });
+      sse.sendFailure(err.message);
     } finally {
-      try { res.end(); } catch { /* ignore */ }
+      sse.end();
     }
   });
 
@@ -296,28 +308,20 @@ export function createSkillRouter(skillMgr) {
       'X-Accel-Buffering': 'no',
     });
 
-    let clientConnected = true;
-    req.on('close', () => { clientConnected = false; });
-
-    const sendSSE = (event, data) => {
-      if (!clientConnected) return;
-      res.write('event: ' + event + '\ndata: ' + JSON.stringify(data) + '\n\n');
-    };
-
-    const onProgress = (progress) => sendSSE('progress', progress);
-    const onLog = (logEntry) => sendSSE('log', { level: logEntry.level || 'INFO', message: logEntry.message });
+    const sse = createInstallSSEBridge(res);
+    req.on('close', sse.close);
 
     try {
-      const result = await skillMgr.installFromGithubTreePath(githubUrl, level, proxyId, tokenId, onProgress, onLog);
+      const result = await skillMgr.installFromGithubTreePath(githubUrl, level, proxyId, tokenId, sse.onProgress, sse.onLog);
       if (result.success) {
-        sendSSE('complete', { success: true, data: result.data });
+        sse.sendComplete(result.data);
       } else {
-        sendSSE('error', { success: false, message: result.message });
+        sse.sendFailure(result.message);
       }
     } catch (err) {
-      sendSSE('error', { success: false, message: err.message });
+      sse.sendFailure(err.message);
     } finally {
-      try { res.end(); } catch { /* ignore */ }
+      sse.end();
     }
   });
 

@@ -30,6 +30,22 @@ import { ok, fail, failMsg, okMsg } from '../utils/result.js';
 import AdmZip from 'adm-zip';
 import { downloadSkillFromGitHub, downloadAndExtractZip, writeSkillLog } from '../download/index.js';
 
+function emitSkillInstallLog(onLog, level, options) {
+  if (options.message) {
+    if (onLog) {
+      onLog({ level, message: options.message });
+    }
+    writeSkillLog(level, options.message, undefined, { rawMessage: true });
+    return;
+  }
+
+  const message = getServerMessage(options.key, options.params);
+  if (onLog) {
+    onLog({ level, message });
+  }
+  writeSkillLog(level, options.key, options.params, options.extra);
+}
+
 /** CodeWhale skill 社区仓库的基础 URL */
 const SKILL_REPO_BASE = 'https://github.com/deepseek-ai/codewhale-skills';
 
@@ -340,7 +356,9 @@ export class SkillManager {
       return okMsg('synced');
     } catch (err) {
       try { if (existsSync(targetDir)) rmSync(targetDir, { recursive: true, force: true }); } catch { /* ignore */ }
-      return fail(getServerMessage('SKILL_INSTALL_FAILED') + ': ' + err.message, 'SKILL_INSTALL_FAILED');
+      const failMessage = getServerMessage('SKILL_INSTALL_FAILED') + ': ' + err.message;
+      emitSkillInstallLog(undefined, 'ERROR', { message: failMessage });
+      return fail(failMessage, 'SKILL_INSTALL_FAILED');
     }
   }
 
@@ -413,7 +431,9 @@ export class SkillManager {
       return okMsg('synced');
     } catch (err) {
       try { if (existsSync(targetDir)) rmSync(targetDir, { recursive: true, force: true }); } catch { /* ignore */ }
-      return fail(getServerMessage('SKILL_INSTALL_FAILED') + ': ' + err.message, 'SKILL_INSTALL_FAILED');
+      const failMessage = getServerMessage('SKILL_INSTALL_FAILED') + ': ' + err.message;
+      emitSkillInstallLog(undefined, 'ERROR', { message: failMessage });
+      return fail(failMessage, 'SKILL_INSTALL_FAILED');
     }
   }
 
@@ -437,16 +457,13 @@ export class SkillManager {
   async installFromZipStream(zipPath, skillName, level, onProgress, onLog) {
     // 委派 installFromZip 完成实际安装
     // 通过 onProgress/onLog 实现 SSE 流式输出
-    if (onLog) {
-      onLog({ level: 'INFO', message: getServerMessage('SKILL_PROGRESS_EXTRACTING') });
-    }
+    emitSkillInstallLog(onLog, 'INFO', { key: 'SKILL_PROGRESS_EXTRACTING' });
     const result = await this.installFromZip(zipPath, skillName, level, undefined, onProgress);
-    if (onLog) {
-      if (result.success) {
-        onLog({ level: 'INFO', message: getServerMessage('SKILL_PROGRESS_DONE') });
-      } else {
-        onLog({ level: 'ERROR', message: result.message || getServerMessage('SKILL_INSTALL_FAILED') });
-      }
+    if (result.success) {
+      emitSkillInstallLog(onLog, 'INFO', { key: 'SKILL_PROGRESS_DONE' });
+    } else {
+      const failMessage = result.message || getServerMessage('SKILL_INSTALL_FAILED');
+      emitSkillInstallLog(onLog, 'ERROR', { message: failMessage });
     }
     return result;
   }
@@ -467,10 +484,6 @@ export class SkillManager {
     const parsed = parseGithubTreeUrl(githubUrl);
     if (!parsed) {
       return failMsg('SKILL_INVALID_REPO_URL');
-    }
-
-    if (onLog) {
-      onLog({ level: 'INFO', message: `Parsed: owner=${parsed.owner}, repo=${parsed.repo}, branch=${parsed.branch}, path=${parsed.path}` });
     }
 
     const repoUrl = `https://github.com/${parsed.owner}/${parsed.repo}`;
@@ -516,7 +529,9 @@ export class SkillManager {
       return okMsg('synced');
     } catch (err) {
       try { if (existsSync(targetDir)) rmSync(targetDir, { recursive: true, force: true }); } catch { /* ignore */ }
-      return fail(getServerMessage('SKILL_INSTALL_FAILED') + ': ' + err.message, 'SKILL_INSTALL_FAILED');
+      const failMessage = getServerMessage('SKILL_INSTALL_FAILED') + ': ' + err.message;
+      emitSkillInstallLog(undefined, 'ERROR', { message: failMessage });
+      return fail(failMessage, 'SKILL_INSTALL_FAILED');
     }
   }
 

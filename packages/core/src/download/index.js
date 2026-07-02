@@ -16,11 +16,15 @@ import {
 import { createAgent, parseRepoUrl } from './utils.js';
 import { getServerMessage } from '../utils/i18n.js';
 
-export function writeSkillLog(level, key, params, extra) {
+export function writeSkillLog(level, keyOrMessage, params, extra) {
   try {
     const ts = formatTimestamp();
-    const msg = getServerMessage(key, params);
-    const extraStr = extra ? ' | ' + JSON.stringify(extra, null, 0) : '';
+    const useRawMessage = !!(extra && extra.rawMessage);
+    const msg = useRawMessage ? keyOrMessage : getServerMessage(keyOrMessage, params);
+    const safeExtra = extra && extra.rawMessage
+      ? Object.fromEntries(Object.entries(extra).filter(([key]) => key !== 'rawMessage'))
+      : extra;
+    const extraStr = safeExtra && Object.keys(safeExtra).length ? ' | ' + JSON.stringify(safeExtra, null, 0) : '';
     const line = `[${ts}] [${level}] ${msg}${extraStr}`;
     fs.appendFileSync(path.join(process.cwd(), 'download-skill.log'), line + '\n', 'utf-8');
   } catch { /* 日志写入失败不阻塞流程 */ }
@@ -32,8 +36,8 @@ export async function downloadSkillFromGitHub({
   repoUrl, skillName, destDir, proxy, token, renameMap, onProgress, onLog, level,
 }) {
   const logger = new Logger();
-  logger.setFile(path.join(process.cwd(), 'download-skill.log'));
   logger.setCallback(onLog);
+  logger.setFile(path.join(process.cwd(), 'download-skill.log'));
   logger.log('INFO', 'SKILL_LOG_DOWNLOAD_START');
 
   const startTime = Date.now();
@@ -50,10 +54,8 @@ export async function downloadSkillFromGitHub({
   logger.log('INFO', 'SKILL_LOG_REPO_INFO', null, { owner, repo, branch });
 
   // 代理通道创建日志
-  if (agent && onLog) {
-    const proxyMsg = getServerMessage('SKILL_LOG_PROXY_AGENT_CREATED', { type: proxy?.type, host: proxy?.host, port: proxy?.port });
-    onLog({ level: 'INFO', message: proxyMsg });
-    writeSkillLog('INFO', 'SKILL_LOG_PROXY_AGENT_CREATED', { type: proxy?.type, host: proxy?.host, port: proxy?.port });
+  if (agent) {
+    logger.log('INFO', 'SKILL_LOG_PROXY_AGENT_CREATED', { type: proxy?.type, host: proxy?.host, port: proxy?.port });
   }
 
   if (onProgress) {
