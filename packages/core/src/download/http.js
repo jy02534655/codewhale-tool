@@ -12,10 +12,11 @@ import zlib from 'node:zlib';
 import { PassThrough, Readable } from 'node:stream';
 import * as tar from 'tar';
 import { Octokit } from '@octokit/core';
-import { ProgressEmitter, applyRenameMap } from './utils.js';
+import { DOWNLOAD_STAGES, ProgressEmitter, applyRenameMap } from './utils.js';
 
 // ===================== Tar 流式下载 =====================
 
+// 通过 tar.gz 流式下载并按前缀筛出单个 skill，适合中小仓库直连场景。
 export async function downloadViaTar({ owner, repo, branch, skillPrefix, targetDir, agent, onProgress, renameMap }) {
   const downloadUrl = `https://codeload.github.com/${owner}/${repo}/tar.gz/${branch}`;
   const repoPrefix = `${repo}-${branch}/`;
@@ -45,9 +46,13 @@ export async function downloadViaTar({ owner, repo, branch, skillPrefix, targetD
   progressStream.on('data', (chunk) => {
     downloaded += chunk.length;
     emitter.emit({
-      stage: 'download', downloaded, total,
+      stage: DOWNLOAD_STAGES.DOWNLOADING,
+      downloaded,
+      total,
       percent: total ? (downloaded / total) * 100 : null,
-      currentFile: `${owner}/${repo}.tar.gz`, completed: 0, totalFiles: 1,
+      currentFile: `${owner}/${repo}.tar.gz`,
+      completed: 0,
+      totalFiles: 1,
     });
   });
 
@@ -65,7 +70,9 @@ export async function downloadViaTar({ owner, repo, branch, skillPrefix, targetD
   extractor.on('entry', () => {
     extractedFiles++;
     emitter.emit({
-      stage: 'extract', downloaded, total,
+      stage: DOWNLOAD_STAGES.EXTRACTING,
+      downloaded,
+      total,
       percent: total ? (downloaded / total) * 100 : null,
       filesExtracted: extractedFiles,
     });
@@ -79,7 +86,7 @@ export async function downloadViaTar({ owner, repo, branch, skillPrefix, targetD
     gunzip.on('error', reject);
     extractor.on('error', reject);
     extractor.on('finish', () => {
-      emitter.emit({ stage: 'complete', downloaded, total, percent: 100, currentFile: null, completed: 1, totalFiles: 1 });
+      emitter.emit({ stage: DOWNLOAD_STAGES.DONE, downloaded, total, percent: 100, currentFile: null, completed: 1, totalFiles: 1 });
       resolve(targetDir);
     });
     nodeBody.pipe(progressStream).pipe(gunzip).pipe(extractor);
@@ -95,6 +102,7 @@ const CONCURRENCY = 3;
  * 通过 Octokit + Git Blob API 下载文件
  * 所有请求走 api.github.com，不受 CDN 域名限制。
  */
+// 通过 Git Tree + Blob API 拉取单个目录，避开 codeload 失败或超大 tarball 场景。
 export async function downloadViaApi({ owner, repo, branch, skillPrefix, targetDir, agent, token, onProgress, renameMap }) {
   // 创建 Octokit 实例，支持代理
   const octokitOpts = {
@@ -152,7 +160,11 @@ export async function downloadViaApi({ owner, repo, branch, skillPrefix, targetD
         downloaded += file.size || Buffer.byteLength(contentStr, 'utf-8');
         completed++;
         emitter.emit({
-          stage: 'download', completed, totalFiles, downloaded, total: totalBytes,
+          stage: DOWNLOAD_STAGES.DOWNLOADING,
+          completed,
+          totalFiles,
+          downloaded,
+          total: totalBytes,
           percent: totalBytes ? (downloaded / totalBytes) * 100 : (completed / totalFiles) * 100,
           currentFile: file.path,
         });

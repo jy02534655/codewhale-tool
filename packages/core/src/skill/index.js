@@ -336,6 +336,10 @@ export class SkillManager {
         proxy: proxyConfig, token, onProgress, onLog,
       });
 
+      if (onProgress) {
+        onProgress({ stage: 'registering', percent: 90, message: getServerMessage('SKILL_PROGRESS_REGISTERING') });
+      }
+
       const meta = _extractMeta(targetDir);
       this._addToConfig({
         id: skillId,
@@ -357,7 +361,6 @@ export class SkillManager {
     } catch (err) {
       try { if (existsSync(targetDir)) rmSync(targetDir, { recursive: true, force: true }); } catch { /* ignore */ }
       const failMessage = getServerMessage('SKILL_INSTALL_FAILED') + ': ' + err.message;
-      emitSkillInstallLog(undefined, 'ERROR', { message: failMessage });
       return fail(failMessage, 'SKILL_INSTALL_FAILED');
     }
   }
@@ -432,7 +435,6 @@ export class SkillManager {
     } catch (err) {
       try { if (existsSync(targetDir)) rmSync(targetDir, { recursive: true, force: true }); } catch { /* ignore */ }
       const failMessage = getServerMessage('SKILL_INSTALL_FAILED') + ': ' + err.message;
-      emitSkillInstallLog(undefined, 'ERROR', { message: failMessage });
       return fail(failMessage, 'SKILL_INSTALL_FAILED');
     }
   }
@@ -530,7 +532,6 @@ export class SkillManager {
     } catch (err) {
       try { if (existsSync(targetDir)) rmSync(targetDir, { recursive: true, force: true }); } catch { /* ignore */ }
       const failMessage = getServerMessage('SKILL_INSTALL_FAILED') + ': ' + err.message;
-      emitSkillInstallLog(undefined, 'ERROR', { message: failMessage });
       return fail(failMessage, 'SKILL_INSTALL_FAILED');
     }
   }
@@ -556,7 +557,7 @@ export class SkillManager {
         if (existsSync(entry.path)) {
           rmSync(entry.path, { recursive: true, force: true });
         }
-      } catch (err) {
+      } catch {
         // 文件删除失败不阻塞配置移除操作
       }
       entries.splice(idx, 1);

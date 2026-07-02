@@ -13,19 +13,7 @@ import { tmpdir } from 'node:os';
 import { execSync } from 'node:child_process';
 import { randomUUID } from 'node:crypto';
 import { getServerMessage } from '../utils/i18n.js';
-
-/**
- * 将结构化代理配置转换为 git CLI 可用的 url 字符串
- */
-function proxyToUrl(proxy) {
-  if (!proxy || proxy.type === 'none' || proxy.type === '') return '';
-  const auth = proxy.auth
-    ? `${encodeURIComponent(proxy.auth.username || '')}:${encodeURIComponent(proxy.auth.password || '')}@`
-    : '';
-  if (proxy.type === 'http') return `http://${auth}${proxy.host}:${proxy.port}`;
-  if (proxy.type === 'socks5') return `socks5://${auth}${proxy.host}:${proxy.port}`;
-  return '';
-}
+import { DOWNLOAD_STAGES, emitProgress, proxyToUrl } from './utils.js';
 
 /**
  * 使用 git sparse checkout（partial clone）下载单个 skill 子目录
@@ -35,10 +23,10 @@ export async function cloneWithGitSparse(repoUrl, skillPath, targetDir, proxy, o
   mkdirSync(tmpDir, { recursive: true });
 
   try {
-    if (onProgress) {
-      onProgress({ stage: 'cloning', percent: 10, message: getServerMessage('SKILL_PROGRESS_GIT_SPARSE_CLONE') });
-    }
+    // 通知前端进入 git 稀疏克隆阶段。
+    emitProgress(onProgress, DOWNLOAD_STAGES.CLONING, 10, getServerMessage('SKILL_PROGRESS_GIT_SPARSE_CLONE'));
 
+    // 复用公共代理 URL 拼装逻辑，并同时注入 http/https 代理配置给 git CLI。
     const proxyUrl = proxyToUrl(proxy);
     const proxyArgs = proxyUrl
       ? `-c http.proxy=${proxyUrl} -c https.proxy=${proxyUrl}`
@@ -53,9 +41,8 @@ export async function cloneWithGitSparse(repoUrl, skillPath, targetDir, proxy, o
     execSync(cloneCmd, { stdio: 'pipe', timeout: 120000 });
 
     if (skillPath) {
-      if (onProgress) {
-        onProgress({ stage: 'checkout', percent: 40, message: getServerMessage('SKILL_PROGRESS_SPARSE_CHECKOUT', { path: skillPath }) });
-      }
+      // 稀疏路径设置单独提示，便于区分 clone 与 checkout 两段耗时。
+      emitProgress(onProgress, DOWNLOAD_STAGES.CHECKOUT, 40, getServerMessage('SKILL_PROGRESS_SPARSE_CHECKOUT', { path: skillPath }));
       const sparseCmd = [
         ...(proxyArgs ? ['git', proxyArgs, '-C', `"${tmpDir}"`, 'sparse-checkout', 'set', `"${skillPath}"`]
           : ['git', '-C', `"${tmpDir}"`, 'sparse-checkout', 'set', `"${skillPath}"`]),
@@ -63,9 +50,8 @@ export async function cloneWithGitSparse(repoUrl, skillPath, targetDir, proxy, o
       execSync(sparseCmd, { stdio: 'pipe', timeout: 60000 });
     }
 
-    if (onProgress) {
-      onProgress({ stage: 'checking-out', percent: 60, message: getServerMessage('SKILL_PROGRESS_CHECKOUT_FILES') });
-    }
+    // 统一将真正 checkout 文件的阶段名收敛为 checkout。
+    emitProgress(onProgress, DOWNLOAD_STAGES.CHECKOUT, 60, getServerMessage('SKILL_PROGRESS_CHECKOUT_FILES'));
     execSync(`git -C "${tmpDir}" checkout`, { stdio: 'pipe', timeout: 60000 });
 
     const skillDir = skillPath ? join(tmpDir, ...skillPath.split('/')) : tmpDir;
@@ -74,14 +60,12 @@ export async function cloneWithGitSparse(repoUrl, skillPath, targetDir, proxy, o
       throw new Error(getServerMessage('SKILL_ERROR_README_NOT_FOUND'));
     }
 
-    if (onProgress) {
-      onProgress({ stage: 'copying', percent: 80, message: getServerMessage('SKILL_PROGRESS_COPYING') });
-    }
+    // 将临时目录中的最终 skill 内容复制到目标目录。
+    emitProgress(onProgress, DOWNLOAD_STAGES.COPYING, 80, getServerMessage('SKILL_PROGRESS_COPYING'));
     cpSync(skillDir, targetDir, { recursive: true, force: true });
 
-    if (onProgress) {
-      onProgress({ stage: 'cloned', percent: 85, message: getServerMessage('SKILL_PROGRESS_CLONE_DONE') });
-    }
+    // 统一完成态，避免前端额外兼容 cloned/done 两套别名。
+    emitProgress(onProgress, DOWNLOAD_STAGES.DONE, 85, getServerMessage('SKILL_PROGRESS_CLONE_DONE'));
   } finally {
     try { rmSync(tmpDir, { recursive: true, force: true }); } catch { /* ignore */ }
   }

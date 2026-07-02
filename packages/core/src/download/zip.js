@@ -12,9 +12,10 @@ import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import { randomUUID } from 'node:crypto';
 import { getServerMessage } from '../utils/i18n.js';
-import { createAgent } from './utils.js';
+import { DOWNLOAD_STAGES, createAgent } from './utils.js';
 import AdmZip from 'adm-zip';
 
+// 下载 ZIP 包并在流式写入时回传进度，供旧 ZIP 安装链路复用。
 async function downloadZipWithProxy(url, destPath, proxy, onProgress) {
   const { get } = await import('node:https');
 
@@ -45,7 +46,7 @@ async function downloadZipWithProxy(url, destPath, proxy, onProgress) {
             else {
               if (onProgress && contentLength > 0) {
                 const pct = Math.round((totalBytes / contentLength) * 100);
-                onProgress({ stage: 'downloading', percent: Math.min(pct, 99), message: getServerMessage('SKILL_PROGRESS_DOWNLOADING_PCT', { pct }) });
+                onProgress({ stage: DOWNLOAD_STAGES.DOWNLOADING, percent: Math.min(pct, 99), message: getServerMessage('SKILL_PROGRESS_DOWNLOADING_PCT', { pct }) });
               }
               pump();
             }
@@ -85,7 +86,7 @@ async function downloadZipWithProxy(url, destPath, proxy, onProgress) {
         fileStream.write(chunk);
         if (onProgress && contentLength > 0) {
           const pct = Math.round((totalBytes / contentLength) * 100);
-          onProgress({ stage: 'downloading', percent: Math.min(pct, 99), message: getServerMessage('SKILL_PROGRESS_DOWNLOADING_PCT', { pct }) });
+          onProgress({ stage: DOWNLOAD_STAGES.DOWNLOADING, percent: Math.min(pct, 99), message: getServerMessage('SKILL_PROGRESS_DOWNLOADING_PCT', { pct }) });
         }
       });
 
@@ -104,18 +105,19 @@ async function downloadZipWithProxy(url, destPath, proxy, onProgress) {
   await doGet(url);
 }
 
+// 兼容 ZIP 安装链路：下载压缩包、解压并返回真实 skill 根目录。
 export async function downloadAndExtractZip(zipUrl, targetDir, proxy, onProgress) {
   const tmpFile = join(tmpdir(), `skill-${randomUUID()}.zip`);
 
   try {
     if (onProgress) {
-      onProgress({ stage: 'connecting', percent: 5, message: getServerMessage('SKILL_PROGRESS_CONNECTING_GITHUB') });
+      onProgress({ stage: DOWNLOAD_STAGES.CONNECTING, percent: 5, message: getServerMessage('SKILL_PROGRESS_CONNECTING_GITHUB') });
     }
 
     await downloadZipWithProxy(zipUrl, tmpFile, proxy, onProgress);
 
     if (onProgress) {
-      onProgress({ stage: 'extracting', percent: 60, message: getServerMessage('SKILL_PROGRESS_EXTRACTING') });
+      onProgress({ stage: DOWNLOAD_STAGES.EXTRACTING, percent: 60, message: getServerMessage('SKILL_PROGRESS_EXTRACTING') });
     }
 
     const zip = new AdmZip(tmpFile);

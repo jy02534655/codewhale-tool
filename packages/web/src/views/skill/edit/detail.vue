@@ -105,7 +105,7 @@ import FilePreview from '@/composition/file/preview.vue'
 import ReadmeDialog from './readme.vue'
 
 // 引入文件预览辅助，统一模式判断与可编辑判断。
-import { getPreviewMode, getPreviewModeLabel, isEditableTextFile } from '@/composition/file/utils'
+import { getPreviewModeLabel, isEditableTextFile } from '@/composition/file/utils'
 
 // 获取全局翻译函数。
 const { t } = useI18n({ useScope: 'global' })
