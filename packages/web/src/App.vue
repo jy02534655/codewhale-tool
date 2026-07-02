@@ -160,11 +160,11 @@ onMounted(() => {
   gap: 8px;
 }
 .collapse-btn {
-  font-size: 16px;
+  font-size: var(--text-lg);
   padding: 4px;
 }
 .logo {
-  font-size: 16px;
+  font-size: var(--text-lg);
   font-weight: 600;
   margin: 0;
 }
@@ -209,7 +209,7 @@ onMounted(() => {
   padding: 10px 20px;
   text-decoration: none;
   color: var(--text-primary);
-  font-size: 14px;
+  font-size: var(--text-base);
   border-radius: 0;
   transition: background 0.15s;
   cursor: pointer;
@@ -238,7 +238,7 @@ onMounted(() => {
   border-radius: 0 3px 3px 0;
 }
 .nav-icon {
-  font-size: 18px;
+  font-size: var(--text-xl);
   flex-shrink: 0;
 }
 .nav-label {
