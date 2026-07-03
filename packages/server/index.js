@@ -21,10 +21,10 @@ import {
 } from '@codewhale/core';
 import { createLangRouter } from './src/routes/lang.js';
 import { createOfficialKeyRouter } from './src/routes/officialKey.js';
-import { createProviderRouter } from './src/routes/provider.js';
+import { createProviderRouter } from './src/routes/provider/index.js';
 import { createProxyRouter } from './src/routes/proxy.js';
 import { createTokenRouter } from './src/routes/token.js';
-import { createSkillRouter } from './src/routes/skill.js';
+import { createSkillRouter } from './src/routes/skill/index.js';
 import { createSyncRouter } from './src/routes/sync.js';
 
 /**
