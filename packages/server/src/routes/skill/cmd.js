@@ -7,16 +7,6 @@
 import { guard, guardAsync } from '../../utils/guard.js';
 
 export function registerCmdRoutes(router, skillMgr) {
-  /** 发现 skill */
-  router.post('/discover', (req, res) => {
-    res.json(guard(() => skillMgr.discover(req.body.level)));
-  });
-
-  /** 安装 skill */
-  router.post('/install', async (req, res) => {
-    res.json(await guardAsync(() => skillMgr.install(req.body.id, req.body.level)));
-  });
-
   /** 启用 skill */
   router.post('/enable/:id', (req, res) => {
     res.json(guard(() => skillMgr.enable(req.params.id)));

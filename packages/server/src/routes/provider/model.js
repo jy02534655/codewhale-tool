@@ -20,6 +20,6 @@ export function registerModelRoutes(router, providerMgr, syncMgr) {
 
   /** 激活模型 */
   router.post('/models/activate', (req, res) => {
-    res.json(guard(() => syncMgr.setActiveModelAndSync(req.body))));
+    res.json(guard(() => syncMgr.setActiveModelAndSync(req.body)));
   });
 }

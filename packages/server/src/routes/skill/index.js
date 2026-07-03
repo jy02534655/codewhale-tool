@@ -17,7 +17,6 @@ import { registerReadmeRoutes } from './readme.js';
 import { registerFilesRoutes } from './files.js';
 import { registerCmdRoutes } from './cmd.js';
 import { registerInstallRoutes } from './install.js';
-import { registerSearchRoutes } from './search.js';
 import { registerLogRoutes } from './log.js';
 import { registerProjectRoutes } from './project.js';
 
@@ -34,7 +33,6 @@ export function createSkillRouter(skillMgr) {
   registerFilesRoutes(router, skillMgr);
   registerCmdRoutes(router, skillMgr);
   registerInstallRoutes(router, skillMgr, _upload, _pendingZipInstalls);
-  registerSearchRoutes(router, skillMgr);
   registerLogRoutes(router, skillMgr);
   registerProjectRoutes(router, skillMgr);
 

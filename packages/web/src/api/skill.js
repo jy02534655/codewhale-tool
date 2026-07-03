@@ -6,17 +6,11 @@
  */
 import { ajaxBack, ajaxPostBack, ajaxDeleteBack, ajaxPutBack } from '@/utils/request'
 
-/** 获取全部 skill */
-export function getSkillList() { return ajaxBack('/skill/list') }
-
 /** 获取全局 skill */
 export function getGlobalSkillList() { return ajaxBack('/skill/list/global') }
 
 /** 获取项目 skill */
 export function getProjectSkillList() { return ajaxBack('/skill/list/project') }
-
-/** 获取指定 skill 详情 */
-export function getSkillDetail(id) { return ajaxBack('/skill/show/' + id) }
 
 /** 启用 skill */
 export function enableSkill(id) { return ajaxPostBack('/skill/enable/' + id, {}, { successMessage: true }) }

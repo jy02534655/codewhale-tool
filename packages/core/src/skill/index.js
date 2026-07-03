@@ -151,12 +151,6 @@ export class SkillManager {
 
   // ─── 列表查询 ───────────────────────────────────────────────
 
-  listAll() {
-    const global = this._getGlobalInstalled().map((s) => ({ ...s, level: 'global' }));
-    const project = this._getProjectInstalled().map((s) => ({ ...s, level: 'project' }));
-    return ok([...global, ...project]);
-  }
-
   listGlobal() {
     return ok(this._getGlobalInstalled());
   }
@@ -171,35 +165,6 @@ export class SkillManager {
   }
 
   // ─── 单 Skill 操作 ──────────────────────────────────────────
-
-  show(skillId, level) {
-    let entry;
-    let resolvedLevel;
-
-    if (level === 'global') {
-      entry = this._getGlobalInstalled().find((s) => s.id === skillId) || null;
-      resolvedLevel = 'global';
-    } else if (level === 'project') {
-      entry = this._getProjectInstalled().find((s) => s.id === skillId) || null;
-      resolvedLevel = 'project';
-    } else {
-      entry = this._getGlobalInstalled().find((s) => s.id === skillId) || null;
-      resolvedLevel = 'global';
-      if (!entry && this._projectEngine) {
-        entry = this._getProjectInstalled().find((s) => s.id === skillId) || null;
-        resolvedLevel = entry ? 'project' : null;
-      }
-    }
-
-    if (!entry) return failMsg('SKILL_NOT_FOUND');
-
-    let readme = '';
-    if (existsSync(join(entry.path, 'SKILL.md'))) {
-      readme = readFileSync(join(entry.path, 'SKILL.md'), 'utf-8');
-    }
-
-    return ok({ entry, readme, level: resolvedLevel });
-  }
 
   updateRemark(skillId, remark, hintLevel) {
     return this._mutate(skillId, (entries, idx) => {
