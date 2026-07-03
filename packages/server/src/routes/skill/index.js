@@ -7,18 +7,14 @@
  */
 
 import { Router } from 'express';
-import { guard, guardAsync } from '../../utils/guard.js';
 import multer from 'multer';
 import { tmpdir } from 'node:os';
 
-import { registerQueryRoutes } from './query.js';
-import { registerMetaRoutes } from './meta.js';
-import { registerReadmeRoutes } from './readme.js';
 import { registerFilesRoutes } from './files.js';
 import { registerCmdRoutes } from './cmd.js';
 import { registerInstallRoutes } from './install.js';
 import { registerLogRoutes } from './log.js';
-import { registerProjectRoutes } from './project.js';
+import { registerRoutes } from './routes.js';
 
 export function createSkillRouter(skillMgr) {
   const router = Router();
@@ -27,14 +23,11 @@ export function createSkillRouter(skillMgr) {
   const _upload = multer({ dest: tmpdir() });
   const _pendingZipInstalls = new Map();
 
-  registerQueryRoutes(router, skillMgr);
-  registerMetaRoutes(router, skillMgr);
-  registerReadmeRoutes(router, skillMgr);
   registerFilesRoutes(router, skillMgr);
   registerCmdRoutes(router, skillMgr);
   registerInstallRoutes(router, skillMgr, _upload, _pendingZipInstalls);
   registerLogRoutes(router, skillMgr);
-  registerProjectRoutes(router, skillMgr);
+  registerRoutes(router, skillMgr);
 
   return router;
 }

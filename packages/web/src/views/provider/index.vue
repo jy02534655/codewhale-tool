@@ -157,8 +157,10 @@ import { ElMessageBox } from 'element-plus';
 import { InfoFilled } from '@element-plus/icons-vue';
 import {
   getProviderList, activateProvider, deactivateProvider, removeProvider,
+} from '@/api/provider/provider';
+import {
   removeModel, setActiveModel,
-} from '@/api/provider';
+} from '@/api/provider/model';
 import {
   getOfficialKeyList, activateOfficialKey, removeOfficialKey,
 } from '@/api/officialKey';

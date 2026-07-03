@@ -24,7 +24,7 @@ import { ref, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 // 引入 Skill 文件读写接口。
-import { readSkillFile, saveSkillFile } from '@/api/skill'
+import { readSkillFile, saveSkillFile } from '@/api/skill/files'
 
 // 引入通用弹窗基类，复用 show/hide 生命周期。
 import { compositionDialogBase } from '@/composition/dialog/Base'

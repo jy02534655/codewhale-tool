@@ -4,9 +4,6 @@
  * 挂载路径: /api/skill
  */
 
-import { guardAsync } from '../../utils/guard.js';
-import multer from 'multer';
-import { tmpdir } from 'node:os';
 
 export function registerInstallRoutes(router, skillMgr, upload, pendingZipInstalls) {
   /**

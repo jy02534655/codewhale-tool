@@ -109,7 +109,7 @@ import { ElMessage } from 'element-plus'
 import { useI18n } from 'vue-i18n'
 import { getProxyList } from '@/api/proxy'
 import { getTokenList } from '@/api/token'
-import { getCurrentProjectDir } from '@/api/skill'
+import { getCurrentProjectDir } from '@/api/skill/routes'
 import { compositionDialogBase } from '@/composition/dialog/Base'
 import InstallProgress from './progress.vue'
 

@@ -7,7 +7,6 @@
  */
 
 import { Router } from 'express';
-import { guard, withSync } from '../../utils/guard.js';
 import { registerProviderRoutes } from './provider.js';
 import { registerModelRoutes } from './model.js';
 

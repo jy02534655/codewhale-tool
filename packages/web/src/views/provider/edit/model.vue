@@ -23,7 +23,7 @@
 <script setup>
 import { reactive } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { addModel } from '@/api/provider';
+import { addModel } from '@/api/provider/model';
 import { useMaskingStore } from '@/stores/masking';
 import { compositionDialogForm } from '@/composition/dialog/Form';
 
