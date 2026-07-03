@@ -1,14 +1,14 @@
 /**
  * ProjectSkillEngine — 项目级 skill 存储引擎
  *
- * 管理项目根目录下的 .codewhale/skills.json 文件。
+ * 管理项目根目录下的 <project>/skills.json 文件。
  * 与 ConfigEngine 结构一致但作用于不同文件，
  * 让项目可以独立维护自己的 skill 注册表。
  *
  * 路径探测：
  *   1. 显式传入的路径
- *   2. 从当前工作目录向上查找 .codewhale/skills.json
- *   3. 不存在则返回当前目录 .codewhale/skills.json
+ *   2. 从当前工作目录向上查找 <project>/skills.json
+ *   3. 不存在则返回当前目录 <project>/skills.json
  *
  * @module project-skill
  */
@@ -32,14 +32,14 @@ export class ProjectSkillEngine {
    */
   constructor(projectPath) {
     this._path = projectPath
-      ? (projectPath.endsWith('skills.json') ? projectPath : join(projectPath, '.codewhale', 'skills.json'))
+      ? (projectPath.endsWith('skills.json') ? projectPath : join(projectPath, 'skills.json'))
       : ProjectSkillEngine.detectPath();
   }
 
   // ─── 路径探测 ──────────────────────────────────────────────
 
   /**
-   * 从当前工作目录向上查找 .codewhale/skills.json
+   * 从当前工作目录向上查找 skills.json
    * @returns {string}
    */
   static detectPath() {
@@ -47,14 +47,14 @@ export class ProjectSkillEngine {
     let dir = cwd;
      
     while (true) {
-      const candidate = join(dir, '.codewhale', 'skills.json');
+      const candidate = join(dir, 'skills.json');
       if (existsSync(candidate)) return candidate;
       const parent = resolve(dir, '..');
       if (parent === dir) break; // 到达根目录
       dir = parent;
     }
     // 没找到则回退到当前目录
-    return join(cwd, '.codewhale', 'skills.json');
+    return join(cwd, 'skills.json');
   }
 
   /** @returns {string} */

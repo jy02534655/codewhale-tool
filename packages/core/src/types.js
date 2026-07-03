@@ -1,7 +1,7 @@
 /**
  * 核心类型定义（JSDoc 类型注释，供 IDE 智能提示使用）
  *
- * 本地存储使用 JSON 格式（store.json / .codewhale/skills.json），
+ * 本地存储使用 JSON 格式（store.json / skills.json），
  * CodeWhale 运行时使用 TOML 格式（~/.codewhale/config.toml），
  * 两者通过 SyncManager 实时双向同步。
  *

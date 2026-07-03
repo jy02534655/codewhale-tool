@@ -3,7 +3,7 @@
  *
  * Skill 存储架构：
  *   全局层 → store.json → skills.installed[] （由 ConfigEngine 管理）
- *   项目层 → .codewhale/skills.json → installed[]（由 ProjectSkillEngine 管理）
+ *   项目层 → <project>/skills.json → installed[]（由 ProjectSkillEngine 管理）
  *
  * Skill 文件位置：
  *   全局 → ~/.codewhale/skills/<skill-id>/SKILL.md
