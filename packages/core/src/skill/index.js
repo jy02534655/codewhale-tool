@@ -6,7 +6,7 @@
 import { existsSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { getServerMessage } from '../utils/i18n.js';
-import { ok } from '../utils/result.js';
+import { ok, fail } from '../utils/result.js';
 import { SkillStore } from './SkillStore.js';
 import * as Routes from './routes.js';
 import * as Cmd from './cmd.js';
@@ -102,6 +102,25 @@ export class SkillManager {
   // ------------------------------------------------------------------ //
 
   createPendingInstall(opts) { return this._store.createPendingInstall(opts); }
+  createPendingUpdate(opts) { return this._store.createPendingUpdate(opts); }
   getPendingInstall(streamId) { return this._store.getPendingInstall(streamId); }
+
+  /**
+   * 消费安装待办：获取 pending、校验存在性、按 skillId 分发 install/update
+   * @param {string} streamId
+   * @param {Function} [onProgress]
+   * @param {Function} [onLog]
+   */
+  consumePendingInstall(streamId, onProgress, onLog) {
+    const pending = this.getPendingInstall(streamId);
+    if (!pending) {
+      return fail('Stream not found', 'STREAM_NOT_FOUND');
+    }
+    if (pending.skillId) {
+      return this.updateByOpts(pending, onProgress, onLog);
+    }
+    return this.install(pending, onProgress, onLog);
+  }
+
   get skillsDir() { return this._store.skillsDir; }
 }

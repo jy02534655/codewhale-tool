@@ -225,6 +225,13 @@ export class SkillStore {
     return streamId;
   }
 
+  createPendingUpdate(opts) {
+    if (!opts || !opts.skillId) {
+      throw new Error('skillId is required');
+    }
+    return this.createPendingInstall(opts);
+  }
+
   /**
    * @param {string} streamId
    * @returns {Object|undefined}

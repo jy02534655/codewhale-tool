@@ -72,28 +72,19 @@ export function registerInstallRoutes(router, skillMgr) {
 
   /** POST /api/skill/update — 直接更新 skill（JSON body） */
   router.post('/update', async (req, res) => {
-    if (!req.body || !req.body.skillId) {
-      res.status(400).json({ success: false, message: 'skillId is required' })
-      return
+    try {
+      const streamId = skillMgr.createPendingUpdate(req.body)
+      res.json({ success: true, streamId })
+    } catch (err) {
+      res.status(400).json({ success: false, message: err.message })
     }
-    const streamId = skillMgr.createPendingInstall(req.body)
-    res.json({ success: true, streamId })
   })
 
   /** GET /api/skill/install/sse/:streamId — 通用 SSE 流式进度 */
   router.get('/install/sse/:streamId', async (req, res) => {
-    const pending = skillMgr.getPendingInstall(req.params.streamId)
-    if (!pending) {
-      res.status(404).json({ success: false, message: 'Stream not found' })
-      return
-    }
     await withSSE(req, res, async (sse) => {
-      if (pending.skillId) {
-        // 更新模式：调用 updateByOpts，支持 SSE 进度
-        return skillMgr.updateByOpts(pending, sse.onProgress, sse.onLog)
-      }
-      // 安装模式：调用 install
-      return skillMgr.install(pending, sse.onProgress, sse.onLog)
+      // 核心层统一处理：获取 pending、校验存在性、按 skillId 分发 install/update
+      return skillMgr.consumePendingInstall(req.params.streamId, sse.onProgress, sse.onLog)
     })
   })
 }
