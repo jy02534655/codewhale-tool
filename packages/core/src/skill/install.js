@@ -16,7 +16,7 @@ import { emitSkillInstallLog, _extractMeta, _parseGitHubUrl, _parseProxyUrl } fr
 
 /**
  * 从 GitHub 仓库安装 skill（V2 内部实现）
- * @param {SkillManager} self
+ * @param {SkillStore} store
  * @param {Object} opts
  * @param {string} opts.repoUrl
  * @param {string} [opts.skillPath]
@@ -28,7 +28,7 @@ import { emitSkillInstallLog, _extractMeta, _parseGitHubUrl, _parseProxyUrl } fr
  * @param {Function} [progressCb]
  * @param {Function} [logCb]
  */
-export async function _installFromGitHubV2(self, opts, progressCb, logCb) {
+export async function _installFromGitHubV2(store, opts, progressCb, logCb) {
   const targetLevel = opts.level || 'global';
   const onProgress = progressCb;
   const onLog = logCb;
@@ -38,10 +38,10 @@ export async function _installFromGitHubV2(self, opts, progressCb, logCb) {
 
   const skillId = opts.skillPath ? basename(opts.skillPath) : parsed.repo;
   const targetDir = targetLevel === 'project'
-    ? join(process.cwd(), self._projectSkillsDir, skillId)
-    : join(self._skillsDir, skillId);
+    ? join(process.cwd(), store.projectSkillsDir, skillId)
+    : join(store.skillsDir, skillId);
 
-  const installed = self._getLevelInstalled(targetLevel);
+  const installed = store.getLevelInstalled(targetLevel);
   if (installed.some(function (s) { return s.id === skillId; })) {
     return failMsg('SKILL_ALREADY_INSTALLED');
   }
@@ -55,7 +55,7 @@ export async function _installFromGitHubV2(self, opts, progressCb, logCb) {
       opts.proxyConfig = _parseProxyUrl(opts.proxyUrl);
     }
     if (!opts.proxyConfig && opts.proxyId) {
-      const proxyEntry = self._engine.findProxy(opts.proxyId);
+      const proxyEntry = store.engine.findProxy(opts.proxyId);
       if (proxyEntry) {
         opts.proxyConfig = {
           type: proxyEntry.type,
@@ -70,7 +70,7 @@ export async function _installFromGitHubV2(self, opts, progressCb, logCb) {
 
     let token;
     if (opts.tokenId) {
-      const tokenEntry = self._engine.findToken(opts.tokenId);
+      const tokenEntry = store.engine.findToken(opts.tokenId);
       if (tokenEntry) token = tokenEntry.token;
     }
 
@@ -89,7 +89,7 @@ export async function _installFromGitHubV2(self, opts, progressCb, logCb) {
     }
 
     const meta = _extractMeta(targetDir);
-    self._addToConfig({
+    store.addToConfig({
       id: skillId,
       name: meta.name || skillId,
       description: meta.description,
@@ -115,21 +115,21 @@ export async function _installFromGitHubV2(self, opts, progressCb, logCb) {
 
 /**
  * 从 ZIP 源安装 skill（URL 或本地文件）
- * @param {SkillManager} self
+ * @param {SkillStore} store
  * @param {string} zipSource
  * @param {string} [skillPath]
  * @param {string} [level='global']
  * @param {Object|string} [proxyConfig]
  * @param {Function} [onProgress]
  */
-export async function installFromZip(self, zipSource, skillPath, level, proxyConfig, onProgress) {
+export async function installFromZip(store, zipSource, skillPath, level, proxyConfig, onProgress) {
   const targetLevel = level || 'global';
   const skillId = skillPath ? basename(skillPath) : basename(zipSource).replace(/\.zip$/i, '') || 'skill';
   const targetDir = targetLevel === 'project'
-    ? join(process.cwd(), self._projectSkillsDir, skillId)
-    : join(self._skillsDir, skillId);
+    ? join(process.cwd(), store.projectSkillsDir, skillId)
+    : join(store.skillsDir, skillId);
 
-  const installed = self._getLevelInstalled(targetLevel);
+  const installed = store.getLevelInstalled(targetLevel);
   if (installed.some(function (s) { return s.id === skillId; })) {
     return failMsg('SKILL_ALREADY_INSTALLED');
   }
@@ -154,7 +154,7 @@ export async function installFromZip(self, zipSource, skillPath, level, proxyCon
 
     let sourceDir;
     if (skillPath) {
-      sourceDir = self._findSkillDir(extractRoot, skillPath);
+      sourceDir = store.findSkillDir(extractRoot, skillPath);
       if (!sourceDir) {
         if (existsSync(join(extractRoot, 'SKILL.md'))) {
           sourceDir = extractRoot;
@@ -174,9 +174,9 @@ export async function installFromZip(self, zipSource, skillPath, level, proxyCon
     if (existsSync(targetDir)) rmSync(targetDir, { recursive: true, force: true });
 
     const meta = _extractMeta(sourceDir);
-    self._copyDir(sourceDir, targetDir);
+    store.copyDir(sourceDir, targetDir);
 
-    self._addToConfig({
+    store.addToConfig({
       id: skillId,
       name: meta.name,
       description: meta.description,
@@ -205,7 +205,7 @@ export async function installFromZip(self, zipSource, skillPath, level, proxyCon
 
 /**
  * 从本地 ZIP 文件路径安装 skill（带日志回调）
- * @param {SkillManager} self
+ * @param {SkillStore} store
  * @param {string} zipPath
  * @param {string} [skillName]
  * @param {string} [level]
@@ -213,10 +213,10 @@ export async function installFromZip(self, zipSource, skillPath, level, proxyCon
  * @param {Function} [onProgress]
  * @param {Function} [onLog]
  */
-export async function installFromZipStream(self, zipPath, skillName, level, proxyId, onProgress, onLog) {
+export async function installFromZipStream(store, zipPath, skillName, level, proxyId, onProgress, onLog) {
   let proxyConfig;
   if (proxyId) {
-    const proxyEntry = self._engine.findProxy(proxyId);
+    const proxyEntry = store.engine.findProxy(proxyId);
     if (proxyEntry) {
       proxyConfig = {
         type: proxyEntry.type,
@@ -230,7 +230,7 @@ export async function installFromZipStream(self, zipPath, skillName, level, prox
   }
 
   emitSkillInstallLog(onLog, 'INFO', { key: 'SKILL_PROGRESS_EXTRACTING' });
-  const result = await installFromZip(self, zipPath, skillName, level, proxyConfig, onProgress);
+  const result = await installFromZip(store, zipPath, skillName, level, proxyConfig, onProgress);
   if (result.success) {
     emitSkillInstallLog(onLog, 'INFO', { key: 'SKILL_PROGRESS_DONE' });
   } else {
@@ -242,7 +242,7 @@ export async function installFromZipStream(self, zipPath, skillName, level, prox
 
 /**
  * 从 GitHub Tree URL 安装 skill
- * @param {SkillManager} self
+ * @param {SkillStore} store
  * @param {string} githubUrl
  * @param {string} [level]
  * @param {string} [proxyId]
@@ -250,7 +250,7 @@ export async function installFromZipStream(self, zipPath, skillName, level, prox
  * @param {Function} [onProgress]
  * @param {Function} [onLog]
  */
-export async function installFromGithubTreePath(self, githubUrl, level, proxyId, tokenId, onProgress, onLog) {
+export async function installFromGithubTreePath(store, githubUrl, level, proxyId, tokenId, onProgress, onLog) {
   const { parseGithubTreeUrl } = await import('../download/utils.js');
   const parsed = parseGithubTreeUrl(githubUrl);
   if (!parsed) {
@@ -260,21 +260,21 @@ export async function installFromGithubTreePath(self, githubUrl, level, proxyId,
   const repoUrl = 'https://github.com/' + parsed.owner + '/' + parsed.repo;
   const skillPath = parsed.path;
 
-  return _installFromGitHubV2(self, {
+  return _installFromGitHubV2(store, {
     repoUrl, skillPath, level, proxyId, tokenId,
   }, onProgress, onLog);
 }
 
 /**
  * 统一安装入口
- * @param {SkillManager} self
+ * @param {SkillStore} store
  * @param {Object} opts
  * @param {string} opts.type
  * @param {string} [opts.level]
  * @param {Function} [onProgress]
  * @param {Function} [onLog]
  */
-export function install(self, opts, onProgress, onLog) {
+export function install(store, opts, onProgress, onLog) {
   const type = opts.type || opts.installMode || 'github';
   const level = opts.level;
   const proxyId = opts.proxyId || opts.selectedProxyId;
@@ -283,7 +283,7 @@ export function install(self, opts, onProgress, onLog) {
   const proxyConfig = opts.proxyConfig;
 
   if (type === 'github') {
-    return _installFromGitHubV2(self, {
+    return _installFromGitHubV2(store, {
       repoUrl: opts.repoUrl,
       skillPath: opts.skillPath,
       level,
@@ -295,12 +295,12 @@ export function install(self, opts, onProgress, onLog) {
   }
   if (type === 'githubPath') {
     const githubUrl = opts.githubUrl || opts.githubTreeUrl;
-    return installFromGithubTreePath(self, githubUrl, level, proxyId, tokenId, onProgress, onLog);
+    return installFromGithubTreePath(store, githubUrl, level, proxyId, tokenId, onProgress, onLog);
   }
   if (type === 'zip') {
     const zipPath = opts.zipPath || opts.selectedFilePath;
     const skillName = opts.zipSkillName || opts.skillName;
-    return installFromZipStream(self, zipPath, skillName, level, proxyId, onProgress, onLog);
+    return installFromZipStream(store, zipPath, skillName, level, proxyId, onProgress, onLog);
   }
   return failMsg('SKILL_INVALID_INSTALL_TYPE');
 }

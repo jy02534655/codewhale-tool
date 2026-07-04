@@ -13,51 +13,51 @@ import { okMsg, failMsg, fail } from '../utils/result.js';
 
 /**
  * 启用 skill
- * @param {SkillManager} self
+ * @param {SkillStore} store
  * @param {string} skillId
  * @param {string} [hintLevel]
  */
-export function enable(self, skillId, hintLevel) {
-  return self._toggle(skillId, true, hintLevel);
+export function enable(store, skillId, hintLevel) {
+  return store.toggle(skillId, true, hintLevel);
 }
 
 /**
  * 禁用 skill
- * @param {SkillManager} self
+ * @param {SkillStore} store
  * @param {string} skillId
  * @param {string} [hintLevel]
  */
-export function disable(self, skillId, hintLevel) {
-  return self._toggle(skillId, false, hintLevel);
+export function disable(store, skillId, hintLevel) {
+  return store.toggle(skillId, false, hintLevel);
 }
 
-  /**
-   * 批量更新 skill 元数据
-   * @param {SkillManager} self
-   * @param {string} skillId
-   * @param {Object} meta
-   * @param {string} [hintLevel]
-   */
-  export function updateMeta(self, skillId, meta, hintLevel) {
-    return self._mutate(skillId, function (entries, idx) {
-      if (meta.name != null) entries[idx].name = meta.name;
-      if (meta.description != null) entries[idx].description = meta.description;
-      if (meta.alias != null) entries[idx].alias = meta.alias;
-      if (meta.remark != null) entries[idx].remark = meta.remark;
-      if (meta.tags != null) entries[idx].tags = meta.tags;
-      entries[idx].updated_at = Date.now();
-      return okMsg('updated');
-    }, hintLevel);
-  }
+/**
+ * 批量更新 skill 元数据
+ * @param {SkillStore} store
+ * @param {string} skillId
+ * @param {Object} meta
+ * @param {string} [hintLevel]
+ */
+export function updateMeta(store, skillId, meta, hintLevel) {
+  return store.mutate(skillId, function (entries, idx) {
+    if (meta.name != null) entries[idx].name = meta.name;
+    if (meta.description != null) entries[idx].description = meta.description;
+    if (meta.alias != null) entries[idx].alias = meta.alias;
+    if (meta.remark != null) entries[idx].remark = meta.remark;
+    if (meta.tags != null) entries[idx].tags = meta.tags;
+    entries[idx].updated_at = Date.now();
+    return okMsg('updated');
+  }, hintLevel);
+}
 
 /**
  * 彻底删除 skill（移除配置 + 删除文件）
- * @param {SkillManager} self
+ * @param {SkillStore} store
  * @param {string} skillId
  * @param {string} [hintLevel]
  */
-export function remove(self, skillId, hintLevel) {
-  return self._mutate(skillId, function (entries, idx, entry) {
+export function remove(store, skillId, hintLevel) {
+  return store.mutate(skillId, function (entries, idx, entry) {
     try {
       if (existsSync(entry.path)) {
         rmSync(entry.path, { recursive: true, force: true });
@@ -66,21 +66,21 @@ export function remove(self, skillId, hintLevel) {
       // 文件删除失败不阻塞配置移除操作
     }
     entries.splice(idx, 1);
-    self._setLevelInstalled(hintLevel, entries);
+    store.setLevelInstalled(hintLevel, entries);
     return okMsg('synced');
   }, hintLevel);
 }
 
 /**
  * 更新 skill（从 GitHub 重新拉取）
- * @param {SkillManager} self
+ * @param {SkillStore} store
  * @param {string} skillId
  * @param {string} [hintLevel]
  */
-export async function update(self, skillId, hintLevel) {
+export async function update(store, skillId, hintLevel) {
   const entry = hintLevel
-    ? self._getLevelInstalled(hintLevel).find(function (s) { return s.id === skillId; })
-    : self._getGlobalInstalled().find(function (s) { return s.id === skillId; });
+    ? store.getLevelInstalled(hintLevel).find(function (s) { return s.id === skillId; })
+    : store.getGlobalInstalled().find(function (s) { return s.id === skillId; });
 
   if (!entry) return failMsg('SKILL_NOT_FOUND');
   if (entry.source !== 'community') return failMsg('SKILL_NOT_UPDATABLE');
@@ -101,11 +101,11 @@ export async function update(self, skillId, hintLevel) {
     const sourceDir = join(tmpDir, ...skillId.split('/'));
     const targetDir = entry.path;
     if (existsSync(targetDir)) rmSync(targetDir, { recursive: true, force: true });
-    self._copyDir(sourceDir, targetDir);
+    store.copyDir(sourceDir, targetDir);
 
     try { rmSync(tmpDir, { recursive: true, force: true }); } catch { /* ignore */ }
 
-    self._mutate(skillId, function (entries, idx) {
+    store.mutate(skillId, function (entries, idx) {
       entries[idx].updated_at = Date.now();
       return okMsg('updated');
     }, hintLevel);
@@ -117,25 +117,25 @@ export async function update(self, skillId, hintLevel) {
 
 /**
  * 将全局 skill 复制到当前项目
- * @param {SkillManager} self
+ * @param {SkillStore} store
  * @param {string} skillId
  */
-export function copyToProject(self, skillId) {
-  const entry = self._getGlobalInstalled().find(function (s) { return s.id === skillId; });
+export function copyToProject(store, skillId) {
+  const entry = store.getGlobalInstalled().find(function (s) { return s.id === skillId; });
   if (!entry) return failMsg('SKILL_NOT_FOUND');
 
-  const projectInstalled = self._getProjectInstalled();
+  const projectInstalled = store.getProjectInstalled();
   if (projectInstalled.some(function (s) { return s.id === skillId; })) {
     return failMsg('SKILL_ALREADY_INSTALLED');
   }
 
-  const targetDir = join(process.cwd(), self._projectSkillsDir, skillId);
+  const targetDir = join(process.cwd(), store.projectSkillsDir, skillId);
 
   try {
     if (existsSync(targetDir)) rmSync(targetDir, { recursive: true, force: true });
-    self._copyDir(entry.path, targetDir);
+    store.copyDir(entry.path, targetDir);
 
-    self._addToConfig({
+    store.addToConfig({
       id: skillId,
       name: entry.name,
       description: entry.description,

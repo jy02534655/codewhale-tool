@@ -1,30 +1,26 @@
 /**
  * Skill 路由查询模块
- * 提供列表、搜索、发现、项目信息等只读查询能力
+ * 提供列表、项目信息等只读查询能力
  */
 
-import { existsSync, readdirSync } from 'node:fs';
-import { join } from 'node:path';
-import { getServerMessage } from '../utils/i18n.js';
-import { ok, fail } from '../utils/result.js';
-import { _extractMeta } from './shared.js';
+import { ok } from '../utils/result.js';
 
 /**
  * 获取全局已安装 skill 列表
- * @param {SkillManager} self
+ * @param {SkillStore} store
  */
-export function listGlobal(self) {
-  return ok(self._getGlobalInstalled());
+export function listGlobal(store) {
+  return ok(store.getGlobalInstalled());
 }
 
 /**
  * 获取项目已安装 skill 列表
- * @param {SkillManager} self
+ * @param {SkillStore} store
  */
-export function listProject(self) {
-  const list = self._getProjectInstalled();
-  if (self._projectEngine) {
-    const info = self._projectEngine.getProjectInfo();
+export function listProject(store) {
+  const list = store.getProjectInstalled();
+  if (store.projectEngine) {
+    const info = store.projectEngine.getProjectInfo();
     return ok(list.map(function (s) { return { ...s, project: info.name }; }));
   }
   return ok(list);
@@ -32,20 +28,20 @@ export function listProject(self) {
 
 /**
  * 获取当前项目信息
- * @param {SkillManager} self
+ * @param {SkillStore} store
  */
-export function getCurrentProject(self) {
-  if (!self._projectEngine) {
+export function getCurrentProject(store) {
+  if (!store.projectEngine) {
     return ok({
       name: 'codewhale-tool',
       path: process.cwd(),
-      installed: self._getProjectInstalled(),
+      installed: store.getProjectInstalled(),
     });
   }
-  const info = self._projectEngine.getProjectInfo();
+  const info = store.projectEngine.getProjectInfo();
   return ok({
     name: info.name,
     path: info.path,
-    installed: self._getProjectInstalled(),
+    installed: store.getProjectInstalled(),
   });
 }
