@@ -6,6 +6,7 @@
 import { existsSync, mkdirSync, readdirSync, copyFileSync } from 'node:fs';
 import { homedir } from 'node:os';
 import { join } from 'node:path';
+import { randomUUID } from 'node:crypto';
 import { getServerMessage } from '../utils/i18n.js';
 import { ok, okMsg, failMsg, fail } from '../utils/result.js';
 import * as Routes from './routes.js';
@@ -26,6 +27,7 @@ export class SkillManager {
     this._projectEngine = projectEngine || null;
     this._skillsDir = skillsDir || join(homedir(), '.codewhale', 'skills');
     this._projectSkillsDir = 'skills';
+    this._pendingInstalls = new Map();
   }
 
   // ------------------------------------------------------------------ //
@@ -145,7 +147,7 @@ export class SkillManager {
     };
 
     if (!level || level === 'global') scanFn(this._skillsDir, 'global');
-    if ((!level || level === 'project') && this._projectEngine) {
+    if (!level || level === 'project') {
       scanFn(join(process.cwd(), this._projectSkillsDir), 'project');
     }
 
@@ -164,8 +166,7 @@ export class SkillManager {
    */
   _mutate(skillId, fn, hintLevel) {
     if (hintLevel) {
-      const engine = hintLevel === 'project' ? this._projectEngine : this._engine;
-      if (!engine) return failMsg('SKILL_NOT_FOUND');
+      const engine = hintLevel === 'project' ? (this._projectEngine || this._engine) : this._engine;
       const entries = this._getLevelInstalled(hintLevel);
       const idx = entries.findIndex((s) => s.id === skillId);
       if (idx === -1) return failMsg('SKILL_NOT_FOUND');
@@ -181,14 +182,12 @@ export class SkillManager {
       this._setLevelInstalled('global', globalEntries);
       return result;
     }
-    if (this._projectEngine) {
-      const projectEntries = this._getProjectInstalled();
-      const pIdx = projectEntries.findIndex((s) => s.id === skillId);
-      if (pIdx !== -1) {
-        const result = fn(projectEntries, pIdx, projectEntries[pIdx], 'project', this._projectEngine);
-        this._setLevelInstalled('project', projectEntries);
-        return result;
-      }
+    const projectEntries = this._getProjectInstalled();
+    const pIdx = projectEntries.findIndex((s) => s.id === skillId);
+    if (pIdx !== -1) {
+      const result = fn(projectEntries, pIdx, projectEntries[pIdx], 'project', this._engine);
+      this._setLevelInstalled('project', projectEntries);
+      return result;
     }
     return failMsg('SKILL_NOT_FOUND');
   }
@@ -216,7 +215,7 @@ export class SkillManager {
     if (level === 'global') return this._getGlobalInstalled().find((s) => s.id === skillId) || null;
     if (level === 'project') return this._getProjectInstalled().find((s) => s.id === skillId) || null;
     let entry = this._getGlobalInstalled().find((s) => s.id === skillId) || null;
-    if (!entry && this._projectEngine) {
+    if (!entry) {
       entry = this._getProjectInstalled().find((s) => s.id === skillId) || null;
     }
     return entry;
@@ -235,7 +234,11 @@ export class SkillManager {
    * @returns {Object[]}
    */
   _getProjectInstalled() {
-    return this._projectEngine ? this._projectEngine.getInstalled().slice() : [];
+    if (this._projectEngine) {
+      return this._projectEngine.getInstalled().slice();
+    }
+    const store = this._engine.read();
+    return (store.skills?.project_installed || []).slice();
   }
 
   /**
@@ -253,8 +256,16 @@ export class SkillManager {
    * @param {Object[]} entries
    */
   _setLevelInstalled(level, entries) {
-    if (level === 'project' && this._projectEngine) {
-      this._projectEngine.setInstalled(entries);
+    if (level === 'project') {
+      if (this._projectEngine) {
+        this._projectEngine.setInstalled(entries);
+      } else {
+        this._engine.update((data) => {
+          if (!data.skills) data.skills = {};
+          data.skills.project_installed = entries;
+          return data;
+        });
+      }
     } else {
       const skillsCfg = this._engine.getSkills();
       skillsCfg.installed = entries;
@@ -268,10 +279,19 @@ export class SkillManager {
    * @param {string} level
    */
   _addToConfig(entry, level) {
-    if (level === 'project' && this._projectEngine) {
-      const installed = this._projectEngine.getInstalled();
-      installed.push(entry);
-      this._projectEngine.setInstalled(installed);
+    if (level === 'project') {
+      if (this._projectEngine) {
+        const installed = this._projectEngine.getInstalled();
+        installed.push(entry);
+        this._projectEngine.setInstalled(installed);
+      } else {
+        this._engine.update((data) => {
+          if (!data.skills) data.skills = {};
+          if (!data.skills.project_installed) data.skills.project_installed = [];
+          data.skills.project_installed.push(entry);
+          return data;
+        });
+      }
     } else {
       const skillsCfg = this._engine.getSkills();
       const installed = skillsCfg.installed || [];
@@ -317,5 +337,35 @@ export class SkillManager {
     }
     if (existsSync(join(current, 'SKILL.md'))) return current;
     return null;
+  }
+
+  /**
+   * 创建一个待安装任务并返回 streamId
+   * @param {Object} opts - 安装选项
+   * @returns {string} streamId
+   */
+  createPendingInstall(opts) {
+    const streamId = randomUUID();
+    this._pendingInstalls.set(streamId, {
+      ...opts,
+      createdAt: Date.now(),
+    });
+    return streamId;
+  }
+
+  /**
+   * 获取并消费一个待安装任务
+   * @param {string} streamId
+   * @returns {Object|undefined}
+   */
+  getPendingInstall(streamId) {
+    const pending = this._pendingInstalls.get(streamId);
+    if (!pending) return undefined;
+    this._pendingInstalls.delete(streamId);
+    return pending;
+  }
+
+  get skillsDir() {
+    return this._skillsDir;
   }
 }

@@ -35,6 +35,7 @@ const DEFAULT_STORE = {
     installed: [],
     community_cache: [],
     cached_at: 0,
+    project_installed: [],
   },
 };
 
@@ -107,6 +108,9 @@ export class ConfigEngine {
           ? data.skills.community_cache
           : def.skills.community_cache,
         cached_at: data.skills?.cached_at ?? def.skills.cached_at,
+        project_installed: Array.isArray(data.skills?.project_installed)
+          ? data.skills.project_installed
+          : def.skills.project_installed,
       },
     };
   }

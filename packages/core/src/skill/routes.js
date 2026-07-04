@@ -36,7 +36,11 @@ export function listProject(self) {
  */
 export function getCurrentProject(self) {
   if (!self._projectEngine) {
-    return fail(getServerMessage('PROJECT_NOT_OPEN'));
+    return ok({
+      name: 'codewhale-tool',
+      path: process.cwd(),
+      installed: self._getProjectInstalled(),
+    });
   }
   const info = self._projectEngine.getProjectInfo();
   return ok({

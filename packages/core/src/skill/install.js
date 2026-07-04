@@ -156,8 +156,12 @@ export async function installFromZip(self, zipSource, skillPath, level, proxyCon
     if (skillPath) {
       sourceDir = self._findSkillDir(extractRoot, skillPath);
       if (!sourceDir) {
-        try { rmSync(tempDir, { recursive: true, force: true }); } catch { /* ignore */ }
-        return failMsg('SKILL_NOT_FOUND');
+        if (existsSync(join(extractRoot, 'SKILL.md'))) {
+          sourceDir = extractRoot;
+        } else {
+          try { rmSync(tempDir, { recursive: true, force: true }); } catch { /* ignore */ }
+          return failMsg('SKILL_NOT_FOUND');
+        }
       }
     } else {
       sourceDir = extractRoot;
