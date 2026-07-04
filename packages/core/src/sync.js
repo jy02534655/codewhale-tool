@@ -33,8 +33,8 @@ function codeWhalePath() {
 export class SyncManager {
   /**
    * @param {import('./config.js').ConfigEngine} engine
-   * @param {import('./provider.js').ProviderManager} providerMgr
-   * @param {import('./provider.js').OfficialKeyManager} [officialKeyMgr]
+   * @param {import('./provider/provider.js').ProviderManager} providerMgr
+   * @param {import('./provider/officialKey.js').OfficialKeyManager} [officialKeyMgr]
    */
   constructor(engine, providerMgr, officialKeyMgr) {
     this._engine = engine;

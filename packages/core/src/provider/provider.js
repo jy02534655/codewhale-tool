@@ -1,25 +1,10 @@
 /**
- * ProviderManager — Provider 与模型管理
- * OfficialKeyManager — 官方 API key 管理
- *
- * 基于本地 JSON 存储（store.json），管理：
- *   1. 官方 DeepSeek API key（可多个，支持别名，主键 = official:api_key）
- *   2. 第三方 provider 列表（增删改查，主键 = provider:api_key）
- *   3. 每个 provider 下的模型列表（增删改查，切换激活）
- *
- * 所有消息已本地化，内部使用 getLocale() 获取当前语言。
- *
- * @module provider
+ * @module provider/provider
  */
 
-import { getProviderI18nLabel, getDefaultBaseUrl, getLocale } from './utils/i18n.js';
-import { ok, okMsg, failMsg } from './utils/result.js';
-
-/** 掩码显示 API key（前5位 + ... + 后4位） */
-function maskKey(key) {
-  if (!key || key.length < 9) return key ? key.slice(0, 3) + '...' : '';
-  return key.slice(0, 5) + '...' + key.slice(-4);
-}
+import { getProviderI18nLabel, getDefaultBaseUrl, getLocale } from '../utils/i18n.js';
+import { ok, okMsg, failMsg } from '../utils/result.js';
+import { maskKey } from './officialKey.js';
 
 /** 校验 URL：可选字段，填了必须是 http/https 格式 */
 function isValidUrl(str) {
@@ -33,110 +18,17 @@ function isValidUrl(str) {
 }
 
 // ════════════════════════════════════════════════════════════════
-// OfficialKeyManager — 官方 API key 管理
-// ════════════════════════════════════════════════════════════════
-
-export class OfficialKeyManager {
-  /**
-   * @param {import('./config.js').ConfigEngine} engine
-   */
-  constructor(engine) {
-    this._engine = engine;
-  }
-
-  /** @returns {{success: boolean, data: import('./types.js').OfficialKeyEntry[], message: string}} */
-  list() {
-    return ok(this._engine.getOfficialKeys().map((k) => ({
-      ...k,
-      api_key_preview: maskKey(k.api_key),
-    })));
-  }
-
-  /** @returns {{success: boolean, data: import('./types.js').OfficialKeyEntry|null, message: string}} */
-  getActive() {
-    return ok(this._engine.getOfficialKeys().find((k) => k.active) || null);
-  }
-
-  /**
-   * 查找 key 并执行回调，自动处理查找失败和 set
-   * @param {string} id
-   * @param {(keys: Array, idx: number, k: object, locale: string) => any} fn
-   * @private
-   */
-  _mutateKey(id, fn) {
-    const keys = this._engine.getOfficialKeys();
-    const idx = keys.findIndex((k) => k.id === id);
-    if (idx === -1) return failMsg('KEY_NOT_FOUND');
-    const result = fn(keys, idx, keys[idx]);
-    this._engine.setOfficialKeys(keys);
-    return result;
-  }
-
-  /**
-   * 添加官方 key
-   * @param {object} opts
-   * @param {string} [opts.alias]
-   * @param {string} opts.api_key
-   * @returns {{success: boolean, data?: any, message?: string, errorCode?: string}}
-   */
-  add({ alias, api_key } = {}) {
-    if (!api_key) return failMsg('KEY_REQUIRED');
-    const id = 'official:' + api_key;
-    const keys = this._engine.getOfficialKeys();
-    if (keys.some((k) => k.id === id)) {
-      return failMsg('KEY_DUPLICATE');
-    }
-    keys.push({ id, alias: alias || '默认', api_key, active: keys.length === 0 });
-    this._engine.setOfficialKeys(keys);
-    return okMsg('keyAdded', { id });
-  }
-
-  /**
-   * 激活指定官方 key
-   * @param {string} id
-   * @returns {{success: boolean, data?: any, message?: string, errorCode?: string}}
-   */
-  activate(id) {
-    return this._mutateKey(id, (keys) => {
-      keys.forEach((kk) => (kk.active = kk.id === id));
-      return okMsg('keyActivated');
-    });
-  }
-
-  /**
-   * 更新别名
-   * @param {{id: string, alias: string}} param
-   * @returns {{success: boolean, data?: any, message?: string, errorCode?: string}}
-   */
-  updateAlias({ id, alias }) {
-    return this._mutateKey(id, (keys, idx, k) => {
-      k.alias = alias;
-      return okMsg('aliasUpdated');
-    });
-  }
-
-  /**
-   * 删除官方 key
-   * @param {string} id
-   * @returns {{success: boolean, data?: any, message?: string, errorCode?: string}}
-   */
-  remove(id) {
-    return this._mutateKey(id, (keys, idx, k) => {
-      const wasActive = k.active;
-      keys.splice(idx, 1);
-      if (wasActive && keys.length > 0) keys[0].active = true;
-      return okMsg('deleted');
-    });
-  }
-}
-
-// ════════════════════════════════════════════════════════════════
 // ProviderManager — 第三方 provider 管理
 // ════════════════════════════════════════════════════════════════
 
+/**
+ * Provider 与模型管理
+ *
+ * @module ProviderManager
+ */
 export class ProviderManager {
   /**
-   * @param {import('./config.js').ConfigEngine} engine
+   * @param {import('../utils/config.js').ConfigEngine} engine
    */
   constructor(engine) {
     this._engine = engine;
@@ -181,7 +73,7 @@ export class ProviderManager {
     return ok(this._engine.findProvider(id) || null);
   }
 
-  /** @returns {{success: boolean, data: import('./types.js').ProviderEntry|null, message: string}} */
+  /** @returns {{success: boolean, data: import('../types.js').ProviderEntry|null, message: string}} */
   getActiveProvider() {
     return ok(this._engine.getProviders().find((p) => p.active) || null);
   }
@@ -344,7 +236,7 @@ export class ProviderManager {
     this._engine.setProviders(all);
   }
 
-  /** @param {import('./types.js').ProviderEntry[]} providers */
+  /** @param {import('../types.js').ProviderEntry[]} providers */
   replaceAll(providers) {
     this._engine.setProviders(providers);
   }
