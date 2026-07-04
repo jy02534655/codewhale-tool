@@ -3,29 +3,11 @@
  * 对外保持 SkillManager 单类不变，内部按职责委托给子模块
  */
 
-import { ok, okMsg, failMsg, fail } from '../utils/result.js';
-import { getServerMessage } from '../utils/i18n.js';
-
-function createProxyEngine() {
-  return {
-    url: null,
-    isActive: false,
-    lastChecked: null,
-    setProxy(url) {
-      this.url = url;
-      this.isActive = !!url;
-      this.lastChecked = Date.now();
-    },
-    start() {
-      // no-op
-    },
-    updateQueue() {
-      // no-op
-    },
-  };
-}
-import { join } from 'node:path';
 import { existsSync, mkdirSync, readdirSync, copyFileSync } from 'node:fs';
+import { homedir } from 'node:os';
+import { join } from 'node:path';
+import { getServerMessage } from '../utils/i18n.js';
+import { ok, okMsg, failMsg, fail } from '../utils/result.js';
 import * as Routes from './routes.js';
 import * as Cmd from './cmd.js';
 import * as Files from './files.js';
@@ -36,19 +18,14 @@ import { _extractMeta } from './shared.js';
 export class SkillManager {
   /**
    * @param {ConfigEngine} engine
+   * @param {any} [projectEngine]
    * @param {string} [skillsDir]
    */
-  constructor(engine, skillsDir) {
+  constructor(engine, projectEngine, skillsDir) {
     this._engine = engine;
-    this._skillsDir = skillsDir || join(process.cwd(), '.codewhale', 'skills');
-    this._projectEngine = null;
-    this._projectSkillsDir = '.codewhale/project-skills';
-    this._installed = [];
-    this._projectInstalled = [];
-    this._mutateQueue = [];
-    this._installedWatcher = null;
-    this._proxy = createProxyEngine({ getEngine: () => this._engine });
-    this.init().catch(() => {});
+    this._projectEngine = projectEngine || null;
+    this._skillsDir = skillsDir || join(homedir(), '.codewhale', 'skills');
+    this._projectSkillsDir = 'skills';
   }
 
   // ------------------------------------------------------------------ //
@@ -180,37 +157,40 @@ export class SkillManager {
   // ------------------------------------------------------------------ //
 
   /**
-   * 同步执行 skill 配置变更（入队处理，避免并发冲突）
+   * 同步执行 skill 配置变更
    * @param {string} skillId
    * @param {Function} fn
    * @param {string} [hintLevel]
    */
   _mutate(skillId, fn, hintLevel) {
-    return this._mutateAsync(skillId, function (entries, idx, entry, level, engine) {
-      const result = fn(entries, idx, entry, level, engine);
-      if (result && typeof result.then === 'function') {
-        return result.then(function () { return okMsg('synced'); });
-      }
+    if (hintLevel) {
+      const engine = hintLevel === 'project' ? this._projectEngine : this._engine;
+      if (!engine) return failMsg('SKILL_NOT_FOUND');
+      const entries = this._getLevelInstalled(hintLevel);
+      const idx = entries.findIndex((s) => s.id === skillId);
+      if (idx === -1) return failMsg('SKILL_NOT_FOUND');
+      const result = fn(entries, idx, entries[idx], hintLevel, engine);
+      this._setLevelInstalled(hintLevel, entries);
       return result;
-    }, hintLevel);
-  }
+    }
 
-  /**
-   * 异步执行 skill 配置变更（入队处理）
-   * @param {string} skillId
-   * @param {Function} fn
-   * @param {string} [hintLevel]
-   */
-  async _mutateAsync(skillId, fn, hintLevel) {
-    const self = this;
-    await new Promise(function (resolve) {
-      if (self._mutateQueue.length === 0) {
-        self._mutateQueue.push({ skillId, fn, hintLevel, resolve });
-        _processQueue(self);
-      } else {
-        self._mutateQueue.push({ skillId, fn, hintLevel, resolve });
+    const globalEntries = this._getGlobalInstalled();
+    let idx = globalEntries.findIndex((s) => s.id === skillId);
+    if (idx !== -1) {
+      const result = fn(globalEntries, idx, globalEntries[idx], 'global', this._engine);
+      this._setLevelInstalled('global', globalEntries);
+      return result;
+    }
+    if (this._projectEngine) {
+      const projectEntries = this._getProjectInstalled();
+      const pIdx = projectEntries.findIndex((s) => s.id === skillId);
+      if (pIdx !== -1) {
+        const result = fn(projectEntries, pIdx, projectEntries[pIdx], 'project', this._projectEngine);
+        this._setLevelInstalled('project', projectEntries);
+        return result;
       }
-    });
+    }
+    return failMsg('SKILL_NOT_FOUND');
   }
 
   /**
@@ -233,10 +213,13 @@ export class SkillManager {
    * @returns {Object|null}
    */
   _findEntry(skillId, level) {
-    if (level === 'project') {
-      return this._projectInstalled.find(function (s) { return s.id === skillId; }) || null;
+    if (level === 'global') return this._getGlobalInstalled().find((s) => s.id === skillId) || null;
+    if (level === 'project') return this._getProjectInstalled().find((s) => s.id === skillId) || null;
+    let entry = this._getGlobalInstalled().find((s) => s.id === skillId) || null;
+    if (!entry && this._projectEngine) {
+      entry = this._getProjectInstalled().find((s) => s.id === skillId) || null;
     }
-    return this._installed.find(function (s) { return s.id === skillId; }) || null;
+    return entry;
   }
 
   /**
@@ -244,7 +227,7 @@ export class SkillManager {
    * @returns {Object[]}
    */
   _getGlobalInstalled() {
-    return this._installed.slice();
+    return (this._engine.getSkills().installed || []).slice();
   }
 
   /**
@@ -252,7 +235,7 @@ export class SkillManager {
    * @returns {Object[]}
    */
   _getProjectInstalled() {
-    return this._projectInstalled.slice();
+    return this._projectEngine ? this._projectEngine.getInstalled().slice() : [];
   }
 
   /**
@@ -261,8 +244,7 @@ export class SkillManager {
    * @returns {Object[]}
    */
   _getLevelInstalled(level) {
-    if (level === 'project') return this._projectInstalled;
-    return this._installed;
+    return level === 'project' ? this._getProjectInstalled() : this._getGlobalInstalled();
   }
 
   /**
@@ -271,12 +253,13 @@ export class SkillManager {
    * @param {Object[]} entries
    */
   _setLevelInstalled(level, entries) {
-    if (level === 'project') {
-      this._projectInstalled = entries;
+    if (level === 'project' && this._projectEngine) {
+      this._projectEngine.setInstalled(entries);
     } else {
-      this._installed = entries;
+      const skillsCfg = this._engine.getSkills();
+      skillsCfg.installed = entries;
+      this._engine.setSkills(skillsCfg);
     }
-    this._syncToStore();
   }
 
   /**
@@ -285,12 +268,17 @@ export class SkillManager {
    * @param {string} level
    */
   _addToConfig(entry, level) {
-    if (level === 'project') {
-      this._projectInstalled.push(entry);
+    if (level === 'project' && this._projectEngine) {
+      const installed = this._projectEngine.getInstalled();
+      installed.push(entry);
+      this._projectEngine.setInstalled(installed);
     } else {
-      this._installed.push(entry);
+      const skillsCfg = this._engine.getSkills();
+      const installed = skillsCfg.installed || [];
+      installed.push(entry);
+      skillsCfg.installed = installed;
+      this._engine.setSkills(skillsCfg);
     }
-    this._syncToStore();
   }
 
   /**
@@ -329,148 +317,5 @@ export class SkillManager {
     }
     if (existsSync(join(current, 'SKILL.md'))) return current;
     return null;
-  }
-
-  // ------------------------------------------------------------------ //
-  // 生命周期 & 存储同步
-  // ------------------------------------------------------------------ //
-
-  /**
-   * 初始化：从 store 读取已安装列表到内存，并启动代理
-   */
-  async init() {
-    const store = this._engine.read();
-    this._installed = (store.skills?.installed || []).slice();
-    this._projectInstalled = (store.skills?.project_installed || []).slice();
-    // 兼容旧格式：如果 store 中没有全局 skill 数据，从 skills.json 迁移
-    if (!this._installed.length) {
-      try {
-        const skillsJsonPath = join(process.cwd(), 'skills.json');
-        if (fs.existsSync(skillsJsonPath)) {
-          const content = fs.readFileSync(skillsJsonPath, 'utf8');
-          const skillsData = JSON.parse(content);
-          if (Array.isArray(skillsData.installed) && skillsData.installed.length) {
-            this._installed = skillsData.installed.slice();
-            store.skills = store.skills || {};
-            store.skills.installed = this._installed.map(function (s) { return { ...s }; });
-            this._engine.write(store);
-          }
-        }
-      } catch (err) {
-        // 忽略迁移错误
-      }
-    }
-    await this._syncToStore();
-    const proxies = this._engine.getProxies();
-    const defaultProxy = proxies.find(p => p.default) || proxies[0];
-    const proxyUrl = defaultProxy ? `${defaultProxy.type}://${defaultProxy.host}:${defaultProxy.port}` : null;
-    this._proxy.setProxy(proxyUrl);
-    this._proxy.start();
-  }
-
-  /**
-   * 将内存中的 installed 列表同步到 store.json
-   */
-  _syncToStore() {
-    const store = this._engine.read();
-    if (!store.skills) store.skills = {};
-    store.skills.installed = this._installed.map(function (s) {
-      return { ...s };
-    });
-    if (this._projectEngine) {
-      const info = this._projectEngine.getProjectInfo();
-      store.skills.project_installed = this._projectInstalled.map(function (s) {
-        return { ...s, project: info.name };
-      });
-    } else {
-      store.skills.project_installed = this._projectInstalled.map(function (s) {
-        return { ...s };
-      });
-    }
-    this._engine.write(store);
-  }
-
-  /**
-   * 更新代理配置
-   * @param {string} url
-   */
-  setProxy(url) {
-    if (!url || !this._proxy) return;
-    this._proxy.url = url;
-    this._proxy.updateQueue();
-    this._syncToStore();
-  }
-
-  /**
-   * 获取当前代理状态
-   * @returns {Object|null}
-   */
-  getProxy() {
-    if (!this._proxy) return null;
-    return {
-      url: this._proxy.url,
-      isActive: this._proxy.isActive,
-      lastChecked: this._proxy.lastChecked,
-    };
-  }
-}
-
-/**
- * 内部队列处理函数（不挂载到类上，避免污染公开 API）
- */
-function _processQueue(self) {
-  if (self._mutateQueue.length === 0) return;
-  const task = self._mutateQueue[0];
-  const skillId = task.skillId;
-  const hintLevel = task.hintLevel;
-
-  const allEntries = [
-    ...self._installed.map(function (s) { return { ...s, __level: 'global' }; }),
-    ...self._projectInstalled.map(function (s) { return { ...s, __level: 'project' }; }),
-  ];
-
-  let idx = allEntries.findIndex(function (s) { return s.id === skillId; });
-  let targetLevel = hintLevel;
-
-  if (idx === -1) {
-    if (hintLevel === 'project') {
-      targetLevel = 'project';
-      idx = self._projectInstalled.findIndex(function (s) { return s.id === skillId; });
-    } else {
-      targetLevel = 'global';
-      idx = self._installed.findIndex(function (s) { return s.id === skillId; });
-    }
-  }
-
-  if (idx === -1) {
-    task.resolve(failMsg('SKILL_NOT_FOUND'));
-    self._mutateQueue.shift();
-    if (self._mutateQueue.length > 0) _processQueue(self);
-    return;
-  }
-
-  const levelEntries = targetLevel === 'project' ? self._projectInstalled : self._installed;
-  const realIdx = levelEntries.findIndex(function (s) { return s.id === skillId; });
-  const entry = levelEntries[realIdx];
-
-  try {
-    const result = task.fn(levelEntries, realIdx, entry, targetLevel, self._engine);
-    const promise = result && typeof result.then === 'function' ? result : Promise.resolve(result);
-    promise.then(
-      function (res) {
-        task.resolve(res);
-        self._mutateQueue.shift();
-        if (self._mutateQueue.length > 0) _processQueue(self);
-      },
-      function (err) {
-        task.resolve(fail(err.message || String(err)));
-        self._mutateQueue.shift();
-        if (self._mutateQueue.length > 0) _processQueue(self);
-      }
-    );
-  } catch (err) {
-    task.resolve(fail(err.message || String(err)));
-    self._mutateQueue.shift();
-    if (self._mutateQueue.length > 0) _processQueue(self);
   }
 }
