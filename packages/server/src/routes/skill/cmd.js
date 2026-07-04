@@ -29,6 +29,6 @@ export function registerCmdRoutes(router, skillMgr) {
 
   /** 更新 skill */
   router.post('/update/:id', async (req, res) => {
-    res.json(await guardAsync(() => skillMgr.update(req.params.id)));
+    res.json(await guardAsync(() => skillMgr.updateByOpts({ skillId: req.params.id })));
   });
 }

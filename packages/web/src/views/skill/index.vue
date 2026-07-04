@@ -104,6 +104,7 @@
         <detail
           :skill="selectedSkill"
           @refresh="loadSkills"
+          @openUpdate="onOpenUpdate"
           @openEdit="onOpenEdit"
           @openReadme="onOpenReadme"
         />
@@ -143,6 +144,7 @@ import readme from './edit/readme.vue'
 const { t } = useI18n({ useScope: 'global' })
 const maskingStore = useMaskingStore()
 const dialogCtrl = compositionDialogContainer()
+const installDialog = ref(null)
 
 const globalSkills = ref([])
 const projectSkills = ref([])
@@ -229,6 +231,17 @@ function loadSkills() {
 function onOpenEdit() {
   if (selectedSkill.value) {
     dialogCtrl.showEditDialog(selectedSkill.value, 'infoDialog')
+  }
+}
+
+function onOpenUpdate(payload) {
+  if (!payload) return
+  const { skillId, installParams } = payload
+  // 使用更新模式（state=1）打开安装弹窗
+  // 如果有 installParams 则回填，没有则让用户手动填写
+  const dialog = installDialog.value
+  if (dialog) {
+    dialog.showDialogByData(1, { skillId, installParams })
   }
 }
 

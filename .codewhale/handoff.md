@@ -1,7 +1,7 @@
-# Handoff — install.js 改造完成（方案D） + GitHub Tree URL 分支修复
+# Handoff — Skill 更新流程 SSE 化 + 前端编辑模式适配
 
 > 最后更新: 2026-07-04
-> 状态: **已完成（基础架构） / 待前端路由验证**
+> 状态: **后端已完成 / 前端部分完成 / 待完成 compositionDialogForm 配置与 onSubmit**
 
 ## 完成内容
 
@@ -34,7 +34,7 @@
 #### ✅ 其他文件改动
 
 - **`cmd.js`**: 删除了旧的 `update` 方法
-- **`index.js`**: 
+- **`index.js`**:
   - 移除 `update(skillId, hintLevel)` 委托
   - 新增 `updateByOpts(opts, onProgress, onLog)` 委托到 `Install.update`
 
@@ -68,16 +68,68 @@ tree URL 中包含 /tree/<branch>/<path>
   → 默认 main
 ```
 
-### 三、未完成 / 未来待办
+### 三、Skill 更新流程 SSE 化（本次会话）
 
-- [ ] **路由层适配**: 前端调用更新时，需要路由层调用 `SkillManager.updateByOpts(opts, onProgress, onLog)`。当前路由层可能还需要调整。
-- [ ] **前端适配**: 更新页面传入完整 `opts`（含 `skillId`），利用 `installParams` 实现参数回填。
+将 Skill 更新流程改为 SSE 流式进度，与安装流程统一。
+
+#### 问题描述
+
+- 旧 `POST /api/skill/update` 直接同步返回结果，无 SSE 进度
+- 前端更新 Skill 时看不到下载/安装进度
+- 安装流程已支持 SSE，但更新流程未统一
+
+#### 修复内容
+
+| 文件 | 改动 |
+|------|------|
+| `packages/server/src/routes/skill/install.js` | `POST /update` 改为创建 pending install 并返回 `streamId`；`GET /install/sse/:streamId` 检查 `pending.skillId`，决定调用 `install` 还是 `updateByOpts` |
+
+#### 后端路由逻辑
+
+```
+POST /update
+  → 验证 req.body.skillId 必填
+  → 创建 pending install（包含 skillId）
+  → 返回 { success: true, streamId }
+
+GET /install/sse/:streamId
+  → 获取 pending install（原子删除）
+  → pending.skillId 存在 → 调用 updateByOpts（更新模式）
+  → pending.skillId 不存在 → 调用 install（安装模式）
+  → 通过 SSE 推送 progress/log/complete/error 事件
+```
+
+### 四、前端 ref 访问修复（本次会话）
+
+修复 `packages/web/src/views/skill/index.vue` 中的 ref 访问错误。
+
+#### 问题
+
+- 第 161 行 `currentSkillId` 在 script setup 中未定义
+- 应为 `tableData`（表格数据源）
+
+#### 修复
+
+```
+- showDialogByData({ data: currentSkillId })
++ showDialogByData({ data: tableData.value })
+```
+
+### 五、未完成 / 未来待办
+
+- [ ] **前端 install.vue compositionDialogForm 配置**: 添加 `editFun: updateSkillByOpts`，修改 `initfun` 支持编辑模式回填（`state === 1` 时读取 `data.skillId` 和 `data.installParams`）。
+- [ ] **前端 install.vue refs**: 添加 `isUpdateMode` / `updateSkillId`。
+- [ ] **前端 install.vue onSubmit**: 更新模式下提交 `{ ...formData, skillId: updateSkillId.value }`。
+- [ ] **前端 install.vue onDialogClose**: 重置 `isUpdateMode` / `updateSkillId`。
+- [ ] **前端 install.vue defineExpose**: 暴露 `showDialogByData`。
 - [ ] **测试**: 验证各种安装类型（github / githubPath / zip）的 update 流程正确。
 
-### 四、参考文件
+### 六、参考文件
 
 - `packages/core/src/skill/install.js` — 主要改造文件
 - `packages/core/src/skill/cmd.js` — 删除了旧的 update 方法
 - `packages/core/src/skill/index.js` — 更新了委托
 - `packages/core/src/download/orchestrator.js` — 分支解析逻辑
-- `packages/web/src/views/skill/edit/install.vue` — tree URL 智能识别
+- `packages/server/src/routes/skill/install.js` — SSE 路由改造
+- `packages/web/src/views/skill/edit/install.vue` — tree URL 智能识别 + 更新模式适配（进行中）
+- `packages/web/src/views/skill/index.vue` — ref 访问修复

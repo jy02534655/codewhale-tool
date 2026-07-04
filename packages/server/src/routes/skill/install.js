@@ -70,6 +70,16 @@ export function registerInstallRoutes(router, skillMgr) {
     res.json({ success: true, streamId })
   })
 
+  /** POST /api/skill/update — 直接更新 skill（JSON body） */
+  router.post('/update', async (req, res) => {
+    if (!req.body || !req.body.skillId) {
+      res.status(400).json({ success: false, message: 'skillId is required' })
+      return
+    }
+    const streamId = skillMgr.createPendingInstall(req.body)
+    res.json({ success: true, streamId })
+  })
+
   /** GET /api/skill/install/sse/:streamId — 通用 SSE 流式进度 */
   router.get('/install/sse/:streamId', async (req, res) => {
     const pending = skillMgr.getPendingInstall(req.params.streamId)
@@ -78,6 +88,11 @@ export function registerInstallRoutes(router, skillMgr) {
       return
     }
     await withSSE(req, res, async (sse) => {
+      if (pending.skillId) {
+        // 更新模式：调用 updateByOpts，支持 SSE 进度
+        return skillMgr.updateByOpts(pending, sse.onProgress, sse.onLog)
+      }
+      // 安装模式：调用 install
       return skillMgr.install(pending, sse.onProgress, sse.onLog)
     })
   })

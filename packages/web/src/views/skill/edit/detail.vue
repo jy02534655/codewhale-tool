@@ -116,7 +116,7 @@ const { t } = useI18n({ useScope: 'global' })
 const props = defineProps({ skill: { type: Object, default: null } })
 
 // 定义对外事件，通知父层刷新列表和状态。
-const emit = defineEmits(['refresh', 'openEdit'])
+const emit = defineEmits(['refresh', 'openEdit', 'openUpdate'])
 
 // 保存文件树原始列表。
 const fileList = ref([])
@@ -359,11 +359,8 @@ function toggleSkillEnabled() {
 // 更新当前 Skill 并通知外层刷新。
 function updateCurrentSkill() {
   if (!props.skill) return
-  updateSkill(props.skill.id).then(function () {
-    emit('refresh')
-  }).catch(function () {
-    ElMessage.error(t('message.networkError') || 'Update failed')
-  })
+  const installParams = props.skill.installParams || null
+  emit('openUpdate', { skillId: props.skill.id, installParams })
 }
 
 // 删除整个 Skill 前先做二次确认。

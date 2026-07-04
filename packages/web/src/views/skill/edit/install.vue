@@ -5,7 +5,7 @@
   确认后弹出现有的 InstallProgress 组件（progress.vue）展示 SSE 进度
 -->
 <template>
-  <el-dialog v-model="isShow" :title="$t('common.install')" width="800px" top="8vh" :close-on-click-modal="false" @close="resetForm">
+  <el-dialog v-model="isShow" :title="$t('common.install')" width="800px" top="8vh" :close-on-click-modal="false" @close="onDialogClose">
     <!-- el-form 包裹左右两侧，统一管理校验规则 -->
     <el-form ref="formRef" :model="formData" :rules="rules" label-position="top">
       <div class="install-layout">
@@ -111,7 +111,7 @@ import { useI18n } from 'vue-i18n'
 import { getProxyList } from '@/api/proxy'
 import { getTokenList } from '@/api/token'
 import { getCurrentProjectDir } from '@/api/skill/routes'
-import { installSkill } from '@/api/skill/install'
+import { installSkill, updateSkillByOpts } from '@/api/skill/install'
 // 引入弹窗表单组合式函数
 import { compositionDialogForm } from '@/composition/dialog/Form'
 // 引入自定义组件
@@ -155,7 +155,33 @@ const rules = {
 // 使用 compositionDialogForm 统一管理弹窗显示、隐藏、重置和提交
 const { isShow, showDialog, hideDialog, showDialogByData, submitForm, resetForm } = compositionDialogForm({
   addFun: installSkill,
-  initfun: function () {
+  editFun: updateSkillByOpts,
+  initfun: function (ctx) {
+    // ctx: { data, state }
+    if (ctx && ctx.state === 1) {
+      isUpdateMode.value = true
+      updateSkillId.value = (ctx.data && ctx.data.skillId) ? ctx.data.skillId : null
+      const params = (ctx.data && ctx.data.installParams) ? ctx.data.installParams : null
+      if (params) {
+        formData.installMode = params.installMode || formData.installMode
+        formData.repoUrl = params.repoUrl || ''
+        formData.skillPath = params.skillPath || ''
+        formData.smartInput = params.smartInput || ''
+        formData.selectedFilePath = params.selectedFilePath || ''
+        formData.zipSkillName = params.zipSkillName || ''
+        formData.githubTreeUrl = params.githubTreeUrl || ''
+        formData.level = params.level || formData.level
+        formData.projectPath = params.projectPath || ''
+        formData.selectedProxyId = params.selectedProxyId || ''
+        formData.selectedTokenId = params.selectedTokenId || ''
+      } else {
+        resetForm()
+      }
+    } else {
+      isUpdateMode.value = false
+      updateSkillId.value = null
+      resetForm()
+    }
     _initDropdowns()
   },
 })
@@ -169,6 +195,10 @@ const progressRef = ref(null)
 
 // ─── 安装状态标记 ──────────────────────────────────────────
 const installing = ref(false)
+
+// ─── 更新模式标记 ──────────────────────────────────────────
+const isUpdateMode = ref(false)
+const updateSkillId = ref(null)
 
 // ─── 初始化下拉列表数据 ───────────────────────────────────
 function _initDropdowns() {
@@ -234,7 +264,10 @@ function onLevelChange() {
 // ─── 提交表单 ──────────────────────────────────────────────
 function onSubmit() {
   installing.value = true
-  submitForm(formData).then(function (res) {
+  const payload = isUpdateMode.value
+    ? { ...formData, skillId: updateSkillId.value }
+    : formData
+  submitForm(payload).then(function (res) {
     // 提交成功后启动安装进度浮层
     if (res && res.streamId && progressRef.value) {
       progressRef.value.start('/api/skill/install/sse/' + res.streamId)
@@ -256,6 +289,12 @@ function onInstallComplete(success) {
 }
 
 // 暴露弹窗控制方法给父组件
+// ─── 弹窗关闭回调 ──────────────────────────────────────────
+function onDialogClose() {
+  isUpdateMode.value = false
+  updateSkillId.value = null
+}
+
 defineExpose({ showDialog, hideDialog, showDialogByData })
 </script>
 
@@ -292,6 +331,12 @@ defineExpose({ showDialog, hideDialog, showDialogByData })
 }
 .install-right .el-form-item {
   margin-bottom: 16px;
+}
+.install-left :deep(.file-picker) {
+  width: 100%;
+}
+.install-left :deep(.file-picker .el-input) {
+  width: 100%;
 }
 .install-right :deep(.file-picker) {
   width: 100%;
