@@ -1,71 +1,83 @@
-# Handoff — 修复项目 Skill 读取问题
+# Handoff — install.js 改造完成（方案D） + GitHub Tree URL 分支修复
 
 > 最后更新: 2026-07-04
-> 状态: **已完成**
+> 状态: **已完成（基础架构） / 待前端路由验证**
 
-## 问题
-拆分 `packages/core/src/skill/index.js` 后，`/api/skill/list/project` 始终返回 `[]`，无法读取项目级 skill。同时 `/api/skill/install` 报 500 错误（`createPendingInstall is not a function`）。
+## 完成内容
 
-## 根因
+### 一、install.js 改造完成（方案D）（上一会话遗留）
 
-### 问题 1：list/project 返回空
-拆分后的代码中所有与项目 skill 相关的操作方法（`_getProjectInstalled`、`_setLevelInstalled`、`_addToConfig`、`_mutate`、`discover`、`_findEntry`）都硬性依赖 `this._projectEngine`。
+在 `packages/core/src/skill/install.js` 中完成了以下改造：
 
-但 `packages/server/index.js` 创建 `SkillManager` 时只传了 `engine`：
-```js
-const skillMgr = new SkillManager(engine);  // 没有 projectEngine
+#### ✅ 新增内容
+
+1. **`_cleanOpts(raw)`** — 清洗安装参数，持久化为 `installParams` 供前端回填
+2. **`_finalizeInstall(store, skillId, level, meta, targetDir, rawOpts)`** — 统一收尾函数
+   - `store.addToConfig`（写入 entry）
+   - 自动写入 `installParams`（通过 `_cleanOpts`）
+3. **`update(store, opts, onProgress, onLog)`** — 安全更新方法
+   - `opts.skillId` 必填，查找现有 skill
+   - 临时目录 + 临时 ID 方式安装到临时位置
+   - 成功后再原子替换（删旧目录 → rename → 清理临时 entry → 回写原 entry）
+   - 失败时旧 skill 不受影响，临时目录自动清理
+
+#### ✅ 改造内容
+
+| 函数 | 改动 |
+|------|------|
+| `_installFromGitHubV2` | 支持 `_skillId`/`_targetDir` 内部字段；替换 `addToConfig` 为 `_finalizeInstall` |
+| `installFromZip` | 增加可选末尾参数 `_internal`；支持 `_skillId`/`_targetDir`；替换 `addToConfig` 为 `_finalizeInstall` |
+| `installFromZipStream` | 增加可选末尾参数 `_internal`，透传到 `installFromZip` |
+| `installFromGithubTreePath` | 增加可选末尾参数 `_extraOpts`，透传到 `_installFromGitHubV2` |
+| `install` | 改为 `async`；透传 `_skillId`/`_targetDir` 到各分支 |
+
+#### ✅ 其他文件改动
+
+- **`cmd.js`**: 删除了旧的 `update` 方法
+- **`index.js`**: 
+  - 移除 `update(skillId, hintLevel)` 委托
+  - 新增 `updateByOpts(opts, onProgress, onLog)` 委托到 `Install.update`
+
+### 二、GitHub Tree URL 分支修复（本次会话）
+
+修复了安装 GitHub skill 时硬编码 `main` 分支导致 404 的问题。
+
+#### 问题描述
+
+用户安装 `https://github.com/Barry-Liu-888/ai-skills/tree/master/visual-reviewer` 时：
+- `orchestrator.js` 第 50 行硬编码 `const branch = 'main'`
+- 仓库实际使用 `master` 分支
+- Tar 策略和 API 回退都返回 404
+
+#### 修复内容
+
+| 文件 | 改动 |
+|------|------|
+| `packages/core/src/download/orchestrator.js` | 新增 `branch` 参数；分支解析优先级：显式传入 > tree URL 中提取 > 默认 `main` |
+| `packages/core/src/skill/install.js` | `_installFromGitHubV2` 透传 `branch` 到 `downloadSkillFromGitHub`；`installFromGithubTreePath` 透传 `parsed.branch` |
+| `packages/web/src/views/skill/edit/install.vue` | `parseSmartInput` 识别 GitHub tree URL，自动切换到 `githubPath` 模式 |
+
+#### 分支解析逻辑
+
+```
+显式传入 branch
+  → 使用传入值
+tree URL 中包含 /tree/<branch>/<path>
+  → 从 URL 中提取分支名
+两者都没有
+  → 默认 main
 ```
 
-旧代码使用独立的 `this._projectInstalled[]` 内存数组 + `init()` 从 `store.skills.project_installed` 加载、`_syncToStore()` 持久化，不依赖 `_projectEngine`。
+### 三、未完成 / 未来待办
 
-### 问题 2：_mergeDefaults 过滤 project_installed
-`config.js` 的 `_mergeDefaults()` 中 `skills` 对象只保留了 `enabled`/`installed`/`community_cache`/`cached_at`，任何新字段（如 `project_installed`）在 `read()` 时被丢弃。这导致 `discover()` 中每次 `_getProjectInstalled()` 返回空数组，最终只有最后 1 个被持久化到 store.json。
+- [ ] **路由层适配**: 前端调用更新时，需要路由层调用 `SkillManager.updateByOpts(opts, onProgress, onLog)`。当前路由层可能还需要调整。
+- [ ] **前端适配**: 更新页面传入完整 `opts`（含 `skillId`），利用 `installParams` 实现参数回填。
+- [ ] **测试**: 验证各种安装类型（github / githubPath / zip）的 update 流程正确。
 
-### 问题 3：install 接口崩溃
-`SkillManager` 缺少 `createPendingInstall`、`getPendingInstall`、`_pendingInstalls`、`skillsDir` getter — 拆分时漏掉。
+### 四、参考文件
 
-### 问题 4：current-project 依赖 projectEngine
-`routes.js` 的 `getCurrentProject()` 在 `_projectEngine` 为 null 时直接返回 `PROJECT_NOT_OPEN`。
-
-## 修改
-
-### `packages/core/src/skill/index.js`
-
-| 方法 | 改动 |
-|------|------|
-| `_getProjectInstalled()` | 新增回退：`_projectEngine` 为 null 时从 `this._engine.read().skills.project_installed` 读取 |
-| `_setLevelInstalled()` | project 层级不再要求 `_projectEngine`，无时写入 engine store |
-| `_addToConfig()` | 同上，无 `_projectEngine` 时写入 engine store |
-| `_mutate()` | hintLevel=project 时使用 `this._projectEngine \|\| this._engine`；无 hintLevel 时无条件搜索项目 skill |
-| `_findEntry()` | 移除 `if (!entry && this._projectEngine)` 限制，始终可搜索项目 |
-| `discover()` | 移除 `&& this._projectEngine`，项目目录存在即可扫描 |
-| `constructor` | 新增 `this._pendingInstalls = new Map()` |
-| `createPendingInstall()` | **恢复**（拆分时漏掉） |
-| `getPendingInstall()` | **恢复**（拆分时漏掉） |
-| `skillsDir` getter | **恢复**（拆分时漏掉） |
-| imports | 新增 `import { randomUUID }` |
-
-### `packages/core/src/utils/config.js`
-
-| 位置 | 改动 |
-|------|------|
-| `DEFAULT_STORE.skills` | 新增 `project_installed: []` |
-| `_mergeDefaults()` skills 对象 | 新增 `project_installed` 字段保留逻辑 |
-
-### `packages/core/src/skill/routes.js`
-
-| 位置 | 改动 |
-|------|------|
-| `getCurrentProject()` | 无 `_projectEngine` 时不再返回 `PROJECT_NOT_OPEN`，改用 `process.cwd()` + `_getProjectInstalled()` 作为回退 |
-
-## 验证
-- [x] `node --check` 三个文件语法通过
-- [x] `npm run build` 构建成功（Vite 0 errors）
-- [x] `/api/skill/list/project` 返回 6 个项目 skill（architecture, documentation, proxy-manager, skill-manager, ui-patterns, ui-ux-pro-max）
-- [x] `/api/skill/current-project` 返回项目名 + 路径 + 6 个已安装 skill
-- [x] 服务器启动不再报 `createPendingInstall is not a function`
-
-## 参考
-- `packages/core/src/skill/index.js` — 修改后的文件
-- `packages/core/src/utils/config.js` — 修改后的文件
-- `packages/core/src/skill/routes.js` — 修改后的文件
+- `packages/core/src/skill/install.js` — 主要改造文件
+- `packages/core/src/skill/cmd.js` — 删除了旧的 update 方法
+- `packages/core/src/skill/index.js` — 更新了委托
+- `packages/core/src/download/orchestrator.js` — 分支解析逻辑
+- `packages/web/src/views/skill/edit/install.vue` — tree URL 智能识别

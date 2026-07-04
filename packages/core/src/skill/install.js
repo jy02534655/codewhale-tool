@@ -3,7 +3,7 @@
  * 提供 GitHub / ZIP / Registry / 本地目录 / Tree Path 等多种安装方式
  */
 
-import { existsSync, rmSync } from 'node:fs';
+import { existsSync, renameSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, basename } from 'node:path';
 import { randomUUID } from 'node:crypto';
@@ -13,6 +13,48 @@ import { okMsg, failMsg, fail } from '../utils/result.js';
 import { getServerMessage } from '../utils/i18n.js';
 import { emitSkillInstallLog, _extractMeta, _parseGitHubUrl, _parseProxyUrl } from './shared.js';
 
+
+// ------------------------------------------------------------------ //
+// 内部辅助
+// ------------------------------------------------------------------ //
+
+/**
+ * 统一收尾：写入 store entry + 记录安装参数（供前端回填）
+ * @param {SkillStore} store
+ * @param {string} skillId
+ * @param {string} level
+ * @param {{name:string, description:string}} meta
+ * @param {string} targetDir
+ * @param {Object} rawOpts
+ */
+function _finalizeInstall(store, skillId, level, meta, targetDir, rawOpts) {
+  store.addToConfig({
+    id: skillId,
+    name: meta.name || skillId,
+    description: meta.description,
+    path: targetDir,
+    enabled: true,
+    source: 'community',
+    version: 'latest',
+    installed_at: Date.now(),
+    updated_at: Date.now(),
+  }, level);
+
+  // 浅拷贝原始参数供前端回填，去掉内部字段
+  if (rawOpts) {
+    const params = Object.assign({}, rawOpts);
+    delete params._skillId;
+    delete params._targetDir;
+    store.mutate(skillId, function (entries, idx) {
+      if (idx >= 0) entries[idx].installParams = params;
+    }, level);
+  }
+}
+
+
+// ------------------------------------------------------------------ //
+// 底层安装函数
+// ------------------------------------------------------------------ //
 
 /**
  * 从 GitHub 仓库安装 skill（V2 内部实现）
@@ -25,6 +67,8 @@ import { emitSkillInstallLog, _extractMeta, _parseGitHubUrl, _parseProxyUrl } fr
  * @param {string} [opts.proxyUrl]
  * @param {string} [opts.proxyId]
  * @param {string} [opts.tokenId]
+ * @param {string} [opts._skillId]      - 内部覆盖 skillId（update 场景）
+ * @param {string} [opts._targetDir]    - 内部覆盖 targetDir（update 场景）
  * @param {Function} [progressCb]
  * @param {Function} [logCb]
  */
@@ -36,13 +80,13 @@ export async function _installFromGitHubV2(store, opts, progressCb, logCb) {
   const parsed = _parseGitHubUrl(opts.repoUrl);
   if (!parsed) return failMsg('SKILL_INVALID_REPO_URL');
 
-  const skillId = opts.skillPath ? basename(opts.skillPath) : parsed.repo;
-  const targetDir = targetLevel === 'project'
-    ? join(process.cwd(), store.projectSkillsDir, skillId)
-    : join(store.skillsDir, skillId);
+  const finalSkillId = opts._skillId || (opts.skillPath ? basename(opts.skillPath) : parsed.repo);
+  const finalTargetDir = opts._targetDir || (targetLevel === 'project'
+    ? join(process.cwd(), store.projectSkillsDir, finalSkillId)
+    : join(store.skillsDir, finalSkillId));
 
   const installed = store.getLevelInstalled(targetLevel);
-  if (installed.some(function (s) { return s.id === skillId; })) {
+  if (installed.some(function (s) { return s.id === finalSkillId; })) {
     return failMsg('SKILL_ALREADY_INSTALLED');
   }
 
@@ -77,29 +121,20 @@ export async function _installFromGitHubV2(store, opts, progressCb, logCb) {
     await downloadSkillFromGitHub({
       repoUrl: opts.repoUrl,
       skillName: opts.skillPath || parsed.repo,
-      destDir: targetDir,
+      destDir: finalTargetDir,
       proxy: opts.proxyConfig,
       token,
       onProgress,
       onLog,
+      branch: opts.branch,
     });
 
     if (onProgress) {
       onProgress({ stage: 'registering', percent: 90, message: getServerMessage('SKILL_PROGRESS_REGISTERING') });
     }
 
-    const meta = _extractMeta(targetDir);
-    store.addToConfig({
-      id: skillId,
-      name: meta.name || skillId,
-      description: meta.description,
-      path: targetDir,
-      enabled: true,
-      source: 'community',
-      version: 'latest',
-      installed_at: Date.now(),
-      updated_at: Date.now(),
-    }, targetLevel);
+    const meta = _extractMeta(finalTargetDir);
+    _finalizeInstall(store, finalSkillId, targetLevel, meta, finalTargetDir, opts);
 
     if (onProgress) {
       onProgress({ stage: 'done', percent: 100, message: getServerMessage('SKILL_PROGRESS_DONE') });
@@ -107,7 +142,7 @@ export async function _installFromGitHubV2(store, opts, progressCb, logCb) {
 
     return okMsg('synced');
   } catch (err) {
-    try { if (existsSync(targetDir)) rmSync(targetDir, { recursive: true, force: true }); } catch { /* ignore */ }
+    try { if (existsSync(finalTargetDir)) rmSync(finalTargetDir, { recursive: true, force: true }); } catch { /* ignore */ }
     const failMessage = getServerMessage('SKILL_INSTALL_FAILED') + ': ' + err.message;
     return fail(failMessage, 'SKILL_INSTALL_FAILED');
   }
@@ -121,16 +156,23 @@ export async function _installFromGitHubV2(store, opts, progressCb, logCb) {
  * @param {string} [level='global']
  * @param {Object|string} [proxyConfig]
  * @param {Function} [onProgress]
+ * @param {Object} [_internal]          - 内部覆盖字段（update 场景）
+ * @param {string} [_internal._skillId]
+ * @param {string} [_internal._targetDir]
+ * @param {Object} [_internal._rawOpts]
  */
-export async function installFromZip(store, zipSource, skillPath, level, proxyConfig, onProgress) {
+export async function installFromZip(store, zipSource, skillPath, level, proxyConfig, onProgress, _internal) {
   const targetLevel = level || 'global';
-  const skillId = skillPath ? basename(skillPath) : basename(zipSource).replace(/\.zip$/i, '') || 'skill';
-  const targetDir = targetLevel === 'project'
-    ? join(process.cwd(), store.projectSkillsDir, skillId)
-    : join(store.skillsDir, skillId);
+
+  const finalSkillId = (_internal && _internal._skillId) ||
+    (skillPath ? basename(skillPath) : basename(zipSource).replace(/\.zip$/i, '') || 'skill');
+  const finalTargetDir = (_internal && _internal._targetDir) ||
+    (targetLevel === 'project'
+      ? join(process.cwd(), store.projectSkillsDir, finalSkillId)
+      : join(store.skillsDir, finalSkillId));
 
   const installed = store.getLevelInstalled(targetLevel);
-  if (installed.some(function (s) { return s.id === skillId; })) {
+  if (installed.some(function (s) { return s.id === finalSkillId; })) {
     return failMsg('SKILL_ALREADY_INSTALLED');
   }
 
@@ -171,22 +213,13 @@ export async function installFromZip(store, zipSource, skillPath, level, proxyCo
       }
     }
 
-    if (existsSync(targetDir)) rmSync(targetDir, { recursive: true, force: true });
+    if (existsSync(finalTargetDir)) rmSync(finalTargetDir, { recursive: true, force: true });
 
     const meta = _extractMeta(sourceDir);
-    store.copyDir(sourceDir, targetDir);
+    store.copyDir(sourceDir, finalTargetDir);
 
-    store.addToConfig({
-      id: skillId,
-      name: meta.name,
-      description: meta.description,
-      path: targetDir,
-      enabled: true,
-      source: 'zip',
-      version: 'latest',
-      installed_at: Date.now(),
-      updated_at: Date.now(),
-    }, targetLevel);
+    const rawOpts = (_internal && _internal._rawOpts) || { type: 'zip', zipPath: zipSource, zipSkillName: skillPath, level: targetLevel };
+    _finalizeInstall(store, finalSkillId, targetLevel, meta, finalTargetDir, rawOpts);
 
     if (onProgress) {
       onProgress({ stage: 'done', percent: 100, message: getServerMessage('SKILL_PROGRESS_DONE') });
@@ -196,12 +229,16 @@ export async function installFromZip(store, zipSource, skillPath, level, proxyCo
 
     return okMsg('synced');
   } catch (err) {
-    try { if (existsSync(targetDir)) rmSync(targetDir, { recursive: true, force: true }); } catch { /* ignore */ }
+    try { if (existsSync(finalTargetDir)) rmSync(finalTargetDir, { recursive: true, force: true }); } catch { /* ignore */ }
     const failMessage = getServerMessage('SKILL_INSTALL_FAILED') + ': ' + err.message;
     return fail(failMessage, 'SKILL_INSTALL_FAILED');
   }
 }
 
+
+// ------------------------------------------------------------------ //
+// 封装层
+// ------------------------------------------------------------------ //
 
 /**
  * 从本地 ZIP 文件路径安装 skill（带日志回调）
@@ -212,8 +249,9 @@ export async function installFromZip(store, zipSource, skillPath, level, proxyCo
  * @param {string} [proxyId]
  * @param {Function} [onProgress]
  * @param {Function} [onLog]
+ * @param {Object} [_internal]          - 内部覆盖字段（update 场景）
  */
-export async function installFromZipStream(store, zipPath, skillName, level, proxyId, onProgress, onLog) {
+export async function installFromZipStream(store, zipPath, skillName, level, proxyId, onProgress, onLog, _internal) {
   let proxyConfig;
   if (proxyId) {
     const proxyEntry = store.engine.findProxy(proxyId);
@@ -230,7 +268,7 @@ export async function installFromZipStream(store, zipPath, skillName, level, pro
   }
 
   emitSkillInstallLog(onLog, 'INFO', { key: 'SKILL_PROGRESS_EXTRACTING' });
-  const result = await installFromZip(store, zipPath, skillName, level, proxyConfig, onProgress);
+  const result = await installFromZip(store, zipPath, skillName, level, proxyConfig, onProgress, _internal);
   if (result.success) {
     emitSkillInstallLog(onLog, 'INFO', { key: 'SKILL_PROGRESS_DONE' });
   } else {
@@ -249,8 +287,9 @@ export async function installFromZipStream(store, zipPath, skillName, level, pro
  * @param {string} [tokenId]
  * @param {Function} [onProgress]
  * @param {Function} [onLog]
+ * @param {Object} [_extraOpts]         - 内部覆盖字段（update 场景）
  */
-export async function installFromGithubTreePath(store, githubUrl, level, proxyId, tokenId, onProgress, onLog) {
+export async function installFromGithubTreePath(store, githubUrl, level, proxyId, tokenId, onProgress, onLog, _extraOpts) {
   const { parseGithubTreeUrl } = await import('../download/utils.js');
   const parsed = parseGithubTreeUrl(githubUrl);
   if (!parsed) {
@@ -260,10 +299,22 @@ export async function installFromGithubTreePath(store, githubUrl, level, proxyId
   const repoUrl = 'https://github.com/' + parsed.owner + '/' + parsed.repo;
   const skillPath = parsed.path;
 
-  return _installFromGitHubV2(store, {
-    repoUrl, skillPath, level, proxyId, tokenId,
-  }, onProgress, onLog);
+  // 防止原始请求体中的空 repoUrl / skillPath 覆盖解析结果
+  const safeExtra = _extraOpts || {};
+  delete safeExtra.repoUrl;
+  delete safeExtra.skillPath;
+
+    return _installFromGitHubV2(store, {
+      repoUrl, skillPath, level, proxyId, tokenId,
+      branch: parsed.branch,
+      ...safeExtra,
+    }, onProgress, onLog);
 }
+
+
+// ------------------------------------------------------------------ //
+// 统一入口
+// ------------------------------------------------------------------ //
 
 /**
  * 统一安装入口
@@ -271,10 +322,12 @@ export async function installFromGithubTreePath(store, githubUrl, level, proxyId
  * @param {Object} opts
  * @param {string} opts.type
  * @param {string} [opts.level]
+ * @param {string} [opts._skillId]     - 内部覆盖 skillId（update 场景）
+ * @param {string} [opts._targetDir]   - 内部覆盖 targetDir（update 场景）
  * @param {Function} [onProgress]
  * @param {Function} [onLog]
  */
-export function install(store, opts, onProgress, onLog) {
+export async function install(store, opts, onProgress, onLog) {
   const type = opts.type || opts.installMode || 'github';
   const level = opts.level;
   const proxyId = opts.proxyId || opts.selectedProxyId;
@@ -283,24 +336,97 @@ export function install(store, opts, onProgress, onLog) {
   const proxyConfig = opts.proxyConfig;
 
   if (type === 'github') {
-    return _installFromGitHubV2(store, {
-      repoUrl: opts.repoUrl,
-      skillPath: opts.skillPath,
-      level,
-      proxyId,
-      tokenId,
-      proxyUrl,
-      proxyConfig,
-    }, onProgress, onLog);
+    return _installFromGitHubV2(store, opts, onProgress, onLog);
   }
   if (type === 'githubPath') {
     const githubUrl = opts.githubUrl || opts.githubTreeUrl;
-    return installFromGithubTreePath(store, githubUrl, level, proxyId, tokenId, onProgress, onLog);
+    return installFromGithubTreePath(store, githubUrl, level, proxyId, tokenId, onProgress, onLog, opts);
   }
   if (type === 'zip') {
     const zipPath = opts.zipPath || opts.selectedFilePath;
     const skillName = opts.zipSkillName || opts.skillName;
-    return installFromZipStream(store, zipPath, skillName, level, proxyId, onProgress, onLog);
+    return installFromZipStream(store, zipPath, skillName, level, proxyId, onProgress, onLog, {
+      _skillId: opts._skillId,
+      _targetDir: opts._targetDir,
+      _rawOpts: opts,
+    });
   }
   return failMsg('SKILL_INVALID_INSTALL_TYPE');
+}
+
+
+// ------------------------------------------------------------------ //
+// 更新
+// ------------------------------------------------------------------ //
+
+/**
+ * 更新已安装的 skill（安全原子替换：先装到临时目录，成功后再替换）
+ * @param {SkillStore} store
+ * @param {Object} opts
+ * @param {string} opts.skillId      - 必填，要更新的 skill id
+ * @param {string} [opts.level]
+ * @param {Function} [onProgress]
+ * @param {Function} [onLog]
+ */
+export async function update(store, opts, onProgress, onLog) {
+  const skillId = opts.skillId;
+  if (!skillId) return failMsg('SKILL_UPDATE_REQUIRES_ID');
+
+  // 查找现有 skill
+  const existing = store.findEntry(skillId);
+  if (!existing) return failMsg('SKILL_NOT_FOUND');
+
+  const level = opts.level || existing.level || 'global';
+  const baseTargetDir = level === 'project'
+    ? join(process.cwd(), store.projectSkillsDir, skillId)
+    : join(store.skillsDir, skillId);
+
+  const tempSkillId = skillId + '-update-' + randomUUID();
+  const tempTargetDir = baseTargetDir + '.tmp-' + randomUUID();
+
+  // 调用 install 引擎安装到临时位置
+  const tempOpts = {
+    ...opts,
+    _skillId: tempSkillId,
+    _targetDir: tempTargetDir,
+  };
+  const result = await install(store, tempOpts, onProgress, onLog);
+
+  if (!result.success) {
+    try { rmSync(tempTargetDir, { recursive: true, force: true }); } catch { /* ignore */ }
+    return result;
+  }
+
+  // --- 安装成功，执行原子替换 ---
+
+  // 1. 删除旧目录
+  try { rmSync(baseTargetDir, { recursive: true, force: true }); } catch { /* ignore */ }
+
+  // 2. 重命名临时目录为正式目录
+  try {
+    renameSync(tempTargetDir, baseTargetDir);
+  } catch (err) {
+    try { rmSync(tempTargetDir, { recursive: true, force: true }); } catch { /* ignore */ }
+    return fail('更新失败：无法替换目录', 'SKILL_UPDATE_FAILED');
+  }
+
+  // 3. 清理 store 中临时 entry
+  store.mutate(tempSkillId, function (entries, idx) {
+    if (idx >= 0) entries.splice(idx, 1);
+  }, level);
+
+  // 4. 更新原 skill entry：路径 / 更新时间 / 安装参数
+  const params = Object.assign({}, opts);
+  delete params._skillId;
+  delete params._targetDir;
+  delete params.skillId;
+  store.mutate(skillId, function (entries, idx) {
+    if (idx >= 0) {
+      entries[idx].path = baseTargetDir;
+      entries[idx].updated_at = Date.now();
+      entries[idx].installParams = params;
+    }
+  }, level);
+
+  return okMsg('updated');
 }

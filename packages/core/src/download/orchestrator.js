@@ -19,7 +19,7 @@ import {
   detectTarballSize, detectSkillPrefix,
 } from './http.js';
 import {
-  DOWNLOAD_STAGES, createAgent, parseRepoUrl,
+  DOWNLOAD_STAGES, createAgent, parseRepoUrl, parseGithubTreeUrl,
   emitProgress,
 } from './utils.js';
 
@@ -37,7 +37,7 @@ import {
  *   - REGISTERING 阶段归还给 skill 层，此函数只负责下载到 DONE
  */
 export async function downloadSkillFromGitHub({
-  repoUrl, skillName, destDir, proxy, token, renameMap, onProgress, onLog, level,
+  repoUrl, skillName, destDir, proxy, token, renameMap, onProgress, onLog, level, branch,
 }) {
   const logger = _setupLogger(onLog);
   const startTime = Date.now();
@@ -47,8 +47,14 @@ export async function downloadSkillFromGitHub({
 
   const { owner, repo } = parseRepoUrl(repoUrl);
   const agent = createAgent(proxy);
-  const branch = 'main';
-  logger.log('INFO', 'SKILL_LOG_REPO_INFO', null, { owner, repo, branch });
+
+  // 分支解析优先级：显式传入 > tree URL 中提取 > 默认 main
+  let effectiveBranch = branch;
+  if (!effectiveBranch) {
+    const treeParsed = parseGithubTreeUrl(repoUrl);
+    effectiveBranch = treeParsed?.branch || 'main';
+  }
+  logger.log('INFO', 'SKILL_LOG_REPO_INFO', null, { owner, repo, branch: effectiveBranch });
 
   if (agent) {
     logger.log('INFO', 'SKILL_LOG_PROXY_AGENT_CREATED',
@@ -61,7 +67,7 @@ export async function downloadSkillFromGitHub({
 
   const spPrefix = logger.span('SKILL_LOG_PREFIX_PROBE');
   const { prefix, treeCount, noMatch } = await detectSkillPrefix(
-    owner, repo, skillName, branch, agent, token,
+    owner, repo, skillName, effectiveBranch, agent, token,
   );
   spPrefix.finish('INFO', 'SKILL_LOG_PREFIX_RESULT', { prefix });
 
@@ -77,7 +83,7 @@ export async function downloadSkillFromGitHub({
 
   // 2. tarball 大小探测
   const spSize = logger.span('SKILL_LOG_TARBALL_PROBE');
-  const tarballSize = await detectTarballSize(owner, repo, branch, agent);
+  const tarballSize = await detectTarballSize(owner, repo, effectiveBranch, agent);
   spSize.finish('INFO', tarballSize ? 'SKILL_LOG_SIZE' : 'SKILL_LOG_SIZE_UNKNOWN',
     tarballSize ? { size: formatBytes(tarballSize) } : null);
 
@@ -97,10 +103,10 @@ export async function downloadSkillFromGitHub({
   // 4. 执行下载（含自动回退）
   useApi
     ? await _executeApiStrategy({
-        owner, repo, branch, tryPrefixes, destDir, agent, token, renameMap, onProgress, logger,
+        owner, repo, branch: effectiveBranch, tryPrefixes, destDir, agent, token, renameMap, onProgress, logger,
       })
     : await _executeTarWithFallback({
-        owner, repo, branch, tryPrefixes, destDir, agent, token, renameMap, onProgress, logger,
+        owner, repo, branch: effectiveBranch, tryPrefixes, destDir, agent, token, renameMap, onProgress, logger,
       });
 
   // 5. 最终验证

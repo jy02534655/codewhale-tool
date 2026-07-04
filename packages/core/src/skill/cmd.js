@@ -72,50 +72,6 @@ export function remove(store, skillId, hintLevel) {
 }
 
 /**
- * 更新 skill（从 GitHub 重新拉取）
- * @param {SkillStore} store
- * @param {string} skillId
- * @param {string} [hintLevel]
- */
-export async function update(store, skillId, hintLevel) {
-  const entry = hintLevel
-    ? store.getLevelInstalled(hintLevel).find(function (s) { return s.id === skillId; })
-    : store.getGlobalInstalled().find(function (s) { return s.id === skillId; });
-
-  if (!entry) return failMsg('SKILL_NOT_FOUND');
-  if (entry.source !== 'community') return failMsg('SKILL_NOT_UPDATABLE');
-
-  try {
-    const repoUrl = 'https://github.com/deepseek-ai/codewhale-skills';
-    const skillPath = skillId;
-    const tmpDir = join(tmpdir(), 'skill-update-' + randomUUID());
-
-    const cloneCmd = [
-      'git', 'clone', '--depth', '1', '--filter=blob:none', '--sparse', '--no-checkout',
-      repoUrl, tmpDir,
-    ].join(' ');
-    execSync(cloneCmd, { stdio: 'pipe', timeout: 120000 });
-    execSync('git -C "' + tmpDir + '" sparse-checkout set "' + skillPath + '"', { stdio: 'pipe', timeout: 60000 });
-    execSync('git -C "' + tmpDir + '" checkout', { stdio: 'pipe', timeout: 60000 });
-
-    const sourceDir = join(tmpDir, ...skillId.split('/'));
-    const targetDir = entry.path;
-    if (existsSync(targetDir)) rmSync(targetDir, { recursive: true, force: true });
-    store.copyDir(sourceDir, targetDir);
-
-    try { rmSync(tmpDir, { recursive: true, force: true }); } catch { /* ignore */ }
-
-    store.mutate(skillId, function (entries, idx) {
-      entries[idx].updated_at = Date.now();
-      return okMsg('updated');
-    }, hintLevel);
-    return okMsg('updated');
-  } catch (err) {
-    return fail(getServerMessage('update_failed') + ': ' + err.message);
-  }
-}
-
-/**
  * 将全局 skill 复制到当前项目
  * @param {SkillStore} store
  * @param {string} skillId
