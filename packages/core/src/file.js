@@ -10,7 +10,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { execSync } from 'node:child_process';
-import { ok, fail, failMsg } from './utils/result.js';
+import { ok, failMsg } from './utils/result.js';
 
 /**
  * 已知 Windows 系统隐藏文件夹名称
@@ -68,7 +68,7 @@ export class FileManager {
           path: path.join(resolved, item.name),
         }));
       return ok(result);
-    } catch (err) {
+    } catch {
       return failMsg('FILE_LIST_FAILED');
     }
   }
@@ -99,7 +99,7 @@ export class FileManager {
       }
       const content = fs.readFileSync(resolved, 'utf-8');
       return ok(content);
-    } catch (err) {
+    } catch {
       return failMsg('FILE_READ_FAILED');
     }
   }

@@ -100,7 +100,7 @@
 </template>
 
 <script setup>
-import { ref, watch, computed, onMounted } from 'vue'
+import { ref, watch, computed } from 'vue'
 import { ElMessage } from 'element-plus'
 import { Folder, Document } from '@element-plus/icons-vue'
 import { getFileList, getDrives } from '@/api/file'
@@ -184,7 +184,7 @@ async function loadDir(dirPath) {
     pathInput.value = dirPath
     updateDriveFromPath(dirPath)
     updateBreadcrumbs(dirPath)
-  } catch (err) {
+  } catch {
     items.value = []
   } finally {
     loading.value = false
@@ -219,9 +219,7 @@ function handlePathJump() {
 function updateBreadcrumbs(dirPath) {
   const parts = dirPath.split(/[\\/]/).filter(Boolean)
   const crumbs = []
-  let accumulated = ''
   for (const part of parts) {
-    accumulated += part + '\\'
     crumbs.push(part)
   }
   breadcrumbs.value = crumbs

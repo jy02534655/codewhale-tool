@@ -3,10 +3,10 @@
  * 薄门面：委托给 SkillStore（数据层）和职责子模块（业务层）
  */
 
-import { existsSync, mkdirSync, readdirSync, copyFileSync } from 'node:fs';
+import { existsSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { getServerMessage } from '../utils/i18n.js';
-import { ok, okMsg, failMsg, fail } from '../utils/result.js';
+import { ok } from '../utils/result.js';
 import { SkillStore } from './SkillStore.js';
 import * as Routes from './routes.js';
 import * as Cmd from './cmd.js';
@@ -29,24 +29,24 @@ export class SkillManager {
   // 公共 API —— 按职责委托给子模块（传入 store）
   // ------------------------------------------------------------------ //
 
-  listGlobal()                { return Routes.listGlobal(this._store); }
-  listProject()               { return Routes.listProject(this._store); }
-  getCurrentProject()         { return Routes.getCurrentProject(this._store); }
-  enable(skillId, hintLevel)  { return Cmd.enable(this._store, skillId, hintLevel); }
+  listGlobal() { return Routes.listGlobal(this._store); }
+  listProject() { return Routes.listProject(this._store); }
+  getCurrentProject() { return Routes.getCurrentProject(this._store); }
+  enable(skillId, hintLevel) { return Cmd.enable(this._store, skillId, hintLevel); }
   disable(skillId, hintLevel) { return Cmd.disable(this._store, skillId, hintLevel); }
   updateMeta(skillId, meta, hintLevel) { return Cmd.updateMeta(this._store, skillId, meta, hintLevel); }
-  remove(skillId, hintLevel)  { return Cmd.remove(this._store, skillId, hintLevel); }
-  update(skillId, hintLevel)  { return Cmd.update(this._store, skillId, hintLevel); }
-  copyToProject(skillId)      { return Cmd.copyToProject(this._store, skillId); }
-  getSkillFiles(skillId, level)       { return Files.getSkillFiles(this._store, skillId, level); }
-  readSkillFile(skillId, filePath, level)    { return Files.readSkillFile(this._store, skillId, filePath, level); }
+  remove(skillId, hintLevel) { return Cmd.remove(this._store, skillId, hintLevel); }
+  update(skillId, hintLevel) { return Cmd.update(this._store, skillId, hintLevel); }
+  copyToProject(skillId) { return Cmd.copyToProject(this._store, skillId); }
+  getSkillFiles(skillId, level) { return Files.getSkillFiles(this._store, skillId, level); }
+  readSkillFile(skillId, filePath, level) { return Files.readSkillFile(this._store, skillId, filePath, level); }
   saveSkillFile(skillId, filePath, content, level) { return Files.saveSkillFile(this._store, skillId, filePath, content, level); }
   removeSkillFile(skillId, filePath, level) { return Files.removeSkillFile(this._store, skillId, filePath, level); }
-  getReadme(skillId)          { return Files.getReadme(this._store, skillId); }
+  getReadme(skillId) { return Files.getReadme(this._store, skillId); }
   saveReadme(skillId, content) { return Files.saveReadme(this._store, skillId, content); }
-  getInstallLog()             { return Log.getInstallLog(this._store); }
-  clearInstallLog()           { return Log.clearInstallLog(this._store); }
-  install(opts, onProgress, onLog)  { return Install.install(this._store, opts, onProgress, onLog); }
+  getInstallLog() { return Log.getInstallLog(); }
+  clearInstallLog() { return Log.clearInstallLog(); }
+  install(opts, onProgress, onLog) { return Install.install(this._store, opts, onProgress, onLog); }
   installFromZip(zipSource, skillPath, level, proxyConfig, onProgress) {
     return Install.installFromZip(this._store, zipSource, skillPath, level, proxyConfig, onProgress);
   }

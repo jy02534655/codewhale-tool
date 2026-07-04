@@ -11,9 +11,8 @@ const LOG_PATH = join(process.cwd(), 'data', 'download-skill.log');
 
 /**
  * 获取安装日志（最近 200 行）
- * @param {SkillStore} store
  */
-export function getInstallLog(store) {
+export function getInstallLog() {
   if (!existsSync(LOG_PATH)) return ok('');
   const content = readFileSync(LOG_PATH, 'utf-8');
   const lines = content.split('\n');
@@ -22,9 +21,8 @@ export function getInstallLog(store) {
 
 /**
  * 清除安装日志
- * @param {SkillStore} store
  */
-export function clearInstallLog(store) {
+export function clearInstallLog() {
   if (existsSync(LOG_PATH)) unlinkSync(LOG_PATH);
   return okMsg('skillLogCleared');
 }

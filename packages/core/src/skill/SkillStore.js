@@ -183,7 +183,7 @@ export class SkillStore {
     }
 
     const globalEntries = this.getGlobalInstalled();
-    let idx = globalEntries.findIndex((s) => s.id === skillId);
+    const idx = globalEntries.findIndex((s) => s.id === skillId);
     if (idx !== -1) {
       const result = fn(globalEntries, idx, globalEntries[idx], 'global', this.engine);
       this.setLevelInstalled('global', globalEntries);
