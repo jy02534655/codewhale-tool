@@ -5,10 +5,10 @@ dist/
 .vite/
 package-lock.json
 pnpm-workspace.yaml
-/store.json
-/store.json.bak
+/data/store.json
+/data/store.json.bak
 /.deepseek/
-/download-skill.log
+/data/download-skill.log
 /.codewhale/
-/skills.json
-/skills.json.bak
+/data/skills.json
+/data/skills.json.bak

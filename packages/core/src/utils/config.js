@@ -49,7 +49,7 @@ export class ConfigEngine {
   // ─── 路径探测 ──────────────────────────────────────────────
 
   static detectPath() {
-    const cwd = join(process.cwd(), 'store.json');
+    const cwd = join(process.cwd(), 'data', 'store.json');
     if (existsSync(cwd)) return cwd;
     const home = join(homedir(), '.codewhale', 'store.json');
     if (existsSync(home)) return home;

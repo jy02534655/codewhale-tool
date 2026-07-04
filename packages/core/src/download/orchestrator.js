@@ -117,7 +117,7 @@ export async function downloadSkillFromGitHub({
 function _setupLogger(onLog) {
   const logger = new Logger();
   logger.setCallback(onLog);
-  logger.setFile(path.join(process.cwd(), 'download-skill.log'));
+  logger.setFile(path.join(process.cwd(), 'data', 'download-skill.log'));
   return logger;
 }
 

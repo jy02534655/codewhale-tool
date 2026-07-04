@@ -28,6 +28,6 @@ export function writeSkillLog(level, keyOrMessage, params, extra) {
       ? ` | ${JSON.stringify(safeExtra, null, 0)}`
       : '';
     const line = `[${ts}] [${level}] ${msg}${extraStr}`;
-    fs.appendFileSync(path.join(process.cwd(), 'download-skill.log'), `${line}\n`, 'utf-8');
+    fs.appendFileSync(path.join(process.cwd(), 'data', 'download-skill.log'), `${line}\n`, 'utf-8');
   } catch { /* 日志写入失败不阻塞流程 */ }
 }

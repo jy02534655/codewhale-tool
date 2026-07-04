@@ -7,7 +7,7 @@ import { existsSync, readFileSync, unlinkSync } from 'node:fs';
 import { join } from 'node:path';
 import { ok, okMsg } from '../utils/result.js';
 
-const LOG_PATH = join(process.cwd(), 'download-skill.log');
+const LOG_PATH = join(process.cwd(), 'data', 'download-skill.log');
 
 /**
  * 获取安装日志（最近 200 行）

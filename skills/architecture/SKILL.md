@@ -164,7 +164,7 @@ src/
 
 ### 数据流向
 ```
-Web → API 请求 → Server Route → guard() → Core Manager → ConfigEngine → store.json
+Web → API 请求 → Server Route → guard() → Core Manager → ConfigEngine → data/store.json
                                                                         ↓
                                                           SyncManager ↔ config.toml
 ```

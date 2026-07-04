@@ -13,7 +13,7 @@ description: Use when managing proxy (HTTP/SOCKS5) and token (GitHub token) conf
 
 - **代理管理**: HTTP / SOCKS5 代理配置，供 Skill 下载等场景使用
 - **Token 管理**: GitHub Token 等访问令牌，供 GitHub API 认证使用
-- **仅本地存储**: 代理和 Token 数据只存在 `store.json`，不与 CodeWhale `config.toml` 同步
+- **仅本地存储**: 代理和 Token 数据只存在 `data/store.json`，不与 CodeWhale `config.toml` 同步
 
 ## 数据模型
 

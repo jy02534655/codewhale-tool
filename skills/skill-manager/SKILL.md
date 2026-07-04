@@ -207,7 +207,7 @@ skills/spreadsheets/SKILL.md
 
 ### 缓存策略
 
-社区搜索结果缓存 24 小时（`CACHE_TTL = 24 * 60 * 60 * 1000`），`cached_at` 记录在 `store.json` → `skills.community_cache`。
+社区搜索结果缓存 24 小时（`CACHE_TTL = 24 * 60 * 60 * 1000`），`cached_at` 记录在 `data/store.json` → `skills.community_cache`。
 
 ---
 

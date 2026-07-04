@@ -36,7 +36,7 @@ export class SkillManager {
 
   /** @returns {string} skills.json 完整路径 */
   _skillsJsonPath() {
-    return join(process.cwd(), 'skills.json');
+    return join(process.cwd(), 'data', 'skills.json');
   }
 
   /**
