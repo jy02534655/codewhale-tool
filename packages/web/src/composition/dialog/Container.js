@@ -11,23 +11,23 @@ import { getCurrentInstance } from 'vue';
 export function compositionDialogContainer({ } = {}) {
   const vm = getCurrentInstance();
 
-  function showDialog(dialogName = 'dialog') {
+  function showDialog(dialogName = 'dialogRef') {
     vm.refs[dialogName].showDialog();
   }
 
-  function hideDialog(dialogName = 'dialog') {
+  function hideDialog(dialogName = 'dialogRef') {
     vm.refs[dialogName].hideDialog();
   }
 
-  function showDialogByData(state, data, dialogName = 'dialog') {
+  function showDialogByData(state, data, dialogName = 'dialogRef') {
     vm.refs[dialogName].showDialogByData(state, data);
   }
 
-  function showAddDialog(data, dialogName = 'dialog') {
+  function showAddDialog(data, dialogName = 'dialogRef') {
     showDialogByData(0, data, dialogName);
   }
 
-  function showEditDialog(data, dialogName = 'dialog') {
+  function showEditDialog(data, dialogName = 'dialogRef') {
     showDialogByData(1, data, dialogName);
   }
 

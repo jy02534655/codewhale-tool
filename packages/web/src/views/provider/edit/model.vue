@@ -6,7 +6,7 @@
 <template>
   <el-dialog v-model="isShow" :title="$t('third_party.add_model_dialog_title')"
     width="400px" :close-on-click-modal="false" @close="resetForm">
-    <el-form ref="form" :model="formData" :rules="rules" label-position="top">
+    <el-form ref="formRef" :model="formData" :rules="rules" label-position="top">
       <el-form-item :label="$t('third_party.model_name_placeholder')" prop="name">
         <el-input v-model="formData.name" :placeholder="$t('third_party.model_name_placeholder')" />
       </el-form-item>
@@ -37,7 +37,6 @@ const rules = {
 };
 
 const { isShow, showDialog, hideDialog, resetForm, showDialogByData, submitDialogForm } = compositionDialogForm({
-  formName: 'form',
   addFun: addModel,
   initfun({ data }) {
     formData.id = data?.id;

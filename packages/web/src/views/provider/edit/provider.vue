@@ -6,7 +6,7 @@
   <el-dialog v-model="isShow"
     :title="isEdit ? $t('third_party.edit_dialog_title') : $t('third_party.add_dialog_title')"
     width="520px" :close-on-click-modal="false" @close="resetForm">
-    <el-form ref="form" :model="formData" :rules="rules" label-position="top">
+    <el-form ref="formRef" :model="formData" :rules="rules" label-position="top">
       <el-form-item :label="$t('third_party.provider_type')" prop="provider">
         <el-select v-model="formData.provider" :placeholder="$t('common.select_placeholder')"
           style="width:100%" filterable @change="onProviderSelect">
@@ -122,7 +122,6 @@ const rules = {
 };
 
 const { isEdit, isShow, showDialog, hideDialog, resetForm, showDialogByData, submitDialogForm } = compositionDialogForm({
-  formName: 'form',
   addFun: addProvider,
   editFun: editProvider,
   initfun({ data }) {

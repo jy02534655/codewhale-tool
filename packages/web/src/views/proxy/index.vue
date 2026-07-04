@@ -59,7 +59,7 @@
     </div>
 
     <!-- 新增/编辑弹窗 -->
-    <ProxyEdit ref="dialog" @submitSuccess="loadList" />
+    <ProxyEdit ref="dialogRef" @submitSuccess="loadList" />
   </div>
 </template>
 

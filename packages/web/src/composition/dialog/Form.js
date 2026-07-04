@@ -18,7 +18,7 @@ import { cloneDeep } from 'lodash';
  * @param {Function} [opts.initfun] 弹窗显示时的初始化回调
  * @returns {{ state, isEdit, isShow, showDialog, hideDialog, showDialogByData, submitForm, submitDialogForm, validateForm, validateFieldForm, resetForm }}
  */
-export function compositionDialogForm({ formName = 'form', addFun, editFun, initfun } = {}) {
+export function compositionDialogForm({ formName = 'formRef', addFun, editFun, initfun } = {}) {
   const vm = getCurrentInstance();
 
   const {

@@ -101,13 +101,13 @@ import { enableSkill, disableSkill, removeSkill, updateSkill, copySkillToProject
 import { getSkillFiles, readSkillFile, removeSkillFile } from '@/api/skill/files'
 
 // 引入复用文件预览组件。
-import FilePreview from '@/composition/file/preview.vue'
+import FilePreview from '@/components/file/preview.vue'
 
 // 引入 README/文件编辑弹窗（PascalCase 确保模板正确解析）。
 import ReadmeDialog from './readme.vue'
 
 // 引入文件预览辅助，统一模式判断与可编辑判断。
-import { getPreviewModeLabel, isEditableTextFile } from '@/composition/file/utils'
+import { getPreviewModeLabel, isEditableTextFile } from '@/components/file/utils'
 
 // 获取全局翻译函数。
 const { t } = useI18n({ useScope: 'global' })

@@ -171,6 +171,10 @@ function openDialog() {
   loadDir(currentPath.value)
 }
 
+function getRowClassName({ row }) {
+  return row.isDirectory ? 'folder-row' : 'file-row'
+}
+
 async function loadDir(dirPath) {
   loading.value = true
   selectedPath.value = ''

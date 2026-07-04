@@ -3,7 +3,7 @@
 -->
 <template>
   <el-dialog v-model="isShow" :title="$t('skill.editInfo')" width="500px" :close-on-click-modal="false" @close="resetForm">
-    <el-form ref="form" :model="formData" label-position="top">
+    <el-form ref="formRef" :model="formData" label-position="top">
       <el-form-item :label="$t('common.alias')">
         <el-input v-model="formData.alias" :placeholder="$t('skill.aliasPlaceholder')" />
       </el-form-item>
@@ -64,7 +64,6 @@ function doUpdate(params) {
 
 // compositionDialogForm：addFun/editFun 同一函数，initfun 中用 assign 填充
 const { isShow, showDialog, hideDialog, resetForm, showDialogByData, submitDialogForm } = compositionDialogForm({
-  formName: 'form',
   addFun: doUpdate,
   editFun: doUpdate,
   initfun: function ({ data }) {

@@ -16,7 +16,7 @@ export function compositionFormBase() {
    * @param {string} [formName='form'] 表单 ref 名称
    * @returns {Promise<boolean>}
    */
-  const validateForm = (formName = 'form') => {
+  const validateForm = (formName = 'formRef') => {
     const form = vm.refs[formName];
     if (form) {
       return form.validate();
@@ -30,7 +30,7 @@ export function compositionFormBase() {
    * @param {string} [formName='form'] 表单 ref 名称
    * @returns {Promise<boolean>}
    */
-  const validateFieldForm = (fields, formName = 'form') => {
+  const validateFieldForm = (fields, formName = 'formRef') => {
     return new Promise((resolve) => {
       const form = vm.refs[formName];
       let isValid = true;
@@ -47,7 +47,7 @@ export function compositionFormBase() {
    * 重置表单
    * @param {string} [formName='form'] 表单 ref 名称
    */
-  const resetForm = (formName = 'form') => {
+  const resetForm = (formName = 'formRef') => {
     const form = vm.refs[formName];
     form && form.resetFields();
   };
@@ -57,7 +57,7 @@ export function compositionFormBase() {
    * @param {string} [formName='form'] 表单 ref 名称
    * @param {string|string[]} [props] 字段名
    */
-  const clearValidate = (formName = 'form', props) => {
+  const clearValidate = (formName = 'formRef', props) => {
     const form = vm.refs[formName];
     form && form.clearValidate(props);
   };

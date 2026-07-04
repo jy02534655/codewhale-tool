@@ -7,7 +7,7 @@
   <el-dialog v-model="isShow"
     :title="isEdit ? $t('official.edit_alias_title') : $t('official.add_dialog_title')"
     width="450px" :close-on-click-modal="false" @close="resetForm">
-    <el-form ref="form" :model="formData" :rules="rules" label-position="top">
+    <el-form ref="formRef" :model="formData" :rules="rules" label-position="top">
       <el-form-item :label="$t('common.alias')" prop="alias">
         <el-input v-model="formData.alias" :placeholder="$t('official.alias_placeholder')" />
       </el-form-item>
@@ -45,7 +45,6 @@ const rules = {
 };
 
 const { isEdit, isShow, showDialog, hideDialog, resetForm, showDialogByData, submitDialogForm } = compositionDialogForm({
-  formName: 'form',
   addFun: addOfficialKey,
   editFun: editOfficialKey,
   initfun({ data }) {

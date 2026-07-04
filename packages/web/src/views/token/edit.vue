@@ -46,7 +46,6 @@ const rules = {
 
 const { isEdit, isShow, showDialog, hideDialog, resetForm, showDialogByData, submitDialogForm } =
   compositionDialogForm({
-    formName: 'form',
     addFun: addToken,
     editFun: editToken,
     initfun({ data }) {

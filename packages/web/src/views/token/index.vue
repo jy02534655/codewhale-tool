@@ -51,7 +51,7 @@
     </div>
 
     <!-- 新增/编辑弹窗 -->
-    <TokenEdit ref="dialog" @submitSuccess="loadList" />
+    <TokenEdit ref="dialogRef" @submitSuccess="loadList" />
   </div>
 </template>
 

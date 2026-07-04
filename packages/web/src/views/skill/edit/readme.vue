@@ -33,10 +33,10 @@ import { compositionDialogBase } from '@/composition/dialog/Base'
 import { useMaskingStore } from '@/stores/masking'
 
 // 引入复用文件编辑器组件。
-import FileEditor from '@/composition/file/editor.vue'
+import FileEditor from '@/components/file/editor.vue'
 
 // 引入复用文件预览组件。
-import FilePreview from '@/composition/file/preview.vue'
+import FilePreview from '@/components/file/preview.vue'
 
 // 定义提交成功事件，通知父组件刷新数据。
 const emit = defineEmits(['submitSuccess'])
