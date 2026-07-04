@@ -10,7 +10,6 @@
 import express from 'express';
 import {
   ConfigEngine,
-  ProjectSkillEngine,
   ProviderManager,
   OfficialKeyManager,
   ProxyManager,
@@ -41,12 +40,11 @@ function noCache(req, res, next) {
 // ─── 初始化核心管理器 ──────────────────────────────────────────
 
 const engine = new ConfigEngine();
-const projectSkillEngine = new ProjectSkillEngine();
 const providerMgr = new ProviderManager(engine);
 const officialKeyMgr = new OfficialKeyManager(engine);
 const proxyMgr = new ProxyManager(engine);
 const tokenMgr = new TokenManager(engine);
-const skillMgr = new SkillManager(engine, projectSkillEngine);
+const skillMgr = new SkillManager(engine);
 const syncMgr = new SyncManager(engine, providerMgr, officialKeyMgr);
 const fileMgr = new FileManager();
 
@@ -84,7 +82,6 @@ const PORT = 7000;
 const server = app.listen(PORT, () => {
   console.log('CodeWhale Config API: http://localhost:' + PORT);
   console.log('Store file: ' + engine.path);
-  console.log('Project skill file: ' + projectSkillEngine.path);
 });
 
 // 端口被占用时给出提示而非静默崩溃

@@ -3,7 +3,7 @@
  */
 
 export { ConfigEngine } from './utils/config.js';
-export { ProjectSkillEngine } from './skill/project.js';
+
 export { ProviderManager, OfficialKeyManager } from './provider/index.js';
 export { ProxyManager } from './proxy.js';
 export { TokenManager } from './token.js';

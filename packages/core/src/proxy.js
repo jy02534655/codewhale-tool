@@ -92,15 +92,6 @@ export class ProxyManager {
   }
 
   /**
-   * 根据 ID 查找代理（原始数据，含密码明文）
-   * @param {string} id
-   * @returns {ProxyEntry|undefined}
-   */
-  find(id) {
-    return this._engine.findProxy(id);
-  }
-
-  /**
    * 设为默认代理
    * @param {string} id
    * @returns {{success: boolean, data?: ProxyEntry, message?: string, errorCode?: string}}
@@ -114,11 +105,4 @@ export class ProxyManager {
     return ok(proxies[idx]);
   }
 
-  /**
-   * 获取默认代理
-   * @returns {ProxyEntry|undefined}
-   */
-  getDefault() {
-    return this._engine.getProxies().find((p) => p.default);
-  }
 }

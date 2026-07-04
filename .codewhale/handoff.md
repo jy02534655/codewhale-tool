@@ -4,39 +4,51 @@
 > 状态: **已完成**
 
 ## 本次目标
-将 `packages/web/src/api/skill.js` 按 `packages/server/src/routes/skill` 的文件边界拆分为 5 个文件；删除旧文件并更新所有调用方 import 路径；保留 provider 目录拆分，proxy 保持原样不拆分。
+将 `packages/core/src/skill/index.js`（大泥球）按职责拆分为 6 个文件；保留 `SkillManager` 单类对外不变，内部改为薄委托。
 
 ---
 
 ## 已完成工作
 
-### 1. 拆分 skill API 文件
-新建 `packages/web/src/api/skill/` 目录，包含 5 个文件：
+### 1. 新建 6 个 skill 子模块
+`packages/core/src/skill/` 目录下新增：
 
 | 文件 | 职责 |
 |------|------|
-| `routes.js` | 列表查询、元数据、readme、current-project |
-| `cmd.js` | enable/disable/remove/copy-to-project/update |
-| `files.js` | 文件列表、读写、删除 |
-| `install.js` | GitHub 流式安装、ZIP 流式安装、Tree URL 安装 |
+| `shared.js` | 通用函数：`_extractMeta`、`_parseGitHubUrl`、`_parseProxyUrl`、`emitSkillInstallLog` |
+| `routes.js` | 列表查询、社区搜索、自动发现、current-project |
+| `cmd.js` | enable/disable/remove/copy-to-project/update/remark/tags/meta |
+| `files.js` | 文件列表、读写、删除、readme 读写 |
+| `install.js` | GitHub/ZIP/Registry/本地/TreePath 安装 |
 | `log.js` | 安装日志查询与清除 |
 
-### 2. 删除旧文件
-- 已删除 `packages/web/src/api/skill.js`
+### 2. 重写 index.js
+- `SkillManager` 类对外 API 保持完全不变
+- 所有公共方法改为薄委托：`return Routes.listGlobal(this)` 等
+- 内部辅助方法（`_mutate`、`_mutateAsync`、`_toggle`、`_findEntry`、`_syncToStore` 等）保留在类内
+- 删除所有业务逻辑实现，代码量从 ~581 行降至 ~372 行
 
-### 3. 修改调用方 import
-| 文件 | 改动 |
-|------|------|
-| `views/skill/edit/detail.vue` | 拆为 `@/api/skill/cmd` + `@/api/skill/files` |
-| `views/skill/edit/info.vue` | 改为 `@/api/skill/routes` |
-| `views/skill/edit/install.vue` | 改为 `@/api/skill/routes` |
-| `views/skill/edit/readme.vue` | 改为 `@/api/skill/files` |
-| `views/skill/index.vue` | 拆为 `@/api/skill/routes` + `@/api/skill/log` |
+### 3. 修复的兼容性问题
+- `routes.js:86` `const entries;` → `let entries;`（先声明后赋值）
+- `_copyDir` 原使用 `require('node:fs')` / `require('node:path')`，ESM 下不可用 → 改为顶部 `import` + 直接调用
+- 补全 `join`、`existsSync`、`mkdirSync`、`readdirSync`、`copyFileSync` 等顶部 import
+
+### 4. 删除旧代码
+- 旧 `packages/web/src/api/skill.js` 已于上一阶段删除
+- 本轮无需删除 `packages/core/src/skill/index.js`（已重写为薄壳）
+
+---
+
+## 验证结果
+- [x] 6 个新文件语法校验通过（`node --check`）
+- [x] `packages/core/src/skill/index.js` 语法校验通过
+- [x] `npm run build` 构建成功（Vite 0 errors）
+- [x] `packages/core/src/index.js` 的 `export { SkillManager } from './skill/index.js'` 无需修改
+- [x] 前端调用方 import 已更新（上阶段完成）
 
 ---
 
 ## 边界情况
-
 | 场景 | 处理方式 |
 |------|---------|
 | 旧安装 skill 的 `installConfig` 缺失 | 更新弹窗为空表单，用户重新填写 |
@@ -46,15 +58,7 @@
 
 ---
 
-## 验证结果
-- [x] 旧文件 `packages/web/src/api/skill.js` 已删除
-- [x] 全局搜索 `packages/web/src` 无 `from '@/api/skill'` 残留
-- [x] 5 个新文件均存在
-- [x] 5 个调用方 import 已更新
-
----
-
 ## 参考文件
-- `packages/server/src/routes/skill/`（server 端拆分结构）
-- `packages/web/src/api/skill/`（前端新拆分结构）
+- `packages/core/src/skill/`（新拆分结构）
+- `packages/core/src/skill/index.js`（薄委托壳）
 - `.codewhale/skill-reinstall-plan.md`（详细方案文档）

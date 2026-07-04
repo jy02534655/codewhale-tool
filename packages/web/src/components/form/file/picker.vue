@@ -21,7 +21,7 @@
     >
       <div class="file-picker-body">
         <!-- 路径输入框与盘符选择 -->
-        <div class="file-picker-path-bar" v-if="drives.length > 0">
+        <div v-if="drives.length > 0" class="file-picker-path-bar">
           <el-select
             v-model="currentDrive"
             placeholder="盘符"
