@@ -7,6 +7,7 @@ import { existsSync, readFileSync } from 'node:fs';
 import { join, basename } from 'node:path';
 import { getServerMessage } from '../utils/i18n.js';
 import { writeSkillLog } from '../download/index.js';
+import { formatTimestamp } from '../utils/logger.js';
 
 /**
  * 发送 skill 安装日志
@@ -16,16 +17,18 @@ import { writeSkillLog } from '../download/index.js';
  */
 export function emitSkillInstallLog(onLog, level, options) {
   if (options.message) {
+    const line = `[${formatTimestamp()}] [${level}] ${options.message}`;
     if (onLog) {
-      onLog({ level, message: options.message });
+      onLog({ level, message: line });
     }
     writeSkillLog(level, options.message, undefined, { rawMessage: true });
     return;
   }
 
   const message = getServerMessage(options.key, options.params);
+  const line = `[${formatTimestamp()}] [${level}] ${message}`;
   if (onLog) {
-    onLog({ level, message });
+    onLog({ level, message: line });
   }
   writeSkillLog(level, options.key, options.params, options.extra);
 }

@@ -1,7 +1,7 @@
 # Handoff — Skill 更新流程 SSE 化 + 前端编辑模式适配
 
 > 最后更新: 2026-07-04
-> 状态: **后端已完成 / 前端部分完成 / 待完成 compositionDialogForm 配置与 onSubmit**
+> 状态: **后端已完成 / 前端已完成 / 待端到端运行验证**
 
 ## 完成内容
 
@@ -117,12 +117,7 @@ GET /install/sse/:streamId
 
 ### 五、未完成 / 未来待办
 
-- [ ] **前端 install.vue compositionDialogForm 配置**: 添加 `editFun: updateSkillByOpts`，修改 `initfun` 支持编辑模式回填（`state === 1` 时读取 `data.skillId` 和 `data.installParams`）。
-- [ ] **前端 install.vue refs**: 添加 `isUpdateMode` / `updateSkillId`。
-- [ ] **前端 install.vue onSubmit**: 更新模式下提交 `{ ...formData, skillId: updateSkillId.value }`。
-- [ ] **前端 install.vue onDialogClose**: 重置 `isUpdateMode` / `updateSkillId`。
-- [ ] **前端 install.vue defineExpose**: 暴露 `showDialogByData`。
-- [ ] **测试**: 验证各种安装类型（github / githubPath / zip）的 update 流程正确。
+- [ ] **端到端运行验证**: 验证各种安装类型（github / githubPath / zip）的 update 流程在真实运行中正确。
 
 ### 六、参考文件
 
@@ -131,5 +126,5 @@ GET /install/sse/:streamId
 - `packages/core/src/skill/index.js` — 更新了委托
 - `packages/core/src/download/orchestrator.js` — 分支解析逻辑
 - `packages/server/src/routes/skill/install.js` — SSE 路由改造
-- `packages/web/src/views/skill/edit/install.vue` — tree URL 智能识别 + 更新模式适配（进行中）
+- `packages/web/src/views/skill/edit/install.vue` — tree URL 智能识别 + 更新模式适配（已完成）
 - `packages/web/src/views/skill/index.vue` — ref 访问修复

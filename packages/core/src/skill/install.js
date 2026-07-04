@@ -370,11 +370,17 @@ export async function install(store, opts, onProgress, onLog) {
  */
 export async function update(store, opts, onProgress, onLog) {
   const skillId = opts.skillId;
-  if (!skillId) return failMsg('SKILL_UPDATE_REQUIRES_ID');
+  if (!skillId) {
+    emitSkillInstallLog(onLog, 'ERROR', { key: 'SKILL_UPDATE_MISSING_ID' });
+    return failMsg('SKILL_UPDATE_REQUIRES_ID');
+  }
 
-  // 查找现有 skill
+  // 查找现有 skill，不存在则记录错误日志
   const existing = store.findEntry(skillId);
-  if (!existing) return failMsg('SKILL_NOT_FOUND');
+  if (!existing) {
+    emitSkillInstallLog(onLog, 'ERROR', { key: 'SKILL_UPDATE_NOT_FOUND', params: { skillId } });
+    return failMsg('SKILL_NOT_FOUND');
+  }
 
   const level = opts.level || existing.level || 'global';
   const baseTargetDir = level === 'project'
@@ -393,11 +399,15 @@ export async function update(store, opts, onProgress, onLog) {
   const result = await install(store, tempOpts, onProgress, onLog);
 
   if (!result.success) {
+    // 临时安装失败，清理临时目录并记录错误日志
     try { rmSync(tempTargetDir, { recursive: true, force: true }); } catch { /* ignore */ }
+    emitSkillInstallLog(onLog, 'ERROR', { key: 'SKILL_UPDATE_TEMP_INSTALL_FAILED', params: { message: result.message || getServerMessage('SKILL_UPDATE_UNKNOWN_ERROR') } });
     return result;
   }
 
   // --- 安装成功，执行原子替换 ---
+  // 临时副本安装成功，开始原子替换旧版本
+  emitSkillInstallLog(onLog, 'INFO', { key: 'SKILL_UPDATE_REPLACING' });
 
   // 1. 删除旧目录
   try { rmSync(baseTargetDir, { recursive: true, force: true }); } catch { /* ignore */ }
@@ -406,7 +416,9 @@ export async function update(store, opts, onProgress, onLog) {
   try {
     renameSync(tempTargetDir, baseTargetDir);
   } catch (err) {
+    // 替换目录失败，清理临时目录并记录错误日志
     try { rmSync(tempTargetDir, { recursive: true, force: true }); } catch { /* ignore */ }
+    emitSkillInstallLog(onLog, 'ERROR', { key: 'SKILL_UPDATE_REPLACE_FAILED' });
     return fail('更新失败：无法替换目录', 'SKILL_UPDATE_FAILED');
   }
 
@@ -428,5 +440,7 @@ export async function update(store, opts, onProgress, onLog) {
     }
   }, level);
 
+  // 原子替换完成，记录更新成功日志
+  emitSkillInstallLog(onLog, 'INFO', { key: 'SKILL_UPDATE_SUCCESS', params: { skillId } });
   return okMsg('updated');
 }
