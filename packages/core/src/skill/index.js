@@ -3,7 +3,7 @@
  * 对外保持 SkillManager 单类不变，内部按职责委托给子模块
  */
 
-import { existsSync, mkdirSync, readdirSync, copyFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readdirSync, copyFileSync, readFileSync, writeFileSync } from 'node:fs';
 import { homedir } from 'node:os';
 import { join } from 'node:path';
 import { randomUUID } from 'node:crypto';
@@ -28,6 +28,46 @@ export class SkillManager {
     this._skillsDir = skillsDir || join(homedir(), '.codewhale', 'skills');
     this._projectSkillsDir = 'skills';
     this._pendingInstalls = new Map();
+  }
+
+  // ------------------------------------------------------------------ //
+  // 内部辅助：读写 skills.json（CodeWhale 项目级 skill 配置文件）
+  // ------------------------------------------------------------------ //
+
+  /** @returns {string} skills.json 完整路径 */
+  _skillsJsonPath() {
+    return join(process.cwd(), 'skills.json');
+  }
+
+  /**
+   * 读取 skills.json 中的项目 skill 列表
+   * @returns {Object[]}
+   */
+  _readSkillsJson() {
+    const path = this._skillsJsonPath();
+    if (!existsSync(path)) return [];
+    try {
+      const data = JSON.parse(readFileSync(path, 'utf-8'));
+      return Array.isArray(data.installed) ? data.installed : [];
+    } catch {
+      return [];
+    }
+  }
+
+  /**
+   * 写入 skills.json 中的项目 skill 列表（保留已有字段）
+   * @param {Object[]} entries
+   */
+  _writeSkillsJson(entries) {
+    const path = this._skillsJsonPath();
+    let data = { enabled: true, installed: [] };
+    if (existsSync(path)) {
+      try {
+        data = JSON.parse(readFileSync(path, 'utf-8'));
+      } catch { /* 从头开始 */ }
+    }
+    data.installed = entries;
+    writeFileSync(path, JSON.stringify(data, null, 2), 'utf-8');
   }
 
   // ------------------------------------------------------------------ //
@@ -237,8 +277,7 @@ export class SkillManager {
     if (this._projectEngine) {
       return this._projectEngine.getInstalled().slice();
     }
-    const store = this._engine.read();
-    return (store.skills?.project_installed || []).slice();
+    return this._readSkillsJson();
   }
 
   /**
@@ -260,11 +299,7 @@ export class SkillManager {
       if (this._projectEngine) {
         this._projectEngine.setInstalled(entries);
       } else {
-        this._engine.update((data) => {
-          if (!data.skills) data.skills = {};
-          data.skills.project_installed = entries;
-          return data;
-        });
+        this._writeSkillsJson(entries);
       }
     } else {
       const skillsCfg = this._engine.getSkills();
@@ -285,12 +320,9 @@ export class SkillManager {
         installed.push(entry);
         this._projectEngine.setInstalled(installed);
       } else {
-        this._engine.update((data) => {
-          if (!data.skills) data.skills = {};
-          if (!data.skills.project_installed) data.skills.project_installed = [];
-          data.skills.project_installed.push(entry);
-          return data;
-        });
+        const installed = this._readSkillsJson();
+        installed.push(entry);
+        this._writeSkillsJson(installed);
       }
     } else {
       const skillsCfg = this._engine.getSkills();
