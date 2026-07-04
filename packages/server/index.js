@@ -18,6 +18,7 @@ import {
   SkillManager,
   SyncManager,
   setLocale,
+  FileManager,
 } from '@codewhale/core';
 import { createLangRouter } from './src/routes/lang.js';
 import { createOfficialKeyRouter } from './src/routes/officialKey.js';
@@ -26,6 +27,7 @@ import { createProxyRouter } from './src/routes/proxy.js';
 import { createTokenRouter } from './src/routes/token.js';
 import { createSkillRouter } from './src/routes/skill/index.js';
 import { createSyncRouter } from './src/routes/sync.js';
+import { createFileRouter } from './src/routes/file.js';
 
 /**
  * 全局禁用 API 缓存中间件
@@ -46,6 +48,7 @@ const proxyMgr = new ProxyManager(engine);
 const tokenMgr = new TokenManager(engine);
 const skillMgr = new SkillManager(engine, projectSkillEngine);
 const syncMgr = new SyncManager(engine, providerMgr, officialKeyMgr);
+const fileMgr = new FileManager();
 
 // 从持久化存储恢复语言偏好
 const savedLocale = engine.getLocale();
@@ -71,6 +74,7 @@ app.use('/api/official-key', createOfficialKeyRouter(officialKeyMgr, syncMgr));
 app.use('/api/provider', createProviderRouter(providerMgr, syncMgr));
 app.use('/api/proxy', createProxyRouter(proxyMgr));
 app.use('/api/token', createTokenRouter(tokenMgr));
+app.use('/api/files', createFileRouter(fileMgr));
 app.use('/api/skill', createSkillRouter(skillMgr));
 app.use('/api', createSyncRouter(syncMgr));
 

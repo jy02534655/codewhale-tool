@@ -6,90 +6,87 @@
 -->
 <template>
   <el-dialog v-model="isShow" :title="$t('common.install')" width="800px" top="8vh" :close-on-click-modal="false" @close="resetForm">
-    <div class="install-layout">
-      <!-- 左侧：安装方式 -->
-      <div class="install-left">
-        <el-tabs v-model="installMode" class="install-mode-tabs">
-          <el-tab-pane name="github" :label="$t('skill.installMode.github')" />
-          <el-tab-pane name="zip" :label="$t('skill.installMode.zip')" />
-          <el-tab-pane name="githubPath" :label="$t('skill.installMode.githubPath')" />
-        </el-tabs>
+    <!-- el-form 包裹左右两侧，统一管理校验规则 -->
+    <el-form ref="formRef" :model="formData" :rules="rules" label-position="top">
+      <div class="install-layout">
+        <!-- 左侧：安装方式 -->
+        <div class="install-left">
+          <el-tabs v-model="formData.installMode" class="install-mode-tabs">
+            <el-tab-pane name="github" :label="$t('skill.installMode.github')" />
+            <el-tab-pane name="zip" :label="$t('skill.installMode.zip')" />
+            <el-tab-pane name="githubPath" :label="$t('skill.installMode.githubPath')" />
+          </el-tabs>
 
-        <!-- GitHub 仓库安装 -->
-        <div v-if="installMode === 'github'" class="install-config">
-          <div class="config-section">
-            <label class="config-label">{{ $t('skill.repoUrl') }}</label>
-            <el-input v-model="repoUrl" :placeholder="$t('skill.repoUrlPlaceholder')" />
+          <!-- GitHub 仓库安装 -->
+          <div v-if="formData.installMode === 'github'" class="install-config">
+            <el-form-item :label="$t('skill.repoUrl')" prop="repoUrl">
+              <el-input v-model="formData.repoUrl" :placeholder="$t('skill.repoUrlPlaceholder')" />
+            </el-form-item>
+            <el-form-item :label="$t('skill.skillPath')" prop="skillPath">
+              <el-input v-model="formData.skillPath" :placeholder="$t('skill.skillPathPlaceholder')" />
+            </el-form-item>
+            <!-- 智能识别 -->
+            <el-alert :title="$t('skill.quickPasteTitle')" :description="$t('skill.quickPasteDesc')" type="info" show-icon :closable="false" class="mode-tip" />
+            <el-form-item>
+              <el-input v-model="formData.smartInput" :placeholder="$t('skill.smartInputPlaceholder')" size="small">
+                <template #append>
+                  <el-button :disabled="!formData.smartInput.trim()" @click="parseSmartInput">{{ $t('skill.parse') }}</el-button>
+                </template>
+              </el-input>
+            </el-form-item>
           </div>
-          <div class="config-section">
-            <label class="config-label">{{ $t('skill.skillPath') }}</label>
-            <el-input v-model="skillPath" :placeholder="$t('skill.skillPathPlaceholder')" />
+
+          <!-- 上传 ZIP 安装 -->
+          <div v-if="formData.installMode === 'zip'" class="install-config">
+            <el-form-item :label="$t('skill.zipFile')" prop="selectedFilePath">
+              <FilePicker
+                v-model="formData.selectedFilePath"
+                mode="file"
+                accept=".zip"
+                :placeholder="$t('skill.chooseFile')"
+                @select="onSelectZipFile"
+              />
+            </el-form-item>
+            <el-form-item :label="$t('skill.name')" prop="zipSkillName">
+              <el-input v-model="formData.zipSkillName" :placeholder="$t('skill.skillId')" />
+            </el-form-item>
           </div>
-          <!-- 智能识别 -->
-          <el-alert :title="$t('skill.quickPasteTitle')" :description="$t('skill.quickPasteDesc')" type="info" show-icon :closable="false" class="mode-tip" />
-          <div class="smart-paste">
-            <el-input v-model="smartInput" :placeholder="$t('skill.smartInputPlaceholder')" size="small">
-              <template #append>
-                <el-button :disabled="!smartInput.trim()" @click="parseSmartInput">{{ $t('skill.parse') }}</el-button>
-              </template>
-            </el-input>
+
+          <!-- GitHub Tree 路径安装 -->
+          <div v-if="formData.installMode === 'githubPath'" class="install-config">
+            <el-form-item :label="$t('skill.githubPathUrl')" prop="githubTreeUrl">
+              <el-input v-model="formData.githubTreeUrl" :placeholder="$t('skill.githubPathPlaceholder')" />
+            </el-form-item>
           </div>
         </div>
 
-        <!-- 上传 ZIP 安装 -->
-        <div v-if="installMode === 'zip'" class="install-config">
-          <div class="config-section">
-            <label class="config-label">{{ $t('skill.zipFile') }}</label>
-            <div class="file-selector">
-              <el-button size="small" @click="triggerFileInput">{{ $t('skill.chooseFile') }}</el-button>
-              <span v-if="selectedFileName" class="file-name">{{ selectedFileName }}</span>
-              <el-button v-if="selectedFileName" size="small" type="danger" text @click="clearSelectedFile">{{ $t('skill.clearFile') }}</el-button>
-              <input ref="fileInputRef" type="file" accept=".zip" style="display:none" @change="onFileSelected" />
-            </div>
-          </div>
-          <div class="config-section">
-            <label class="config-label">{{ $t('skill.name') }}</label>
-            <el-input v-model="zipSkillName" :placeholder="$t('skill.skillId')" />
-          </div>
-        </div>
-
-        <!-- GitHub Tree 路径安装 -->
-        <div v-if="installMode === 'githubPath'" class="install-config">
-          <div class="config-section">
-            <label class="config-label">{{ $t('skill.githubPathUrl') }}</label>
-            <el-input v-model="githubTreeUrl" :placeholder="$t('skill.githubPathPlaceholder')" />
-          </div>
-        </div>
-      </div>
-
-      <!-- 右侧：安装级别 + 代理/Token -->
-      <div class="install-right">
-        <el-form label-position="top">
-          <el-form-item :label="$t('skill.level')">
-            <el-radio-group v-model="level" @change="onLevelChange">
+        <!-- 右侧：安装级别 + 代理/Token -->
+        <div class="install-right">
+          <el-form-item :label="$t('skill.level')" prop="level">
+            <el-radio-group v-model="formData.level" @change="onLevelChange">
               <el-radio value="global">{{ $t('skill.global') }}</el-radio>
               <el-radio value="project">{{ $t('skill.project') }}</el-radio>
             </el-radio-group>
           </el-form-item>
 
-          <el-form-item v-if="level === 'project'" :label="$t('skill.projectPath')">
-            <el-input v-model="projectPath" :placeholder="$t('skill.projectPathPlaceholder')" />
+          <el-form-item v-if="formData.level === 'project'" :label="$t('skill.projectPath')" prop="projectPath">
+            <FilePicker v-model="formData.projectPath" mode="dir" :placeholder="$t('skill.projectPathPlaceholder')" />
           </el-form-item>
 
-          <el-form-item :label="$t('skill.proxy_select')">
-            <el-select v-model="selectedProxyId" :placeholder="$t('skill.proxy_select_placeholder')" clearable style="width:100%">
+          <el-form-item :label="$t('skill.proxy_select')" prop="selectedProxyId">
+            <el-select v-model="formData.selectedProxyId" :placeholder="$t('skill.proxy_select_placeholder')" clearable style="width:100%">
               <el-option v-for="p in proxyList" :key="p.id" :label="p.alias + ' (' + p.type + '://' + p.host + ':' + p.port + ')'" :value="p.id" />
             </el-select>
           </el-form-item>
 
-          <el-form-item :label="$t('skill.token_select')">
-            <el-select v-model="selectedTokenId" :placeholder="$t('skill.token_select_placeholder')" clearable style="width:100%">
+          <el-form-item :label="$t('skill.token_select')" prop="selectedTokenId">
+            <el-select v-model="formData.selectedTokenId" :placeholder="$t('skill.token_select_placeholder')" clearable style="width:100%">
               <el-option v-for="t in tokenList" :key="t.id" :label="t.alias + ' (' + t.token + ')'" :value="t.id" />
             </el-select>
           </el-form-item>
-        </el-form>
+        </div>
       </div>
-    </div>
+    </el-form>
 
     <template #footer>
       <el-button :disabled="installing" @click="hideDialog">{{ $t('common.cancel') }}</el-button>
@@ -104,53 +101,99 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+// 引入 Vue 响应式 API
+import { reactive, ref } from 'vue'
+// 引入 Element Plus 消息组件
 import { ElMessage } from 'element-plus'
+// 引入 i18n 国际化函数
 import { useI18n } from 'vue-i18n'
+// 引入后端 API 方法
 import { getProxyList } from '@/api/proxy'
 import { getTokenList } from '@/api/token'
 import { getCurrentProjectDir } from '@/api/skill/routes'
-import { compositionDialogBase } from '@/composition/dialog/Base'
+import { installSkill } from '@/api/skill/install'
+// 引入弹窗表单组合式函数
+import { compositionDialogForm } from '@/composition/dialog/Form'
+// 引入自定义组件
+import FilePicker from '@/components/form/file/picker.vue'
 import InstallProgress from './progress.vue'
 
+// 定义组件事件
 const emit = defineEmits(['submitSuccess'])
+// 获取国际化函数
 const { t } = useI18n({ useScope: 'global' })
 
-// ─── 弹窗生命周期 ──────────────────────────────────────────
-const { isShow, showDialog, hideDialog, showDialogByData } = compositionDialogBase({
-  initfun: function () { _initForm() }
+// ─── 表单数据（集中管理所有字段）─────────────────────────────
+// 使用 reactive 统一管理表单数据，通过 v-if 控制显示隐藏避免多余校验
+const formData = reactive({
+  installMode: 'github',
+  repoUrl: '',
+  skillPath: '',
+  smartInput: '',
+  selectedFilePath: '',
+  zipSkillName: '',
+  githubTreeUrl: '',
+  level: 'global',
+  projectPath: '',
+  selectedProxyId: '',
+  selectedTokenId: '',
 })
 
-// ─── 输入字段 ──────────────────────────────────────────────
-const installMode = ref('github')
-const smartInput = ref('')
-const repoUrl = ref('')
-const skillPath = ref('')
-const level = ref('global')
-const projectPath = ref('')
-const selectedProxyId = ref('')
-const selectedTokenId = ref('')
-const installing = ref(false)
+// ─── 表单校验规则 ──────────────────────────────────────────
+// el-form 包裹整个弹窗，左侧/右侧所有带 prop 的 el-form-item 统一校验
+// 被 v-if 隐藏的表单项不会出现在 DOM 中，因此不会触发校验
+const rules = {
+  repoUrl: [{ required: true, message: () => t('common.required'), trigger: 'blur' }],
+  selectedFilePath: [{ required: true, message: () => t('common.required'), trigger: 'change' }],
+  zipSkillName: [{ required: true, message: () => t('common.required'), trigger: 'blur' }],
+  githubTreeUrl: [{ required: true, message: () => t('common.required'), trigger: 'blur' }],
+  level: [{ required: true, message: () => t('common.required'), trigger: 'change' }],
+  projectPath: [{ required: true, message: () => t('common.required'), trigger: 'change' }],
+}
 
-// ZIP 安装字段
-const fileInputRef = ref(null)
-const selectedFile = ref(null)
-const selectedFileName = ref('')
-const zipSkillName = ref('')
+// ─── 弹窗生命周期（compositionDialogForm）───────────────────
+// 使用 compositionDialogForm 统一管理弹窗显示、隐藏、重置和提交
+const { isShow, showDialog, hideDialog, showDialogByData, submitForm, resetForm } = compositionDialogForm({
+  addFun: installSkill,
+  initfun: function () {
+    _initDropdowns()
+  },
+})
 
-// GitHub Tree 路径字段
-const githubTreeUrl = ref('')
-
-// ─── 下拉列表 ──────────────────────────────────────────────
+// ─── 下拉列表数据 ──────────────────────────────────────────
 const proxyList = ref([])
 const tokenList = ref([])
 
-// ─── 进度浮层 ──────────────────────────────────────────────
+// ─── 安装进度浮层引用 ──────────────────────────────────────
 const progressRef = ref(null)
 
-// ─── 智能识别 ──────────────────────────────────────────────
+// ─── 安装状态标记 ──────────────────────────────────────────
+const installing = ref(false)
+
+// ─── 初始化下拉列表数据 ───────────────────────────────────
+function _initDropdowns() {
+  getProxyList().then(function (data) {
+    proxyList.value = data || []
+    const def = (data || []).find(function (p) { return p.default })
+    if (def) formData.selectedProxyId = def.id
+  }).catch(function () {
+    proxyList.value = []
+  })
+  getTokenList().then(function (data) {
+    tokenList.value = data || []
+    const def = (data || []).find(function (t) { return t.default })
+    if (def) formData.selectedTokenId = def.id
+  }).catch(function () {
+    tokenList.value = []
+  })
+  getCurrentProjectDir().then(function (res) {
+    if (res && res.data) formData.projectPath = res.data
+  }).catch(function () { /* ignore */ })
+}
+
+// ─── 智能识别输入 ──────────────────────────────────────────
 function parseSmartInput() {
-  const text = smartInput.value.trim()
+  const text = formData.smartInput.trim()
   if (!text) return
 
   // 匹配 npx skills add <url> --skill <path> 格式
@@ -162,168 +205,48 @@ function parseSmartInput() {
       ElMessage.warning(t('skill.parseFailed'))
       return
     }
-    repoUrl.value = match[1]
+    formData.repoUrl = match[1]
   } else {
-    repoUrl.value = match[1]
+    formData.repoUrl = match[1]
     if (match[2]) {
-      skillPath.value = match[2]
+      formData.skillPath = match[2]
     }
   }
 }
 
-// ─── 文件选择 ──────────────────────────────────────────────
-function triggerFileInput() {
-  if (fileInputRef.value) fileInputRef.value.click()
-}
-
-function onFileSelected(event) {
-  const file = event.target.files && event.target.files[0]
-  if (!file) return
-  selectedFile.value = file
-  selectedFileName.value = file.name
-  // 自动填充 skill 名称（去掉 .zip 后缀）
-  if (!zipSkillName.value) {
-    zipSkillName.value = file.name.replace(/\.zip$/i, '')
+// ─── ZIP 文件选择后自动填充 skill 名称 ────────────────────────
+function onSelectZipFile(filePath) {
+  if (!filePath) return
+  const base = filePath.replace(/\\/g, '/').split('/').pop() || ''
+  const name = base.replace(/\.zip$/i, '')
+  if (name) {
+    formData.zipSkillName = name
   }
 }
 
-function clearSelectedFile() {
-  selectedFile.value = null
-  selectedFileName.value = ''
-  if (fileInputRef.value) fileInputRef.value.value = ''
-  // 不自动清除 zipSkillName，让用户决定
-}
-
-// ─── 级别切换 ──────────────────────────────────────────────
+// ─── 安装级别切换 ──────────────────────────────────────────
 function onLevelChange() {
-  if (level.value === 'global') {
-    projectPath.value = ''
+  if (formData.level === 'global') {
+    formData.projectPath = ''
   }
 }
 
-// ─── 表单初始化 ────────────────────────────────────────────
-function _initForm() {
-  _resetForm()
-  getProxyList().then(function (data) {
-    proxyList.value = data || []
-    const def = (data || []).find(function (p) { return p.default })
-    if (def) selectedProxyId.value = def.id
-  }).catch(function () {
-    proxyList.value = []
-  })
-  getTokenList().then(function (data) {
-    tokenList.value = data || []
-    const def = (data || []).find(function (t) { return t.default })
-    if (def) selectedTokenId.value = def.id
-  }).catch(function () {
-    tokenList.value = []
-  })
-  getCurrentProjectDir().then(function (res) {
-    if (res && res.data) projectPath.value = res.data
-  }).catch(function () { /* ignore */ })
-}
-
-function _resetForm() {
-  installMode.value = 'github'
-  smartInput.value = ''
-  repoUrl.value = ''
-  skillPath.value = ''
-  level.value = 'global'
-  projectPath.value = ''
-  selectedProxyId.value = ''
-  selectedTokenId.value = ''
-  installing.value = false
-  selectedFile.value = null
-  selectedFileName.value = ''
-  zipSkillName.value = ''
-  githubTreeUrl.value = ''
-}
-
-function resetForm() {
-  _resetForm()
-}
-
-// ─── 提交 ──────────────────────────────────────────────────
+// ─── 提交表单 ──────────────────────────────────────────────
 function onSubmit() {
-  if (installMode.value === 'github') {
-    _submitGithub()
-  } else if (installMode.value === 'zip') {
-    _submitZipStream()
-  } else if (installMode.value === 'githubPath') {
-    _submitGithubPath()
-  }
-}
-
-function _submitGithub() {
-  if (!repoUrl.value.trim()) {
-    ElMessage.warning(t('skill.repoUrlPlaceholder'))
-    return
-  }
   installing.value = true
-
-  const params = new URLSearchParams({
-    repoUrl: repoUrl.value.trim(),
-    skillPath: skillPath.value.trim() || '',
-    level: level.value,
-  })
-  if (selectedProxyId.value) params.append('proxyId', selectedProxyId.value)
-  if (selectedTokenId.value) params.append('tokenId', selectedTokenId.value)
-  if (level.value === 'project' && projectPath.value.trim()) {
-    params.append('projectPath', projectPath.value.trim())
-  }
-
-  const url = '/api/skill/install-github-stream?' + params.toString()
-  if (progressRef.value) progressRef.value.start(url)
-}
-
-function _submitZipStream() {
-  if (!selectedFile.value) {
-    ElMessage.warning(t('skill.chooseFile'))
-    return
-  }
-  installing.value = true
-
-  const formData = new FormData()
-  formData.append('file', selectedFile.value)
-  formData.append('skillName', zipSkillName.value || '')
-  formData.append('level', level.value)
-
-  fetch('/api/skill/install-zip-stream', { method: 'POST', body: formData })
-    .then(function (r) { return r.json() })
-    .then(function (data) {
-      if (data.success && data.streamId) {
-        if (progressRef.value) {
-          progressRef.value.start('/api/skill/install-zip-stream/sse/' + data.streamId)
-        }
-      } else {
-        installing.value = false
-        ElMessage.error(data.message || t('skill.installFailed'))
-      }
-    })
-    .catch(function (err) {
+  submitForm(formData).then(function (res) {
+    // 提交成功后启动安装进度浮层
+    if (res && res.streamId && progressRef.value) {
+      progressRef.value.start('/api/skill/install/sse/' + res.streamId)
+    } else {
       installing.value = false
-      ElMessage.error(t('skill.installFailed') + ': ' + err.message)
-    })
-}
-
-function _submitGithubPath() {
-  if (!githubTreeUrl.value.trim()) {
-    ElMessage.warning(t('skill.githubPathPlaceholder'))
-    return
-  }
-  installing.value = true
-
-  const params = new URLSearchParams({
-    githubUrl: githubTreeUrl.value.trim(),
-    level: level.value,
+    }
+  }).catch(function () {
+    installing.value = false
   })
-  if (selectedProxyId.value) params.append('proxyId', selectedProxyId.value)
-  if (selectedTokenId.value) params.append('tokenId', selectedTokenId.value)
-
-  const url = '/api/skill/install-github-path-stream?' + params.toString()
-  if (progressRef.value) progressRef.value.start(url)
 }
 
+// ─── 安装完成回调 ──────────────────────────────────────────
 function onInstallComplete(success) {
   installing.value = false
   hideDialog()
@@ -332,6 +255,7 @@ function onInstallComplete(success) {
   }
 }
 
+// 暴露弹窗控制方法给父组件
 defineExpose({ showDialog, hideDialog, showDialogByData })
 </script>
 
@@ -346,7 +270,7 @@ defineExpose({ showDialog, hideDialog, showDialogByData })
   min-width: 0;
 }
 .install-right {
-  width: 280px;
+  width: 420px;
   flex-shrink: 0;
   border-left: 1px solid var(--el-border-color-light, #e4e7ed);
   padding-left: 20px;
@@ -357,16 +281,6 @@ defineExpose({ showDialog, hideDialog, showDialogByData })
 .install-config {
   padding: 4px 0;
 }
-.config-section {
-  margin-bottom: 14px;
-}
-.config-section .config-label {
-  display: block;
-  margin-bottom: 6px;
-  font-size: 13px;
-  color: var(--el-text-color-secondary, #909399);
-  font-weight: 500;
-}
 .mode-tip {
   margin-bottom: 10px;
 }
@@ -376,21 +290,14 @@ defineExpose({ showDialog, hideDialog, showDialogByData })
 .smart-paste {
   margin-bottom: 4px;
 }
-.file-selector {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-.file-name {
-  font-size: 13px;
-  color: var(--el-text-color-primary, #303133);
-  max-width: 200px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
 .install-right .el-form-item {
   margin-bottom: 16px;
+}
+.install-right :deep(.file-picker) {
+  width: 100%;
+}
+.install-right :deep(.file-picker .el-input) {
+  width: 100%;
 }
 .install-right :deep(.el-form-item__label) {
   font-size: 13px;

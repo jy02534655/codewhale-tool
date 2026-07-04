@@ -7,8 +7,6 @@
  */
 
 import { Router } from 'express';
-import multer from 'multer';
-import { tmpdir } from 'node:os';
 
 import { registerFilesRoutes } from './files.js';
 import { registerCmdRoutes } from './cmd.js';
@@ -19,13 +17,9 @@ import { registerRoutes } from './routes.js';
 export function createSkillRouter(skillMgr) {
   const router = Router();
 
-  // 共享上传配置
-  const _upload = multer({ dest: tmpdir() });
-  const _pendingZipInstalls = new Map();
-
   registerFilesRoutes(router, skillMgr);
   registerCmdRoutes(router, skillMgr);
-  registerInstallRoutes(router, skillMgr, _upload, _pendingZipInstalls);
+  registerInstallRoutes(router, skillMgr);
   registerLogRoutes(router, skillMgr);
   registerRoutes(router, skillMgr);
 

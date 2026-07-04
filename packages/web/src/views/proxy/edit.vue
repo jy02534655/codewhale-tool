@@ -7,7 +7,7 @@
   <el-dialog v-model="isShow"
     :title="isEdit ? $t('proxy.edit_title') : $t('proxy.add_title')"
     width="480px" :close-on-click-modal="false" @close="resetForm">
-    <el-form ref="form" :model="formData" :rules="rules" label-position="top">
+    <el-form ref="formRef" :model="formData" :rules="rules" label-position="top">
       <el-form-item :label="$t('common.alias')" prop="alias">
         <el-input v-model="formData.alias" :placeholder="$t('proxy.alias_placeholder')" />
       </el-form-item>

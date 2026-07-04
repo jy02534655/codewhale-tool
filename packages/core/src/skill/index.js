@@ -147,6 +147,7 @@ export class SkillManager {
     this._projectEngine = projectEngine || null;
     this._skillsDir = skillsDir || join(homedir(), '.codewhale', 'skills');
     this._projectSkillsDir = 'skills';
+    this._pendingInstalls = new Map();
   }
 
   // ─── 列表查询 ───────────────────────────────────────────────
@@ -227,18 +228,6 @@ export class SkillManager {
   // ─── 安装 ───────────────────────────────────────────────────
 
   /**
-   * 从社区仓库安装一个 skill（内部委托到 installFromGitHub）
-   * @param {string} skillId - 社区 skill 名称
-   * @param {'global'|'project'} [level='global']
-   * @param {Function} [onProgress]
-   * @returns {Promise<{success: boolean, data?: any, message?: string}>}
-   */
-  async install(skillId, level, onProgress) {
-    const repoUrl = `${SKILL_REPO_BASE}`;
-    return this.installFromGitHub(repoUrl, skillId, level, null, onProgress);
-  }
-
-  /**
    * 从任意 GitHub 仓库安装 skill
    * 兼容新旧两种调用方式：
    *   旧: installFromGitHub(repoUrl, skillPath, level, proxyUrl, onProgress)
@@ -259,7 +248,7 @@ export class SkillManager {
   /**
    * V2 安装入口（统一方式）
    */
-  async _installFromGitHubV2({ repoUrl, skillPath, level, proxyId, tokenId, proxyConfig } = {}, progressCb, logCb) {
+  async _installFromGitHubV2({ repoUrl, skillPath, level, proxyId, tokenId, proxyUrl, proxyConfig } = {}, progressCb, logCb) {
     const targetLevel = level || 'global';
     const onProgress = progressCb;
     const onLog = logCb;
@@ -282,6 +271,9 @@ export class SkillManager {
         onProgress({ stage: 'connecting', percent: 5, message: getServerMessage('SKILL_PROGRESS_CONNECTING_GITHUB') });
       }
 
+      if (!proxyConfig && proxyUrl) {
+        proxyConfig = _parseProxyUrl(proxyUrl);
+      }
       if (!proxyConfig && proxyId) {
         const proxyEntry = this._engine.findProxy(proxyId);
         if (proxyEntry) {
@@ -338,7 +330,7 @@ export class SkillManager {
   /**
    * 从 ZIP 文件或 URL 安装 skill
    */
-  async installFromZip(zipSource, skillPath, level, proxyUrl, onProgress) {
+  async installFromZip(zipSource, skillPath, level, proxyConfig, onProgress) {
     const targetLevel = level || 'global';
     const skillId = skillPath ? basename(skillPath) : basename(zipSource).replace(/\.zip$/i, '') || 'skill';
     const targetDir = targetLevel === 'project'
@@ -355,8 +347,13 @@ export class SkillManager {
       let extractRoot;
 
       if (/^https?:\/\//i.test(zipSource)) {
-        const proxyConfig = proxyUrl ? _parseProxyUrl(proxyUrl) : undefined;
-        extractRoot = await downloadAndExtractZip(zipSource, tempDir, proxyConfig, onProgress);
+        let finalProxyConfig;
+        if (typeof proxyConfig === 'string') {
+          finalProxyConfig = _parseProxyUrl(proxyConfig);
+        } else if (proxyConfig) {
+          finalProxyConfig = proxyConfig;
+        }
+        extractRoot = await downloadAndExtractZip(zipSource, tempDir, finalProxyConfig, onProgress);
       } else {
         // 本地 ZIP 文件
         const zip = new AdmZip(zipSource);
@@ -426,11 +423,25 @@ export class SkillManager {
    * @param {Function} [onLog] - 日志回调
    * @returns {Promise<{success: boolean, data?: any, message?: string}>}
    */
-  async installFromZipStream(zipPath, skillName, level, onProgress, onLog) {
+  async installFromZipStream(zipPath, skillName, level, proxyId, onProgress, onLog) {
     // 委派 installFromZip 完成实际安装
     // 通过 onProgress/onLog 实现 SSE 流式输出
+    let proxyConfig;
+    if (proxyId) {
+      const proxyEntry = this._engine.findProxy(proxyId);
+      if (proxyEntry) {
+        proxyConfig = {
+          type: proxyEntry.type,
+          host: proxyEntry.host,
+          port: proxyEntry.port,
+          auth: proxyEntry.auth
+            ? { username: proxyEntry.auth.username, password: proxyEntry.auth.password }
+            : undefined,
+        };
+      }
+    }
     emitSkillInstallLog(onLog, 'INFO', { key: 'SKILL_PROGRESS_EXTRACTING' });
-    const result = await this.installFromZip(zipPath, skillName, level, undefined, onProgress);
+    const result = await this.installFromZip(zipPath, skillName, level, proxyConfig, onProgress);
     if (result.success) {
       emitSkillInstallLog(onLog, 'INFO', { key: 'SKILL_PROGRESS_DONE' });
     } else {
@@ -464,6 +475,45 @@ export class SkillManager {
     return this._installFromGitHubV2({
       repoUrl, skillPath, level, proxyId, tokenId,
     }, onProgress, onLog);
+  }
+
+  /**
+   * 统一安装入口，按 opts.type / opts.installMode 分发
+   * 兼容前端表单字段名与内部字段名
+   */
+  async install(opts, onProgress, onLog) {
+    const type = opts.type || opts.installMode || 'github';
+    const level = opts.level;
+    const proxyId = opts.proxyId || opts.selectedProxyId;
+    const tokenId = opts.tokenId || opts.selectedTokenId;
+    const proxyUrl = opts.proxyUrl;
+    const proxyConfig = opts.proxyConfig;
+
+    if (type === 'github') {
+      return this._installFromGitHubV2({
+        repoUrl: opts.repoUrl,
+        skillPath: opts.skillPath,
+        level,
+        proxyId,
+        tokenId,
+        proxyUrl,
+        proxyConfig,
+      }, onProgress, onLog);
+    }
+    if (type === 'githubPath') {
+      const githubUrl = opts.githubUrl || opts.githubTreeUrl;
+      return this.installFromGithubTreePath(
+        githubUrl, level, proxyId, tokenId, onProgress, onLog
+      );
+    }
+    if (type === 'zip') {
+      const zipPath = opts.zipPath || opts.selectedFilePath;
+      const skillName = opts.skillName || opts.zipSkillName;
+      return this.installFromZipStream(
+        zipPath, skillName, level, proxyId, onProgress, onLog
+      );
+    }
+    return failMsg('SKILL_INVALID_INSTALL_TYPE');
   }
 
   /**
@@ -986,6 +1036,32 @@ export class SkillManager {
       entries[idx].updated_at = Date.now();
       return okMsg('updated');
     }, hintLevel);
+  }
+
+  /**
+   * 创建一个待安装任务并返回 streamId
+   * @param {Object} opts - 安装选项
+   * @returns {string} streamId
+   */
+  createPendingInstall(opts) {
+    const streamId = randomUUID();
+    this._pendingInstalls.set(streamId, {
+      ...opts,
+      createdAt: Date.now(),
+    });
+    return streamId;
+  }
+
+  /**
+   * 获取并消费一个待安装任务
+   * @param {string} streamId
+   * @returns {Object|undefined}
+   */
+  getPendingInstall(streamId) {
+    const pending = this._pendingInstalls.get(streamId);
+    if (!pending) return undefined;
+    this._pendingInstalls.delete(streamId);
+    return pending;
   }
 
   get skillsDir() {
