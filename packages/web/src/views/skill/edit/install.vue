@@ -89,8 +89,8 @@
     </el-form>
 
     <template #footer>
-      <el-button :disabled="installing" @click="hideDialog">{{ $t('common.cancel') }}</el-button>
-      <el-button type="primary" :loading="installing" @click="onSubmit">
+      <el-button :disabled="maskingStore.isLoading" @click="hideDialog">{{ $t('common.cancel') }}</el-button>
+      <el-button type="primary" :loading="maskingStore.isLoading" @click="onSubmit">
         {{ $t('common.confirm') }}
       </el-button>
     </template>
@@ -114,6 +114,8 @@ import { getCurrentProjectDir } from '@/api/skill/routes'
 import { installSkill, updateSkillByOpts } from '@/api/skill/install'
 // 引入弹窗表单组合式函数
 import { compositionDialogForm } from '@/composition/dialog/Form'
+// 引入全局遮罩状态管理
+import { useMaskingStore } from '@/stores/masking'
 // 引入自定义组件
 import FilePicker from '@/components/form/file/picker.vue'
 import InstallProgress from './progress.vue'
@@ -122,6 +124,8 @@ import InstallProgress from './progress.vue'
 const emit = defineEmits(['submitSuccess'])
 // 获取国际化函数
 const { t } = useI18n({ useScope: 'global' })
+
+const maskingStore = useMaskingStore()
 
 // ─── 表单数据（集中管理所有字段）─────────────────────────────
 // 使用 reactive 统一管理表单数据，通过 v-if 控制显示隐藏避免多余校验
@@ -193,9 +197,6 @@ const tokenList = ref([])
 // ─── 安装进度浮层引用 ──────────────────────────────────────
 const progressRef = ref(null)
 
-// ─── 安装状态标记 ──────────────────────────────────────────
-const installing = ref(false)
-
 // ─── 更新模式标记 ──────────────────────────────────────────
 const isUpdateMode = ref(false)
 const updateSkillId = ref(null)
@@ -263,25 +264,25 @@ function onLevelChange() {
 
 // ─── 提交表单 ──────────────────────────────────────────────
 function onSubmit() {
-  installing.value = true
+  maskingStore.loading({ view: 'skill-install' })
   const payload = isUpdateMode.value
     ? { ...formData, skillId: updateSkillId.value }
     : formData
   submitForm(payload).then(function (res) {
     // 提交成功后启动安装进度浮层
     if (res && res.streamId && progressRef.value) {
+      // SSE 阶段延续 loading 状态（axios 拦截器会在接口完成后自动释放，
+      // 此处手动补一个 loading 计数，确保进度浮层期间按钮仍处于加载态）
       progressRef.value.start('/api/skill/install/sse/' + res.streamId)
-    } else {
-      installing.value = false
     }
   }).catch(function () {
-    installing.value = false
+    // axios 拦截器已自动处理接口失败时的遮罩释放
   })
 }
 
 // ─── 安装完成回调 ──────────────────────────────────────────
 function onInstallComplete(success) {
-  installing.value = false
+  maskingStore.clear({ view: 'skill-install' })
   hideDialog()
   if (success) {
     emit('submitSuccess')

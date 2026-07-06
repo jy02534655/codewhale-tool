@@ -4,7 +4,7 @@
   第二行：总进度条
   第三行：download-skill.log 格式化日志实时推送
 --><template>
-  <el-dialog v-model="visible" :title="$t('skill.progressTitle')" width="680px" top="5vh" :close-on-click-modal="false" :close-on-press-escape="!running" :show-close="!running" :destroy-on-close="true">
+  <el-dialog v-model="isShow" :title="$t('skill.progressTitle')" width="680px" top="5vh" :close-on-click-modal="false" :close-on-press-escape="!running" :show-close="!running" :destroy-on-close="true">
     <!-- 第一行：当前步骤（简单位置指示，不显示日志） -->
     <div v-if="activeStepLabel" class="ip-step-row">
       <span class="ip-step-icon">{{ running ? '⏳' : '✅' }}</span>
@@ -42,8 +42,10 @@
 <script setup>
 import { ref, nextTick } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { compositionDialogBase } from '@/composition/dialog/Base'
 
 const emit = defineEmits(['complete'])
+const { isShow, showDialog, hideDialog } = compositionDialogBase({})
 const { t } = useI18n({ useScope: 'global' })
 
 // ─── 步骤映射 ──────────────────────────────────────────────
@@ -69,7 +71,6 @@ const STAGE_MAP = {
 }
 
 // ─── 基本状态 ──────────────────────────────────────────────
-const visible = ref(false)
 const running = ref(false)
 const activeStepLabel = ref('')
 const stepDetail = ref('')
@@ -101,7 +102,7 @@ function start(url) {
   downloadBytes.value = 0; totalBytes.value = 0
   speedText.value = ''; showStats.value = false
   showSubProgress.value = false
-  running.value = true; visible.value = true
+  running.value = true; showDialog()
 
   es = new EventSource(url)
 
@@ -160,7 +161,7 @@ function scrollLog() {
 }
 
 // ─── 关闭 ──────────────────────────────────────────────────
-function closeDialog() { if (es) { es.close(); es = null }; visible.value = false }
+function closeDialog() { if (es) { es.close(); es = null }; hideDialog() }
 function close() { closeDialog() }
 
 defineExpose({ start, close })

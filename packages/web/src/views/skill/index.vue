@@ -115,31 +115,23 @@
     <install ref="installDialog" @submitSuccess="loadSkills" />
     <info ref="infoDialog" @submitSuccess="loadSkills" />
     <readme ref="readmeDialog" @submitSuccess="loadSkills" />
-
-    <!-- 安装日志弹窗 -->
-    <el-dialog v-model="logVisible" :title="$t('skill.installLog')" width="720px" top="5vh" :destroy-on-close="true">
-      <pre class="log-content-dialog">{{ logContent || $t('skill.noLog') }}</pre>
-      <template #footer>
-        <el-button @click="logVisible = false">{{ $t('common.close') }}</el-button>
-        <el-button v-if="logContent" type="danger" text @click="doClearLog">{{ $t('skill.clearLog') }}</el-button>
-      </template>
-    </el-dialog>
+    <install-log ref="installLogDialog" />
   </div>
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
-import { useI18n } from 'vue-i18n'
-import { ElMessageBox } from 'element-plus'
-import { getGlobalSkillList, getProjectSkillList } from '@/api/skill/routes'
-import { getInstallLog, clearInstallLog } from '@/api/skill/log'
-import { useMaskingStore } from '@/stores/masking'
-import { compositionDialogContainer } from '@/composition/dialog/Container'
-import SplitLayout from '@/composition/layout/SplitLayout.vue'
-import install from './edit/install.vue'
-import detail from './edit/detail.vue'
-import info from './edit/info.vue'
-import readme from './edit/readme.vue'
+ import { ref, computed, onMounted } from 'vue'
+ import { useI18n } from 'vue-i18n'
+ import { ElMessageBox } from 'element-plus'
+ import { getGlobalSkillList, getProjectSkillList } from '@/api/skill/routes'
+ import { useMaskingStore } from '@/stores/masking'
+ import { compositionDialogContainer } from '@/composition/dialog/Container'
+ import SplitLayout from '@/composition/layout/SplitLayout.vue'
+ import install from './edit/install.vue'
+ import detail from './edit/detail.vue'
+ import info from './edit/info.vue'
+ import readme from './edit/readme.vue'
+ import installLog from './edit/install-log.vue'
 
 const { t } = useI18n({ useScope: 'global' })
 const maskingStore = useMaskingStore()
@@ -150,9 +142,8 @@ const globalSkills = ref([])
 const projectSkills = ref([])
 const search = ref('')
 const activeTab = ref('global')
-const selectedId = ref(null)
-const logVisible = ref(false)
-const logContent = ref('')
+ const selectedId = ref(null)
+ const installLogDialog = ref(null)
 
 function displayName(s) {
   return s.alias || s.name || s.id
@@ -252,10 +243,10 @@ function onOpenReadme() {
 }
 
 function doViewLog() {
-  getInstallLog().then(function (res) {
-    logContent.value = res || ''
-    logVisible.value = true
-  })
+  const dialog = installLogDialog.value
+  if (dialog) {
+    dialog.open()
+  }
 }
 
 function doClearLog() {
@@ -264,10 +255,10 @@ function doClearLog() {
     cancelButtonText: t('common.cancel'),
     type: 'warning'
   }).then(function () {
-    return clearInstallLog()
-  }).then(function () {
-    logContent.value = ''
-    logVisible.value = false
+    const dialog = installLogDialog.value
+    if (dialog) {
+      dialog.doClearLog()
+    }
   })
 }
 
