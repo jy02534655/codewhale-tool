@@ -108,8 +108,7 @@ import { ElMessage } from 'element-plus'
 // 引入 i18n 国际化函数
 import { useI18n } from 'vue-i18n'
 // 引入后端 API 方法
-import { getProxyList } from '@/api/proxy'
-import { getTokenList } from '@/api/token'
+import { useShareStore } from '@/stores/share'
 import { getCurrentProjectDir } from '@/api/skill/routes'
 import { installSkill, updateSkillByOpts } from '@/api/skill/install'
 // 引入弹窗表单组合式函数
@@ -126,6 +125,7 @@ const emit = defineEmits(['submitSuccess'])
 const { t } = useI18n({ useScope: 'global' })
 
 const maskingStore = useMaskingStore()
+const shareStore = useShareStore()
 
 // ─── 表单数据（集中管理所有字段）─────────────────────────────
 // 使用 reactive 统一管理表单数据，通过 v-if 控制显示隐藏避免多余校验
@@ -203,16 +203,16 @@ const updateSkillId = ref(null)
 
 // ─── 初始化下拉列表数据 ───────────────────────────────────
 function _initDropdowns() {
-  getProxyList().then(function (data) {
-    proxyList.value = data || []
-    const def = (data || []).find(function (p) { return p.default })
+  shareStore.getProxyList().then(function (result) {
+    proxyList.value = result.data || []
+    const def = (result.data || []).find(function (p) { return p.default })
     if (def) formData.selectedProxyId = def.id
   }).catch(function () {
     proxyList.value = []
   })
-  getTokenList().then(function (data) {
-    tokenList.value = data || []
-    const def = (data || []).find(function (t) { return t.default })
+  shareStore.getTokenList().then(function (result) {
+    tokenList.value = result.data || []
+    const def = (result.data || []).find(function (t) { return t.default })
     if (def) formData.selectedTokenId = def.id
   }).catch(function () {
     tokenList.value = []

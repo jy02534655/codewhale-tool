@@ -59,7 +59,7 @@
     </div>
 
     <!-- 新增/编辑弹窗 -->
-    <ProxyEdit ref="dialogRef" @submitSuccess="loadList" />
+    <ProxyEdit ref="dialogRef" @submitSuccess="() => loadList(true)" />
   </div>
 </template>
 
@@ -67,20 +67,22 @@
 import { ref, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { ElMessageBox } from 'element-plus';
-import { getProxyList, removeProxy, setDefaultProxy } from '@/api/proxy';
+import { removeProxy, setDefaultProxy } from '@/api/proxy';
+import { useShareStore } from '@/stores/share';
 import { useMaskingStore } from '@/stores/masking';
 import { compositionDialogContainer } from '@/composition/dialog/Container';
 import ProxyEdit from './edit.vue';
 
 const { t } = useI18n({ useScope: 'global' });
 const maskingStore = useMaskingStore();
+const shareStore = useShareStore();
 const dialogCtrl = compositionDialogContainer();
 
 const list = ref([]);
 
-function loadList() {
-  getProxyList().then(function (data) {
-    list.value = data || [];
+function loadList(isReLoad) {
+  shareStore.getProxyList(isReLoad).then(function (result) {
+    list.value = result.data || [];
   });
 }
 
@@ -90,7 +92,7 @@ function onRemove(row) {
     t('common.confirm'),
     { type: 'warning' }
   ).then(function () {
-    removeProxy(row.id).then(function () { loadList(); });
+    removeProxy(row.id).then(function () { loadList(true); });
   });
 }
 

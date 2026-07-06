@@ -59,20 +59,22 @@
 import { ref, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { ElMessageBox } from 'element-plus';
-import { getTokenList, removeToken, setDefaultToken } from '@/api/token';
+import { removeToken, setDefaultToken } from '@/api/token';
 import { useMaskingStore } from '@/stores/masking';
+import { useShareStore } from '@/stores/share';
 import { compositionDialogContainer } from '@/composition/dialog/Container';
 import TokenEdit from './edit.vue';
 
 const { t } = useI18n({ useScope: 'global' });
 const maskingStore = useMaskingStore();
+const shareStore = useShareStore();
 const dialogCtrl = compositionDialogContainer();
 
 const list = ref([]);
 
 function loadList() {
-  getTokenList().then(function (data) {
-    list.value = data || [];
+  shareStore.getTokenList().then(function (result) {
+    list.value = result.data || [];
   });
 }
 
@@ -87,7 +89,7 @@ function onRemove(row) {
 }
 
 function onSetDefault(row) {
-  setDefaultToken(row.id).then(function () { loadList(); });
+  setDefaultToken(row.id).then(function () { loadList(true); });
 }
 
 onMounted(loadList);
