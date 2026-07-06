@@ -151,7 +151,7 @@ const treeProps = {
 // 组合详情页标题，优先展示 alias。
 const displayTitle = computed(function () {
   if (!props.skill) return ''
-  return props.skill.alias || props.skill.name || props.skill.id || '-'
+  return props.skill.alias || props.skill.name || props.skill.slug || '-'
 })
 
 // 将来源字段翻译成可读文案。

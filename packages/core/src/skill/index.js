@@ -5,6 +5,7 @@
 
 import { existsSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
+import { randomUUID } from 'node:crypto';
 import { getServerMessage } from '../utils/i18n.js';
 import { ok, fail } from '../utils/result.js';
 import { SkillStore } from './SkillStore.js';
@@ -74,10 +75,10 @@ export class SkillManager {
           if (!existsSync(join(skillPath, 'SKILL.md'))) continue;
           result.found++;
           const installed = this._store.getLevelInstalled(targetLevel);
-          if (installed.some((s) => s.id === dirent.name)) continue;
+          if (installed.some((s) => s.slug === dirent.name)) continue;
           const meta = _extractMeta(skillPath);
           const entry = {
-            id: dirent.name, name: meta.name, description: meta.description,
+            id: randomUUID(), slug: dirent.name, name: meta.name, description: meta.description,
             path: skillPath, enabled: true, source: 'local',
             installed_at: Date.now(), updated_at: Date.now(),
           };

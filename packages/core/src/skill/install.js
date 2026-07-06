@@ -86,7 +86,7 @@ export async function _installFromGitHubV2(store, opts, progressCb, logCb) {
     : join(store.skillsDir, finalSkillId));
 
   const installed = store.getLevelInstalled(targetLevel);
-  if (installed.some(function (s) { return s.id === finalSkillId; })) {
+  if (installed.some(function (s) { return s.slug === finalSkillId; })) {
     return failMsg('SKILL_ALREADY_INSTALLED');
   }
 
@@ -172,7 +172,7 @@ export async function installFromZip(store, zipSource, skillPath, level, proxyCo
       : join(store.skillsDir, finalSkillId));
 
   const installed = store.getLevelInstalled(targetLevel);
-  if (installed.some(function (s) { return s.id === finalSkillId; })) {
+  if (installed.some(function (s) { return s.slug === finalSkillId; })) {
     return failMsg('SKILL_ALREADY_INSTALLED');
   }
 
@@ -382,10 +382,10 @@ export async function update(store, opts, onProgress, onLog) {
 
   const level = opts.level || existing.level || 'global';
   const baseTargetDir = level === 'project'
-    ? join(process.cwd(), store.projectSkillsDir, skillId)
-    : join(store.skillsDir, skillId);
+    ? join(process.cwd(), store.projectSkillsDir, existing.slug)
+    : join(store.skillsDir, existing.slug);
 
-  const tempSkillId = skillId + '-update-' + randomUUID();
+  const tempSkillId = existing.slug + '-update-' + randomUUID();
   const tempTargetDir = baseTargetDir + '.tmp-' + randomUUID();
 
   // 调用 install 引擎安装到临时位置

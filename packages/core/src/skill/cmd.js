@@ -5,6 +5,7 @@
 
 import { existsSync, rmSync } from 'node:fs';
 import { join } from 'node:path';
+import { randomUUID } from 'node:crypto';
 import { getServerMessage } from '../utils/i18n.js';
 import { okMsg, failMsg, fail } from '../utils/result.js';
 
@@ -82,14 +83,16 @@ export function copyToProject(store, skillId) {
     return failMsg('SKILL_ALREADY_INSTALLED');
   }
 
-  const targetDir = join(process.cwd(), store.projectSkillsDir, skillId);
+  const newId = randomUUID();
+  const targetDir = join(process.cwd(), store.projectSkillsDir, entry.slug);
 
   try {
     if (existsSync(targetDir)) rmSync(targetDir, { recursive: true, force: true });
     store.copyDir(entry.path, targetDir);
 
     store.addToConfig({
-      id: skillId,
+      id: newId,
+      slug: entry.slug,
       name: entry.name,
       description: entry.description,
       path: targetDir,

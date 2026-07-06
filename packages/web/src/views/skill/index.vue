@@ -86,7 +86,7 @@
                     </el-tag>
                     <el-tag size="small" type="info" effect="plain">{{ sourceName(s.source) }}</el-tag>
                   </div>
-                  <div v-if="s.name && s.name !== (s.alias || s.id)" class="item-field">
+                  <div v-if="s.name && s.name !== (s.alias || s.slug)" class="item-field">
                     <span class="field-value-text">{{ s.name }}</span>
                   </div>
                   <div v-if="s.remark" class="item-field">
@@ -146,7 +146,7 @@ const activeTab = ref('global')
  const installLogDialog = ref(null)
 
 function displayName(s) {
-  return s.alias || s.name || s.id
+  return s.alias || s.name || s.slug
 }
 
 function sourceName(source) {
@@ -172,7 +172,7 @@ const filteredGlobal = computed(function () {
   const q = search.value.toLowerCase().trim()
   if (!q) return globalSkills.value
   return globalSkills.value.filter(function (s) {
-    const name = (s.alias || s.name || s.id).toLowerCase()
+    const name = (s.alias || s.name || s.slug).toLowerCase()
     const tags = (s.tags || []).join(' ').toLowerCase()
     return name.indexOf(q) !== -1 || tags.indexOf(q) !== -1
   })
@@ -197,7 +197,7 @@ const filteredProjectTree = computed(function () {
         name: node.name,
         alias: node.alias,
         skills: node.skills.filter(function (s) {
-          const name = (s.alias || s.name || s.id).toLowerCase()
+          const name = (s.alias || s.name || s.slug).toLowerCase()
           const tags = (s.tags || []).join(' ').toLowerCase()
           return name.indexOf(q) !== -1 || tags.indexOf(q) !== -1
         })
