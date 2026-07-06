@@ -4,10 +4,7 @@
  */
 
 import { existsSync, rmSync } from 'node:fs';
-import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { execSync } from 'node:child_process';
-import { randomUUID } from 'node:crypto';
 import { getServerMessage } from '../utils/i18n.js';
 import { okMsg, failMsg, fail } from '../utils/result.js';
 

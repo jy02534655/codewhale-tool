@@ -62,8 +62,6 @@ import { ElMessageBox } from 'element-plus';
 import {
   getOfficialKeyList, activateOfficialKey, removeOfficialKey,
 } from '@/api/officialKey';
-// 引入全局遮罩状态管理
-import { useMaskingStore } from '@/stores/masking';
 // 引入弹窗容器组合式函数
 import { compositionDialogContainer } from '@/composition/dialog/Container';
 // 引入官方 API Key 编辑弹窗组件
@@ -71,8 +69,6 @@ import officialKey from './edit/officialKey.vue';
 
 // 获取国际化函数
 const { t } = useI18n({ useScope: 'global' });
-// 获取全局遮罩状态
-const maskingStore = useMaskingStore();
 // 创建弹窗控制器实例
 const dialogCtrl = compositionDialogContainer();
 

@@ -332,8 +332,6 @@ export async function install(store, opts, onProgress, onLog) {
   const level = opts.level;
   const proxyId = opts.proxyId || opts.selectedProxyId;
   const tokenId = opts.tokenId || opts.selectedTokenId;
-  const proxyUrl = opts.proxyUrl;
-  const proxyConfig = opts.proxyConfig;
 
   if (type === 'github') {
     return _installFromGitHubV2(store, opts, onProgress, onLog);
@@ -415,7 +413,7 @@ export async function update(store, opts, onProgress, onLog) {
   // 2. 重命名临时目录为正式目录
   try {
     renameSync(tempTargetDir, baseTargetDir);
-  } catch (err) {
+  } catch {
     // 替换目录失败，清理临时目录并记录错误日志
     try { rmSync(tempTargetDir, { recursive: true, force: true }); } catch { /* ignore */ }
     emitSkillInstallLog(onLog, 'ERROR', { key: 'SKILL_UPDATE_REPLACE_FAILED' });

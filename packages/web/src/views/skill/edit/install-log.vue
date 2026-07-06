@@ -21,13 +21,13 @@ import { getInstallLog, clearInstallLog } from '@/api/skill/log'
 // 引入 Base 弹窗组合式函数
 import { compositionDialogBase } from '@/composition/dialog/Base'
 
-// 获取国际化函数
-const { t } = useI18n({ useScope: 'global' })
+// 启用 Vue I18n（模板中使用 $t）
+useI18n({ useScope: 'global' })
 // 日志内容
 const logContent = ref('')
 
 // 使用 Base 弹窗组合式函数管理显示状态
-const { isShow, showDialog, hideDialog, showDialogByData } = compositionDialogBase({
+const { isShow, hideDialog, showDialogByData } = compositionDialogBase({
   // 打开弹窗时自动加载日志
   initfun: function () {
     getInstallLog().then(function (res) {

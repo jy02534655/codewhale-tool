@@ -97,7 +97,7 @@ import { ArrowDown, ArrowRight, Check, CircleClose, DocumentCopy, Delete, Edit, 
 import { useI18n } from 'vue-i18n'
 
 // 引入 Skill 相关接口。
-import { enableSkill, disableSkill, removeSkill, updateSkill, copySkillToProject } from '@/api/skill/cmd'
+import { enableSkill, disableSkill, removeSkill, copySkillToProject } from '@/api/skill/cmd'
 import { getSkillFiles, readSkillFile, removeSkillFile } from '@/api/skill/files'
 
 // 引入复用文件预览组件。
