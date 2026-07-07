@@ -64,7 +64,6 @@ export function remove(store, skillId, hintLevel) {
       // 文件删除失败不阻塞配置移除操作
     }
     entries.splice(idx, 1);
-    store.setLevelInstalled(hintLevel, entries);
     return okMsg('synced');
   }, hintLevel);
 }
