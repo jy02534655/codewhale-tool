@@ -129,6 +129,7 @@
     "noSkill": "インストールされたスキルはありません",
     "noMatch": "一致するスキルがありません",
     "noProject": "プロジェクトスキルはありません",
+    "noProjects": "利用可能なプロジェクトがありません",
     "noRemark": "備考なし",
     "noTags": "タグなし",
     "noReadme": "SKILL.md なし",

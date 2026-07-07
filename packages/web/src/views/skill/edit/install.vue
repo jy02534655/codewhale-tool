@@ -70,7 +70,10 @@
           </el-form-item>
 
           <el-form-item v-if="formData.level === 'project'" :label="$t('skill.projectPath')" prop="projectPath">
-            <FilePicker v-model="formData.projectPath" mode="dir" :placeholder="$t('skill.projectPathPlaceholder')" />
+            <el-select v-model="formData.projectPath" :placeholder="$t('skill.projectPathPlaceholder')" clearable style="width:100%">
+              <el-option v-for="p in projectList" :key="p.path" :label="p.alias || p.path" :value="p.path" />
+            </el-select>
+            <div v-if="!projectList.length" class="project-hint">{{ $t('skill.noProjects') }}</div>
           </el-form-item>
 
           <el-form-item :label="$t('skill.proxy_select')" prop="selectedProxyId">
@@ -109,7 +112,6 @@ import { ElMessage } from 'element-plus'
 import { useI18n } from 'vue-i18n'
 // 引入后端 API 方法
 import { useShareStore } from '@/stores/share'
-import { getCurrentProjectDir } from '@/api/skill/routes'
 import { installSkill, updateSkillByOpts } from '@/api/skill/install'
 // 引入弹窗表单组合式函数
 import { compositionDialogForm } from '@/composition/dialog/Form'
@@ -193,6 +195,8 @@ const { isShow, showDialog, hideDialog, showDialogByData, submitForm, resetForm 
 // ─── 下拉列表数据 ──────────────────────────────────────────
 const proxyList = ref([])
 const tokenList = ref([])
+// 项目下拉列表数据
+const projectList = ref([])
 
 // ─── 安装进度浮层引用 ──────────────────────────────────────
 const progressRef = ref(null)
@@ -217,9 +221,15 @@ function _initDropdowns() {
   }).catch(function () {
     tokenList.value = []
   })
-  getCurrentProjectDir().then(function (res) {
-    if (res && res.data) formData.projectPath = res.data
-  }).catch(function () { /* ignore */ })
+  shareStore.getProjectList().then(function (result) {
+    projectList.value = result.data || []
+    const defaultProject = (result.data || []).find(function (p) { return p.default })
+    if (defaultProject && formData.level === 'project') {
+      formData.projectPath = defaultProject.path
+    }
+  }).catch(function () {
+    projectList.value = []
+  })
 }
 
 // ─── 智能识别输入 ──────────────────────────────────────────
@@ -257,7 +267,11 @@ function onSelectZipFile(filePath) {
 
 // ─── 安装级别切换 ──────────────────────────────────────────
 function onLevelChange() {
-  if (formData.level === 'global') {
+  if (formData.level === 'project') {
+    if (projectList.value.length > 0 && !formData.projectPath) {
+      formData.projectPath = projectList.value[0].path
+    }
+  } else {
     formData.projectPath = ''
   }
 }
@@ -332,5 +346,10 @@ defineExpose({ showDialog, hideDialog, showDialogByData })
 }
 .install-right .el-form-item {
   margin-bottom: 16px;
+}
+.project-hint {
+  font-size: 12px;
+  color: var(--el-text-color-secondary);
+  margin-top: 4px;
 }
 </style>
