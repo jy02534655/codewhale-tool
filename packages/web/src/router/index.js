@@ -35,6 +35,12 @@ const routes = [
     component: () => import('@/views/token/index.vue'),
     meta: { title: 'Token 管理' },
   },
+  {
+    path: '/project',
+    name: 'project',
+    component: () => import('@/views/project/index.vue'),
+    meta: { title: '项目管理' },
+  },
 ];
 
 const router = createRouter({

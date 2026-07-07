@@ -333,20 +333,4 @@ defineExpose({ showDialog, hideDialog, showDialogByData })
 .install-right .el-form-item {
   margin-bottom: 16px;
 }
-.install-left :deep(.file-picker) {
-  width: 100%;
-}
-.install-left :deep(.file-picker .el-input) {
-  width: 100%;
-}
-.install-right :deep(.file-picker) {
-  width: 100%;
-}
-.install-right :deep(.file-picker .el-input) {
-  width: 100%;
-}
-.install-right :deep(.el-form-item__label) {
-  font-size: 13px;
-  padding-bottom: 4px;
-}
 </style>

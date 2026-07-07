@@ -209,5 +209,18 @@
     "edit_alias": "修改别名",
     "default": "默认",
     "setDefault": "设为默认"
+  },
+  "project": {
+    "title": "项目管理",
+    "add": "添加项目",
+    "empty": "暂无项目配置，点击添加",
+    "alias": "别名",
+    "path": "路径",
+    "alias_placeholder": "如 主项目、插件项目",
+    "path_placeholder": "请选择项目目录",
+    "add_title": "添加项目",
+    "edit_title": "编辑项目",
+    "default": "默认",
+    "setDefault": "设为默认"
   }
 }

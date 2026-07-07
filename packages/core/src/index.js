@@ -11,6 +11,7 @@ export { SkillManager } from './skill/index.js';
 export { SyncManager } from './sync.js';
 export { downloadSkillFromGitHub } from './download/index.js';
 export { FileManager } from './file.js';
+export { ProjectManager } from './project.js';
 export { ok, fail, okMsg, failMsg } from './utils/result.js';
 export {
   getKnownProviders,

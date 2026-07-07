@@ -1,5 +1,4 @@
 <template>
-  <div class="file-picker">
     <el-input
       :model-value="modelValue"
       :placeholder="placeholder || (mode === 'dir' ? '请选择目录' : '请选择文件')"
@@ -96,7 +95,6 @@
         </span>
       </template>
     </el-dialog>
-  </div>
 </template>
 
 <script setup>
@@ -294,9 +292,11 @@ watch(dialogVisible, (val) => {
 
 <style scoped>
 .file-picker-input {
+  width: 100%;
   cursor: pointer;
 }
 .file-picker-input :deep(.el-input__wrapper) {
+  width: 100%;
   cursor: pointer;
 }
 .file-picker-body {

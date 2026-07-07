@@ -9,6 +9,7 @@ import { defineStore } from 'pinia';
 import store from '@/utils/store/cache';
 import { getProxyList as getProxyListApi } from '@/api/proxy';
 import { getTokenList as getTokenListApi } from '@/api/token';
+import { getProjectList as getProjectListApi } from '@/api/project';
 
 function fetchProxyList() {
   return getProxyListApi().then(function (data) {
@@ -22,10 +23,17 @@ function fetchTokenList() {
   });
 }
 
+function fetchProjectList() {
+  return getProjectListApi().then(function (data) {
+    return { success: true, data: data };
+  });
+}
+
 export const useShareStore = defineStore('share', {
   state: () => ({
     proxyData: [],
-    tokenData: []
+    tokenData: [],
+    projectData: []
   }),
   actions: {
     getProxyList(isReLoad = false) {
@@ -35,6 +43,11 @@ export const useShareStore = defineStore('share', {
     },
     getTokenList(isReLoad = false) {
       return store.loadCacheDataByFun(this, 'tokenData', fetchTokenList, null, {
+        isReLoad
+      });
+    },
+    getProjectList(isReLoad = false) {
+      return store.loadCacheDataByFun(this, 'projectData', fetchProjectList, null, {
         isReLoad
       });
     }

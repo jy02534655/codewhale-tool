@@ -30,6 +30,7 @@ const DEFAULT_STORE = {
   providers: [],
   proxies: [],
   tokens: [],
+  projects: [],
   skills: {
     enabled: true,
     installed: [],
@@ -100,6 +101,7 @@ export class ConfigEngine {
       providers: Array.isArray(data.providers) ? data.providers : def.providers,
       proxies: Array.isArray(data.proxies) ? data.proxies : def.proxies,
       tokens: Array.isArray(data.tokens) ? data.tokens : def.tokens,
+      projects: Array.isArray(data.projects) ? data.projects : def.projects,
       skills: {
         enabled: data.skills?.enabled ?? def.skills.enabled,
         installed: Array.isArray(data.skills?.installed) ? data.skills.installed : def.skills.installed,
@@ -174,6 +176,21 @@ export class ConfigEngine {
   /** @param {string} id */
   findToken(id) {
     return this.read().tokens.find((t) => t.id === id);
+  }
+
+  // ─── Project 方法 ────────────────────────────────────────────
+
+  /** @returns {import('../types.js').ProjectEntry[]} */
+  getProjects() { return this.read().projects; }
+
+  /** @param {import('../types.js').ProjectEntry[]} projects */
+  setProjects(projects) {
+    this.update((d) => { d.projects = projects; return d; });
+  }
+
+  /** @param {string} id */
+  findProject(id) {
+    return this.read().projects.find((p) => p.id === id);
   }
 
   // ─── Skill 方法 ────────────────────────────────────────────

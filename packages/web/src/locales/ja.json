@@ -209,5 +209,18 @@
     "edit_alias": "別名の編集",
     "default": "デフォルト",
     "setDefault": "デフォルトに設定"
+  },
+  "project": {
+    "title": "プロジェクト管理",
+    "add": "+ プロジェクト追加",
+    "empty": "プロジェクトがありません。追加してください。",
+    "alias": "別名",
+    "path": "パス",
+    "alias_placeholder": "例: メイン、プラグイン",
+    "path_placeholder": "プロジェクトディレクトリを選択",
+    "add_title": "プロジェクト追加",
+    "edit_title": "プロジェクト編集",
+    "default": "デフォルト",
+    "setDefault": "デフォルトに設定"
   }
 }

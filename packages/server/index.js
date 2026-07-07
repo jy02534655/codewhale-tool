@@ -18,6 +18,7 @@ import {
   SyncManager,
   setLocale,
   FileManager,
+  ProjectManager,
 } from '@codewhale/core';
 import { createLangRouter } from './src/routes/lang.js';
 import { createOfficialKeyRouter } from './src/routes/officialKey.js';
@@ -26,6 +27,7 @@ import { createProxyRouter } from './src/routes/proxy.js';
 import { createTokenRouter } from './src/routes/token.js';
 import { createSkillRouter } from './src/routes/skill/index.js';
 import { createSyncRouter } from './src/routes/sync.js';
+import { createProjectRouter } from './src/routes/project.js';
 import { createFileRouter } from './src/routes/file.js';
 
 /**
@@ -44,6 +46,7 @@ const providerMgr = new ProviderManager(engine);
 const officialKeyMgr = new OfficialKeyManager(engine);
 const proxyMgr = new ProxyManager(engine);
 const tokenMgr = new TokenManager(engine);
+const projectMgr = new ProjectManager(engine);
 const skillMgr = new SkillManager(engine);
 const syncMgr = new SyncManager(engine, providerMgr, officialKeyMgr);
 const fileMgr = new FileManager();
@@ -72,6 +75,7 @@ app.use('/api/official-key', createOfficialKeyRouter(officialKeyMgr, syncMgr));
 app.use('/api/provider', createProviderRouter(providerMgr, syncMgr));
 app.use('/api/proxy', createProxyRouter(proxyMgr));
 app.use('/api/token', createTokenRouter(tokenMgr));
+app.use('/api/project', createProjectRouter(projectMgr));
 app.use('/api/files', createFileRouter(fileMgr));
 app.use('/api/skill', createSkillRouter(skillMgr));
 app.use('/api', createSyncRouter(syncMgr));

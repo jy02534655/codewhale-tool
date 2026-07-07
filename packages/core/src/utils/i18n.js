@@ -107,6 +107,7 @@ export const SERVER_MSG = {
     keyActivated: '已激活',
     aliasUpdated: '别名已更新',
     notFound: '未找到',
+    PROJECT_NOT_FOUND: '项目未找到',
     synced: '同步完成',
 
     KEY_REQUIRED: 'api_key 不能为空',
@@ -236,6 +237,7 @@ export const SERVER_MSG = {
     keyActivated: 'Activated',
     aliasUpdated: 'Alias updated',
     notFound: 'Not found',
+    PROJECT_NOT_FOUND: 'Project not found',
     synced: 'Synced',
 
     KEY_REQUIRED: 'api_key cannot be empty',
@@ -361,6 +363,7 @@ export const SERVER_MSG = {
     keyActivated: '有効化しました',
     aliasUpdated: 'エイリアスを更新しました',
     notFound: '見つかりません',
+    PROJECT_NOT_FOUND: 'プロジェクトが見つかりません',
     synced: '同期完了',
 
     KEY_REQUIRED: 'api_key は必須です',
@@ -486,6 +489,7 @@ export const SERVER_MSG = {
     keyActivated: 'Ativado',
     aliasUpdated: 'Alias atualizado',
     notFound: 'Não encontrado',
+    PROJECT_NOT_FOUND: 'Projeto não encontrado',
     synced: 'Sincronizado',
 
     KEY_REQUIRED: 'api_key não pode estar vazio',

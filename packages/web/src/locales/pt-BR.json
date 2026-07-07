@@ -209,5 +209,18 @@
     "edit_alias": "Editar Apelido",
     "default": "Padrão",
     "setDefault": "Definir Padrão"
+  },
+  "project": {
+    "title": "Gerenciador de Projetos",
+    "add": "+ Adicionar Projeto",
+    "empty": "Nenhum projeto configurado. Clique para adicionar.",
+    "alias": "Apelido",
+    "path": "Caminho",
+    "alias_placeholder": "ex: Principal, Plugin",
+    "path_placeholder": "Selecione o diretório do projeto",
+    "add_title": "Adicionar Projeto",
+    "edit_title": "Editar Projeto",
+    "default": "Padrão",
+    "setDefault": "Definir Padrão"
   }
 }
