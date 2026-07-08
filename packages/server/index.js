@@ -50,6 +50,7 @@ const projectMgr = new ProjectManager(engine);
 const skillMgr = new SkillManager(engine);
 const syncMgr = new SyncManager(engine, providerMgr, officialKeyMgr);
 const fileMgr = new FileManager();
+engine.projectManager = projectMgr;
 
 // 从持久化存储恢复语言偏好
 const savedLocale = engine.getLocale();

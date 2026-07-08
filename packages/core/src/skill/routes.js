@@ -18,12 +18,7 @@ export function listGlobal(store) {
  * @param {SkillStore} store
  */
 export function listProject(store) {
-  const list = store.getProjectInstalled();
-  if (store.projectEngine) {
-    const info = store.projectEngine.getProjectInfo();
-    return ok(list.map(function (s) { return { ...s, project: info.name }; }));
-  }
-  return ok(list);
+  return ok(store.getProjectInstalled());
 }
 
 /**
@@ -31,17 +26,20 @@ export function listProject(store) {
  * @param {SkillStore} store
  */
 export function getCurrentProject(store) {
-  if (!store.projectEngine) {
+  const projectManager = store.engine.projectManager;
+  if (!projectManager) {
     return ok({
       name: 'codewhale-tool',
       path: process.cwd(),
       installed: store.getProjectInstalled(),
     });
   }
-  const info = store.projectEngine.getProjectInfo();
+  const projectResult = projectManager.list();
+  const projects = projectResult.success ? projectResult.data : [];
+  const project = projects.find(function (p) { return p.default; }) || projects[0];
   return ok({
-    name: info.name,
-    path: info.path,
+    name: project?.alias || 'codewhale-tool',
+    path: project?.path || process.cwd(),
     installed: store.getProjectInstalled(),
   });
 }

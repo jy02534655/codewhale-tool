@@ -31,6 +31,7 @@ const DEFAULT_STORE = {
   proxies: [],
   tokens: [],
   projects: [],
+  project_skills: {},
   skills: {
     enabled: true,
     installed: [],
@@ -102,6 +103,7 @@ export class ConfigEngine {
       proxies: Array.isArray(data.proxies) ? data.proxies : def.proxies,
       tokens: Array.isArray(data.tokens) ? data.tokens : def.tokens,
       projects: Array.isArray(data.projects) ? data.projects : def.projects,
+      project_skills: data.project_skills && typeof data.project_skills === 'object' ? data.project_skills : def.project_skills,
       skills: {
         enabled: data.skills?.enabled ?? def.skills.enabled,
         installed: Array.isArray(data.skills?.installed) ? data.skills.installed : def.skills.installed,
@@ -191,6 +193,20 @@ export class ConfigEngine {
   /** @param {string} id */
   findProject(id) {
     return this.read().projects.find((p) => p.id === id);
+  }
+
+  /** @returns {Object} */
+  getProjectSkills(projectId) {
+    return this.read().project_skills?.[projectId] || { enabled: true, installed: [] };
+  }
+
+  /** @param {string} projectId @param {Object} config */
+  setProjectSkills(projectId, config) {
+    this.update((d) => {
+      d.project_skills = d.project_skills || {};
+      d.project_skills[projectId] = config;
+      return d;
+    });
   }
 
   // ─── Skill 方法 ────────────────────────────────────────────

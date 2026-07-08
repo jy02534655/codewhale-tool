@@ -5,7 +5,7 @@
  * 是 SkillManager 和子模块之间的唯一数据通道。
  */
 
-import { existsSync, mkdirSync, readdirSync, copyFileSync, readFileSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readdirSync, copyFileSync } from 'node:fs';
 import { homedir } from 'node:os';
 import { join } from 'node:path';
 import { randomUUID } from 'node:crypto';
@@ -14,89 +14,72 @@ import { okMsg, failMsg } from '../utils/result.js';
 export class SkillStore {
   /**
    * @param {ConfigEngine} engine
-   * @param {any} [projectEngine]
    * @param {string} [skillsDir]
    */
-  constructor(engine, projectEngine, skillsDir) {
+  constructor(engine, skillsDir) {
     this.engine = engine;
-    this.projectEngine = projectEngine || null;
     this.skillsDir = skillsDir || join(homedir(), '.codewhale', 'skills');
     this.projectSkillsDir = 'skills';
     this._pendingInstalls = new Map();
   }
 
   // ------------------------------------------------------------------ //
-  // skills.json — 项目级 skill 配置读写
-  // ------------------------------------------------------------------ //
-
-  /** @returns {string} */
-  _skillsJsonPath() {
-    return join(process.cwd(), 'data', 'skills.json');
-  }
-
-  /**
-   * @returns {Object[]}
-   */
-  readSkillsJson() {
-    const path = this._skillsJsonPath();
-    if (!existsSync(path)) return [];
-    try {
-      const data = JSON.parse(readFileSync(path, 'utf-8'));
-      return Array.isArray(data.installed) ? data.installed : [];
-    } catch {
-      return [];
-    }
-  }
-
-  /**
-   * @param {Object[]} entries
-   */
-  writeSkillsJson(entries) {
-    const path = this._skillsJsonPath();
-    let data = { enabled: true, installed: [] };
-    if (existsSync(path)) {
-      try { data = JSON.parse(readFileSync(path, 'utf-8')); } catch { /* 从头开始 */ }
-    }
-    data.installed = entries;
-    writeFileSync(path, JSON.stringify(data, null, 2), 'utf-8');
-  }
-
-  // ------------------------------------------------------------------ //
   // 查询方法
   // ------------------------------------------------------------------ //
+
+  /** @returns {string|null} */
+  getCurrentProjectId() {
+    if (this.engine.projectManager) {
+      return this.engine.projectManager.getDefaultProjectId();
+    }
+    return null;
+  }
+
+  /**
+   * @param {string} projectPath
+   * @returns {string|null}
+   */
+  getProjectIdByPath(projectPath) {
+    if (!projectPath || !this.engine.projectManager) return null;
+    return this.engine.projectManager.findProjectByPath(projectPath);
+  }
+
+  /**
+   * @param {string} [projectId]
+   * @returns {Object[]}
+   */
+  getProjectInstalled(projectId) {
+    const targetProjectId = projectId || this.getCurrentProjectId();
+    if (!targetProjectId) return [];
+    return (this.engine.getProjectSkills(targetProjectId).installed || []).slice();
+  }
 
   /** @returns {Object[]} */
   getGlobalInstalled() {
     return (this.engine.getSkills().installed || []).slice();
   }
 
-  /** @returns {Object[]} */
-  getProjectInstalled() {
-    if (this.projectEngine) {
-      return this.projectEngine.getInstalled().slice();
-    }
-    return this.readSkillsJson();
-  }
-
   /**
    * @param {string} level
+   * @param {string} [projectId]
    * @returns {Object[]}
    */
-  getLevelInstalled(level) {
-    return level === 'project' ? this.getProjectInstalled() : this.getGlobalInstalled();
+  getLevelInstalled(level, projectId) {
+    return level === 'project' ? this.getProjectInstalled(projectId) : this.getGlobalInstalled();
   }
 
   /**
    * @param {string} skillId
    * @param {string} [level]
+   * @param {string} [projectId]
    * @returns {Object|null}
    */
-  findEntry(skillId, level) {
+  findEntry(skillId, level, projectId) {
     if (level === 'global') return this.getGlobalInstalled().find((s) => s.id === skillId) || null;
-    if (level === 'project') return this.getProjectInstalled().find((s) => s.id === skillId) || null;
+    if (level === 'project') return this.getProjectInstalled(projectId).find((s) => s.id === skillId) || null;
     let entry = this.getGlobalInstalled().find((s) => s.id === skillId) || null;
     if (!entry) {
-      entry = this.getProjectInstalled().find((s) => s.id === skillId) || null;
+      entry = this.getProjectInstalled(projectId).find((s) => s.id === skillId) || null;
     }
     return entry;
   }
@@ -126,14 +109,14 @@ export class SkillStore {
   /**
    * @param {string} level
    * @param {Object[]} entries
+   * @param {string} [projectId]
    */
-  setLevelInstalled(level, entries) {
+  setLevelInstalled(level, entries, projectId) {
     if (level === 'project') {
-      if (this.projectEngine) {
-        this.projectEngine.setInstalled(entries);
-      } else {
-        this.writeSkillsJson(entries);
-      }
+      const targetProjectId = projectId || this.getCurrentProjectId();
+      if (!targetProjectId) return;
+      const current = this.engine.getProjectSkills(targetProjectId);
+      this.engine.setProjectSkills(targetProjectId, { ...current, installed: entries });
     } else {
       const skillsCfg = this.engine.getSkills();
       skillsCfg.installed = entries;
@@ -144,18 +127,16 @@ export class SkillStore {
   /**
    * @param {Object} entry
    * @param {string} level
+   * @param {string} [projectId]
    */
-  addToConfig(entry, level) {
+  addToConfig(entry, level, projectId) {
     if (level === 'project') {
-      if (this.projectEngine) {
-        const installed = this.projectEngine.getInstalled();
-        installed.push(entry);
-        this.projectEngine.setInstalled(installed);
-      } else {
-        const installed = this.readSkillsJson();
-        installed.push(entry);
-        this.writeSkillsJson(installed);
-      }
+      const targetProjectId = projectId || this.getCurrentProjectId();
+      if (!targetProjectId) return;
+      const current = this.engine.getProjectSkills(targetProjectId);
+      const installed = (current.installed || []).slice();
+      installed.push(entry);
+      this.engine.setProjectSkills(targetProjectId, { ...current, installed });
     } else {
       const skillsCfg = this.engine.getSkills();
       const installed = skillsCfg.installed || [];
@@ -170,15 +151,15 @@ export class SkillStore {
    * @param {string} skillId
    * @param {Function} fn — (entries, idx, entry, level, engine) => result
    * @param {string} [hintLevel]
+   * @param {string} [projectId]
    */
-  mutate(skillId, fn, hintLevel) {
+  mutate(skillId, fn, hintLevel, projectId) {
     if (hintLevel) {
-      const engine = hintLevel === 'project' ? (this.projectEngine || this.engine) : this.engine;
-      const entries = this.getLevelInstalled(hintLevel);
+      const entries = this.getLevelInstalled(hintLevel, projectId);
       const idx = entries.findIndex((s) => s.id === skillId);
       if (idx === -1) return failMsg('SKILL_NOT_FOUND');
-      const result = fn(entries, idx, entries[idx], hintLevel, engine);
-      this.setLevelInstalled(hintLevel, entries);
+      const result = fn(entries, idx, entries[idx], hintLevel, this.engine);
+      this.setLevelInstalled(hintLevel, entries, projectId);
       return result;
     }
 
@@ -189,11 +170,11 @@ export class SkillStore {
       this.setLevelInstalled('global', globalEntries);
       return result;
     }
-    const projectEntries = this.getProjectInstalled();
+    const projectEntries = this.getProjectInstalled(projectId);
     const pIdx = projectEntries.findIndex((s) => s.id === skillId);
     if (pIdx !== -1) {
       const result = fn(projectEntries, pIdx, projectEntries[pIdx], 'project', this.engine);
-      this.setLevelInstalled('project', projectEntries);
+      this.setLevelInstalled('project', projectEntries, projectId);
       return result;
     }
     return failMsg('SKILL_NOT_FOUND');
@@ -203,12 +184,13 @@ export class SkillStore {
    * @param {string} skillId
    * @param {boolean} enabled
    * @param {string} [hintLevel]
+   * @param {string} [projectId]
    */
-  toggle(skillId, enabled, hintLevel) {
+  toggle(skillId, enabled, hintLevel, projectId) {
     return this.mutate(skillId, function (entries, idx) {
       entries[idx].enabled = enabled;
       return okMsg('updated');
-    }, hintLevel);
+    }, hintLevel, projectId);
   }
 
   // ------------------------------------------------------------------ //

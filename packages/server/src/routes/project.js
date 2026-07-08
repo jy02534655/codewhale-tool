@@ -3,11 +3,10 @@
  */
 
 import { Router } from 'express';
-import { ProjectManager } from '@codewhale/core';
 import { guard } from '../utils/guard.js';
 
 /**
- * @param {ProjectManager} projectMgr
+ * @param {import('@codewhale/core').ProjectManager} projectMgr
  * @returns {import('express').Router}
  */
 export function createProjectRouter(projectMgr) {

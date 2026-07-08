@@ -24,7 +24,7 @@ export function registerCmdRoutes(router, skillMgr) {
 
   /** 复制 skill 到项目 */
   router.post('/copy-to-project/:id', (req, res) => {
-    res.json(guard(() => skillMgr.copyToProject(req.params.id)));
+    res.json(guard(() => skillMgr.copyToProject(req.params.id, req.body.projectId)));
   });
 
   /** 更新 skill */

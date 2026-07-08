@@ -84,4 +84,22 @@ export class ProjectManager {
     const target = projects.find((p) => p.id === id);
     return ok(target || null);
   }
+
+  /** @returns {string|null} */
+  getDefaultProjectId() {
+    const projects = this._engine.getProjects();
+    if (!Array.isArray(projects) || projects.length === 0) return null;
+    const defaultProject = projects.find((p) => p.default) || projects[0];
+    return defaultProject.id || null;
+  }
+
+  /**
+   * @param {string} path
+   * @returns {string|null}
+   */
+  findProjectByPath(path) {
+    const projects = this._engine.getProjects();
+    if (!Array.isArray(projects)) return null;
+    return projects.find((p) => p.path && p.path.toLowerCase() === path.toLowerCase())?.id || null;
+  }
 }

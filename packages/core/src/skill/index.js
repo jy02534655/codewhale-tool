@@ -38,7 +38,7 @@ export class SkillManager {
   updateMeta(skillId, meta, hintLevel) { return Cmd.updateMeta(this._store, skillId, meta, hintLevel); }
   remove(skillId, hintLevel) { return Cmd.remove(this._store, skillId, hintLevel); }
   updateByOpts(opts, onProgress, onLog) { return Install.update(this._store, opts, onProgress, onLog); }
-  copyToProject(skillId) { return Cmd.copyToProject(this._store, skillId); }
+  copyToProject(skillId, projectId) { return Cmd.copyToProject(this._store, skillId, projectId); }
   getSkillFiles(skillId, level) { return Files.getSkillFiles(this._store, skillId, level); }
   readSkillFile(skillId, filePath, level) { return Files.readSkillFile(this._store, skillId, filePath, level); }
   saveSkillFile(skillId, filePath, content, level) { return Files.saveSkillFile(this._store, skillId, filePath, content, level); }

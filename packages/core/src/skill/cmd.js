@@ -72,12 +72,16 @@ export function remove(store, skillId, hintLevel) {
  * 将全局 skill 复制到当前项目
  * @param {SkillStore} store
  * @param {string} skillId
+ * @param {string} [projectId]
  */
-export function copyToProject(store, skillId) {
+export function copyToProject(store, skillId, projectId) {
   const entry = store.getGlobalInstalled().find(function (s) { return s.id === skillId; });
   if (!entry) return failMsg('SKILL_NOT_FOUND');
 
-  const projectInstalled = store.getProjectInstalled();
+  const targetProjectId = projectId || store.getCurrentProjectId();
+  if (!targetProjectId) return failMsg('PROJECT_NOT_FOUND');
+
+  const projectInstalled = store.getProjectInstalled(targetProjectId);
   if (projectInstalled.some(function (s) { return s.id === skillId; })) {
     return failMsg('SKILL_ALREADY_INSTALLED');
   }
@@ -100,7 +104,7 @@ export function copyToProject(store, skillId) {
       version: entry.version || 'latest',
       installed_at: Date.now(),
       updated_at: Date.now(),
-    }, 'project');
+    }, 'project', targetProjectId);
 
     return okMsg('synced');
   } catch (err) {
