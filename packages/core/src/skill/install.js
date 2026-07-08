@@ -27,7 +27,7 @@ import { emitSkillInstallLog, _extractMeta, _parseGitHubUrl, _parseProxyUrl } fr
  * @param {string} targetDir
  * @param {Object} rawOpts
  */
-function _finalizeInstall(store, skillId, level, meta, targetDir, rawOpts) {
+function _finalizeInstall(store, skillId, level, meta, targetDir, rawOpts, projectId) {
   store.addToConfig({
     id: skillId,
     name: meta.name || skillId,
@@ -38,7 +38,7 @@ function _finalizeInstall(store, skillId, level, meta, targetDir, rawOpts) {
     version: 'latest',
     installed_at: Date.now(),
     updated_at: Date.now(),
-  }, level);
+  }, level, projectId);
 
   // 浅拷贝原始参数供前端回填，去掉内部字段
   if (rawOpts) {
@@ -47,8 +47,36 @@ function _finalizeInstall(store, skillId, level, meta, targetDir, rawOpts) {
     delete params._targetDir;
     store.mutate(skillId, function (entries, idx) {
       if (idx >= 0) entries[idx].installParams = params;
-    }, level);
+    }, level, projectId);
   }
+}
+
+
+// ------------------------------------------------------------------ //
+// 路径与 projectId 解析
+// ------------------------------------------------------------------ //
+
+/**
+ * project 级返回 projectPath，global 级返回 process.cwd()
+ * @param {string} level
+ * @param {string} projectPath
+ * @returns {string}
+ */
+function _getProjectBaseDir(level, projectPath) {
+  return level === 'project' ? projectPath : process.cwd();
+}
+
+/**
+ * 优先返回 projectId，否则退回 store.getProjectIdByPath(projectPath)
+ * @param {string} level
+ * @param {string} projectId
+ * @param {string} projectPath
+ * @param {SkillStore} store
+ * @returns {string|null}
+ */
+function _resolveProjectId(level, projectId, projectPath, store) {
+  if (level !== 'project') return null;
+  return projectId || store.getProjectIdByPath(projectPath);
 }
 
 
@@ -82,8 +110,10 @@ export async function _installFromGitHubV2(store, opts, progressCb, logCb) {
 
   const finalSkillId = opts._skillId || (opts.skillPath ? basename(opts.skillPath) : parsed.repo);
   const finalTargetDir = opts._targetDir || (targetLevel === 'project'
-    ? join(process.cwd(), store.projectSkillsDir, finalSkillId)
-    : join(store.skillsDir, finalSkillId));
+    ? join(_getProjectBaseDir(targetLevel, opts.projectPath), store.projectSkillsDir, finalSkillId)
+    : join(_getProjectBaseDir(targetLevel, opts.projectPath), store.skillsDir, finalSkillId));
+
+  const projectId = _resolveProjectId(targetLevel, opts.projectId, opts.projectPath, store);
 
   const installed = store.getLevelInstalled(targetLevel);
   if (installed.some(function (s) { return s.slug === finalSkillId; })) {
@@ -134,7 +164,7 @@ export async function _installFromGitHubV2(store, opts, progressCb, logCb) {
     }
 
     const meta = _extractMeta(finalTargetDir);
-    _finalizeInstall(store, finalSkillId, targetLevel, meta, finalTargetDir, opts);
+    _finalizeInstall(store, finalSkillId, targetLevel, meta, finalTargetDir, opts, projectId);
 
     if (onProgress) {
       onProgress({ stage: 'done', percent: 100, message: getServerMessage('SKILL_PROGRESS_DONE') });
@@ -166,10 +196,19 @@ export async function installFromZip(store, zipSource, skillPath, level, proxyCo
 
   const finalSkillId = (_internal && _internal._skillId) ||
     (skillPath ? basename(skillPath) : basename(zipSource).replace(/\.zip$/i, '') || 'skill');
+
+  const projectPath = (_internal && _internal._rawOpts && _internal._rawOpts.projectPath) || '';
+
   const finalTargetDir = (_internal && _internal._targetDir) ||
     (targetLevel === 'project'
-      ? join(process.cwd(), store.projectSkillsDir, finalSkillId)
-      : join(store.skillsDir, finalSkillId));
+      ? join(_getProjectBaseDir(targetLevel, projectPath), store.projectSkillsDir, finalSkillId)
+      : join(_getProjectBaseDir(targetLevel, projectPath), store.skillsDir, finalSkillId));
+
+  const projectId = _resolveProjectId(targetLevel,
+    (_internal && _internal._rawOpts && _internal._rawOpts.projectId),
+    projectPath,
+    store
+  );
 
   const installed = store.getLevelInstalled(targetLevel);
   if (installed.some(function (s) { return s.slug === finalSkillId; })) {
@@ -219,7 +258,7 @@ export async function installFromZip(store, zipSource, skillPath, level, proxyCo
     store.copyDir(sourceDir, finalTargetDir);
 
     const rawOpts = (_internal && _internal._rawOpts) || { type: 'zip', zipPath: zipSource, zipSkillName: skillPath, level: targetLevel };
-    _finalizeInstall(store, finalSkillId, targetLevel, meta, finalTargetDir, rawOpts);
+    _finalizeInstall(store, finalSkillId, targetLevel, meta, finalTargetDir, rawOpts, projectId);
 
     if (onProgress) {
       onProgress({ stage: 'done', percent: 100, message: getServerMessage('SKILL_PROGRESS_DONE') });
@@ -381,9 +420,11 @@ export async function update(store, opts, onProgress, onLog) {
   }
 
   const level = opts.level || existing.level || 'global';
-  const baseTargetDir = level === 'project'
-    ? join(process.cwd(), store.projectSkillsDir, existing.slug)
-    : join(store.skillsDir, existing.slug);
+  const baseTargetDir = (level === 'project'
+    ? join(_getProjectBaseDir(level, opts.projectPath), store.projectSkillsDir, existing.slug)
+    : join(_getProjectBaseDir(level, opts.projectPath), store.skillsDir, existing.slug));
+
+  const projectId = _resolveProjectId(level, opts.projectId, opts.projectPath, store);
 
   const tempSkillId = existing.slug + '-update-' + randomUUID();
   const tempTargetDir = baseTargetDir + '.tmp-' + randomUUID();
@@ -423,7 +464,7 @@ export async function update(store, opts, onProgress, onLog) {
   // 3. 清理 store 中临时 entry
   store.mutate(tempSkillId, function (entries, idx) {
     if (idx >= 0) entries.splice(idx, 1);
-  }, level);
+  }, level, projectId);
 
   // 4. 更新原 skill entry：路径 / 更新时间 / 安装参数
   const params = Object.assign({}, opts);
@@ -436,7 +477,7 @@ export async function update(store, opts, onProgress, onLog) {
       entries[idx].updated_at = Date.now();
       entries[idx].installParams = params;
     }
-  }, level);
+  }, level, projectId);
 
   // 原子替换完成，记录更新成功日志
   emitSkillInstallLog(onLog, 'INFO', { key: 'SKILL_UPDATE_SUCCESS', params: { skillId } });

@@ -70,8 +70,8 @@
           </el-form-item>
 
           <el-form-item v-if="formData.level === 'project'" :label="$t('skill.projectPath')" prop="projectPath">
-            <el-select v-model="formData.projectPath" :placeholder="$t('skill.projectPathPlaceholder')" clearable style="width:100%">
-              <el-option v-for="p in projectList" :key="p.path" :label="p.alias || p.path" :value="p.path" />
+            <el-select v-model="formData.projectId" :placeholder="$t('skill.projectPathPlaceholder')" clearable style="width:100%" @change="onProjectChange">
+              <el-option v-for="p in projectList" :key="p.id || p.path" :label="p.alias || p.path" :value="p.id" />
             </el-select>
             <div v-if="!projectList.length" class="project-hint">{{ $t('skill.noProjects') }}</div>
           </el-form-item>
@@ -140,6 +140,7 @@ const formData = reactive({
   zipSkillName: '',
   githubTreeUrl: '',
   level: 'global',
+  projectId: '',
   projectPath: '',
   selectedProxyId: '',
   selectedTokenId: '',
@@ -177,6 +178,7 @@ const { isShow, showDialog, hideDialog, showDialogByData, submitForm, resetForm 
         formData.zipSkillName = params.zipSkillName || ''
         formData.githubTreeUrl = params.githubTreeUrl || ''
         formData.level = params.level || formData.level
+        formData.projectId = params.projectId || ''
         formData.projectPath = params.projectPath || ''
         formData.selectedProxyId = params.selectedProxyId || ''
         formData.selectedTokenId = params.selectedTokenId || ''
@@ -225,6 +227,7 @@ function _initDropdowns() {
     projectList.value = result.data || []
     const defaultProject = (result.data || []).find(function (p) { return p.default })
     if (defaultProject && formData.level === 'project') {
+      formData.projectId = defaultProject.id
       formData.projectPath = defaultProject.path
     }
   }).catch(function () {
@@ -269,11 +272,26 @@ function onSelectZipFile(filePath) {
 function onLevelChange() {
   if (formData.level === 'project') {
     if (projectList.value.length > 0 && !formData.projectPath) {
+      formData.projectId = projectList.value[0].id
       formData.projectPath = projectList.value[0].path
     }
   } else {
+    formData.projectId = ''
     formData.projectPath = ''
   }
+}
+
+// ─── 项目选择变更 ──────────────────────────────────────────
+// 监听 el-select 选择事件，同步更新 projectPath
+function onProjectChange(selectedId) {
+  if (selectedId) {
+    const project = projectList.value.find(function (p) { return p.id === selectedId })
+    if (project) {
+      formData.projectPath = project.path
+      return
+    }
+  }
+  formData.projectPath = ''
 }
 
 // ─── 提交表单 ──────────────────────────────────────────────
