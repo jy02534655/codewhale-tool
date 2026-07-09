@@ -32,10 +32,17 @@
       --radius-md: 6px;
       --log-bg: #1e1e1e;
       --log-color: #d4d4d4;
+      /* 间距尺度 */
+      --space-1: 4px;
+      --space-2: 8px;
+      --space-3: 12px;
+      --space-4: 16px;
+      --space-5: 20px;
+      --space-6: 24px;
       /* 文本语义色 */
-      --text-tertiary: #9e9e9e;
+      --text-tertiary: #6b7280;
       --text-disabled: #b0b0b0;
-      --text-placeholder: #c0c0c0;
+      --text-placeholder: #9ca3af;
       /* 阴影扩展 */
       --shadow-md: 0 4px 6px rgba(0,0,0,0.07);
       --shadow-lg: 0 10px 15px rgba(0,0,0,0.1);
@@ -160,10 +167,17 @@
       --el-color-success: #3fb950;
       --el-color-warning: #d29922;
       --el-color-danger: #f85149;
+      /* 间距尺度 */
+      --space-1: 4px;
+      --space-2: 8px;
+      --space-3: 12px;
+      --space-4: 16px;
+      --space-5: 20px;
+      --space-6: 24px;
       /* 文本语义色 */
-      --text-tertiary: #6e7681;
+      --text-tertiary: #9eabb8;
       --text-disabled: #484f58;
-      --text-placeholder: #6e7681;
+      --text-placeholder: #b0b8c1;
       /* 阴影扩展 */
       --shadow-xs: 0 1px 2px rgba(0,0,0,0.2);
       --shadow-sm: 0 1px 3px rgba(0,0,0,0.3);
@@ -197,7 +211,13 @@
     }
 
     /* ─── Element Plus 暗黑模式组件适配 ─────────────────────── */
-    [data-theme="dark"] .el-card { --el-card-bg-color: var(--bg-card); }
+    [data-theme="dark"] .el-card {
+      --el-card-bg-color: var(--bg-card);
+      color: var(--text-primary);
+    }
+    [data-theme="dark"] .el-card__body {
+      color: var(--text-primary);
+    }
     [data-theme="dark"] .el-dialog { --el-dialog-bg-color: var(--bg-card); }
     [data-theme="dark"] .el-tag.el-tag--info {
       --el-tag-bg-color: var(--bg-tertiary);
@@ -205,6 +225,21 @@
       --el-tag-border-color: var(--border);
     }
     [data-theme="dark"] .el-alert--info { --el-alert-bg-color: var(--bg-tertiary); }
+    [data-theme="dark"] .el-button {
+      --el-button-bg-color: #21262d;
+      --el-button-border-color: #30363d;
+      --el-button-text-color: #c9d1d9;
+      --el-button-hover-bg-color: #2d333b;
+      --el-button-hover-border-color: #3a4149;
+      --el-button-active-bg-color: #1c2128;
+    }
+    [data-theme="dark"] .el-button.is-plain {
+      --el-button-bg-color: transparent;
+      --el-button-border-color: #30363d;
+      --el-button-text-color: #c9d1d9;
+      --el-button-hover-bg-color: #21262d;
+      --el-button-hover-border-color: #3a4149;
+    }
     [data-theme="dark"] .el-button--primary {
       --el-button-bg-color: #1a3055;
       --el-button-border-color: #1a3055;
@@ -239,6 +274,66 @@
       --el-tag-bg-color: #3d1a1a;
       --el-tag-text-color: #f87171;
       --el-tag-border-color: #8b1a1a;
+    }
+    [data-theme="dark"] .el-button--success {
+      --el-button-bg-color: #1c3a28;
+      --el-button-border-color: #238636;
+      --el-button-text-color: #7ee787;
+      --el-button-hover-bg-color: #21502f;
+      --el-button-hover-border-color: #2a8a42;
+      --el-button-active-bg-color: #184423;
+    }
+    [data-theme="dark"] .el-button--success.is-plain {
+      --el-button-bg-color: transparent;
+      --el-button-border-color: #238636;
+      --el-button-text-color: #7ee787;
+      --el-button-hover-bg-color: #1c3a28;
+      --el-button-hover-border-color: #2a8a42;
+    }
+    [data-theme="dark"] .el-button--danger {
+      --el-button-bg-color: #3d1a1a;
+      --el-button-border-color: #8b1a1a;
+      --el-button-text-color: #f87171;
+      --el-button-hover-bg-color: #4f2222;
+      --el-button-hover-border-color: #a31f1f;
+      --el-button-active-bg-color: #361616;
+    }
+    [data-theme="dark"] .el-button--danger.is-plain {
+      --el-button-bg-color: transparent;
+      --el-button-border-color: #8b1a1a;
+      --el-button-text-color: #f87171;
+      --el-button-hover-bg-color: #3d1a1a;
+      --el-button-hover-border-color: #a31f1f;
+    }
+    [data-theme="dark"] .el-button--info {
+      --el-button-bg-color: #1c2128;
+      --el-button-border-color: #30363d;
+      --el-button-text-color: #8b949e;
+      --el-button-hover-bg-color: #21262d;
+      --el-button-hover-border-color: #3a4149;
+      --el-button-active-bg-color: #161b22;
+    }
+    [data-theme="dark"] .el-button--info.is-plain {
+      --el-button-bg-color: transparent;
+      --el-button-border-color: #30363d;
+      --el-button-text-color: #8b949e;
+      --el-button-hover-bg-color: #1c2128;
+      --el-button-hover-border-color: #3a4149;
+    }
+    [data-theme="dark"] .el-button--warning {
+      --el-button-bg-color: #2d2a14;
+      --el-button-border-color: #5a4d1a;
+      --el-button-text-color: #d29922;
+      --el-button-hover-bg-color: #3a3518;
+      --el-button-hover-border-color: #6e5f22;
+      --el-button-active-bg-color: #252310;
+    }
+    [data-theme="dark"] .el-button--warning.is-plain {
+      --el-button-bg-color: transparent;
+      --el-button-border-color: #5a4d1a;
+      --el-button-text-color: #d29922;
+      --el-button-hover-bg-color: #2d2a14;
+      --el-button-hover-border-color: #6e5f22;
     }
 
     /* html.dark 回退（保持向后兼容） */

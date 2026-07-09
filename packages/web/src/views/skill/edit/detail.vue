@@ -435,24 +435,25 @@ function confirmCopyToProject() {
 
 <style scoped>
  .detail-panel {
-   display: flex;
-   flex-direction: column;
-   gap: 16px;
-   height: 100%;
-   overflow-y: auto;
-   padding: 16px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  height: 100%;
+  overflow-y: auto;
+  padding: var(--space-4) 18px;
  }
 
 .detail-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
+  gap: var(--space-3);
 }
 
 .detail-title {
   margin: 0;
   font-size: 20px;
+  color: var(--text-primary);
 }
 
 .detail-remark {
@@ -471,49 +472,49 @@ function confirmCopyToProject() {
 .detail-actions {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: var(--space-2);
 }
 
 .detail-meta {
   display: flex;
   flex-wrap: wrap;
-  gap: 16px;
+  gap: var(--space-4);
   font-size: 13px;
   color: var(--text-secondary);
 }
 
  .file-browser-section {
-   display: flex;
-   flex-direction: column;
-   gap: 12px;
-   min-height: 0;
-   flex: 1;
-   position: sticky;
-   top: 0;
-   border-top: 1px solid var(--border);
-   padding-top: 12px;
-   margin-top: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  min-height: 0;
+  flex: 1;
+  position: sticky;
+  top: 0;
+  border-top: 1px solid var(--border);
+  padding-top: var(--space-3);
+  margin-top: var(--space-1);
  }
 
  .section-header {
-   display: flex;
-   align-items: center;
-   gap: 8px;
-   padding: 10px 12px;
-   background: var(--bg-secondary);
-   border: 1px solid var(--border);
-   border-radius: var(--radius);
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
  }
 
 .section-collapse-btn {
-  padding: 0 2px;
+  padding: 0 var(--space-1);
   font-size: 14px;
 }
 
 .section-body {
   display: grid;
   grid-template-columns: 280px minmax(0, 1fr);
-  gap: 12px;
+  gap: var(--space-3);
   min-height: 0;
   flex: 1;
 }
@@ -525,14 +526,14 @@ function confirmCopyToProject() {
 .file-tree-wrap,
 .file-viewer-wrap {
   min-height: 0;
-}
+ }
 
  .file-tree-wrap {
-   border: 1px solid var(--border);
-   border-radius: var(--radius);
-   padding: 12px;
-   overflow: auto;
-   background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: var(--space-3);
+  overflow: auto;
+  background: var(--bg-secondary);
  }
 
  /* ─── 暗黑模式文件列表适配 ─── */
@@ -552,26 +553,26 @@ function confirmCopyToProject() {
 
 .file-viewer-wrap {
   display: flex;
-}
+ }
 
  .file-viewer {
-   flex: 1;
-   min-width: 0;
-   display: flex;
-   flex-direction: column;
-   border: 1px solid var(--border);
-   border-radius: var(--radius);
-   padding: 12px;
-   background: var(--bg-primary);
-   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: var(--space-3);
+  background: var(--bg-primary);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
  }
 
 .file-viewer-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 8px;
-  margin-bottom: 8px;
+  gap: var(--space-2);
+  margin-bottom: var(--space-2);
 }
 
 .file-viewer-path {
@@ -584,7 +585,7 @@ function confirmCopyToProject() {
 
 .file-viewer-actions {
   display: flex;
-  gap: 8px;
+  gap: var(--space-2);
 }
 
 .file-viewer-loading,
@@ -596,7 +597,7 @@ function confirmCopyToProject() {
 .tree-node {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: var(--space-2);
   min-width: 0;
   width: 100%;
 }

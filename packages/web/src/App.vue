@@ -45,7 +45,7 @@
         <!-- 内容区 -->
         <main class="content">
           <router-view v-slot="{ Component }">
-            <keep-alive>
+            <keep-alive :max="4">
               <component :is="Component" />
             </keep-alive>
           </router-view>
@@ -150,7 +150,7 @@ onMounted(() => {
   justify-content: space-between;
   align-items: center;
   height: 48px;
-  padding: 0 20px;
+  padding: 0 var(--space-5);
   background: var(--bg-secondary);
   border-bottom: 1px solid var(--border);
   flex-shrink: 0;
@@ -158,11 +158,11 @@ onMounted(() => {
 .top-bar-left {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--space-2);
 }
 .collapse-btn {
   font-size: var(--text-lg);
-  padding: 4px;
+  padding: var(--space-1);
 }
 .logo {
   font-size: var(--text-lg);
@@ -172,7 +172,7 @@ onMounted(() => {
 .top-bar-right {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: var(--space-3);
   flex-shrink: 0;
 }
 
@@ -191,7 +191,7 @@ onMounted(() => {
   border-right: 1px solid var(--border);
   display: flex;
   flex-direction: column;
-  padding: 8px 0;
+  padding: var(--space-2) 0;
   overflow-y: auto;
   transition: width 0.2s ease;
 }
@@ -201,13 +201,13 @@ onMounted(() => {
 .sidebar-nav {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: var(--space-1);
 }
 .nav-item {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 10px 20px;
+  gap: var(--space-3);
+  padding: var(--space-2) var(--space-5);
   text-decoration: none;
   color: var(--text-primary);
   font-size: var(--text-base);
@@ -217,7 +217,7 @@ onMounted(() => {
   position: relative;
 }
 .sidebar.collapsed .nav-item {
-  padding: 10px;
+  padding: var(--space-2);
   justify-content: center;
 }
 .nav-item:hover {

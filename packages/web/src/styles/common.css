@@ -7,18 +7,18 @@
 .page-view {
   display: flex;
   flex-direction: column;
-  gap: 16px;
-  padding: 20px 24px;
+  gap: var(--space-4);
+  padding: var(--space-5) var(--space-6);
 }
 
 /* ─── 分区标题（单独一行） ─── */
 .section-header {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding-bottom: 10px;
+  gap: var(--space-3);
+  padding-bottom: var(--space-3);
   border-bottom: 1px solid var(--border);
-  margin-bottom: 10px;
+  margin-bottom: var(--space-3);
 }
 .section-title {
   font-weight: 600;
@@ -29,8 +29,8 @@
 .section-actions {
   display: flex;
   align-items: center;
-  gap: 8px;
-  margin-bottom: 12px;
+  gap: var(--space-2);
+  margin-bottom: var(--space-3);
 }
 
 /* ─── 分区内容容器（外层包裹卡） ─── */
@@ -44,7 +44,7 @@
 .card-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
-  gap: 12px;
+  gap: var(--space-3);
 }
 .card-grid .el-card {
   background: var(--bg-card);
@@ -52,7 +52,7 @@
   box-shadow: var(--shadow-sm);
 }
 .card-grid .el-card .el-card__body {
-  padding: 14px;
+  padding: var(--space-4);
 }
 .card-grid .el-card.card-active {
   box-shadow: 0 0 0 2px var(--el-color-primary);
@@ -64,16 +64,16 @@
   justify-content: space-between;
   align-items: center;
   flex-wrap: wrap;
-  gap: 4px;
+  gap: var(--space-1);
 }
 .card-title {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--space-2);
 }
 .card-actions {
   display: flex;
-  gap: 4px;
+  gap: var(--space-1);
   flex-wrap: wrap;
 }
 
@@ -81,7 +81,7 @@
 .field-row {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--space-2);
 }
 .field-label {
   font-size: var(--text-xs);
@@ -91,6 +91,7 @@
 }
 .field-value {
   font-size: var(--text-sm);
+  color: var(--text-primary);
 }
 .mono {
   font-family: monospace;
@@ -100,8 +101,8 @@
 .hint-block {
   display: flex;
   align-items: center;
-  padding: 14px;
-  margin-bottom: 12px;
+  padding: var(--space-4);
+  margin-bottom: var(--space-3);
   color: var(--text-secondary);
   font-size: var(--text-sm);
   background: var(--bg-tertiary);
@@ -123,25 +124,26 @@
 .provider-name {
   font-weight: 600;
   font-size: var(--text-md);
+  color: var(--text-primary);
 }
 
 /* ─── 卡片字段容器 ─── */
 .card-fields {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: var(--space-2);
 }
 .info-fields {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: var(--space-2);
 }
 
 /* ─── 卡片内分割线 ─── */
 .section-divider,
 .model-section {
   border-top: 1px solid var(--border);
-  padding-top: 10px;
+  padding-top: var(--space-3);
 }
 
 /* ─── 卡片内子标题行 ─── */
@@ -150,7 +152,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 6px;
+  margin-bottom: var(--space-2);
 }
 
 /* ─── 卡片内子标题文本 ─── */
@@ -168,7 +170,7 @@
 .official-info {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: var(--space-2);
 }
 .provider-card.card-active {
   border-color: var(--el-color-primary);
@@ -182,8 +184,8 @@
 .provider-info {
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  margin-bottom: 10px;
+  gap: var(--space-2);
+  margin-bottom: var(--space-3);
 }
 .provider-info .field-label {
   min-width: 60px;
@@ -193,13 +195,13 @@
 .model-list {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: var(--space-1);
 }
 .model-item {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 4px 8px;
+  padding: var(--space-1) var(--space-2);
   background: var(--bg-secondary);
   border-radius: var(--radius-md);
 }
@@ -215,15 +217,15 @@
 .panel-left {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  padding: 12px;
+  gap: var(--space-2);
+  padding: var(--space-3);
   height: 100%;
   background: var(--bg-secondary);
 }
 
 /* ─── 列表项 ─── */
 .list-item {
-  padding: 6px 10px;
+  padding: var(--space-2) var(--space-3);
   border-radius: var(--radius-md);
   cursor: pointer;
   border-left: 3px solid transparent;
@@ -241,7 +243,7 @@
 .item-main {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: var(--space-2);
   flex: 1;
 }
 .item-name {
@@ -256,6 +258,7 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  color: var(--text-primary);
 }
 .remark-text {
   font-size: var(--text-2xs);
@@ -266,12 +269,12 @@
 .project-group-header {
   display: flex;
   align-items: center;
-  padding: 8px 4px 4px;
+  padding: var(--space-2) var(--space-1) var(--space-1);
   font-weight: 600;
   font-size: var(--text-sm);
   border-bottom: 1px solid var(--border);
-  margin-bottom: 4px;
-  margin-top: 4px;
+  margin-bottom: var(--space-1);
+  margin-top: var(--space-1);
 }
 .project-group-name {
   font-weight: 500;
@@ -285,7 +288,7 @@
   color: var(--log-color);
   font-family: monospace;
   font-size: var(--text-xs);
-  padding: 12px;
+  padding: var(--space-3);
   border-radius: var(--radius-sm);
   white-space: pre-wrap;
   margin: 0;

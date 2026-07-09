@@ -265,24 +265,24 @@ onMounted(loadSkills)
   overflow: hidden;
   min-height: 0;
 }
-.left-toolbar { display: flex; gap: 6px; align-items: center; }
+.left-toolbar { display: flex; gap: var(--space-2); align-items: center; }
 .panel-left :deep(.el-tabs__header) { margin-bottom: 0; }
-.panel-left :deep(.el-tabs__item) { padding: 0 8px; font-size: 13px; }
+.panel-left :deep(.el-tabs__item) { padding: 0 var(--space-2); font-size: 13px; }
 
-.list-scroll { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 2px; }
+.list-scroll { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: var(--space-1); }
 
 .project-group-header {
-  padding: 6px 12px;
+  padding: var(--space-2) var(--space-3);
   font-size: 12px;
   font-weight: 600;
   color: var(--text-primary);
   background: var(--el-fill-color-light);
   border-left: 3px solid var(--el-color-primary);
-  margin-top: 4px;
+  margin-top: var(--space-1);
 }
-.project-group-name { margin-left: 4px; }
+.project-group-name { margin-left: var(--space-1); }
 
-.item-field { display: flex; align-items: center; gap: 4px; font-size: 11px; color: var(--text-secondary); margin-top: 2px; flex-wrap: wrap; }
+.item-field { display: flex; align-items: center; gap: var(--space-1); font-size: 11px; color: var(--text-secondary); margin-top: var(--space-1); flex-wrap: wrap; }
 
 /* ─── 暗黑模式适配 ─── */
 [data-theme="dark"] .panel-left :deep(.el-input__wrapper) {
@@ -311,12 +311,11 @@ onMounted(loadSkills)
 [data-theme="dark"] .panel-left :deep(.el-tabs__nav-wrap::after) {
   background-color: var(--border);
 }
-[data-theme="dark"] .list-item.active {
-  background: #1a2533;
-  border-left-width: 4px;
-  border-left-color: #58a6ff;
-  color: var(--text-primary);
-}
+    [data-theme="dark"] .list-item.active {
+      background: #1a2533;
+      border-left-color: #58a6ff;
+      color: var(--text-primary);
+    }
 [data-theme="dark"] .project-group-header {
   background: var(--bg-tertiary);
   border-bottom-color: var(--border);

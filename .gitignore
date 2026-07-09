@@ -12,3 +12,4 @@ pnpm-workspace.yaml
 /.codewhale/
 /data/skills.json
 /data/skills.json.bak
+/skills/ui-ux-pro-max/scripts/__pycache__
