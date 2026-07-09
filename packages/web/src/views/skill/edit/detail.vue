@@ -251,7 +251,7 @@ watch(function () {
 function loadFiles() {
   if (!props.skill) return
   fileListLoading.value = true
-  getSkillFiles(props.skill.id).then(function (res) {
+  getSkillFiles(props.skill.id, props.skill.level, props.skill.projectId).then(function (res) {
     fileList.value = Array.isArray(res) ? res : []
     // 仅有一个文件时默认折叠文件浏览器
     fileBrowserExpanded.value = fileList.value.length > 1
@@ -280,7 +280,7 @@ function loadFileContent(path) {
   if (!props.skill || !path) return
   fileContentLoading.value = true
   activeFile.value = path
-  readSkillFile(props.skill.id, path).then(function (res) {
+  readSkillFile(props.skill.id, path, props.skill.level, props.skill.projectId).then(function (res) {
     fileContent.value = typeof res === 'string' ? res : (res && res.content || '')
   }).catch(function () {
     ElMessage.error(t('message.networkError') || 'Failed to load file')
@@ -303,7 +303,12 @@ function toggleFileBrowser() {
 // 打开 README 或普通文本文件编辑弹窗。
 function openEditor(path) {
   if (!props.skill || !path || !isEditableTextFile(path) || !readmeDialogRef.value) return
-  readmeDialogRef.value.showDialogByData(1, { id: props.skill.id, path })
+  readmeDialogRef.value.showDialogByData(1, {
+    id: props.skill.id,
+    path,
+    level: props.skill.level,
+    projectId: props.skill.projectId
+  })
 }
 
 // 删除单个 Skill 文件，并在成功后刷新当前树状态。
@@ -314,7 +319,7 @@ function removeFile(path) {
     cancelButtonText: t('common.cancel'),
     type: 'warning'
   }).then(function () {
-    return removeSkillFile(props.skill.id, path)
+    return removeSkillFile(props.skill.id, path, props.skill.level, props.skill.projectId)
   }).then(function () {
     if (activeFile.value === path) {
       activeFile.value = ''
@@ -348,7 +353,7 @@ function handleFileSaved() {
 // 切换启用状态后刷新外层列表。
 function toggleSkillEnabled() {
   if (!props.skill) return
-  const request = props.skill.enabled ? disableSkill(props.skill.id) : enableSkill(props.skill.id)
+  const request = props.skill.enabled ? disableSkill(props.skill.id, props.skill.level, props.skill.projectId) : enableSkill(props.skill.id, props.skill.level, props.skill.projectId)
   request.then(function () {
     emit('refresh')
   }).catch(function () {
@@ -371,7 +376,7 @@ function removeCurrentSkill() {
     cancelButtonText: t('common.cancel'),
     type: 'warning'
   }).then(function () {
-    return removeSkill(props.skill.id)
+    return removeSkill(props.skill.id, props.skill.level, props.skill.projectId)
   }).then(function () {
     emit('refresh')
   }).catch(function () {

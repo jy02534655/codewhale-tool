@@ -1,43 +1,83 @@
 # Handoff — project 级 skill 安装路径修复
 
-> 最后更新: 2026-07-07
-> 状态: **进行中**
+> 最后更新: 2026-07-08
+> 状态: **已完成**
 
 ## 目标
-修复 project 级 skill 安装/更新时，总是安装到 `process.cwd()/skills/` 而不是用户选择的项目路径下的问题。
+修复 project 级 skill 安装/更新时，总是安装到 `process.cwd()/skills/`（即 codewhale-tool 目录下）而不是用户选择的项目路径下的问题。
 
-## 根因
-- 前端安装 skill 时传递了 `projectPath`（用户选择的项目路径）
-- 后端 `_installFromGitHubV2`、`installFromZip`、`update` 在 `level === 'project'` 时仍使用 `process.cwd()` 作为基础目录
-- 导致 skill 文件被安装到错误位置，且 `store.json.project_skills` 中记录的 `path` 也是错的
+## 已完成的修改
 
-## 实现方案
+### 前端 (`packages/web/src/views/skill/edit/install.vue`)
+- `formData` 已包含 `projectId: ''` 和 `projectPath: ''`
+- project 下拉框 value 已改为 `p.id`
+- `_initDropdowns` 已设置 `formData.projectId = defaultProject.id` 和 `formData.projectPath = defaultProject.path`
+- `onLevelChange` 已设置 `formData.projectId = projectList.value[0].id`
+- `showDialogByData` 初始化已恢复 `formData.projectId = params.projectId || ''`
 
-### 传输字段
-- 前端安装/更新 skill 时，`req.body` 中同时传 `projectId` 和 `projectPath`
-- 后端优先使用 `projectId`；若前端未传 `projectId`，则退回用 `projectPath` 反查 project id
+### 后端 (`packages/core/src/skill/install.js`)
+- 新增 `_getProjectBaseDir(level, projectPath)` 辅助函数
+- 新增 `_resolveProjectId(level, projectId, projectPath, store)` 辅助函数
+- `_finalizeInstall` 已支持 `projectId` 参数
+- `_installFromGitHubV2`：
+  - `finalTargetDir` 使用 `_getProjectBaseDir` 替代硬编码
+  - 增加 `projectId` 解析并透传给 `_finalizeInstall`
+- `installFromZip`：
+  - 从 `_internal._rawOpts.projectPath` 读取 `projectPath`
+  - `finalTargetDir` 使用 `_getProjectBaseDir` 替代硬编码
+  - 增加 `projectId` 解析并透传给 `_finalizeInstall`
+- `update`：
+  - `baseTargetDir` 使用 `_getProjectBaseDir` 替代硬编码
+  - 增加 `projectId` 解析
+  - 第二个 `store.mutate` 调用已传入 `projectId`
 
-### 1. SkillStore (`packages/core/src/skill/SkillStore.js`)
-- 已新增 `getProjectIdByPath(projectPath)` — 根据路径匹配 project id，供 install 阶段兜底查找 projectId
+## 验证结果
+- `npm run lint` 通过
+- 后端代码 review：`process.cwd()` 仅在 global 级别使用
+- 前端代码 review：安装/更新时 `projectId` 和 `projectPath` 已一起传递到后端
 
-### 2. install.js (`packages/core/src/skill/install.js`)
-- 新增 `_getProjectBaseDir(level, projectPath)` — `level === 'project'` 时返回 `projectPath`，否则返回 `process.cwd()`
-- 新增 `_resolveProjectId(level, projectId, projectPath)` — 优先返回 `projectId`，否则退回 `store.getProjectIdByPath(projectPath)`
-- 修改 `_finalizeInstall` — 增加 `projectId` 参数，`store.addToConfig` / `store.mutate` 透传 `projectId`
-- 修改 `_installFromGitHubV2` — `finalTargetDir` 在 project 级别时走 `_getProjectBaseDir`；`projectId` 走 `_resolveProjectId`
-- 修改 `installFromZip` — 从 `_internal._rawOpts.projectPath` 读取 projectPath；`finalTargetDir` 同理修正；`projectId` 走 `_resolveProjectId`
-- 修改 `update` — `baseTargetDir` 在 project 级别时走 `_getProjectBaseDir`；`projectId` 走 `_resolveProjectId`；`store.mutate` 透传 `projectId`
-
-## 待修改文件
-- `packages/core/src/skill/SkillStore.js` — `getProjectIdByPath(projectPath)` 已完成
-- `packages/core/src/skill/install.js` — 上述 install.js 修改点待执行
-
-## 预期结果
+## 预期行为
 - project 级 skill 安装到 `<projectPath>/skills/<slug>/`
 - `store.json.project_skills[projectId].installed[].path` 记录正确路径
 - global 级 skill 行为不变，仍安装到 `process.cwd()/skills/<slug>/`
 
-## 验证计划
+---
+
+# Handoff — project 级 skill 列表展示与旧接口清理
+
+> 最后更新: 2026-07-08
+> 状态: **已完成**
+
+## 目标
+修复 skill 管理页面切换到"项目" tab 时只展示默认项目 skill 的问题，并清理已废弃的单项目 skill 查询接口。
+
+## 已完成的修改
+
+### 后端 (`packages/core/src/skill/routes.js`)
+- 新增 `listAllProjectSkills(store)`：遍历所有项目，汇总 skill 并补充 `project` 字段
+- 删除 `listProject(store)`：旧单项目 skill 查询接口已无调用方
+
+### 后端 (`packages/core/src/skill/index.js`)
+- 新增 `listAllProjectSkills()` 门面方法
+- 删除 `listProject()` 门面方法
+
+### 后端 (`packages/server/src/routes/skill/routes.js`)
+- 新增 `GET /skill/list/projects`：返回所有项目的 skill 列表
+- 删除 `GET /skill/list/project`：旧单项目接口已废弃
+
+### 前端 (`packages/web/src/api/skill/routes.js`)
+- 新增 `getAllProjectSkillList()` 调用 `/skill/list/projects`
+- 删除 `getProjectSkillList()`：旧单项目 skill 查询 API 已无调用方
+
+### 前端 (`packages/web/src/views/skill/index.vue`)
+- `loadSkills()` 改用 `getAllProjectSkillList()`，project tab 现在展示所有项目的 skill
+- `projectTree` 按 `s.project` 字段正确分组
+
+## 验证结果
 - `npm run lint` 通过
-- 后端代码 review：确认 `process.cwd()` 只在 global 级别使用
-- 前端代码 review：确认安装/更新时 `projectId` 和 `projectPath` 已一起传递到后端
+- 全局搜索确认旧接口无其他调用方
+
+## 预期行为
+- 左侧 skill 列表切换到"项目" tab 时，展示所有项目的 skill
+- 每个项目下的 skill 按项目分组显示
+- global tab 行为不变

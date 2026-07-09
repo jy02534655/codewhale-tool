@@ -33,6 +33,8 @@ import { compositionDialogForm } from '@/composition/dialog/Form'
 
 const maskingStore = useMaskingStore()
 let currentId = ''
+let currentLevel = ''
+let currentProjectId = ''
 
 // 表单数据（tagsInput 仅用于输入框，tags 提交时解析）
 const formData = reactive({
@@ -59,7 +61,7 @@ function doUpdate(params) {
     alias: params.alias,
     remark: params.remark,
     tags: formData.tags
-  })
+  }, currentLevel, currentProjectId)
 }
 
 // compositionDialogForm：addFun/editFun 同一函数，initfun 中用 assign 填充
@@ -69,6 +71,8 @@ const { isShow, showDialog, hideDialog, resetForm, showDialogByData, submitDialo
   initfun: function ({ data }) {
     if (data) {
       currentId = data.id
+      currentLevel = data.level || ''
+      currentProjectId = data.projectId || ''
       assign(formData, {
         alias: data.alias || '',
         remark: data.remark || '',

@@ -33,16 +33,16 @@ export class SkillManager {
   listGlobal() { return Routes.listGlobal(this._store); }
   listAllProjectSkills() { return Routes.listAllProjectSkills(this._store); }
   getCurrentProject() { return Routes.getCurrentProject(this._store); }
-  enable(skillId, hintLevel) { return Cmd.enable(this._store, skillId, hintLevel); }
-  disable(skillId, hintLevel) { return Cmd.disable(this._store, skillId, hintLevel); }
-  updateMeta(skillId, meta, hintLevel) { return Cmd.updateMeta(this._store, skillId, meta, hintLevel); }
-  remove(skillId, hintLevel) { return Cmd.remove(this._store, skillId, hintLevel); }
+  enable(skillId, hintLevel, projectId) { return Cmd.enable(this._store, skillId, hintLevel, projectId); }
+  disable(skillId, hintLevel, projectId) { return Cmd.disable(this._store, skillId, hintLevel, projectId); }
+  updateMeta(skillId, meta, hintLevel, projectId) { return Cmd.updateMeta(this._store, skillId, meta, hintLevel, projectId); }
+  remove(skillId, hintLevel, projectId) { return Cmd.remove(this._store, skillId, hintLevel, projectId); }
   updateByOpts(opts, onProgress, onLog) { return Install.update(this._store, opts, onProgress, onLog); }
   copyToProject(skillId, projectId) { return Cmd.copyToProject(this._store, skillId, projectId); }
-  getSkillFiles(skillId, level) { return Files.getSkillFiles(this._store, skillId, level); }
-  readSkillFile(skillId, filePath, level) { return Files.readSkillFile(this._store, skillId, filePath, level); }
-  saveSkillFile(skillId, filePath, content, level) { return Files.saveSkillFile(this._store, skillId, filePath, content, level); }
-  removeSkillFile(skillId, filePath, level) { return Files.removeSkillFile(this._store, skillId, filePath, level); }
+  getSkillFiles(skillId, level, projectId) { return Files.getSkillFiles(this._store, skillId, level, projectId); }
+  readSkillFile(skillId, filePath, level, projectId) { return Files.readSkillFile(this._store, skillId, filePath, level, projectId); }
+  saveSkillFile(skillId, filePath, content, level, projectId) { return Files.saveSkillFile(this._store, skillId, filePath, content, level, projectId); }
+  removeSkillFile(skillId, filePath, level, projectId) { return Files.removeSkillFile(this._store, skillId, filePath, level, projectId); }
   getReadme(skillId) { return Files.getReadme(this._store, skillId); }
   saveReadme(skillId, content) { return Files.saveReadme(this._store, skillId, content); }
   getInstallLog() { return Log.getInstallLog(); }

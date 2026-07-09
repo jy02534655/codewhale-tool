@@ -12,9 +12,10 @@ import { ok, fail, failMsg, okMsg } from '../utils/result.js';
  * @param {SkillStore} store
  * @param {string} skillId
  * @param {string} [level]
+ * @param {string} [projectId]
  */
-export function getSkillFiles(store, skillId, level) {
-  const entry = store.findEntry(skillId, level);
+export function getSkillFiles(store, skillId, level, projectId) {
+  const entry = store.findEntry(skillId, level, projectId);
   if (!entry) return failMsg('SKILL_NOT_FOUND');
 
   const files = [];
@@ -40,9 +41,10 @@ export function getSkillFiles(store, skillId, level) {
  * @param {string} skillId
  * @param {string} filePath
  * @param {string} [level]
+ * @param {string} [projectId]
  */
-export function readSkillFile(store, skillId, filePath, level) {
-  const entry = store.findEntry(skillId, level);
+export function readSkillFile(store, skillId, filePath, level, projectId) {
+  const entry = store.findEntry(skillId, level, projectId);
   if (!entry) return failMsg('SKILL_NOT_FOUND');
   const fullPath = join(entry.path, filePath);
   if (!existsSync(fullPath)) return failMsg('SKILL_FILE_NOT_FOUND');
@@ -62,8 +64,9 @@ export function readSkillFile(store, skillId, filePath, level) {
  * @param {string} filePath
  * @param {string} content
  * @param {string} [level]
+ * @param {string} [projectId]
  */
-export function saveSkillFile(store, skillId, filePath, content, level) {
+export function saveSkillFile(store, skillId, filePath, content, level, projectId) {
   return store.mutate(skillId, function (entries, idx) {
     const entry = entries[idx];
     const fullPath = join(entry.path, filePath);
@@ -71,7 +74,7 @@ export function saveSkillFile(store, skillId, filePath, content, level) {
     writeFileSync(fullPath, content, 'utf-8');
     entry.updated_at = Date.now();
     return okMsg('updated');
-  }, level);
+  }, level, projectId);
 }
 
 /**
@@ -80,8 +83,9 @@ export function saveSkillFile(store, skillId, filePath, content, level) {
  * @param {string} skillId
  * @param {string} filePath
  * @param {string} [level]
+ * @param {string} [projectId]
  */
-export function removeSkillFile(store, skillId, filePath, level) {
+export function removeSkillFile(store, skillId, filePath, level, projectId) {
   return store.mutate(skillId, function (entries, idx) {
     const entry = entries[idx];
     const fullPath = join(entry.path, filePath);
@@ -89,7 +93,7 @@ export function removeSkillFile(store, skillId, filePath, level) {
     unlinkSync(fullPath);
     entry.updated_at = Date.now();
     return okMsg('updated');
-  }, level);
+  }, level, projectId);
 }
 
 /**

@@ -56,13 +56,19 @@ const activeId = ref('')
 // 维护当前编辑文件路径。
 const activePath = ref('SKILL.md')
 
+// 维护当前 skill 的 level 和 projectId，用于文件读写。
+const activeLevel = ref(undefined)
+const activeProjectId = ref(undefined)
+
 // 复用通用弹窗状态控制能力，通过 initfun 加载文件内容。
 const { isShow, showDialog, hideDialog, showDialogByData } = compositionDialogBase({
   initfun: function ({ data }) {
     if (!data) return
     activeId.value = data.id || ''
     activePath.value = data.path || 'SKILL.md'
-    readSkillFile(activeId.value, activePath.value).then(function (res) {
+    activeLevel.value = data.level
+    activeProjectId.value = data.projectId
+    readSkillFile(activeId.value, activePath.value, activeLevel.value, activeProjectId.value).then(function (res) {
       content.value = typeof res === 'string' ? res : (res && res.content || '')
     })
   }
@@ -84,7 +90,7 @@ function resetForm() {
 // 提交保存当前文件内容，并通知父组件刷新。
 function onSubmit() {
   if (!activeId.value || !activePath.value) return
-  saveSkillFile(activeId.value, activePath.value, content.value).then(function () {
+  saveSkillFile(activeId.value, activePath.value, content.value, activeLevel.value, activeProjectId.value).then(function () {
     emit('submitSuccess')
     hideDialog()
   })

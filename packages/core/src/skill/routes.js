@@ -24,7 +24,7 @@ export function listAllProjectSkills(store) {
   projects.forEach(function (p) {
     const skills = store.getProjectInstalled(p.id) || [];
     skills.forEach(function (s) {
-      result.push(Object.assign({}, s, { project: p.alias || p.path || p.id }));
+      result.push(Object.assign({}, s, { project: p.alias || p.path || p.id, projectId: p.id }));
     });
   });
   return ok(result);

@@ -8,7 +8,7 @@ export function getGlobalSkillList() { return ajaxBack('/skill/list/global'); }
 export function getAllProjectSkillList() { return ajaxBack('/skill/list/projects'); }
 
 // 合并更新元数据（alias + remark + tags）
-export function updateMeta(id, data) { return ajaxPutBack('/skill/meta/' + id, data, { successMessage: true }); }
+export function updateMeta(id, data, level, projectId) { return ajaxPutBack('/skill/meta/' + id, Object.assign({}, data, { level, projectId }), { successMessage: true }); }
 
 // 获取 SKILL.md 原始内容
 export function getReadme(id) { return ajaxBack('/skill/readme/' + id); }

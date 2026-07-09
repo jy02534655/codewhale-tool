@@ -28,8 +28,13 @@ import { emitSkillInstallLog, _extractMeta, _parseGitHubUrl, _parseProxyUrl } fr
  * @param {Object} rawOpts
  */
 function _finalizeInstall(store, skillId, level, meta, targetDir, rawOpts, projectId) {
+  // update 临时安装保持 skillId 不变；新安装生成 UUID 保证唯一性
+  const isTempUpdate = rawOpts && rawOpts._skillId;
+  const finalId = isTempUpdate ? skillId : randomUUID();
+  
   store.addToConfig({
-    id: skillId,
+    id: finalId,
+    slug: skillId,
     name: meta.name || skillId,
     description: meta.description,
     path: targetDir,
@@ -45,7 +50,7 @@ function _finalizeInstall(store, skillId, level, meta, targetDir, rawOpts, proje
     const params = Object.assign({}, rawOpts);
     delete params._skillId;
     delete params._targetDir;
-    store.mutate(skillId, function (entries, idx) {
+    store.mutate(finalId, function (entries, idx) {
       if (idx >= 0) entries[idx].installParams = params;
     }, level, projectId);
   }

@@ -9,17 +9,17 @@ import { guard, guardAsync } from '../../utils/guard.js';
 export function registerCmdRoutes(router, skillMgr) {
   /** 启用 skill */
   router.post('/enable/:id', (req, res) => {
-    res.json(guard(() => skillMgr.enable(req.params.id)));
+    res.json(guard(() => skillMgr.enable(req.params.id, req.body.level, req.body.projectId)));
   });
 
   /** 禁用 skill */
   router.post('/disable/:id', (req, res) => {
-    res.json(guard(() => skillMgr.disable(req.params.id)));
+    res.json(guard(() => skillMgr.disable(req.params.id, req.body.level, req.body.projectId)));
   });
 
   /** 删除 skill */
   router.delete('/remove/:id', (req, res) => {
-    res.json(guard(() => skillMgr.remove(req.params.id)));
+    res.json(guard(() => skillMgr.remove(req.params.id, req.body.level, req.body.projectId)));
   });
 
   /** 复制 skill 到项目 */

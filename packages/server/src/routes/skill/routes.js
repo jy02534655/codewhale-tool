@@ -19,7 +19,7 @@ export function registerRoutes(router, skillMgr) {
 
   /** 更新 skill 元数据 */
   router.put('/meta/:id', (req, res) => {
-    res.json(guard(() => skillMgr.updateMeta(req.params.id, req.body, req.body.level)));
+    res.json(guard(() => skillMgr.updateMeta(req.params.id, req.body, req.body.level, req.body.projectId)));
   });
 
   /** 读取 skill 的 SKILL.md */

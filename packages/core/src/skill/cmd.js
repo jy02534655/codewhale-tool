@@ -15,8 +15,8 @@ import { okMsg, failMsg, fail } from '../utils/result.js';
  * @param {string} skillId
  * @param {string} [hintLevel]
  */
-export function enable(store, skillId, hintLevel) {
-  return store.toggle(skillId, true, hintLevel);
+export function enable(store, skillId, hintLevel, projectId) {
+  return store.toggle(skillId, true, hintLevel, projectId);
 }
 
 /**
@@ -25,8 +25,8 @@ export function enable(store, skillId, hintLevel) {
  * @param {string} skillId
  * @param {string} [hintLevel]
  */
-export function disable(store, skillId, hintLevel) {
-  return store.toggle(skillId, false, hintLevel);
+export function disable(store, skillId, hintLevel, projectId) {
+  return store.toggle(skillId, false, hintLevel, projectId);
 }
 
 /**
@@ -36,7 +36,7 @@ export function disable(store, skillId, hintLevel) {
  * @param {Object} meta
  * @param {string} [hintLevel]
  */
-export function updateMeta(store, skillId, meta, hintLevel) {
+export function updateMeta(store, skillId, meta, hintLevel, projectId) {
   return store.mutate(skillId, function (entries, idx) {
     if (meta.name != null) entries[idx].name = meta.name;
     if (meta.description != null) entries[idx].description = meta.description;
@@ -45,7 +45,7 @@ export function updateMeta(store, skillId, meta, hintLevel) {
     if (meta.tags != null) entries[idx].tags = meta.tags;
     entries[idx].updated_at = Date.now();
     return okMsg('updated');
-  }, hintLevel);
+  }, hintLevel, projectId);
 }
 
 /**
@@ -54,7 +54,7 @@ export function updateMeta(store, skillId, meta, hintLevel) {
  * @param {string} skillId
  * @param {string} [hintLevel]
  */
-export function remove(store, skillId, hintLevel) {
+export function remove(store, skillId, hintLevel, projectId) {
   return store.mutate(skillId, function (entries, idx, entry) {
     try {
       if (existsSync(entry.path)) {
@@ -65,7 +65,7 @@ export function remove(store, skillId, hintLevel) {
     }
     entries.splice(idx, 1);
     return okMsg('synced');
-  }, hintLevel);
+  }, hintLevel, projectId);
 }
 
 /**
