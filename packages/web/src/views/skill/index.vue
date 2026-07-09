@@ -50,7 +50,7 @@
                   <div class="item-main">
                     <span class="item-name">{{ displayName(s) }}</span>
                     <el-tag v-for="tag in (s.tags || [])" :key="tag" size="small" type="warning" effect="plain">{{ tag }}</el-tag>
-                    <el-tag size="small" type="info" effect="plain">{{ sourceName(s.source) }}</el-tag>
+                    <el-tag size="small" :type="s.source === 'local' ? 'success' : 'primary'" effect="light">{{ sourceName(s.source) }}</el-tag>
                   </div>
                   <div v-if="s.name && s.name !== (s.alias || s.id)" class="item-field">
                     <span class="field-value-text">{{ s.name }}</span>
@@ -72,13 +72,13 @@
                 </div>
                 <div
                   v-for="s in node.skills" :key="s.id"
-                  :class="['list-item', 'project-skill', { active: selectedId === s.id }]"
+                  :class="['list-item', { active: selectedId === s.id }]"
                   @click="selectSkill(s)"
                 >
                   <div class="item-main">
                     <span class="item-name">{{ displayName(s) }}</span>
                     <el-tag v-for="tag in (s.tags || [])" :key="tag" size="small" type="warning" effect="plain">{{ tag }}</el-tag>
-                    <el-tag size="small" type="info" effect="plain">{{ sourceName(s.source) }}</el-tag>
+                    <el-tag size="small" :type="s.source === 'local' ? 'success' : 'primary'" effect="light">{{ sourceName(s.source) }}</el-tag>
                   </div>
                   <div v-if="s.name && s.name !== (s.alias || s.slug)" class="item-field">
                     <span class="field-value-text">{{ s.name }}</span>
@@ -270,7 +270,63 @@ onMounted(loadSkills)
 .panel-left :deep(.el-tabs__item) { padding: 0 8px; font-size: 13px; }
 
 .list-scroll { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 2px; }
-.project-skill { padding-left: 20px; }
+
+.project-group-header {
+  padding: 6px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-primary);
+  background: var(--el-fill-color-light);
+  border-left: 3px solid var(--el-color-primary);
+  margin-top: 4px;
+}
+.project-group-name { margin-left: 4px; }
 
 .item-field { display: flex; align-items: center; gap: 4px; font-size: 11px; color: var(--text-secondary); margin-top: 2px; flex-wrap: wrap; }
+
+/* ─── 暗黑模式适配 ─── */
+[data-theme="dark"] .panel-left :deep(.el-input__wrapper) {
+  background-color: var(--bg-secondary);
+  border-color: var(--border);
+  box-shadow: none;
+}
+[data-theme="dark"] .panel-left :deep(.el-input__inner) {
+  color: var(--text-primary);
+}
+[data-theme="dark"] .panel-left :deep(.el-input__inner::placeholder) {
+  color: var(--text-placeholder);
+}
+[data-theme="dark"] .panel-left :deep(.el-tabs__header) {
+  border-bottom-color: var(--border);
+}
+[data-theme="dark"] .panel-left :deep(.el-tabs__item) {
+  color: var(--text-secondary);
+}
+[data-theme="dark"] .panel-left :deep(.el-tabs__item.is-active) {
+  color: var(--accent);
+}
+[data-theme="dark"] .panel-left :deep(.el-tabs__active-bar) {
+  background-color: var(--accent);
+}
+[data-theme="dark"] .panel-left :deep(.el-tabs__nav-wrap::after) {
+  background-color: var(--border);
+}
+[data-theme="dark"] .list-item.active {
+  background: #1a2533;
+  border-left-width: 4px;
+  border-left-color: #58a6ff;
+  color: var(--text-primary);
+}
+[data-theme="dark"] .project-group-header {
+  background: var(--bg-tertiary);
+  border-bottom-color: var(--border);
+  border-bottom-width: 2px;
+  color: var(--text-primary);
+}
+[data-theme="dark"] .project-group-name {
+  color: var(--text-primary);
+}
+[data-theme="dark"] .item-name {
+  color: var(--text-primary);
+}
 </style>

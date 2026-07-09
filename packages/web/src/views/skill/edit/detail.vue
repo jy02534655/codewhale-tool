@@ -171,16 +171,22 @@ const displayTitle = computed(function () {
   return props.skill.alias || props.skill.name || props.skill.slug || '-'
 })
 
-// 将来源字段翻译成可读文案。
+// 将来源字段翻译成当前语言的文案。
 const sourceLabel = computed(function () {
   if (!props.skill) return '-'
-  return props.skill.source || '-'
+  const source = props.skill.source || 'local'
+  const key = 'skill.source.' + source
+  return t(key) || source
 })
 
-// 将作用域字段翻译成可读文案。
+// 将作用域字段翻译成当前语言的文案；项目级显示项目别名。
 const scopeLabel = computed(function () {
   if (!props.skill) return '-'
-  return props.skill.level || '-'
+  if (props.skill.level === 'project') {
+    return props.skill.project || t('skill.project') || 'project'
+  }
+  const key = 'skill.' + props.skill.level
+  return t(key) || props.skill.level
 })
 
 // 推导当前文件预览标签。
@@ -528,6 +534,21 @@ function confirmCopyToProject() {
    overflow: auto;
    background: var(--bg-secondary);
  }
+
+ /* ─── 暗黑模式文件列表适配 ─── */
+[data-theme="dark"] .file-tree-wrap :deep(.el-tree) {
+  background-color: var(--bg-secondary);
+  color: var(--text-primary);
+}
+[data-theme="dark"] .file-tree-wrap :deep(.el-tree .el-tree-node__content) {
+  background-color: transparent;
+}
+[data-theme="dark"] .file-tree-wrap :deep(.el-tree .el-tree-node__content:hover) {
+  background-color: var(--bg-tertiary);
+}
+[data-theme="dark"] .file-tree-wrap :deep(.el-tree .el-tree-node.is-current) {
+  background-color: #1a2533;
+}
 
 .file-viewer-wrap {
   display: flex;
