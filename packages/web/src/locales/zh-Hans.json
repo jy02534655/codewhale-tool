@@ -1,11 +1,11 @@
 {
   "app": {
-    "title": "🐋 CodeWhale 工具",
+    "title": "CodeWhale 工具",
     "subtitle": "配置管理",
     "model_management": "模型管理"
   },
   "official": {
-    "title": "🔑 DeepSeek 官方 API Key",
+    "title": "DeepSeek 官方 API Key",
     "add_key": "添加 Key",
     "no_keys": "暂无官方 API key，点击添加",
     "add_dialog_title": "添加官方 API Key",
@@ -15,7 +15,7 @@
     "alias_default": "DeepSeek 官方 Key"
   },
   "third_party": {
-    "title": "🔌 第三方模型",
+    "title": "第三方模型",
     "deactivate": "关闭第三方",
     "hint": "当前使用 DeepSeek 官方 API。点击下方供应商的「激活」按钮可切换到第三方模型。",
     "add_provider": "添加供应商",

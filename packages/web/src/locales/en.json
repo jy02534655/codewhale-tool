@@ -1,12 +1,12 @@
 {
   "app": {
-    "title": "🐋 CodeWhale Tool",
+    "title": "CodeWhale Tool",
     "subtitle": "Config Manager",
     "model_management": "Model Manager"
   },
   "official": {
-    "title": "🔑 DeepSeek Official API Key",
-    "add_key": "+ Add Key",
+    "title": "DeepSeek Official API Key",
+    "add_key": "Add Key",
     "no_keys": "No official API key yet. Click to add.",
     "add_dialog_title": "Add Official API Key",
     "alias_placeholder": "e.g. Primary, Backup",
@@ -15,16 +15,16 @@
     "alias_default": "DeepSeek Official Key"
   },
   "third_party": {
-    "title": "🔌 Third-party Models",
+    "title": "Third-party Models",
     "deactivate": "Disable Third-party",
     "hint": "Using the official DeepSeek API. Click a vendor's Activate button to switch.",
-    "add_provider": "+ Add Vendor",
+    "add_provider": "Add Vendor",
     "no_providers": "No third-party vendors configured.",
     "api_key": "API Key",
     "base_url": "Base URL",
     "default_placeholder": "(default)",
     "models": "Models",
-    "add_model": "+ Add Model",
+    "add_model": "Add Model",
     "set_current": "Set Active",
     "current_model": "Active Model",
     "delete_model": "Delete",
@@ -180,7 +180,7 @@
   },
   "proxy": {
     "title": "Proxy Manager",
-    "add": "+ Add Proxy",
+    "add": "Add Proxy",
     "empty": "No proxies configured. Click to add.",
     "alias_placeholder": "e.g. Office Proxy, Home Proxy",
     "type": "Proxy Type",
@@ -200,7 +200,7 @@
   },
   "token": {
     "title": "Token Manager",
-    "add": "+ Add Token",
+    "add": "Add Token",
     "empty": "No tokens configured. Click to add.",
     "alias_placeholder": "e.g. Main, Backup",
     "token_value": "GitHub Token",
@@ -214,7 +214,7 @@
   },
   "project": {
     "title": "Project Manager",
-    "add": "+ Add Project",
+    "add": "Add Project",
     "empty": "No projects configured. Click to add.",
     "alias": "Alias",
     "path": "Path",

@@ -1,12 +1,12 @@
 {
   "app": {
-    "title": "🐋 CodeWhale Tool",
+    "title": "CodeWhale Tool",
     "subtitle": "Gerenciador",
-    "model_management": "Modelos"
+    "model_management": "Gerenciador de Modelos"
   },
   "official": {
-    "title": "🔑 API Key Oficial DeepSeek",
-    "add_key": "+ Adicionar Key",
+    "title": "API Key Oficial DeepSeek",
+    "add_key": "Adicionar Key",
     "no_keys": "Nenhuma chave oficial. Clique para adicionar.",
     "add_dialog_title": "Adicionar Key Oficial",
     "alias_placeholder": "ex: Principal, Reserva",
@@ -15,16 +15,16 @@
     "alias_default": "Key Oficial DeepSeek"
   },
   "third_party": {
-    "title": "🔌 Terceiros",
+    "title": "Terceiros",
     "deactivate": "Desativar Terceiros",
     "hint": "Usando API oficial DeepSeek. Clique em Ativar em um fornecedor para alternar.",
-    "add_provider": "+ Adicionar Fornecedor",
+    "add_provider": "Adicionar Fornecedor",
     "no_providers": "Nenhum fornecedor configurado.",
     "api_key": "API Key",
     "base_url": "Base URL",
     "default_placeholder": "(padrão)",
     "models": "Modelos",
-    "add_model": "+ Adicionar Modelo",
+    "add_model": "Adicionar Modelo",
     "set_current": "Definir Ativo",
     "current_model": "Modelo Ativo",
     "delete_model": "Excluir",
@@ -45,7 +45,7 @@
   "skill": {
     "title": "Skills",
     "searchPlaceholder": "Buscar nome, alias, observação ou tags...",
-    "searchCommunity": "Comunidade",
+    "searchCommunity": "Buscar na Comunidade",
     "enabled": "Ativado",
     "disabled": "Desativado",
     "global": "Global",
@@ -180,7 +180,7 @@
   },
   "proxy": {
     "title": "Gerenciador de Proxy",
-    "add": "+ Adicionar Proxy",
+    "add": "Adicionar Proxy",
     "empty": "Nenhum proxy configurado. Clique para adicionar.",
     "alias_placeholder": "ex: Proxy da Empresa",
     "type": "Tipo",
@@ -200,7 +200,7 @@
   },
   "token": {
     "title": "Gerenciador de Token",
-    "add": "+ Adicionar Token",
+    "add": "Adicionar Token",
     "empty": "Nenhum token configurado. Clique para adicionar.",
     "alias_placeholder": "ex: GitHub Principal",
     "token_value": "GitHub Token",
@@ -214,7 +214,7 @@
   },
   "project": {
     "title": "Gerenciador de Projetos",
-    "add": "+ Adicionar Projeto",
+    "add": "Adicionar Projeto",
     "empty": "Nenhum projeto configurado. Clique para adicionar.",
     "alias": "Apelido",
     "path": "Caminho",
