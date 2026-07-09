@@ -68,7 +68,7 @@ function _finalizeInstall(store, skillId, level, meta, targetDir, rawOpts, proje
  * @returns {string}
  */
 function _getProjectBaseDir(level, projectPath) {
-  return level === 'project' ? projectPath : process.cwd();
+  return level === 'project' ? projectPath : '';
 }
 
 /**

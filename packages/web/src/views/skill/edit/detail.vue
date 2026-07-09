@@ -80,6 +80,17 @@
       </div>
       <ReadmeDialog ref="readmeDialogRef" @submit-success="handleFileSaved" />
     </template>
+
+    <!-- 项目选择弹窗 -->
+    <el-dialog v-model="showProjectSelectDialog" :title="$t('skill.selectProject')" width="420px">
+      <el-select v-model="selectedProjectId" :placeholder="$t('skill.selectProjectPlaceholder')" style="width: 100%" filterable :disabled="copying">
+        <el-option v-for="p in projectList" :key="p.id || p.path" :label="p.alias || p.path" :value="p.id" />
+      </el-select>
+      <template #footer>
+        <el-button :disabled="copying" @click="showProjectSelectDialog = false">{{ $t('common.cancel') }}</el-button>
+        <el-button type="primary" :loading="copying" @click="confirmCopyToProject">{{ $t('common.confirm') }}</el-button>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
@@ -99,6 +110,7 @@ import { useI18n } from 'vue-i18n'
 // 引入 Skill 相关接口。
 import { enableSkill, disableSkill, removeSkill, copySkillToProject } from '@/api/skill/cmd'
 import { getSkillFiles, readSkillFile, removeSkillFile } from '@/api/skill/files'
+import { getProjectList } from '@/api/project'
 
 // 引入复用文件预览组件。
 import FilePreview from '@/components/file/preview.vue'
@@ -147,6 +159,12 @@ const treeProps = {
   children: 'children',
   label: 'label',
 }
+
+// 项目选择弹窗相关状态。
+const showProjectSelectDialog = ref(false)
+const selectedProjectId = ref('')
+const projectList = ref([])
+const copying = ref(false)
 
 // 组合详情页标题，优先展示 alias。
 const displayTitle = computed(function () {
@@ -386,8 +404,37 @@ function removeCurrentSkill() {
 
 function copyCurrentSkill() {
   if (!props.skill) return
-  copySkillToProject(props.skill.id).then(function () {
+  getProjectList().then(function (result) {
+    projectList.value = Array.isArray(result) ? result : (result.data || [])
+    if (!projectList.value.length) {
+      ElMessage.warning(t('skill.noProjects'))
+      return
+    }
+    // 优先默认项目，否则选第一个
+    const defaultProject = projectList.value.find(function (p) { return p.default }) || projectList.value[0]
+    selectedProjectId.value = defaultProject.id || ''
+    showProjectSelectDialog.value = true
+  }).catch(function () {
+    ElMessage.error(t('message.networkError') || 'Failed to load projects')
+  })
+}
+
+function confirmCopyToProject() {
+  if (!selectedProjectId.value) {
+    ElMessage.warning(t('skill.selectProjectPlaceholder'))
+    return
+  }
+  copying.value = true
+  copySkillToProject(props.skill.id, selectedProjectId.value).then(function () {
+    showProjectSelectDialog.value = false
     emit('refresh')
+  }).catch(function (err) {
+    const message = (err && err.message) || ''
+    if (message === 'SKILL_ALREADY_INSTALLED') {
+      ElMessage.warning(t('skill.alreadyCopied') || '该 skill 已复制到所选项目')
+    }
+  }).finally(function () {
+    copying.value = false
   })
 }
 </script>

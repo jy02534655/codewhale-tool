@@ -150,7 +150,10 @@
     "syntaxWarning": "Syntax Warning",
     "install": "Install Skill",
     "copyToProject": "Copy to project",
-    "copyToProjectSuccess": "Copied to project skill directory"
+    "copyToProjectSuccess": "Copied to project skill directory",
+    "selectProject": "Select target project",
+    "selectProjectPlaceholder": "Please select a project",
+    "alreadyCopied": "This skill has already been copied to the selected project"
   },
   "message": {
     "networkError": "Network error, please try again",

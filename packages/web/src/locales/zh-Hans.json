@@ -155,7 +155,10 @@
     "syntaxWarning": "语法警告",
     "install": "安装 Skill",
     "copyToProject": "复制到项目",
-    "copyToProjectSuccess": "已复制到项目 skill 目录"
+    "copyToProjectSuccess": "已复制到项目 skill 目录",
+    "selectProject": "选择目标项目",
+    "selectProjectPlaceholder": "请选择要复制到的项目",
+    "alreadyCopied": "该 skill 已复制到所选项目"
   },
   "common": {
     "confirm": "确认",

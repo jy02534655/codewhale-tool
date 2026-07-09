@@ -82,7 +82,7 @@ export function copyToProject(store, skillId, projectId) {
   if (!targetProjectId) return failMsg('PROJECT_NOT_FOUND');
 
   const projectInstalled = store.getProjectInstalled(targetProjectId);
-  if (projectInstalled.some(function (s) { return s.id === skillId; })) {
+  if (projectInstalled.some(function (s) { return s.slug === entry.slug; })) {
     return failMsg('SKILL_ALREADY_INSTALLED');
   }
 
@@ -98,6 +98,9 @@ export function copyToProject(store, skillId, projectId) {
       slug: entry.slug,
       name: entry.name,
       description: entry.description,
+      alias: entry.alias || '',
+      remark: entry.remark || '',
+      tags: entry.tags || [],
       path: targetDir,
       enabled: true,
       source: entry.source || 'community',

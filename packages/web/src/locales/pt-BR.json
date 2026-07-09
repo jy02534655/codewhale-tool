@@ -150,7 +150,10 @@
     "syntaxWarning": "Aviso de Sintaxe",
     "install": "Instalar Skill",
     "copyToProject": "Copiar para o projeto",
-    "copyToProjectSuccess": "Copiado para o diretório de skills do projeto"
+    "copyToProjectSuccess": "Copiado para o diretório de skills do projeto",
+    "selectProject": "Selecionar projeto de destino",
+    "selectProjectPlaceholder": "Selecione o projeto para copiar",
+    "alreadyCopied": "Esta skill já foi copiada para o projeto selecionado"
   },
   "message": {
     "networkError": "Erro de rede, tente novamente",

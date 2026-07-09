@@ -150,7 +150,10 @@
     "syntaxWarning": "構文警告",
     "install": "スキルをインストール",
     "copyToProject": "プロジェクトにコピー",
-    "copyToProjectSuccess": "プロジェクト skill ディレクトリにコピーしました"
+    "copyToProjectSuccess": "プロジェクト skill ディレクトリにコピーしました",
+    "selectProject": "対象プロジェクトを選択",
+    "selectProjectPlaceholder": "コピー先のプロジェクトを選択してください",
+    "alreadyCopied": "この skill は選択したプロジェクトに既にコピーされています"
   },
   "message": {
     "networkError": "ネットワークエラー、再試行してください",

@@ -1,83 +1,48 @@
-# Handoff — project 级 skill 安装路径修复
+# Handoff — 修复 global skill update 时 Windows 跨盘路径拼接错误
 
-> 最后更新: 2026-07-08
-> 状态: **已完成**
-
-## 目标
-修复 project 级 skill 安装/更新时，总是安装到 `process.cwd()/skills/`（即 codewhale-tool 目录下）而不是用户选择的项目路径下的问题。
-
-## 已完成的修改
-
-### 前端 (`packages/web/src/views/skill/edit/install.vue`)
-- `formData` 已包含 `projectId: ''` 和 `projectPath: ''`
-- project 下拉框 value 已改为 `p.id`
-- `_initDropdowns` 已设置 `formData.projectId = defaultProject.id` 和 `formData.projectPath = defaultProject.path`
-- `onLevelChange` 已设置 `formData.projectId = projectList.value[0].id`
-- `showDialogByData` 初始化已恢复 `formData.projectId = params.projectId || ''`
-
-### 后端 (`packages/core/src/skill/install.js`)
-- 新增 `_getProjectBaseDir(level, projectPath)` 辅助函数
-- 新增 `_resolveProjectId(level, projectId, projectPath, store)` 辅助函数
-- `_finalizeInstall` 已支持 `projectId` 参数
-- `_installFromGitHubV2`：
-  - `finalTargetDir` 使用 `_getProjectBaseDir` 替代硬编码
-  - 增加 `projectId` 解析并透传给 `_finalizeInstall`
-- `installFromZip`：
-  - 从 `_internal._rawOpts.projectPath` 读取 `projectPath`
-  - `finalTargetDir` 使用 `_getProjectBaseDir` 替代硬编码
-  - 增加 `projectId` 解析并透传给 `_finalizeInstall`
-- `update`：
-  - `baseTargetDir` 使用 `_getProjectBaseDir` 替代硬编码
-  - 增加 `projectId` 解析
-  - 第二个 `store.mutate` 调用已传入 `projectId`
-
-## 验证结果
-- `npm run lint` 通过
-- 后端代码 review：`process.cwd()` 仅在 global 级别使用
-- 前端代码 review：安装/更新时 `projectId` 和 `projectPath` 已一起传递到后端
-
-## 预期行为
-- project 级 skill 安装到 `<projectPath>/skills/<slug>/`
-- `store.json.project_skills[projectId].installed[].path` 记录正确路径
-- global 级 skill 行为不变，仍安装到 `process.cwd()/skills/<slug>/`
-
----
-
-# Handoff — project 级 skill 列表展示与旧接口清理
-
-> 最后更新: 2026-07-08
-> 状态: **已完成**
+> 最后更新: 2026-07-09
+> 状态: **待验证**
 
 ## 目标
-修复 skill 管理页面切换到"项目" tab 时只展示默认项目 skill 的问题，并清理已废弃的单项目 skill 查询接口。
+修复更新 global skill 时出现 `ENOENT: no such file or directory, mkdir 'D:\Code\codewhale-tool\C:\Users\53450\.codewhale\skills\...'` 错误的问题。
 
-## 已完成的修改
+## 根因分析
+在 Windows 上，`path.join()` 遇到不同盘符的绝对路径时，**不会**丢弃前面的路径段，而是简单拼接：
 
-### 后端 (`packages/core/src/skill/routes.js`)
-- 新增 `listAllProjectSkills(store)`：遍历所有项目，汇总 skill 并补充 `project` 字段
-- 删除 `listProject(store)`：旧单项目 skill 查询接口已无调用方
+```javascript
+// Node.js Windows 行为
+path.join('D:\\Code\\codewhale-tool', 'C:\\Users\\53450\\.codewhale\\skills', 'ui-ux-pro-max')
+// 返回: 'D:\Code\codewhale-tool\C:\Users\53450\.codewhale\skills\ui-ux-pro-max'
+```
 
-### 后端 (`packages/core/src/skill/index.js`)
-- 新增 `listAllProjectSkills()` 门面方法
-- 删除 `listProject()` 门面方法
+在 `packages/core/src/skill/install.js` 的 `update` 函数中（以及 `_installFromGitHubV2`、`installFromZip` 中）：
 
-### 后端 (`packages/server/src/routes/skill/routes.js`)
-- 新增 `GET /skill/list/projects`：返回所有项目的 skill 列表
-- 删除 `GET /skill/list/project`：旧单项目接口已废弃
+```javascript
+const baseTargetDir = (level === 'project'
+  ? join(_getProjectBaseDir(level, opts.projectPath), store.projectSkillsDir, existing.slug)
+  : join(_getProjectBaseDir(level, opts.projectPath), store.skillsDir, existing.slug));
+```
 
-### 前端 (`packages/web/src/api/skill/routes.js`)
-- 新增 `getAllProjectSkillList()` 调用 `/skill/list/projects`
-- 删除 `getProjectSkillList()`：旧单项目 skill 查询 API 已无调用方
+`_getProjectBaseDir('global', ...)` 返回 `process.cwd()`（`D:\Code\codewhale-tool`），而 `store.skillsDir` 是 `C:\Users\53450\.codewhale\skills`（通过 `join(homedir(), '.codewhale', 'skills')` 计算得到）。
 
-### 前端 (`packages/web/src/views/skill/index.vue`)
-- `loadSkills()` 改用 `getAllProjectSkillList()`，project tab 现在展示所有项目的 skill
-- `projectTree` 按 `s.project` 字段正确分组
+两者盘符不同（D: vs C:），导致 `path.join` 生成了无效的拼接路径。
 
-## 验证结果
-- `npm run lint` 通过
-- 全局搜索确认旧接口无其他调用方
+## 修复方案
+修改 `_getProjectBaseDir` 函数，让 global 级返回空字符串：
 
-## 预期行为
-- 左侧 skill 列表切换到"项目" tab 时，展示所有项目的 skill
-- 每个项目下的 skill 按项目分组显示
-- global tab 行为不变
+```javascript
+function _getProjectBaseDir(level, projectPath) {
+  return level === 'project' ? projectPath : '';
+}
+```
+
+这样：
+- global 级：`join('', store.skillsDir, slug)` → `C:\Users\53450\.codewhale\skills\<slug>` ✅
+- project 级：`join(projectPath, 'skills', slug)` → `<projectPath>\skills\<slug>` ✅
+
+## 待修改的文件
+- `packages/core/src/skill/install.js`：第 70-72 行
+
+## 验证计划
+- 运行 `npm run lint` 确保代码规范通过
+- 验证 update global skill 时路径计算正确
