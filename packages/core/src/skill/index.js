@@ -33,8 +33,6 @@ export class SkillManager {
   listGlobal() { return Routes.listGlobal(this._store); }
   listAllProjectSkills() { return Routes.listAllProjectSkills(this._store); }
   getCurrentProject() { return Routes.getCurrentProject(this._store); }
-  enable(skillId, hintLevel, projectId) { return Cmd.enable(this._store, skillId, hintLevel, projectId); }
-  disable(skillId, hintLevel, projectId) { return Cmd.disable(this._store, skillId, hintLevel, projectId); }
   updateMeta(skillId, meta, hintLevel, projectId) { return Cmd.updateMeta(this._store, skillId, meta, hintLevel, projectId); }
   remove(skillId, hintLevel, projectId) { return Cmd.remove(this._store, skillId, hintLevel, projectId); }
   updateByOpts(opts, onProgress, onLog) { return Install.update(this._store, opts, onProgress, onLog); }

@@ -50,9 +50,6 @@
                   <div class="item-main">
                     <span class="item-name">{{ displayName(s) }}</span>
                     <el-tag v-for="tag in (s.tags || [])" :key="tag" size="small" type="warning" effect="plain">{{ tag }}</el-tag>
-                    <el-tag :type="s.enabled ? 'success' : 'danger'" size="small" effect="dark">
-                      {{ s.enabled ? $t('skill.enabled') : $t('skill.disabled') }}
-                    </el-tag>
                     <el-tag size="small" type="info" effect="plain">{{ sourceName(s.source) }}</el-tag>
                   </div>
                   <div v-if="s.name && s.name !== (s.alias || s.id)" class="item-field">
@@ -81,9 +78,6 @@
                   <div class="item-main">
                     <span class="item-name">{{ displayName(s) }}</span>
                     <el-tag v-for="tag in (s.tags || [])" :key="tag" size="small" type="warning" effect="plain">{{ tag }}</el-tag>
-                    <el-tag :type="s.enabled ? 'success' : 'danger'" size="small" effect="dark">
-                      {{ s.enabled ? $t('skill.enabled') : $t('skill.disabled') }}
-                    </el-tag>
                     <el-tag size="small" type="info" effect="plain">{{ sourceName(s.source) }}</el-tag>
                   </div>
                   <div v-if="s.name && s.name !== (s.alias || s.slug)" class="item-field">

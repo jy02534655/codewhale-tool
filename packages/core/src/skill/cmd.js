@@ -1,6 +1,6 @@
 /**
  * Skill 命令模块
- * 提供 enable / disable / update / remove / copyToProject 等变更操作
+ * 提供 update / remove / copyToProject 等变更操作
  */
 
 import { existsSync, rmSync } from 'node:fs';
@@ -8,26 +8,6 @@ import { join } from 'node:path';
 import { randomUUID } from 'node:crypto';
 import { getServerMessage } from '../utils/i18n.js';
 import { okMsg, failMsg, fail } from '../utils/result.js';
-
-/**
- * 启用 skill
- * @param {SkillStore} store
- * @param {string} skillId
- * @param {string} [hintLevel]
- */
-export function enable(store, skillId, hintLevel, projectId) {
-  return store.toggle(skillId, true, hintLevel, projectId);
-}
-
-/**
- * 禁用 skill
- * @param {SkillStore} store
- * @param {string} skillId
- * @param {string} [hintLevel]
- */
-export function disable(store, skillId, hintLevel, projectId) {
-  return store.toggle(skillId, false, hintLevel, projectId);
-}
 
 /**
  * 批量更新 skill 元数据
@@ -55,6 +35,20 @@ export function updateMeta(store, skillId, meta, hintLevel, projectId) {
  * @param {string} [hintLevel]
  */
 export function remove(store, skillId, hintLevel, projectId) {
+  // 手动安装在项目/全局目录但未注册到 store 的 skill
+  if (String(skillId).startsWith('local-')) {
+    const entry = store.findEntry(skillId, hintLevel, projectId);
+    if (!entry || !entry.path) return failMsg('SKILL_NOT_FOUND');
+    try {
+      if (existsSync(entry.path)) {
+        rmSync(entry.path, { recursive: true, force: true });
+      }
+    } catch {
+      // 目录删除失败不阻断
+    }
+    return okMsg('synced');
+  }
+
   return store.mutate(skillId, function (entries, idx, entry) {
     try {
       if (existsSync(entry.path)) {

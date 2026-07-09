@@ -1,12 +1,6 @@
 // Skill 命令与状态操作 API 接口
 import { ajaxPostBack, ajaxDeleteBack } from '@/utils/request';
 
-// 启用 skill
-export function enableSkill(id, level, projectId) { return ajaxPostBack('/skill/enable/' + id, { level, projectId }, { successMessage: true }); }
-
-// 禁用 skill
-export function disableSkill(id, level, projectId) { return ajaxPostBack('/skill/disable/' + id, { level, projectId }, { successMessage: true }); }
-
 // 删除 skill
 export function removeSkill(id, level, projectId) { return ajaxDeleteBack('/skill/remove/' + id, { level, projectId }, { successMessage: true }); }
 

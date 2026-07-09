@@ -9,7 +9,8 @@ import { existsSync, mkdirSync, readdirSync, copyFileSync } from 'node:fs';
 import { homedir } from 'node:os';
 import { join } from 'node:path';
 import { randomUUID } from 'node:crypto';
-import { okMsg, failMsg } from '../utils/result.js';
+import { failMsg } from '../utils/result.js';
+import { _extractMeta } from './shared.js';
 
 export class SkillStore {
   /**
@@ -75,13 +76,85 @@ export class SkillStore {
    * @returns {Object|null}
    */
   findEntry(skillId, level, projectId) {
-    if (level === 'global') return this.getGlobalInstalled().find((s) => s.id === skillId) || null;
-    if (level === 'project') return this.getProjectInstalled(projectId).find((s) => s.id === skillId) || null;
+    if (level === 'global') {
+      let entry = this.getGlobalInstalled().find((s) => s.id === skillId) || null;
+      if (!entry) entry = this._resolveLocalEntry(skillId, level, projectId);
+      return entry;
+    }
+    if (level === 'project') {
+      let entry = this.getProjectInstalled(projectId).find((s) => s.id === skillId) || null;
+      if (!entry) entry = this._resolveLocalEntry(skillId, level, projectId);
+      return entry;
+    }
     let entry = this.getGlobalInstalled().find((s) => s.id === skillId) || null;
     if (!entry) {
       entry = this.getProjectInstalled(projectId).find((s) => s.id === skillId) || null;
     }
+    if (!entry) {
+      entry = this._resolveLocalEntry(skillId, 'global', projectId) || this._resolveLocalEntry(skillId, 'project', projectId) || null;
+    }
     return entry;
+  }
+
+  /**
+   * 解析手动安装在目录下但未注册到 store 的 skill
+   * @param {string} skillId
+   * @param {string} level
+   * @param {string} [projectId]
+   * @returns {Object|null}
+   */
+  _resolveLocalEntry(skillId, level, projectId) {
+    if (!skillId.startsWith('local-')) return null;
+    const rest = skillId.slice(6);
+    if (!rest) return null;
+
+    if (level === 'global') {
+      const skillPath = join(this.skillsDir, rest);
+      if (!existsSync(join(skillPath, 'SKILL.md'))) return null;
+      const meta = _extractMeta(skillPath);
+      return {
+        id: skillId,
+        slug: rest,
+        name: meta.name,
+        description: meta.description,
+        path: skillPath,
+        enabled: true,
+        source: 'local',
+      };
+    }
+
+    if (level === 'project') {
+      let projectPath = null;
+      if (projectId && this.engine.projectManager) {
+        const projects = this.engine.getProjects();
+        const project = projects.find(function (p) { return p.id === projectId; });
+        if (project) projectPath = project.path;
+      }
+      if (!projectPath) projectPath = process.cwd();
+
+      let slug = rest;
+      if (projectId) {
+        const prefix = projectId + '-';
+        if (rest.startsWith(prefix)) {
+          slug = rest.slice(prefix.length);
+        }
+      }
+      if (!slug) return null;
+      const skillPath = join(projectPath, this.projectSkillsDir, slug);
+      if (!existsSync(join(skillPath, 'SKILL.md'))) return null;
+      const meta = _extractMeta(skillPath);
+      return {
+        id: skillId,
+        slug: slug,
+        name: meta.name,
+        description: meta.description,
+        path: skillPath,
+        enabled: true,
+        source: 'local',
+      };
+    }
+
+    return null;
   }
 
   /**
@@ -178,19 +251,6 @@ export class SkillStore {
       return result;
     }
     return failMsg('SKILL_NOT_FOUND');
-  }
-
-  /**
-   * @param {string} skillId
-   * @param {boolean} enabled
-   * @param {string} [hintLevel]
-   * @param {string} [projectId]
-   */
-  toggle(skillId, enabled, hintLevel, projectId) {
-    return this.mutate(skillId, function (entries, idx) {
-      entries[idx].enabled = enabled;
-      return okMsg('updated');
-    }, hintLevel, projectId);
   }
 
   // ------------------------------------------------------------------ //

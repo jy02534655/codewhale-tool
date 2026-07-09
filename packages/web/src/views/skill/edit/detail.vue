@@ -13,7 +13,6 @@
         <p v-else class="detail-remark--empty">{{ $t('skill.noRemark') }}</p>
       </div>
       <div class="detail-actions">
-        <el-button size="small" :type="skill.enabled ? 'warning' : 'success'" :icon="skill.enabled ? CircleClose : Check" @click="toggleSkillEnabled">{{ skill.enabled ? $t('skill.disable') : $t('skill.enable') }}</el-button>
         <el-button v-if="skill.source === 'community'" size="small" type="primary" :icon="Refresh" @click="updateCurrentSkill">{{ $t('skill.update') }}</el-button>
         <el-button size="small" type="success" :icon="Setting" @click="openEditDialog">{{ $t('skill.editInfo') }}</el-button>
         <el-button size="small" type="default" :icon="Edit" @click="editReadme">{{ $t('skill.editReadme') }}</el-button>
@@ -102,13 +101,13 @@ import { ref, computed, watch, nextTick } from 'vue'
 import { ElMessageBox, ElMessage } from 'element-plus'
 
 // 引入详情页用到的图标。
-import { ArrowDown, ArrowRight, Check, CircleClose, DocumentCopy, Delete, Edit, EditPen, Refresh, Setting } from '@element-plus/icons-vue'
+import { ArrowDown, ArrowRight, DocumentCopy, Delete, Edit, EditPen, Refresh, Setting } from '@element-plus/icons-vue'
 
 // 引入国际化函数，生成按钮与提示文案。
 import { useI18n } from 'vue-i18n'
 
 // 引入 Skill 相关接口。
-import { enableSkill, disableSkill, removeSkill, copySkillToProject } from '@/api/skill/cmd'
+import { removeSkill, copySkillToProject } from '@/api/skill/cmd'
 import { getSkillFiles, readSkillFile, removeSkillFile } from '@/api/skill/files'
 import { getProjectList } from '@/api/project'
 
@@ -366,17 +365,6 @@ function handleFileSaved() {
     loadFileContent(activeFile.value)
   }
   emit('refresh')
-}
-
-// 切换启用状态后刷新外层列表。
-function toggleSkillEnabled() {
-  if (!props.skill) return
-  const request = props.skill.enabled ? disableSkill(props.skill.id, props.skill.level, props.skill.projectId) : enableSkill(props.skill.id, props.skill.level, props.skill.projectId)
-  request.then(function () {
-    emit('refresh')
-  }).catch(function () {
-    ElMessage.error(t('message.networkError') || 'Operation failed')
-  })
 }
 
 // 更新当前 Skill 并通知外层刷新。
