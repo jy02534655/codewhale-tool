@@ -12,9 +12,9 @@ export function registerRoutes(router, skillMgr) {
     res.json(guard(() => skillMgr.listGlobal()));
   });
 
-  /** 获取项目 skill 列表 */
-  router.get('/list/project', (_req, res) => {
-    res.json(guard(() => skillMgr.listProject()));
+  /** 获取所有项目 skill 列表 */
+  router.get('/list/projects', (_req, res) => {
+    res.json(guard(() => skillMgr.listAllProjectSkills()));
   });
 
   /** 更新 skill 元数据 */

@@ -4,8 +4,8 @@ import { ajaxBack, ajaxPutBack } from '@/utils/request';
 // 获取全局 skill 列表
 export function getGlobalSkillList() { return ajaxBack('/skill/list/global'); }
 
-// 获取项目 skill 列表
-export function getProjectSkillList() { return ajaxBack('/skill/list/project'); }
+// 获取所有项目 skill 列表
+export function getAllProjectSkillList() { return ajaxBack('/skill/list/projects'); }
 
 // 合并更新元数据（alias + remark + tags）
 export function updateMeta(id, data) { return ajaxPutBack('/skill/meta/' + id, data, { successMessage: true }); }

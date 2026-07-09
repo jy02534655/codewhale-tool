@@ -31,7 +31,7 @@ export class SkillManager {
   // ------------------------------------------------------------------ //
 
   listGlobal() { return Routes.listGlobal(this._store); }
-  listProject() { return Routes.listProject(this._store); }
+  listAllProjectSkills() { return Routes.listAllProjectSkills(this._store); }
   getCurrentProject() { return Routes.getCurrentProject(this._store); }
   enable(skillId, hintLevel) { return Cmd.enable(this._store, skillId, hintLevel); }
   disable(skillId, hintLevel) { return Cmd.disable(this._store, skillId, hintLevel); }

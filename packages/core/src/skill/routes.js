@@ -14,11 +14,20 @@ export function listGlobal(store) {
 }
 
 /**
- * 获取项目已安装 skill 列表
+ * 获取所有项目的 skill 列表，并在每个 skill 上补充 project 字段
  * @param {SkillStore} store
  */
-export function listProject(store) {
-  return ok(store.getProjectInstalled());
+export function listAllProjectSkills(store) {
+  const projectManager = store.engine.projectManager;
+  const projects = projectManager ? projectManager.list().data : [];
+  const result = [];
+  projects.forEach(function (p) {
+    const skills = store.getProjectInstalled(p.id) || [];
+    skills.forEach(function (s) {
+      result.push(Object.assign({}, s, { project: p.alias || p.path || p.id }));
+    });
+  });
+  return ok(result);
 }
 
 /**

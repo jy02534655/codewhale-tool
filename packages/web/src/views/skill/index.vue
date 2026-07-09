@@ -123,7 +123,7 @@
  import { ref, computed, onMounted } from 'vue'
  import { useI18n } from 'vue-i18n'
  import { ElMessageBox } from 'element-plus'
- import { getGlobalSkillList, getProjectSkillList } from '@/api/skill/routes'
+  import { getGlobalSkillList, getAllProjectSkillList } from '@/api/skill/routes'
  import { useMaskingStore } from '@/stores/masking'
  import { compositionDialogContainer } from '@/composition/dialog/Container'
  import SplitLayout from '@/composition/layout/SplitLayout.vue'
@@ -207,7 +207,7 @@ const filteredProjectTree = computed(function () {
 })
 
 function loadSkills() {
-  Promise.all([getGlobalSkillList(), getProjectSkillList()])
+  Promise.all([getGlobalSkillList(), getAllProjectSkillList()])
     .then(function (results) {
       globalSkills.value = (results[0] || []).map(function (s) { s.level = 'global'; return s })
       projectSkills.value = (results[1] || []).map(function (s) { s.level = 'project'; return s })
