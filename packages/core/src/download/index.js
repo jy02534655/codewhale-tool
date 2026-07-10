@@ -7,7 +7,6 @@
  *   - shared.js        共享基础设施：writeSkillLog
  *   - utils.js         工具函数、阶段常量
  *   - http.js          HTTP 下载策略（Tar 流式 + API 并发）
- *   - git.js           git-sparse-checkout 策略
  *   - zip.js           ZIP 下载 + 解压策略
  *
  * 外部调用只 import 本文件，不需知道内部重构。
@@ -19,5 +18,4 @@ export { writeSkillLog } from './shared.js';
 export { downloadSkillFromGitHub } from './orchestrator.js';
 export { DOWNLOAD_STAGES, createAgent, emitProgress, parseRepoUrl, ProgressEmitter, proxyToUrl, applyRenameMap } from './utils.js';
 export { downloadViaTar, downloadViaApi, detectTarballSize, detectSkillPrefix } from './http.js';
-export { cloneWithGitSparse } from './git.js';
 export { downloadAndExtractZip } from './zip.js';
