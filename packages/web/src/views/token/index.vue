@@ -51,7 +51,7 @@
     </div>
 
     <!-- 新增/编辑弹窗 -->
-    <TokenEdit ref="dialogRef" @submitSuccess="loadList" />
+    <TokenEdit ref="dialogRef" @submitSuccess="loadList(true)" />
   </div>
 </template>
 
@@ -72,8 +72,8 @@ const dialogCtrl = compositionDialogContainer();
 
 const list = ref([]);
 
-function loadList() {
-  shareStore.getTokenList().then(function (result) {
+function loadList(isReLoad) {
+  shareStore.getTokenList(isReLoad).then(function (result) {
     list.value = result.data || [];
   });
 }
@@ -84,7 +84,7 @@ function onRemove(row) {
     t('common.confirm'),
     { type: 'warning' }
   ).then(function () {
-    removeToken(row.id).then(function () { loadList(); });
+    removeToken(row.id).then(function () { loadList(true); });
   });
 }
 

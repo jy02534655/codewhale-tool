@@ -8,18 +8,19 @@
  */
 
 import { randomUUID } from 'node:crypto';
-import { ok, failMsg } from './utils/result.js';
+import { failMsg } from './utils/result.js';
+import { Store } from './utils/store.js';
 
 /**
  * @typedef {import('./types.js').ProxyEntry} ProxyEntry
  */
 
-export class ProxyManager {
+export class ProxyManager extends Store {
   /**
-   * @param {import('./config.js').ConfigEngine} engine
+   * @param {import('./utils/config.js').ConfigEngine} engine
    */
   constructor(engine) {
-    this._engine = engine;
+    super(engine, engine.getProxies.bind(engine), engine.setProxies.bind(engine), 'proxy:');
   }
 
   /**
@@ -27,11 +28,10 @@ export class ProxyManager {
    * @returns {{success: boolean, data: ProxyEntry[]}}
    */
   list() {
-    const proxies = this._engine.getProxies();
-    return ok(proxies.map((p) => ({
+    return super.list((p) => ({
       ...p,
       auth: p.auth ? { ...p.auth, password: p.auth.password ? '******' : '' } : undefined,
-    })));
+    }));
   }
 
   /**
@@ -40,20 +40,18 @@ export class ProxyManager {
    * @returns {{success: boolean, data: ProxyEntry, message?: string}}
    */
   add(input) {
-    if (!input.alias || !input.type || !input.host || !input.port) {
-      return failMsg('VALIDATION_ERROR');
-    }
-    const entry = {
-      id: `proxy:${randomUUID()}`,
-      alias: input.alias,
-      default: this._engine.getProxies().length === 0,
-      type: input.type,
-      host: input.host,
-      port: input.port,
-      auth: input.auth && (input.auth.username || input.auth.password) ? input.auth : undefined,
-    };
-    this._engine.setProxies([...this._engine.getProxies(), entry]);
-    return ok(entry);
+    return super.add(input, {
+      validate: (i) => (!i.alias || !i.type || !i.host || !i.port ? failMsg('VALIDATION_ERROR') : null),
+      build: (i, items) => ({
+        id: this.makeId(randomUUID()),
+        alias: i.alias,
+        default: items.length === 0,
+        type: i.type,
+        host: i.host,
+        port: i.port,
+        auth: i.auth && (i.auth.username || i.auth.password) ? i.auth : undefined,
+      }),
+    });
   }
 
   /**
@@ -63,19 +61,11 @@ export class ProxyManager {
    * @returns {{success: boolean, data?: ProxyEntry, message?: string, errorCode?: string}}
    */
   update(id, updates) {
-    const proxies = this._engine.getProxies();
-    const idx = proxies.findIndex((p) => p.id === id);
-    if (idx === -1) return failMsg('PROXY_NOT_FOUND');
-
-    // 不允许修改 id
-    // eslint-disable-next-line no-unused-vars
-    const { id: _id, ...safe } = updates;
-    proxies[idx] = { ...proxies[idx], ...safe };
-    if (proxies[idx].auth && !proxies[idx].auth.username && !proxies[idx].auth.password) {
-      delete proxies[idx].auth;
-    }
-    this._engine.setProxies(proxies);
-    return ok(proxies[idx]);
+    return super.update(id, updates, 'PROXY_NOT_FOUND', (entry) => {
+      if (entry.auth && !entry.auth.username && !entry.auth.password) {
+        delete entry.auth;
+      }
+    });
   }
 
   /**
@@ -84,11 +74,7 @@ export class ProxyManager {
    * @returns {{success: boolean, message?: string}}
    */
   remove(id) {
-    const proxies = this._engine.getProxies();
-    const filtered = proxies.filter((p) => p.id !== id);
-    if (filtered.length === proxies.length) return failMsg('PROXY_NOT_FOUND');
-    this._engine.setProxies(filtered);
-    return ok({ removed: true });
+    return super.remove(id, 'PROXY_NOT_FOUND');
   }
 
   /**
@@ -97,12 +83,6 @@ export class ProxyManager {
    * @returns {{success: boolean, data?: ProxyEntry, message?: string, errorCode?: string}}
    */
   setDefault(id) {
-    const proxies = this._engine.getProxies();
-    const idx = proxies.findIndex((p) => p.id === id);
-    if (idx === -1) return failMsg('PROXY_NOT_FOUND');
-    proxies.forEach((p) => (p.default = p.id === id));
-    this._engine.setProxies(proxies);
-    return ok(proxies[idx]);
+    return super.setDefault(id, 'PROXY_NOT_FOUND');
   }
-
 }

@@ -8,7 +8,7 @@ import { join } from 'node:path';
 import { randomUUID } from 'node:crypto';
 import { getServerMessage } from '../utils/i18n.js';
 import { ok, fail } from '../utils/result.js';
-import { SkillStore } from './SkillStore.js';
+import { SkillStore } from './store.js';
 import * as Routes from './routes.js';
 import * as Cmd from './cmd.js';
 import * as Files from './files.js';

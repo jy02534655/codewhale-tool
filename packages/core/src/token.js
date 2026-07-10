@@ -9,18 +9,19 @@
  */
 
 import { randomUUID } from 'node:crypto';
-import { ok, failMsg } from './utils/result.js';
+import { failMsg } from './utils/result.js';
+import { Store } from './utils/store.js';
 
 /**
  * @typedef {import('./types.js').TokenEntry} TokenEntry
  */
 
-export class TokenManager {
+export class TokenManager extends Store {
   /**
-   * @param {import('./config.js').ConfigEngine} engine
+   * @param {import('./utils/config.js').ConfigEngine} engine
    */
   constructor(engine) {
-    this._engine = engine;
+    super(engine, engine.getTokens.bind(engine), engine.setTokens.bind(engine), 'token:');
   }
 
   /**
@@ -28,11 +29,10 @@ export class TokenManager {
    * @returns {{success: boolean, data: TokenEntry[]}}
    */
   list() {
-    const tokens = this._engine.getTokens();
-    return ok(tokens.map((t) => ({
-      ...t,
-      token: t.token ? maskToken(t.token) : '',
-    })));
+    return super.list((entry) => ({
+      ...entry,
+      token: entry.token ? maskToken(entry.token) : '',
+    }));
   }
 
   /**
@@ -41,17 +41,15 @@ export class TokenManager {
    * @returns {{success: boolean, data: TokenEntry, message?: string}}
    */
   add(input) {
-    if (!input.alias || !input.token) {
-      return failMsg('VALIDATION_ERROR');
-    }
-    const entry = {
-      id: `token:${randomUUID()}`,
-      alias: input.alias,
-      default: this._engine.getTokens().length === 0,
-      token: input.token,
-    };
-    this._engine.setTokens([...this._engine.getTokens(), entry]);
-    return ok(entry);
+    return super.add(input, {
+      validate: (i) => (!i.alias || !i.token ? failMsg('VALIDATION_ERROR') : null),
+      build: (i, items) => ({
+        id: this.makeId(randomUUID()),
+        alias: i.alias,
+        default: items.length === 0,
+        token: i.token,
+      }),
+    });
   }
 
   /**
@@ -61,15 +59,7 @@ export class TokenManager {
    * @returns {{success: boolean, data?: TokenEntry, message?: string, errorCode?: string}}
    */
   update(id, updates) {
-    const tokens = this._engine.getTokens();
-    const idx = tokens.findIndex((t) => t.id === id);
-    if (idx === -1) return failMsg('TOKEN_NOT_FOUND');
-
-    // eslint-disable-next-line no-unused-vars
-    const { id: _id, ...safe } = updates;
-    tokens[idx] = { ...tokens[idx], ...safe };
-    this._engine.setTokens(tokens);
-    return ok(tokens[idx]);
+    return super.update(id, updates, 'TOKEN_NOT_FOUND');
   }
 
   /**
@@ -78,11 +68,7 @@ export class TokenManager {
    * @returns {{success: boolean, message?: string}}
    */
   remove(id) {
-    const tokens = this._engine.getTokens();
-    const filtered = tokens.filter((t) => t.id !== id);
-    if (filtered.length === tokens.length) return failMsg('TOKEN_NOT_FOUND');
-    this._engine.setTokens(filtered);
-    return ok({ removed: true });
+    return super.remove(id, 'TOKEN_NOT_FOUND');
   }
 
   /**
@@ -100,12 +86,7 @@ export class TokenManager {
    * @returns {{success: boolean, data?: TokenEntry, message?: string, errorCode?: string}}
    */
   setDefault(id) {
-    const tokens = this._engine.getTokens();
-    const idx = tokens.findIndex((t) => t.id === id);
-    if (idx === -1) return failMsg('TOKEN_NOT_FOUND');
-    tokens.forEach((t) => (t.default = t.id === id));
-    this._engine.setTokens(tokens);
-    return ok(tokens[idx]);
+    return super.setDefault(id, 'TOKEN_NOT_FOUND');
   }
 
   /**

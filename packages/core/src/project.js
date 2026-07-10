@@ -5,89 +5,70 @@
  */
 
 import { randomUUID } from 'node:crypto';
-import { ok, failMsg } from './utils/result.js';
+import { failMsg } from './utils/result.js';
+import { Store } from './utils/store.js';
 
-/**
- * @param {import('./utils/config.js').ConfigEngine} engine
- */
-export class ProjectManager {
+export class ProjectManager extends Store {
   /**
    * @param {import('./utils/config.js').ConfigEngine} engine
    */
   constructor(engine) {
-    this._engine = engine;
+    super(engine, engine.getProjects.bind(engine), engine.setProjects.bind(engine), 'project:');
   }
 
   /** @returns {{ success: boolean, data: import('../types.js').ProjectEntry[], message: string }} */
   list() {
-    return ok(this._engine.getProjects());
+    return super.list();
   }
 
   /**
+   * 新增项目
    * @param {Partial<import('../types.js').ProjectEntry>} data
    * @returns {{ success: boolean, data: import('../types.js').ProjectEntry, message: string }}
    */
   add(data) {
-    if (!data.path) {
-      return failMsg('VALIDATION_ERROR');
-    }
-    const projects = this._engine.getProjects();
-    const entry = {
-      id: 'project:' + randomUUID(),
-      alias: data.alias || '',
-      path: data.path || '',
-      default: !!data.default,
-    };
-    projects.push(entry);
-    this._engine.setProjects(projects);
-    return ok(entry);
+    return super.add(data, {
+      validate: (input) => (!input.path ? failMsg('VALIDATION_ERROR') : null),
+      build: (input) => ({
+        id: this.makeId(randomUUID()),
+        alias: input.alias || '',
+        path: input.path || '',
+        default: !!input.default,
+      }),
+    });
   }
 
   /**
+   * 更新项目
    * @param {string} id
    * @param {Partial<import('../types.js').ProjectEntry>} data
    * @returns {{ success: boolean, data: import('../types.js').ProjectEntry, message: string }}
    */
   update(id, data) {
-    const projects = this._engine.getProjects();
-    const idx = projects.findIndex((p) => p.id === id);
-    if (idx === -1) return failMsg('PROJECT_NOT_FOUND');
-    projects[idx] = Object.assign(projects[idx], data, { id });
-    this._engine.setProjects(projects);
-    return ok(projects[idx]);
+    return super.update(id, data, 'PROJECT_NOT_FOUND');
   }
 
   /**
+   * 删除项目
    * @param {string} id
    * @returns {{ success: boolean, data: { removed: boolean }, message: string }}
    */
   remove(id) {
-    const projects = this._engine.getProjects();
-    const next = projects.filter((p) => p.id !== id);
-    if (next.length === projects.length) {
-      return failMsg('PROJECT_NOT_FOUND');
-    }
-    this._engine.setProjects(next);
-    return ok({ removed: true });
+    return super.remove(id, 'PROJECT_NOT_FOUND');
   }
 
   /**
+   * 设为默认项目
    * @param {string} id
    * @returns {{ success: boolean, data: import('../types.js').ProjectEntry, message: string }}
    */
   setDefault(id) {
-    const projects = this._engine.getProjects();
-    projects.forEach((p) => {
-      p.default = p.id === id;
-    });
-    this._engine.setProjects(projects);
-    const target = projects.find((p) => p.id === id);
-    return ok(target || null);
+    return super.setDefault(id, 'PROJECT_NOT_FOUND');
   }
 
   /** @returns {string|null} */
   getDefaultProjectId() {
-    const projects = this._engine.getProjects();
+    const projects = this._getter();
     if (!Array.isArray(projects) || projects.length === 0) return null;
     const defaultProject = projects.find((p) => p.default) || projects[0];
     return defaultProject.id || null;
@@ -98,7 +79,7 @@ export class ProjectManager {
    * @returns {string|null}
    */
   findProjectByPath(path) {
-    const projects = this._engine.getProjects();
+    const projects = this._getter();
     if (!Array.isArray(projects)) return null;
     return projects.find((p) => p.path && p.path.toLowerCase() === path.toLowerCase())?.id || null;
   }
