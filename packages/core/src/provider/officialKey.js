@@ -49,7 +49,7 @@ export class OfficialKeyManager {
   _mutateKey(id, fn) {
     const keys = this._engine.getOfficialKeys();
     const idx = keys.findIndex((k) => k.id === id);
-    if (idx === -1) return failMsg('KEY_NOT_FOUND');
+    if (idx === -1) return failMsg('keyNotFound');
     const result = fn(keys, idx, keys[idx]);
     this._engine.setOfficialKeys(keys);
     return result;
@@ -63,15 +63,15 @@ export class OfficialKeyManager {
    * @returns {{success: boolean, data?: any, message?: string, errorCode?: string}}
    */
   add({ alias, api_key } = {}) {
-    if (!api_key) return failMsg('KEY_REQUIRED');
+    if (!api_key) return failMsg('keyRequired');
     const id = 'official:' + api_key;
     const keys = this._engine.getOfficialKeys();
     if (keys.some((k) => k.id === id)) {
-      return failMsg('KEY_DUPLICATE');
+      return failMsg('keyDuplicate');
     }
     keys.push({ id, alias: alias || '默认', api_key, active: keys.length === 0 });
     this._engine.setOfficialKeys(keys);
-    return okMsg('keyAdded', { id });
+    return okMsg('added', { id });
   }
 
   /**
@@ -82,7 +82,7 @@ export class OfficialKeyManager {
   activate(id) {
     return this._mutateKey(id, (keys) => {
       keys.forEach((kk) => (kk.active = kk.id === id));
-      return okMsg('keyActivated');
+      return okMsg('activated');
     });
   }
 

@@ -28,7 +28,7 @@ export class ProjectManager extends Store {
    */
   add(data) {
     return super.add(data, {
-      validate: (input) => (!input.path ? failMsg('VALIDATION_ERROR') : null),
+      validate: (input) => (!input.path ? failMsg('validationError') : null),
       build: (input) => ({
         id: this.makeId(randomUUID()),
         alias: input.alias || '',
@@ -45,7 +45,7 @@ export class ProjectManager extends Store {
    * @returns {{ success: boolean, data: import('../types.js').ProjectEntry, message: string }}
    */
   update(id, data) {
-    return super.update(id, data, 'PROJECT_NOT_FOUND');
+    return super.update(id, data, 'projectNotFound');
   }
 
   /**
@@ -54,7 +54,7 @@ export class ProjectManager extends Store {
    * @returns {{ success: boolean, data: { removed: boolean }, message: string }}
    */
   remove(id) {
-    return super.remove(id, 'PROJECT_NOT_FOUND');
+    return super.remove(id, 'projectNotFound');
   }
 
   /**
@@ -63,7 +63,7 @@ export class ProjectManager extends Store {
    * @returns {{ success: boolean, data: import('../types.js').ProjectEntry, message: string }}
    */
   setDefault(id) {
-    return super.setDefault(id, 'PROJECT_NOT_FOUND');
+    return super.setDefault(id, 'projectNotFound');
   }
 
   /** @returns {string|null} */

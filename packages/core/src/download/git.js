@@ -24,7 +24,7 @@ export async function cloneWithGitSparse(repoUrl, skillPath, targetDir, proxy, o
 
   try {
     // 通知前端进入 git 稀疏克隆阶段。
-    emitProgress(onProgress, DOWNLOAD_STAGES.CLONING, 10, getServerMessage('SKILL_PROGRESS_GIT_SPARSE_CLONE'));
+    emitProgress(onProgress, DOWNLOAD_STAGES.CLONING, 10, getServerMessage('skillProgressGitSparseClone'));
 
     // 复用公共代理 URL 拼装逻辑，并同时注入 http/https 代理配置给 git CLI。
     const proxyUrl = proxyToUrl(proxy);
@@ -42,7 +42,7 @@ export async function cloneWithGitSparse(repoUrl, skillPath, targetDir, proxy, o
 
     if (skillPath) {
       // 稀疏路径设置单独提示，便于区分 clone 与 checkout 两段耗时。
-      emitProgress(onProgress, DOWNLOAD_STAGES.CHECKOUT, 40, getServerMessage('SKILL_PROGRESS_SPARSE_CHECKOUT', { path: skillPath }));
+      emitProgress(onProgress, DOWNLOAD_STAGES.CHECKOUT, 40, getServerMessage('skillProgressSparseCheckout', { path: skillPath }));
       const sparseCmd = [
         ...(proxyArgs ? ['git', proxyArgs, '-C', `"${tmpDir}"`, 'sparse-checkout', 'set', `"${skillPath}"`]
           : ['git', '-C', `"${tmpDir}"`, 'sparse-checkout', 'set', `"${skillPath}"`]),
@@ -51,21 +51,21 @@ export async function cloneWithGitSparse(repoUrl, skillPath, targetDir, proxy, o
     }
 
     // 统一将真正 checkout 文件的阶段名收敛为 checkout。
-    emitProgress(onProgress, DOWNLOAD_STAGES.CHECKOUT, 60, getServerMessage('SKILL_PROGRESS_CHECKOUT_FILES'));
+    emitProgress(onProgress, DOWNLOAD_STAGES.CHECKOUT, 60, getServerMessage('skillProgressCheckoutFiles'));
     execSync(`git -C "${tmpDir}" checkout`, { stdio: 'pipe', timeout: 60000 });
 
     const skillDir = skillPath ? join(tmpDir, ...skillPath.split('/')) : tmpDir;
 
     if (!existsSync(join(skillDir, 'SKILL.md'))) {
-      throw new Error(getServerMessage('SKILL_ERROR_README_NOT_FOUND'));
+      throw new Error(getServerMessage('skillErrorReadmeNotFound'));
     }
 
     // 将临时目录中的最终 skill 内容复制到目标目录。
-    emitProgress(onProgress, DOWNLOAD_STAGES.COPYING, 80, getServerMessage('SKILL_PROGRESS_COPYING'));
+    emitProgress(onProgress, DOWNLOAD_STAGES.COPYING, 80, getServerMessage('skillProgressCopying'));
     cpSync(skillDir, targetDir, { recursive: true, force: true });
 
     // 统一完成态，避免前端额外兼容 cloned/done 两套别名。
-    emitProgress(onProgress, DOWNLOAD_STAGES.DONE, 85, getServerMessage('SKILL_PROGRESS_CLONE_DONE'));
+    emitProgress(onProgress, DOWNLOAD_STAGES.DONE, 85, getServerMessage('skillProgressCloneDone'));
   } finally {
     try { rmSync(tmpDir, { recursive: true, force: true }); } catch { /* ignore */ }
   }

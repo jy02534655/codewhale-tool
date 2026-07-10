@@ -45,7 +45,7 @@ export class ProviderManager {
   _mutate(id, fn) {
     const all = this._engine.getProviders();
     const idx = all.findIndex((p) => p.id === id);
-    if (idx === -1) return failMsg('PROVIDER_NOT_FOUND');
+    if (idx === -1) return failMsg('providerNotFound');
     const result = fn(all, idx, all[idx]);
     this._engine.setProviders(all);
     return result;
@@ -115,12 +115,12 @@ export class ProviderManager {
    * @returns {{success: boolean, data?: any, message?: string, errorCode?: string}}
    */
   addProvider({ provider, api_key, label, base_url, models } = {}) {
-    if (!provider) return failMsg('PROVIDER_REQUIRED');
-    if (!api_key) return failMsg('KEY_REQUIRED');
-    if (base_url && !isValidUrl(base_url)) return failMsg('INVALID_BASE_URL');
+    if (!provider) return failMsg('providerRequired');
+    if (!api_key) return failMsg('keyRequired');
+    if (base_url && !isValidUrl(base_url)) return failMsg('invalidBaseUrl');
     const id = `${provider}:${api_key}`;
     if (this._engine.findProvider(id)) {
-      return failMsg('PROVIDER_DUPLICATE');
+      return failMsg('providerDuplicate');
     }
     const modelsArr = typeof models === 'string'
       ? models.split(',').map(s => s.trim()).filter(Boolean)
@@ -138,12 +138,12 @@ export class ProviderManager {
   /** @param {{id: string, provider?: string, label?: string, base_url?: string}} param */
   updateProvider({ id, provider, label, base_url } = {}) {
     return this._mutate(id, (all, idx, p) => {
-      if (base_url !== undefined && !isValidUrl(base_url)) return failMsg('INVALID_BASE_URL');
+      if (base_url !== undefined && !isValidUrl(base_url)) return failMsg('invalidBaseUrl');
 
       // 如果供应商类型变更，需重建主键：新id = 新provider:api_key
       if (provider !== undefined && provider !== p.provider) {
         const newId = `${provider}:${p.api_key}`;
-        if (all.some((x) => x.id === newId)) return failMsg('PROVIDER_DUPLICATE');
+        if (all.some((x) => x.id === newId)) return failMsg('providerDuplicate');
         const updated = { ...p, id: newId, provider };
         if (label !== undefined) updated.label = label;
         if (base_url !== undefined) updated.base_url = base_url;
@@ -175,7 +175,7 @@ export class ProviderManager {
   addModel({ id, name }) {
     return this._mutate(id, (all, idx, p) => {
       if (!p.models) p.models = [];
-      if (p.models.some((m) => m.name === name)) return failMsg('MODEL_DUPLICATE');
+      if (p.models.some((m) => m.name === name)) return failMsg('modelDuplicate');
       p.models.push({ name, active: false });
       return okMsg('modelAdded');
     });
@@ -184,9 +184,9 @@ export class ProviderManager {
   /** @param {{id: string, name: string}} param */
   removeModel({ id, name }) {
     return this._mutate(id, (all, idx, p) => {
-      if (!p.models || p.models.length <= 1) return failMsg('MODEL_MIN_ONE');
+      if (!p.models || p.models.length <= 1) return failMsg('modelMinOne');
       const mi = p.models.findIndex((m) => m.name === name);
-      if (mi === -1) return failMsg('MODEL_NOT_FOUND');
+      if (mi === -1) return failMsg('modelNotFound');
       const wasActive = p.models[mi].active;
       p.models.splice(mi, 1);
       if (wasActive) p.models[0].active = true;
@@ -197,9 +197,9 @@ export class ProviderManager {
   /** @param {{id: string, name: string}} param */
   setActiveModel({ id, name }) {
     return this._mutate(id, (all, idx, p) => {
-      if (!p.models) return failMsg('PROVIDER_NO_MODELS');
+      if (!p.models) return failMsg('providerNoModels');
       const target = p.models.find((m) => m.name === name);
-      if (!target) return failMsg('MODEL_NOT_FOUND');
+      if (!target) return failMsg('modelNotFound');
       p.models.forEach((m) => (m.active = m.name === name));
       return okMsg('modelSet');
     });

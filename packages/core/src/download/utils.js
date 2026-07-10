@@ -32,7 +32,7 @@ export function proxyToUrl(proxy) {
   if (!proxy || proxy.type === 'none' || proxy.type === '') return '';
   const protocol = PROXY_PROTOCOL_MAP[proxy.type];
   if (!protocol) {
-    throw new Error(getServerMessage('SKILL_ERROR_UNSUPPORTED_PROXY', { type: proxy.type }));
+    throw new Error(getServerMessage('skillErrorUnsupportedProxy', { type: proxy.type }));
   }
   const auth = proxy.auth
     ? `${encodeURIComponent(proxy.auth.username || '')}:${encodeURIComponent(proxy.auth.password || '')}@`
@@ -57,7 +57,7 @@ export function emitProgress(onProgress, stage, percent, message, extra = {}) {
 export function parseRepoUrl(repoUrl) {
   const cleaned = repoUrl.replace(/\.git\/?$/, '').replace(/\/$/, '');
   const match = cleaned.match(/github\.com\/([^/]+)\/([^/]+)$/);
-  if (!match) throw new Error(getServerMessage('SKILL_ERROR_INVALID_GITHUB_URL', { url: repoUrl }));
+  if (!match) throw new Error(getServerMessage('skillErrorInvalidGithubUrl', { url: repoUrl }));
   return { owner: match[1], repo: match[2] };
 }
 

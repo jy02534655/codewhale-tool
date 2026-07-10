@@ -41,7 +41,7 @@ export class ProxyManager extends Store {
    */
   add(input) {
     return super.add(input, {
-      validate: (i) => (!i.alias || !i.type || !i.host || !i.port ? failMsg('VALIDATION_ERROR') : null),
+      validate: (i) => (!i.alias || !i.type || !i.host || !i.port ? failMsg('validationError') : null),
       build: (i, items) => ({
         id: this.makeId(randomUUID()),
         alias: i.alias,
@@ -61,7 +61,7 @@ export class ProxyManager extends Store {
    * @returns {{success: boolean, data?: ProxyEntry, message?: string, errorCode?: string}}
    */
   update(id, updates) {
-    return super.update(id, updates, 'PROXY_NOT_FOUND', (entry) => {
+    return super.update(id, updates, 'proxyNotFound', (entry) => {
       if (entry.auth && !entry.auth.username && !entry.auth.password) {
         delete entry.auth;
       }
@@ -74,7 +74,7 @@ export class ProxyManager extends Store {
    * @returns {{success: boolean, message?: string}}
    */
   remove(id) {
-    return super.remove(id, 'PROXY_NOT_FOUND');
+    return super.remove(id, 'proxyNotFound');
   }
 
   /**
@@ -83,6 +83,6 @@ export class ProxyManager extends Store {
    * @returns {{success: boolean, data?: ProxyEntry, message?: string, errorCode?: string}}
    */
   setDefault(id) {
-    return super.setDefault(id, 'PROXY_NOT_FOUND');
+    return super.setDefault(id, 'proxyNotFound');
   }
 }

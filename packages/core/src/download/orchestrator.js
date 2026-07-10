@@ -41,7 +41,7 @@ export async function downloadSkillFromGitHub({
 }) {
   const logger = _setupLogger(onLog);
   const startTime = Date.now();
-  logger.log('INFO', 'SKILL_LOG_DOWNLOAD_START');
+  logger.log('INFO', 'skillLogDownloadStart');
 
   _logParams(logger, { repoUrl, skillName, destDir, proxy, token, renameMap, onProgress, level });
 
@@ -54,48 +54,48 @@ export async function downloadSkillFromGitHub({
     const treeParsed = parseGithubTreeUrl(repoUrl);
     effectiveBranch = treeParsed?.branch || 'main';
   }
-  logger.log('INFO', 'SKILL_LOG_REPO_INFO', null, { owner, repo, branch: effectiveBranch });
+  logger.log('INFO', 'skillLogRepoInfo', null, { owner, repo, branch: effectiveBranch });
 
   if (agent) {
-    logger.log('INFO', 'SKILL_LOG_PROXY_AGENT_CREATED',
+    logger.log('INFO', 'skillLogProxyAgentCreated',
       { type: proxy?.type, host: proxy?.host, port: proxy?.port });
   }
 
   // 1. 前缀探测
   emitProgress(onProgress, DOWNLOAD_STAGES.CONNECTING, 5,
-    getServerMessage('SKILL_PROGRESS_PARSING_REPO'));
+    getServerMessage('skillProgressParsingRepo'));
 
-  const spPrefix = logger.span('SKILL_LOG_PREFIX_PROBE');
+  const spPrefix = logger.span('skillLogPrefixProbe');
   const { prefix, treeCount, noMatch } = await detectSkillPrefix(
     owner, repo, skillName, effectiveBranch, agent, token,
   );
-  spPrefix.finish('INFO', 'SKILL_LOG_PREFIX_RESULT', { prefix });
+  spPrefix.finish('INFO', 'skillLogPrefixResult', { prefix });
 
   if (noMatch) {
-    logger.log('ERROR', 'SKILL_ERROR_SKILL_NOT_FOUND_REPO',
+    logger.log('ERROR', 'skillErrorSkillNotFoundRepo',
       { owner, repo, skillName, count: treeCount });
-    throw new Error(getServerMessage('SKILL_ERROR_SKILL_NOT_FOUND_REPO',
+    throw new Error(getServerMessage('skillErrorSkillNotFoundRepo',
       { owner, repo, skillName, count: treeCount }));
   }
 
   emitProgress(onProgress, DOWNLOAD_STAGES.DETECTED, 10,
-    getServerMessage('SKILL_PROGRESS_DETECTED_PREFIX', { prefix }));
+    getServerMessage('skillProgressDetectedPrefix', { prefix }));
 
   // 2. tarball 大小探测
-  const spSize = logger.span('SKILL_LOG_TARBALL_PROBE');
+  const spSize = logger.span('skillLogTarballProbe');
   const tarballSize = await detectTarballSize(owner, repo, effectiveBranch, agent);
-  spSize.finish('INFO', tarballSize ? 'SKILL_LOG_SIZE' : 'SKILL_LOG_SIZE_UNKNOWN',
+  spSize.finish('INFO', tarballSize ? 'skillLogSize' : 'skillLogSizeUnknown',
     tarballSize ? { size: formatBytes(tarballSize) } : null);
 
   emitProgress(onProgress, DOWNLOAD_STAGES.SIZING, 15,
     tarballSize
-      ? getServerMessage('SKILL_PROGRESS_TARBALL_SIZE', { size: formatBytes(tarballSize) })
-      : getServerMessage('SKILL_PROGRESS_CANNOT_DETECT_SIZE'));
+      ? getServerMessage('skillProgressTarballSize', { size: formatBytes(tarballSize) })
+      : getServerMessage('skillProgressCannotDetectSize'));
 
   // 3. 构建尝试前缀列表 + 策略路由
   const fallbackPrefixes = skillName.includes('/') ? [] : [`skills/${skillName}/`, `${skillName}/`];
   const tryPrefixes = [...new Set([prefix, ...fallbackPrefixes])];
-  logger.log('INFO', 'SKILL_LOG_TRY_PREFIXES', null, { tryPrefixes, treeCount, hasSize: !!tarballSize });
+  logger.log('INFO', 'skillLogTryPrefixes', null, { tryPrefixes, treeCount, hasSize: !!tarballSize });
 
   const useApi = _shouldUseApi(tarballSize, treeCount);
   _logStrategy(logger, useApi, tarballSize, treeCount);
@@ -113,7 +113,7 @@ export async function downloadSkillFromGitHub({
   _verifyResult(destDir, logger);
 
   const totalElapsed = Date.now() - startTime;
-  logger.log('INFO', 'SKILL_LOG_DOWNLOAD_DONE', null, { elapsed: `${totalElapsed}ms` });
+  logger.log('INFO', 'skillLogDownloadDone', null, { elapsed: `${totalElapsed}ms` });
 
   return { targetDir: destDir };
 }
@@ -128,7 +128,7 @@ function _setupLogger(onLog) {
 }
 
 function _logParams(logger, { repoUrl, skillName, destDir, proxy, token, renameMap, onProgress, level }) {
-  logger.log('INFO', 'SKILL_LOG_PARAMS', null, {
+  logger.log('INFO', 'skillLogParams', null, {
     repoUrl, skillName, destDir,
     hasProxy: !!proxy, proxyType: proxy?.type,
     hasToken: !!token, hasRenameMap: !!renameMap,
@@ -149,7 +149,7 @@ function _logStrategy(logger, useApi, tarballSize, treeCount) {
         ? `tarball ${formatBytes(tarballSize)} < 5MB`
         : 'cannot detect size, small repo try Tar');
 
-  logger.log('INFO', 'SKILL_LOG_STRATEGY_ROUTE', null, {
+  logger.log('INFO', 'skillLogStrategyRoute', null, {
     strategy: useApi ? 'API (B)' : 'Tar (A)',
     reason, tarballSize, treeCount,
   });
@@ -158,9 +158,9 @@ function _logStrategy(logger, useApi, tarballSize, treeCount) {
 // ─── Tar 策略 + API 回退 ───
 
 async function _executeTarWithFallback({ owner, repo, branch, tryPrefixes, destDir, agent, token, renameMap, onProgress, logger }) {
-  logger.log('INFO', 'SKILL_LOG_STRATEGY_TAR');
+  logger.log('INFO', 'skillLogStrategyTar');
   emitProgress(onProgress, DOWNLOAD_STAGES.DOWNLOADING, 15,
-    getServerMessage('SKILL_PROGRESS_TAR_STREAMING'));
+    getServerMessage('skillProgressTarStreaming'));
 
   let tarSucceeded = false;
   let lastTarError;
@@ -168,7 +168,7 @@ async function _executeTarWithFallback({ owner, repo, branch, tryPrefixes, destD
 
   for (const candidatePrefix of tryPrefixes) {
     tarAttempt++;
-    const span = logger.span('SKILL_LOG_TAR_ATTEMPT', { n: tarAttempt });
+    const span = logger.span('skillLogTarAttempt', { n: tarAttempt });
     try {
       await downloadViaTar({
         owner, repo, branch, skillPrefix: candidatePrefix,
@@ -177,29 +177,29 @@ async function _executeTarWithFallback({ owner, repo, branch, tryPrefixes, destD
 
       const files = fs.readdirSync(destDir);
       const hasSkillMd = fs.existsSync(path.join(destDir, 'SKILL.md'));
-      logger.log('INFO', 'SKILL_LOG_EXTRACT_RESULT', null, { filesCount: files.length, hasSkillMd });
+      logger.log('INFO', 'skillLogExtractResult', null, { filesCount: files.length, hasSkillMd });
 
       if (files.length > 0 && hasSkillMd) {
         tarSucceeded = true;
-        span.finish('INFO', 'SKILL_LOG_SUCCESS_N_FILES', { n: files.length });
+        span.finish('INFO', 'skillLogSuccessNFiles', { n: files.length });
         break;
       }
 
-      span.finish('WARN', 'SKILL_LOG_FAILED',
+      span.finish('WARN', 'skillLogFailed',
         { msg: `${files.length} files, SKILL.md=${hasSkillMd}` });
       emitProgress(onProgress, DOWNLOAD_STAGES.FALLBACK, 50,
-        getServerMessage('SKILL_PROGRESS_EXTRACT_NO_README', { n: files.length }));
+        getServerMessage('skillProgressExtractNoReadme', { n: files.length }));
       _safeRm(destDir);
     } catch (tarErr) {
       lastTarError = tarErr;
-      span.finish('ERROR', 'SKILL_LOG_ERROR', { msg: tarErr.message });
+      span.finish('ERROR', 'skillLogError', { msg: tarErr.message });
       emitProgress(onProgress, DOWNLOAD_STAGES.FALLBACK, 50,
-        getServerMessage('SKILL_PROGRESS_TAR_FAILED', { msg: tarErr.message }));
+        getServerMessage('skillProgressTarFailed', { msg: tarErr.message }));
       _safeRm(destDir);
 
       const msg = tarErr.message || '';
       if (msg.includes('fetch failed') || tarErr.name === 'AbortError') {
-        logger.log('WARN', 'SKILL_LOG_TAR_NETWORK_FAIL', null, { msg });
+        logger.log('WARN', 'skillLogTarNetworkFail', null, { msg });
         break;
       }
     }
@@ -218,10 +218,10 @@ async function _executeTarWithFallback({ owner, repo, branch, tryPrefixes, destD
 // ─── API 回退（从 Tar 降级） ───
 
 async function _fallbackToApi({ owner, repo, branch, tryPrefixes, destDir, agent, token, renameMap, onProgress, logger, lastTarError, tarAttempt }) {
-  logger.log('WARN', 'SKILL_LOG_API_ATTEMPT', { n: tarAttempt },
+  logger.log('WARN', 'skillLogApiAttempt', { n: tarAttempt },
     { message: 'all Tar attempts failed, fallback to API' });
   emitProgress(onProgress, DOWNLOAD_STAGES.FALLBACK, 50,
-    getServerMessage('SKILL_PROGRESS_FALLBACK_API'));
+    getServerMessage('skillProgressFallbackApi'));
   _safeRm(destDir);
 
   return _executeApiStrategy({
@@ -234,9 +234,9 @@ async function _fallbackToApi({ owner, repo, branch, tryPrefixes, destDir, agent
 
 async function _executeApiStrategy({ owner, repo, branch, tryPrefixes, destDir, agent, token, renameMap, onProgress, logger, isFallback, lastTarError }) {
   if (!isFallback) {
-    logger.log('INFO', 'SKILL_LOG_STRATEGY_API');
+    logger.log('INFO', 'skillLogStrategyApi');
     emitProgress(onProgress, DOWNLOAD_STAGES.FETCHING_TREE, 15,
-      getServerMessage('SKILL_PROGRESS_FETCHING_TREE'));
+      getServerMessage('skillProgressFetchingTree'));
   }
 
   let apiSucceeded = false;
@@ -244,7 +244,7 @@ async function _executeApiStrategy({ owner, repo, branch, tryPrefixes, destDir, 
 
   for (const candidatePrefix of tryPrefixes) {
     apiAttempt++;
-    const span = logger.span('SKILL_LOG_API_ATTEMPT', { n: apiAttempt });
+    const span = logger.span('skillLogApiAttempt', { n: apiAttempt });
     try {
       await downloadViaApi({
         owner, repo, branch, skillPrefix: candidatePrefix,
@@ -252,28 +252,28 @@ async function _executeApiStrategy({ owner, repo, branch, tryPrefixes, destDir, 
       });
 
       const hasSkillMd = fs.existsSync(path.join(destDir, 'SKILL.md'));
-      logger.log('INFO', 'SKILL_LOG_EXTRACT_RESULT', null, {
+      logger.log('INFO', 'skillLogExtractResult', null, {
         filesCount: fs.readdirSync(destDir).length, hasSkillMd,
       });
 
       if (hasSkillMd) {
         apiSucceeded = true;
-        span.finish('INFO', 'SKILL_LOG_SUCCESS_WITH_README');
+        span.finish('INFO', 'skillLogSuccessWithReadme');
         break;
       }
 
-      span.finish('WARN', 'SKILL_LOG_FAILED', { msg: 'no SKILL.md, continue next prefix' });
+      span.finish('WARN', 'skillLogFailed', { msg: 'no SKILL.md, continue next prefix' });
       _safeRm(destDir);
     } catch (apiErr) {
-      span.finish('ERROR', 'SKILL_LOG_ERROR', { msg: apiErr.message });
+      span.finish('ERROR', 'skillLogError', { msg: apiErr.message });
       emitProgress(onProgress, DOWNLOAD_STAGES.FALLBACK, 50,
-        getServerMessage('SKILL_PROGRESS_ALSO_FAILED',
+        getServerMessage('skillProgressAlsoFailed',
           { prefix: candidatePrefix, msg: apiErr.message }));
       _safeRm(destDir);
 
       const msg = apiErr.message || '';
       if (msg.includes('fetch failed') || msg.includes('socket disconnected') || apiErr.name === 'AbortError') {
-        logger.log('WARN', 'SKILL_LOG_API_NETWORK_FAIL', null, { msg });
+        logger.log('WARN', 'skillLogApiNetworkFail', null, { msg });
         break;
       }
     }
@@ -282,9 +282,9 @@ async function _executeApiStrategy({ owner, repo, branch, tryPrefixes, destDir, 
   if (!apiSucceeded) {
     const errMsg = isFallback && lastTarError
       ? lastTarError.message
-      : getServerMessage(isFallback ? 'SKILL_ERROR_ALL_STRATEGIES_FAILED' : 'SKILL_ERROR_API_ALL_PREFIXES_FAILED');
+      : getServerMessage(isFallback ? 'skillErrorAllStrategiesFailed' : 'skillErrorApiAllPrefixesFailed');
     logger.log('ERROR',
-      isFallback ? 'SKILL_ERROR_ALL_STRATEGIES_FAILED' : 'SKILL_ERROR_API_ALL_PREFIXES_FAILED');
+      isFallback ? 'skillErrorAllStrategiesFailed' : 'skillErrorApiAllPrefixesFailed');
     throw new Error(errMsg);
   }
 
@@ -295,8 +295,8 @@ async function _executeApiStrategy({ owner, repo, branch, tryPrefixes, destDir, 
 
 function _verifyResult(destDir, logger) {
   if (!fs.existsSync(path.join(destDir, 'SKILL.md'))) {
-    logger.log('ERROR', 'SKILL_LOG_FINAL_VERIFY_FAILED');
-    throw new Error(getServerMessage('SKILL_ERROR_README_NOT_FOUND'));
+    logger.log('ERROR', 'skillLogFinalVerifyFailed');
+    throw new Error(getServerMessage('skillErrorReadmeNotFound'));
   }
 }
 

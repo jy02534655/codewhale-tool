@@ -424,7 +424,7 @@ function confirmCopyToProject() {
     emit('refresh')
   }).catch(function (err) {
     const message = (err && err.message) || ''
-    if (message === 'SKILL_ALREADY_INSTALLED') {
+    if (message === 'skillAlreadyInstalled') {
       ElMessage.warning(t('skill.alreadyCopied') || '该 skill 已复制到所选项目')
     }
   }).finally(function () {

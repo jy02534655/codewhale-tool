@@ -33,11 +33,11 @@ export class FileManager {
     try {
       const resolved = path.resolve(dirPath);
       if (!fs.existsSync(resolved)) {
-        return failMsg('FILE_NOT_FOUND');
+        return failMsg('fileNotFound');
       }
       const stat = fs.statSync(resolved);
       if (!stat.isDirectory()) {
-        return failMsg('FILE_NOT_DIRECTORY');
+        return failMsg('fileNotDirectory');
       }
       const items = fs.readdirSync(resolved, { withFileTypes: true });
       const exts = (accept || '')
@@ -69,7 +69,7 @@ export class FileManager {
         }));
       return ok(result);
     } catch {
-      return failMsg('FILE_LIST_FAILED');
+      return failMsg('fileListFailed');
     }
   }
 
@@ -81,26 +81,26 @@ export class FileManager {
    */
   read(filePath) {
     if (!filePath) {
-      return failMsg('FILE_PATH_REQUIRED');
+      return failMsg('filePathRequired');
     }
     try {
       const resolved = path.resolve(filePath);
       if (!fs.existsSync(resolved)) {
-        return failMsg('FILE_NOT_FOUND');
+        return failMsg('fileNotFound');
       }
       const stat = fs.statSync(resolved);
       if (stat.isDirectory()) {
-        return failMsg('FILE_IS_DIRECTORY');
+        return failMsg('fileIsDirectory');
       }
       // 限制读取大小，防止加载过大的文件（例如 1MB）
       const MAX_SIZE = 1024 * 1024;
       if (stat.size > MAX_SIZE) {
-        return failMsg('FILE_TOO_LARGE');
+        return failMsg('fileTooLarge');
       }
       const content = fs.readFileSync(resolved, 'utf-8');
       return ok(content);
     } catch {
-      return failMsg('FILE_READ_FAILED');
+      return failMsg('fileReadFailed');
     }
   }
 

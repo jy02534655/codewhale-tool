@@ -230,7 +230,7 @@ export class SkillStore {
     if (hintLevel) {
       const entries = this.getLevelInstalled(hintLevel, projectId);
       const idx = entries.findIndex((s) => s.id === skillId);
-      if (idx === -1) return failMsg('SKILL_NOT_FOUND');
+      if (idx === -1) return failMsg('skillNotFound');
       const result = fn(entries, idx, entries[idx], hintLevel, this.engine);
       this.setLevelInstalled(hintLevel, entries, projectId);
       return result;
@@ -250,7 +250,7 @@ export class SkillStore {
       this.setLevelInstalled('project', projectEntries, projectId);
       return result;
     }
-    return failMsg('SKILL_NOT_FOUND');
+    return failMsg('skillNotFound');
   }
 
   // ------------------------------------------------------------------ //

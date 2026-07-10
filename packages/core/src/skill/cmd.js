@@ -38,7 +38,7 @@ export function remove(store, skillId, hintLevel, projectId) {
   // 手动安装在项目/全局目录但未注册到 store 的 skill
   if (String(skillId).startsWith('local-')) {
     const entry = store.findEntry(skillId, hintLevel, projectId);
-    if (!entry || !entry.path) return failMsg('SKILL_NOT_FOUND');
+    if (!entry || !entry.path) return failMsg('skillNotFound');
     try {
       if (existsSync(entry.path)) {
         rmSync(entry.path, { recursive: true, force: true });
@@ -70,14 +70,14 @@ export function remove(store, skillId, hintLevel, projectId) {
  */
 export function copyToProject(store, skillId, projectId) {
   const entry = store.getGlobalInstalled().find(function (s) { return s.id === skillId; });
-  if (!entry) return failMsg('SKILL_NOT_FOUND');
+  if (!entry) return failMsg('skillNotFound');
 
   const targetProjectId = projectId || store.getCurrentProjectId();
-  if (!targetProjectId) return failMsg('PROJECT_NOT_FOUND');
+  if (!targetProjectId) return failMsg('projectNotFound');
 
   const projectInstalled = store.getProjectInstalled(targetProjectId);
   if (projectInstalled.some(function (s) { return s.slug === entry.slug; })) {
-    return failMsg('SKILL_ALREADY_INSTALLED');
+    return failMsg('skillAlreadyInstalled');
   }
 
   const newId = randomUUID();
@@ -106,6 +106,6 @@ export function copyToProject(store, skillId, projectId) {
     return okMsg('synced');
   } catch (err) {
     try { if (existsSync(targetDir)) rmSync(targetDir, { recursive: true, force: true }); } catch { /* ignore */ }
-    return fail(getServerMessage('SKILL_INSTALL_FAILED') + ': ' + err.message);
+    return fail(getServerMessage('skillInstallFailed') + ': ' + err.message);
   }
 }

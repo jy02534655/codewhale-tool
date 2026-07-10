@@ -16,7 +16,7 @@ import { ok, fail, failMsg, okMsg } from '../utils/result.js';
  */
 export function getSkillFiles(store, skillId, level, projectId) {
   const entry = store.findEntry(skillId, level, projectId);
-  if (!entry) return failMsg('SKILL_NOT_FOUND');
+  if (!entry) return failMsg('skillNotFound');
 
   const files = [];
   const _walk = function (dir, prefix) {
@@ -45,9 +45,9 @@ export function getSkillFiles(store, skillId, level, projectId) {
  */
 export function readSkillFile(store, skillId, filePath, level, projectId) {
   const entry = store.findEntry(skillId, level, projectId);
-  if (!entry) return failMsg('SKILL_NOT_FOUND');
+  if (!entry) return failMsg('skillNotFound');
   const fullPath = join(entry.path, filePath);
-  if (!existsSync(fullPath)) return failMsg('SKILL_FILE_NOT_FOUND');
+  if (!existsSync(fullPath)) return failMsg('skillFileNotFound');
 
   try {
     const content = readFileSync(fullPath, 'utf-8');
@@ -70,7 +70,7 @@ export function saveSkillFile(store, skillId, filePath, content, level, projectI
   return store.mutate(skillId, function (entries, idx) {
     const entry = entries[idx];
     const fullPath = join(entry.path, filePath);
-    if (!existsSync(fullPath)) return failMsg('SKILL_FILE_NOT_FOUND');
+    if (!existsSync(fullPath)) return failMsg('skillFileNotFound');
     writeFileSync(fullPath, content, 'utf-8');
     entry.updated_at = Date.now();
     return okMsg('updated');
@@ -89,7 +89,7 @@ export function removeSkillFile(store, skillId, filePath, level, projectId) {
   return store.mutate(skillId, function (entries, idx) {
     const entry = entries[idx];
     const fullPath = join(entry.path, filePath);
-    if (!existsSync(fullPath)) return failMsg('SKILL_FILE_NOT_FOUND');
+    if (!existsSync(fullPath)) return failMsg('skillFileNotFound');
     unlinkSync(fullPath);
     entry.updated_at = Date.now();
     return okMsg('updated');

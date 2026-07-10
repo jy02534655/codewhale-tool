@@ -73,7 +73,7 @@ export class SyncManager {
   initSync() {
     const cwPath = codeWhalePath();
     if (!existsSync(cwPath)) {
-      return okMsg('CONFIG_NOT_EXISTS', { merged: 0 });
+      return okMsg('configNotExists', { merged: 0 });
     }
 
     try {
@@ -90,7 +90,7 @@ export class SyncManager {
           existingKeys.forEach((k) => (k.active = false));
           existingKeys.push({
             id: 'official:' + cwCfg.api_key,
-            alias: getServerMessage('IMPORTED_ALIAS'),
+            alias: getServerMessage('importedAlias'),
             api_key: cwCfg.api_key,
             active: true,
           });
@@ -158,9 +158,9 @@ export class SyncManager {
 
       this._engine.setProviders(localProviders);
 
-      return okMsg('SYNC_MERGED', { merged: mergedCount }, { count: mergedCount });
+      return okMsg('syncMerged', { merged: mergedCount }, { count: mergedCount });
     } catch {
-      return failMsg('CONFIG_PARSE_ERROR');
+      return failMsg('configParseError');
     }
   }
 
@@ -258,7 +258,7 @@ export class SyncManager {
   activateOfficialAndSync(id) {
     return this._syncAfter(() => {
       if (!this._officialKeyMgr) {
-        return failMsg('OFFICIAL_MGR_NOT_READY');
+        return failMsg('officialMgrNotReady');
       }
       return this._officialKeyMgr.activate(id);
     });

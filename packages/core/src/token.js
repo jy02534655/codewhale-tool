@@ -42,7 +42,7 @@ export class TokenManager extends Store {
    */
   add(input) {
     return super.add(input, {
-      validate: (i) => (!i.alias || !i.token ? failMsg('VALIDATION_ERROR') : null),
+      validate: (i) => (!i.alias || !i.token ? failMsg('validationError') : null),
       build: (i, items) => ({
         id: this.makeId(randomUUID()),
         alias: i.alias,
@@ -59,7 +59,7 @@ export class TokenManager extends Store {
    * @returns {{success: boolean, data?: TokenEntry, message?: string, errorCode?: string}}
    */
   update(id, updates) {
-    return super.update(id, updates, 'TOKEN_NOT_FOUND');
+    return super.update(id, updates, 'tokenNotFound');
   }
 
   /**
@@ -68,7 +68,7 @@ export class TokenManager extends Store {
    * @returns {{success: boolean, message?: string}}
    */
   remove(id) {
-    return super.remove(id, 'TOKEN_NOT_FOUND');
+    return super.remove(id, 'tokenNotFound');
   }
 
   /**
@@ -86,7 +86,7 @@ export class TokenManager extends Store {
    * @returns {{success: boolean, data?: TokenEntry, message?: string, errorCode?: string}}
    */
   setDefault(id) {
-    return super.setDefault(id, 'TOKEN_NOT_FOUND');
+    return super.setDefault(id, 'tokenNotFound');
   }
 
   /**

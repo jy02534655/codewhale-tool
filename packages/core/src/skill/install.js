@@ -111,7 +111,7 @@ export async function _installFromGitHubV2(store, opts, progressCb, logCb) {
   const onLog = logCb;
 
   const parsed = _parseGitHubUrl(opts.repoUrl);
-  if (!parsed) return failMsg('SKILL_INVALID_REPO_URL');
+  if (!parsed) return failMsg('skillInvalidRepoUrl');
 
   const finalSkillId = opts._skillId || (opts.skillPath ? basename(opts.skillPath) : parsed.repo);
   const finalTargetDir = opts._targetDir || (targetLevel === 'project'
@@ -122,12 +122,12 @@ export async function _installFromGitHubV2(store, opts, progressCb, logCb) {
 
   const installed = store.getLevelInstalled(targetLevel);
   if (installed.some(function (s) { return s.slug === finalSkillId; })) {
-    return failMsg('SKILL_ALREADY_INSTALLED');
+    return failMsg('skillAlreadyInstalled');
   }
 
   try {
     if (onProgress) {
-      onProgress({ stage: 'connecting', percent: 5, message: getServerMessage('SKILL_PROGRESS_CONNECTING_GITHUB') });
+      onProgress({ stage: 'connecting', percent: 5, message: getServerMessage('skillProgressConnectingGithub') });
     }
 
     if (!opts.proxyConfig && opts.proxyUrl) {
@@ -165,21 +165,21 @@ export async function _installFromGitHubV2(store, opts, progressCb, logCb) {
     });
 
     if (onProgress) {
-      onProgress({ stage: 'registering', percent: 90, message: getServerMessage('SKILL_PROGRESS_REGISTERING') });
+      onProgress({ stage: 'registering', percent: 90, message: getServerMessage('skillProgressRegistering') });
     }
 
     const meta = _extractMeta(finalTargetDir);
     _finalizeInstall(store, finalSkillId, targetLevel, meta, finalTargetDir, opts, projectId);
 
     if (onProgress) {
-      onProgress({ stage: 'done', percent: 100, message: getServerMessage('SKILL_PROGRESS_DONE') });
+      onProgress({ stage: 'done', percent: 100, message: getServerMessage('skillProgressDone') });
     }
 
     return okMsg('synced');
   } catch (err) {
     try { if (existsSync(finalTargetDir)) rmSync(finalTargetDir, { recursive: true, force: true }); } catch { /* ignore */ }
-    const failMessage = getServerMessage('SKILL_INSTALL_FAILED') + ': ' + err.message;
-    return fail(failMessage, 'SKILL_INSTALL_FAILED');
+    const failMessage = getServerMessage('skillInstallFailed') + ': ' + err.message;
+    return fail(failMessage, 'skillInstallFailed');
   }
 }
 
@@ -217,7 +217,7 @@ export async function installFromZip(store, zipSource, skillPath, level, proxyCo
 
   const installed = store.getLevelInstalled(targetLevel);
   if (installed.some(function (s) { return s.slug === finalSkillId; })) {
-    return failMsg('SKILL_ALREADY_INSTALLED');
+    return failMsg('skillAlreadyInstalled');
   }
 
   try {
@@ -246,14 +246,14 @@ export async function installFromZip(store, zipSource, skillPath, level, proxyCo
           sourceDir = extractRoot;
         } else {
           try { rmSync(tempDir, { recursive: true, force: true }); } catch { /* ignore */ }
-          return failMsg('SKILL_NOT_FOUND');
+          return failMsg('skillNotFound');
         }
       }
     } else {
       sourceDir = extractRoot;
       if (!existsSync(join(sourceDir, 'SKILL.md'))) {
         try { rmSync(tempDir, { recursive: true, force: true }); } catch { /* ignore */ }
-        return failMsg('SKILL_NOT_FOUND');
+        return failMsg('skillNotFound');
       }
     }
 
@@ -266,7 +266,7 @@ export async function installFromZip(store, zipSource, skillPath, level, proxyCo
     _finalizeInstall(store, finalSkillId, targetLevel, meta, finalTargetDir, rawOpts, projectId);
 
     if (onProgress) {
-      onProgress({ stage: 'done', percent: 100, message: getServerMessage('SKILL_PROGRESS_DONE') });
+      onProgress({ stage: 'done', percent: 100, message: getServerMessage('skillProgressDone') });
     }
 
     try { rmSync(tempDir, { recursive: true, force: true }); } catch { /* ignore */ }
@@ -274,8 +274,8 @@ export async function installFromZip(store, zipSource, skillPath, level, proxyCo
     return okMsg('synced');
   } catch (err) {
     try { if (existsSync(finalTargetDir)) rmSync(finalTargetDir, { recursive: true, force: true }); } catch { /* ignore */ }
-    const failMessage = getServerMessage('SKILL_INSTALL_FAILED') + ': ' + err.message;
-    return fail(failMessage, 'SKILL_INSTALL_FAILED');
+    const failMessage = getServerMessage('skillInstallFailed') + ': ' + err.message;
+    return fail(failMessage, 'skillInstallFailed');
   }
 }
 
@@ -311,12 +311,12 @@ export async function installFromZipStream(store, zipPath, skillName, level, pro
     }
   }
 
-  emitSkillInstallLog(onLog, 'INFO', { key: 'SKILL_PROGRESS_EXTRACTING' });
+  emitSkillInstallLog(onLog, 'INFO', { key: 'skillProgressExtracting' });
   const result = await installFromZip(store, zipPath, skillName, level, proxyConfig, onProgress, _internal);
   if (result.success) {
-    emitSkillInstallLog(onLog, 'INFO', { key: 'SKILL_PROGRESS_DONE' });
+    emitSkillInstallLog(onLog, 'INFO', { key: 'skillProgressDone' });
   } else {
-    const failMessage = result.message || getServerMessage('SKILL_INSTALL_FAILED');
+    const failMessage = result.message || getServerMessage('skillInstallFailed');
     emitSkillInstallLog(onLog, 'ERROR', { message: failMessage });
   }
   return result;
@@ -337,7 +337,7 @@ export async function installFromGithubTreePath(store, githubUrl, level, proxyId
   const { parseGithubTreeUrl } = await import('../download/utils.js');
   const parsed = parseGithubTreeUrl(githubUrl);
   if (!parsed) {
-    return failMsg('SKILL_INVALID_REPO_URL');
+    return failMsg('skillInvalidRepoUrl');
   }
 
   const repoUrl = 'https://github.com/' + parsed.owner + '/' + parsed.repo;
@@ -393,7 +393,7 @@ export async function install(store, opts, onProgress, onLog) {
       _rawOpts: opts,
     });
   }
-  return failMsg('SKILL_INVALID_INSTALL_TYPE');
+  return failMsg('skillInvalidInstallType');
 }
 
 
@@ -413,15 +413,15 @@ export async function install(store, opts, onProgress, onLog) {
 export async function update(store, opts, onProgress, onLog) {
   const skillId = opts.skillId;
   if (!skillId) {
-    emitSkillInstallLog(onLog, 'ERROR', { key: 'SKILL_UPDATE_MISSING_ID' });
-    return failMsg('SKILL_UPDATE_REQUIRES_ID');
+    emitSkillInstallLog(onLog, 'ERROR', { key: 'skillUpdateMissingId' });
+    return failMsg('skillUpdateRequiresId');
   }
 
   // 查找现有 skill，不存在则记录错误日志
   const existing = store.findEntry(skillId);
   if (!existing) {
-    emitSkillInstallLog(onLog, 'ERROR', { key: 'SKILL_UPDATE_NOT_FOUND', params: { skillId } });
-    return failMsg('SKILL_NOT_FOUND');
+    emitSkillInstallLog(onLog, 'ERROR', { key: 'skillUpdateNotFound', params: { skillId } });
+    return failMsg('skillNotFound');
   }
 
   const level = opts.level || existing.level || 'global';
@@ -445,13 +445,13 @@ export async function update(store, opts, onProgress, onLog) {
   if (!result.success) {
     // 临时安装失败，清理临时目录并记录错误日志
     try { rmSync(tempTargetDir, { recursive: true, force: true }); } catch { /* ignore */ }
-    emitSkillInstallLog(onLog, 'ERROR', { key: 'SKILL_UPDATE_TEMP_INSTALL_FAILED', params: { message: result.message || getServerMessage('SKILL_UPDATE_UNKNOWN_ERROR') } });
+    emitSkillInstallLog(onLog, 'ERROR', { key: 'skillUpdateTempInstallFailed', params: { message: result.message || getServerMessage('skillUpdateUnknownError') } });
     return result;
   }
 
   // --- 安装成功，执行原子替换 ---
   // 临时副本安装成功，开始原子替换旧版本
-  emitSkillInstallLog(onLog, 'INFO', { key: 'SKILL_UPDATE_REPLACING' });
+  emitSkillInstallLog(onLog, 'INFO', { key: 'skillUpdateReplacing' });
 
   // 1. 删除旧目录
   try { rmSync(baseTargetDir, { recursive: true, force: true }); } catch { /* ignore */ }
@@ -462,8 +462,8 @@ export async function update(store, opts, onProgress, onLog) {
   } catch {
     // 替换目录失败，清理临时目录并记录错误日志
     try { rmSync(tempTargetDir, { recursive: true, force: true }); } catch { /* ignore */ }
-    emitSkillInstallLog(onLog, 'ERROR', { key: 'SKILL_UPDATE_REPLACE_FAILED' });
-    return fail('更新失败：无法替换目录', 'SKILL_UPDATE_FAILED');
+    emitSkillInstallLog(onLog, 'ERROR', { key: 'skillUpdateReplaceFailed' });
+    return fail('更新失败：无法替换目录', 'skillUpdateFailed');
   }
 
   // 3. 清理 store 中临时 entry
@@ -485,6 +485,6 @@ export async function update(store, opts, onProgress, onLog) {
   }, level, projectId);
 
   // 原子替换完成，记录更新成功日志
-  emitSkillInstallLog(onLog, 'INFO', { key: 'SKILL_UPDATE_SUCCESS', params: { skillId } });
+  emitSkillInstallLog(onLog, 'INFO', { key: 'skillUpdateSuccess', params: { skillId } });
   return okMsg('updated');
 }

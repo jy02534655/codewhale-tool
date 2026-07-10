@@ -44,7 +44,7 @@ export class Logger {
 
   setFile(filePath) {
     this._file = filePath;
-    this.log('INFO', 'SKILL_LOG_NEW_LOG');
+    this.log('INFO', 'skillLogNewLog');
   }
 
   setCallback(fn) {

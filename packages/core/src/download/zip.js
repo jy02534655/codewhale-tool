@@ -26,7 +26,7 @@ async function downloadZipWithProxy(url, destPath, proxy, onProgress) {
       signal: AbortSignal.timeout(120000),
     });
     if (!response.ok) {
-      throw new Error(getServerMessage('SKILL_ZIP_DOWNLOAD_FAILED'));
+      throw new Error(getServerMessage('skillZipDownloadFailed'));
     }
     const contentLength = parseInt(response.headers.get('content-length') || '0', 10);
     const fileStream = createWriteStream(destPath);
@@ -46,7 +46,7 @@ async function downloadZipWithProxy(url, destPath, proxy, onProgress) {
             else {
               if (onProgress && contentLength > 0) {
                 const pct = Math.round((totalBytes / contentLength) * 100);
-                onProgress({ stage: DOWNLOAD_STAGES.DOWNLOADING, percent: Math.min(pct, 99), message: getServerMessage('SKILL_PROGRESS_DOWNLOADING_PCT', { pct }) });
+                onProgress({ stage: DOWNLOAD_STAGES.DOWNLOADING, percent: Math.min(pct, 99), message: getServerMessage('skillProgressDownloadingPct', { pct }) });
               }
               pump();
             }
@@ -75,7 +75,7 @@ async function downloadZipWithProxy(url, destPath, proxy, onProgress) {
         return;
       }
       if (res.statusCode < 200 || res.statusCode >= 300) {
-        reject(new Error(getServerMessage('SKILL_ERROR_PROXY_DOWNLOAD', { status: res.statusCode })));
+        reject(new Error(getServerMessage('skillErrorProxyDownload', { status: res.statusCode })));
         return;
       }
       const contentLength = parseInt(res.headers['content-length'] || '0', 10);
@@ -86,7 +86,7 @@ async function downloadZipWithProxy(url, destPath, proxy, onProgress) {
         fileStream.write(chunk);
         if (onProgress && contentLength > 0) {
           const pct = Math.round((totalBytes / contentLength) * 100);
-          onProgress({ stage: DOWNLOAD_STAGES.DOWNLOADING, percent: Math.min(pct, 99), message: getServerMessage('SKILL_PROGRESS_DOWNLOADING_PCT', { pct }) });
+          onProgress({ stage: DOWNLOAD_STAGES.DOWNLOADING, percent: Math.min(pct, 99), message: getServerMessage('skillProgressDownloadingPct', { pct }) });
         }
       });
 
@@ -111,13 +111,13 @@ export async function downloadAndExtractZip(zipUrl, targetDir, proxy, onProgress
 
   try {
     if (onProgress) {
-      onProgress({ stage: DOWNLOAD_STAGES.CONNECTING, percent: 5, message: getServerMessage('SKILL_PROGRESS_CONNECTING_GITHUB') });
+      onProgress({ stage: DOWNLOAD_STAGES.CONNECTING, percent: 5, message: getServerMessage('skillProgressConnectingGithub') });
     }
 
     await downloadZipWithProxy(zipUrl, tmpFile, proxy, onProgress);
 
     if (onProgress) {
-      onProgress({ stage: DOWNLOAD_STAGES.EXTRACTING, percent: 60, message: getServerMessage('SKILL_PROGRESS_EXTRACTING') });
+      onProgress({ stage: DOWNLOAD_STAGES.EXTRACTING, percent: 60, message: getServerMessage('skillProgressExtracting') });
     }
 
     const zip = new AdmZip(tmpFile);
