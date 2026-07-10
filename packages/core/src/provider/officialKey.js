@@ -3,6 +3,7 @@
  */
 
 import { ok, okMsg, failMsg } from '../utils/result.js';
+import { Store } from '../utils/store.js';
 
 /** 掩码显示 API key（前5位 + ... + 后4位） */
 export function maskKey(key) {
@@ -25,6 +26,13 @@ export class OfficialKeyManager {
    */
   constructor(engine) {
     this._engine = engine;
+    // 组合通用 Store，复用 add/update 的校验、构建与 message 返回逻辑
+    this._store = new Store(
+      engine,
+      () => this._engine.getOfficialKeys(),
+      (keys) => this._engine.setOfficialKeys(keys),
+      'official:'
+    );
   }
 
   /** @returns {{success: boolean, data: import('../types.js').OfficialKeyEntry[], message: string}} */
@@ -63,15 +71,26 @@ export class OfficialKeyManager {
    * @returns {{success: boolean, data?: any, message?: string, errorCode?: string}}
    */
   add({ alias, api_key } = {}) {
-    if (!api_key) return failMsg('keyRequired');
-    const id = 'official:' + api_key;
-    const keys = this._engine.getOfficialKeys();
-    if (keys.some((k) => k.id === id)) {
-      return failMsg('keyDuplicate');
-    }
-    keys.push({ id, alias: alias || '默认', api_key, active: keys.length === 0 });
-    this._engine.setOfficialKeys(keys);
-    return okMsg('added', { id });
+    // 委托给通用 Store，复用 validate/build/okMsg 流程
+    return this._store.add(
+      { alias, api_key },
+      {
+        validate: (input) => {
+          if (!input.api_key) return failMsg('keyRequired');
+          const keys = this._engine.getOfficialKeys();
+          if (keys.some((k) => k.id === 'official:' + input.api_key)) {
+            return failMsg('keyDuplicate');
+          }
+          return null;
+        },
+        build: (input, existing) => ({
+          id: 'official:' + input.api_key,
+          alias: input.alias || '默认',
+          api_key: input.api_key,
+          active: existing.length === 0,
+        }),
+      }
+    );
   }
 
   /**
@@ -92,10 +111,8 @@ export class OfficialKeyManager {
    * @returns {{success: boolean, data?: any, message?: string, errorCode?: string}}
    */
   updateAlias({ id, alias }) {
-    return this._mutateKey(id, (keys, idx, k) => {
-      k.alias = alias;
-      return okMsg('aliasUpdated');
-    });
+    // 委托给通用 Store.update，复用 not-found 处理与 okMsg
+    return this._store.update(id, { alias }, 'keyNotFound', undefined, 'aliasUpdated');
   }
 
   /**
