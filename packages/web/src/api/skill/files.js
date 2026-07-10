@@ -1,14 +1,14 @@
 // Skill 文件操作 API 接口
-import { ajaxBack, ajaxPutBack, ajaxDeleteBack } from '@/utils/request';
+import { ajaxPostBack, ajaxPutBack, ajaxDeleteBack } from '@/utils/request';
 
 // 获取 skill 目录下的文件列表
 export function getSkillFiles(id, level, projectId) {
-  return ajaxBack('/skill/files/' + id, { level, projectId })
+  return ajaxPostBack('/skill/files/' + id, { level, projectId })
 }
 
 // 读取 skill 目录下的指定文件
 export function readSkillFile(id, filePath, level, projectId) {
-  return ajaxBack('/skill/file/' + id, { path: filePath, level, projectId })
+  return ajaxPostBack('/skill/file/' + id, { path: filePath, level, projectId })
 }
 
 // 保存 skill 目录下的指定文件

@@ -19,17 +19,17 @@ export function registerRoutes(router, skillMgr) {
 
   /** 更新 skill 元数据 */
   router.put('/meta/:id', (req, res) => {
-    res.json(guard(() => skillMgr.updateMeta(req.params.id, req.body, req.body.level, req.body.projectId)));
+    res.json(guard(() => skillMgr.updateMeta({ skillId: req.params.id, ...req.body })));
   });
 
   /** 读取 skill 的 SKILL.md */
   router.get('/readme/:id', (req, res) => {
-    res.json(guard(() => skillMgr.getReadme(req.params.id)));
+    res.json(guard(() => skillMgr.getReadme({ skillId: req.params.id })));
   });
 
   /** 保存 skill 的 SKILL.md */
   router.put('/readme/:id', (req, res) => {
-    res.json(guard(() => skillMgr.saveReadme(req.params.id, req.body.content)));
+    res.json(guard(() => skillMgr.saveReadme({ skillId: req.params.id, ...req.body })));
   });
 
   /** GET /api/skill/current-project — 返回当前项目工作目录 */

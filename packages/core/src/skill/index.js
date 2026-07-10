@@ -37,18 +37,18 @@ export class SkillManager {
   getCurrentProject() { return Routes.getCurrentProject(this._store); }
 
   // 变更类操作：委托给 cmd.js
-  updateMeta(skillId, meta, hintLevel, projectId) { return Cmd.updateMeta(this._store, skillId, meta, hintLevel, projectId); }
-  remove(skillId, hintLevel, projectId) { return Cmd.remove(this._store, skillId, hintLevel, projectId); }
+  updateMeta(opts) { return Cmd.updateMeta(this._store, opts); }
+  remove(opts) { return Cmd.remove(this._store, opts); }
   updateByOpts(opts, onProgress, onLog) { return Install.update(this._store, opts, onProgress, onLog); }
-  copyToProject(skillId, projectId) { return Cmd.copyToProject(this._store, skillId, projectId); }
+  copyToProject(opts) { return Cmd.copyToProject(this._store, opts); }
 
   // 文件操作：委托给 files.js
-  getSkillFiles(skillId, level, projectId) { return Files.getSkillFiles(this._store, skillId, level, projectId); }
-  readSkillFile(skillId, filePath, level, projectId) { return Files.readSkillFile(this._store, skillId, filePath, level, projectId); }
-  saveSkillFile(skillId, filePath, content, level, projectId) { return Files.saveSkillFile(this._store, skillId, filePath, content, level, projectId); }
-  removeSkillFile(skillId, filePath, level, projectId) { return Files.removeSkillFile(this._store, skillId, filePath, level, projectId); }
-  getReadme(skillId) { return Files.getReadme(this._store, skillId); }
-  saveReadme(skillId, content) { return Files.saveReadme(this._store, skillId, content); }
+  getSkillFiles(opts) { return Files.getSkillFiles(this._store, opts); }
+  readSkillFile(opts) { return Files.readSkillFile(this._store, opts); }
+  saveSkillFile(opts) { return Files.saveSkillFile(this._store, opts); }
+  removeSkillFile(opts) { return Files.removeSkillFile(this._store, opts); }
+  getReadme(opts) { return Files.getReadme(this._store, opts); }
+  saveReadme(opts) { return Files.saveReadme(this._store, opts); }
 
   // 日志操作：委托给 log.js
   getInstallLog() { return Log.getInstallLog(); }

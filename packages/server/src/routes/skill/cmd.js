@@ -9,12 +9,12 @@ import { guard, guardAsync } from '../../utils/guard.js';
 export function registerCmdRoutes(router, skillMgr) {
   /** 删除 skill */
   router.delete('/remove/:id', (req, res) => {
-    res.json(guard(() => skillMgr.remove(req.params.id, req.body.level, req.body.projectId)));
+    res.json(guard(() => skillMgr.remove({ skillId: req.params.id, ...req.body })));
   });
 
   /** 复制 skill 到项目 */
   router.post('/copy-to-project/:id', (req, res) => {
-    res.json(guard(() => skillMgr.copyToProject(req.params.id, req.body.projectId)));
+    res.json(guard(() => skillMgr.copyToProject({ skillId: req.params.id, ...req.body })));
   });
 
   /** 更新 skill */

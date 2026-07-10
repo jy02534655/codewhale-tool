@@ -13,12 +13,13 @@ import { okMsg, failMsg, fail } from '../utils/result.js';
  * 批量更新 skill 元数据
  * 可更新字段：name / description / alias / remark / tags
  * @param {SkillStore} store - 数据存储层
- * @param {string} skillId - skill 唯一标识
- * @param {Object} meta - 要更新的元数据字段
- * @param {string} [hintLevel] - 提示的级别
- * @param {string} [projectId] - 项目 ID
+ * @param {Object} opts - 操作选项
+ * @param {string} opts.skillId - skill 唯一标识
+ * @param {Object} opts.meta - 要更新的元数据字段
+ * @param {string} [opts.hintLevel] - 提示的级别
+ * @param {string} [opts.projectId] - 项目 ID
  */
-export function updateMeta(store, skillId, meta, hintLevel, projectId) {
+export function updateMeta(store, { skillId, level, projectId, ...meta }) {
   return store.mutate(skillId, function (entries, idx) {
     // 只更新传入的非空字段，未传入字段保持不变
     if (meta.name != null) entries[idx].name = meta.name;
@@ -29,20 +30,21 @@ export function updateMeta(store, skillId, meta, hintLevel, projectId) {
     // 更新修改时间
     entries[idx].updated_at = Date.now();
     return okMsg('updated');
-  }, hintLevel, projectId);
+  }, level, projectId);
 }
 
 /**
  * 彻底删除 skill（移除配置 + 删除文件）
  * @param {SkillStore} store - 数据存储层
- * @param {string} skillId - skill 唯一标识
- * @param {string} [hintLevel] - 提示的级别
- * @param {string} [projectId] - 项目 ID
+ * @param {Object} opts - 操作选项
+ * @param {string} opts.skillId - skill 唯一标识
+ * @param {string} [opts.hintLevel] - 提示的级别
+ * @param {string} [opts.projectId] - 项目 ID
  */
-export function remove(store, skillId, hintLevel, projectId) {
+export function remove(store, { skillId, level, projectId }) {
   // 手动安装在项目/全局目录但未注册到 store 的 skill（local- 前缀）
   if (String(skillId).startsWith('local-')) {
-    const entry = store.findEntry(skillId, hintLevel, projectId);
+    const entry = store.findEntry(skillId, level, projectId);
     if (!entry || !entry.path) return failMsg('skillNotFound');
     try {
       // 删除 skill 目录
@@ -68,17 +70,18 @@ export function remove(store, skillId, hintLevel, projectId) {
     // 从已安装列表中移除该 skill
     entries.splice(idx, 1);
     return okMsg('synced');
-  }, hintLevel, projectId);
+  }, level, projectId);
 }
 
 /**
  * 将全局 skill 复制到当前项目
  * 复制内容包括 skill 目录文件和 store 配置
  * @param {SkillStore} store - 数据存储层
- * @param {string} skillId - 全局 skill 的 ID
- * @param {string} [projectId] - 目标项目 ID
+ * @param {Object} opts - 操作选项
+ * @param {string} opts.skillId - 全局 skill 的 ID
+ * @param {string} [opts.projectId] - 目标项目 ID
  */
-export function copyToProject(store, skillId, projectId) {
+export function copyToProject(store, { skillId, projectId }) {
   // 必须在全局已安装列表中找到该 skill
   const entry = store.getGlobalInstalled().find(function (s) { return s.id === skillId; });
   if (!entry) return failMsg('skillNotFound');
