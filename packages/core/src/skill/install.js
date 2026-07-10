@@ -20,18 +20,21 @@ import { emitSkillInstallLog, _extractMeta, _parseGitHubUrl, _parseProxyUrl } fr
 
 /**
  * 统一收尾：写入 store entry + 记录安装参数（供前端回填）
- * @param {SkillStore} store
- * @param {string} skillId
- * @param {string} level
- * @param {{name:string, description:string}} meta
- * @param {string} targetDir
- * @param {Object} rawOpts
+ * 不管是哪种安装方式，最终都要走到这里完成注册
+ * @param {SkillStore} store - 数据存储层
+ * @param {string} skillId - skill 标识（slug 或 UUID）
+ * @param {string} level - 'global' 或 'project'
+ * @param {{name:string, description:string}} meta - 从 SKILL.md 提取的元数据
+ * @param {string} targetDir - skill 实际安装到的目录路径
+ * @param {Object} rawOpts - 原始安装参数，用于记录 installParams 供前端回填
+ * @param {string} [projectId] - 项目 ID
  */
 function _finalizeInstall(store, skillId, level, meta, targetDir, rawOpts, projectId) {
-  // update 临时安装保持 skillId 不变；新安装生成 UUID 保证唯一性
+  // update 场景使用临时 skillId，保持 ID 不变；新安装生成随机 UUID 保证唯一性
   const isTempUpdate = rawOpts && rawOpts._skillId;
   const finalId = isTempUpdate ? skillId : randomUUID();
   
+  // 构造 skill 条目并写入 store 配置
   store.addToConfig({
     id: finalId,
     slug: skillId,
@@ -45,7 +48,8 @@ function _finalizeInstall(store, skillId, level, meta, targetDir, rawOpts, proje
     updated_at: Date.now(),
   }, level, projectId);
 
-  // 浅拷贝原始参数供前端回填，去掉内部字段
+  // 将原始安装参数浅拷贝后存入 installParams，供前端回填表单使用
+  // 去掉内部字段 _skillId 和 _targetDir，避免前端误用
   if (rawOpts) {
     const params = Object.assign({}, rawOpts);
     delete params._skillId;
@@ -62,22 +66,24 @@ function _finalizeInstall(store, skillId, level, meta, targetDir, rawOpts, proje
 // ------------------------------------------------------------------ //
 
 /**
- * project 级返回 projectPath，global 级返回 process.cwd()
- * @param {string} level
- * @param {string} projectPath
- * @returns {string}
+ * 根据安装级别返回基础目录
+ * project 级返回 projectPath，global 级返回空字符串（表示使用默认全局目录）
+ * @param {string} level - 'global' 或 'project'
+ * @param {string} projectPath - 项目路径
+ * @returns {string} 基础目录路径
  */
 function _getProjectBaseDir(level, projectPath) {
   return level === 'project' ? projectPath : '';
 }
 
 /**
- * 优先返回 projectId，否则退回 store.getProjectIdByPath(projectPath)
- * @param {string} level
- * @param {string} projectId
- * @param {string} projectPath
- * @param {SkillStore} store
- * @returns {string|null}
+ * 解析 projectId
+ * 优先使用传入的 projectId，否则根据 projectPath 查找
+ * @param {string} level - 'global' 或 'project'
+ * @param {string} projectId - 项目 ID
+ * @param {string} projectPath - 项目路径
+ * @param {SkillStore} store - 数据存储层
+ * @returns {string|null} 项目 ID，非 project 级返回 null
  */
 function _resolveProjectId(level, projectId, projectPath, store) {
   if (level !== 'project') return null;
@@ -91,45 +97,54 @@ function _resolveProjectId(level, projectId, projectPath, store) {
 
 /**
  * 从 GitHub 仓库安装 skill（V2 内部实现）
- * @param {SkillStore} store
- * @param {Object} opts
- * @param {string} opts.repoUrl
- * @param {string} [opts.skillPath]
- * @param {string} [opts.level='global']
- * @param {Object} [opts.proxyConfig]
- * @param {string} [opts.proxyUrl]
- * @param {string} [opts.proxyId]
- * @param {string} [opts.tokenId]
- * @param {string} [opts._skillId]      - 内部覆盖 skillId（update 场景）
- * @param {string} [opts._targetDir]    - 内部覆盖 targetDir（update 场景）
- * @param {Function} [progressCb]
- * @param {Function} [logCb]
+ * 这是 GitHub 安装的核心逻辑，被多个上层函数复用
+ * @param {SkillStore} store - 数据存储层
+ * @param {Object} opts - 安装选项
+ * @param {string} opts.repoUrl - GitHub 仓库 URL
+ * @param {string} [opts.skillPath] - skill 在仓库中的子目录路径
+ * @param {string} [opts.level='global'] - 安装级别
+ * @param {Object} [opts.proxyConfig] - 代理配置
+ * @param {string} [opts.proxyUrl] - 代理 URL（字符串形式）
+ * @param {string} [opts.proxyId] - 代理 ID（从 store 中查找）
+ * @param {string} [opts.tokenId] - Token ID，用于 GitHub 认证
+ * @param {string} [opts._skillId] - 内部覆盖 skillId（update 场景）
+ * @param {string} [opts._targetDir] - 内部覆盖目标目录（update 场景）
+ * @param {Function} [progressCb] - 进度回调函数
+ * @param {Function} [logCb] - 日志回调函数
  */
 export async function _installFromGitHubV2(store, opts, progressCb, logCb) {
+  // 规范化安装级别，默认 global
   const targetLevel = opts.level || 'global';
   const onProgress = progressCb;
   const onLog = logCb;
 
+  // 解析 GitHub URL，提取 owner 和 repo
   const parsed = _parseGitHubUrl(opts.repoUrl);
   if (!parsed) return failMsg('skillInvalidRepoUrl');
 
+  // 确定 skillId：优先使用内部覆盖（update 场景），否则使用 skillPath 的 basename 或 repo 名
   const finalSkillId = opts._skillId || (opts.skillPath ? basename(opts.skillPath) : parsed.repo);
+  // 确定最终安装目录：优先使用内部覆盖（update 场景）
   const finalTargetDir = opts._targetDir || (targetLevel === 'project'
     ? join(_getProjectBaseDir(targetLevel, opts.projectPath), store.projectSkillsDir, finalSkillId)
     : join(_getProjectBaseDir(targetLevel, opts.projectPath), store.skillsDir, finalSkillId));
 
+  // 解析 projectId
   const projectId = _resolveProjectId(targetLevel, opts.projectId, opts.projectPath, store);
 
+  // 检查是否已安装同名 skill
   const installed = store.getLevelInstalled(targetLevel);
   if (installed.some(function (s) { return s.slug === finalSkillId; })) {
     return failMsg('skillAlreadyInstalled');
   }
 
   try {
+    // 通知前端开始连接 GitHub
     if (onProgress) {
       onProgress({ stage: 'connecting', percent: 5, message: getServerMessage('skillProgressConnectingGithub') });
     }
 
+    // 解析代理配置：优先使用传入的 proxyConfig，其次解析 proxyUrl 字符串，最后通过 proxyId 查找
     if (!opts.proxyConfig && opts.proxyUrl) {
       opts.proxyConfig = _parseProxyUrl(opts.proxyUrl);
     }
@@ -147,12 +162,14 @@ export async function _installFromGitHubV2(store, opts, progressCb, logCb) {
       }
     }
 
+    // 解析 Token：通过 tokenId 查找存储的 GitHub Token
     let token;
     if (opts.tokenId) {
       const tokenEntry = store.engine.findToken(opts.tokenId);
       if (tokenEntry) token = tokenEntry.token;
     }
 
+    // 调用下载引擎从 GitHub 拉取 skill 到目标目录
     await downloadSkillFromGitHub({
       repoUrl: opts.repoUrl,
       skillName: opts.skillPath || parsed.repo,
@@ -164,19 +181,24 @@ export async function _installFromGitHubV2(store, opts, progressCb, logCb) {
       branch: opts.branch,
     });
 
+    // 通知前端正在注册
     if (onProgress) {
       onProgress({ stage: 'registering', percent: 90, message: getServerMessage('skillProgressRegistering') });
     }
 
+    // 从安装目录提取 SKILL.md 元数据
     const meta = _extractMeta(finalTargetDir);
+    // 写入 store 配置，完成安装
     _finalizeInstall(store, finalSkillId, targetLevel, meta, finalTargetDir, opts, projectId);
 
+    // 通知前端安装完成
     if (onProgress) {
       onProgress({ stage: 'done', percent: 100, message: getServerMessage('skillProgressDone') });
     }
 
     return okMsg('synced');
   } catch (err) {
+    // 安装失败，清理已创建的目录
     try { if (existsSync(finalTargetDir)) rmSync(finalTargetDir, { recursive: true, force: true }); } catch { /* ignore */ }
     const failMessage = getServerMessage('skillInstallFailed') + ': ' + err.message;
     return fail(failMessage, 'skillInstallFailed');
@@ -185,13 +207,14 @@ export async function _installFromGitHubV2(store, opts, progressCb, logCb) {
 
 /**
  * 从 ZIP 源安装 skill（URL 或本地文件）
- * @param {SkillStore} store
- * @param {string} zipSource
- * @param {string} [skillPath]
- * @param {string} [level='global']
- * @param {Object|string} [proxyConfig]
- * @param {Function} [onProgress]
- * @param {Object} [_internal]          - 内部覆盖字段（update 场景）
+ * 支持从远程 URL 下载 ZIP 或直接使用本地 ZIP 文件
+ * @param {SkillStore} store - 数据存储层
+ * @param {string} zipSource - ZIP 源，可以是 URL 或本地文件路径
+ * @param {string} [skillPath] - skill 在 ZIP 内的子目录路径
+ * @param {string} [level='global'] - 安装级别
+ * @param {Object|string} [proxyConfig] - 代理配置
+ * @param {Function} [onProgress] - 进度回调
+ * @param {Object} [_internal] - 内部覆盖字段（update 场景）
  * @param {string} [_internal._skillId]
  * @param {string} [_internal._targetDir]
  * @param {Object} [_internal._rawOpts]
@@ -199,32 +222,39 @@ export async function _installFromGitHubV2(store, opts, progressCb, logCb) {
 export async function installFromZip(store, zipSource, skillPath, level, proxyConfig, onProgress, _internal) {
   const targetLevel = level || 'global';
 
+  // 确定 skillId：优先使用内部覆盖，其次使用 skillPath 或 ZIP 文件名
   const finalSkillId = (_internal && _internal._skillId) ||
     (skillPath ? basename(skillPath) : basename(zipSource).replace(/\.zip$/i, '') || 'skill');
 
   const projectPath = (_internal && _internal._rawOpts && _internal._rawOpts.projectPath) || '';
 
+  // 确定最终安装目录
   const finalTargetDir = (_internal && _internal._targetDir) ||
     (targetLevel === 'project'
       ? join(_getProjectBaseDir(targetLevel, projectPath), store.projectSkillsDir, finalSkillId)
       : join(_getProjectBaseDir(targetLevel, projectPath), store.skillsDir, finalSkillId));
 
+  // 解析 projectId
   const projectId = _resolveProjectId(targetLevel,
     (_internal && _internal._rawOpts && _internal._rawOpts.projectId),
     projectPath,
     store
   );
 
+  // 检查是否已安装
   const installed = store.getLevelInstalled(targetLevel);
   if (installed.some(function (s) { return s.slug === finalSkillId; })) {
     return failMsg('skillAlreadyInstalled');
   }
 
   try {
+    // 创建临时解压目录
     const tempDir = join(tmpdir(), 'skill-extract-' + randomUUID());
     let extractRoot;
 
+    // 判断 ZIP 源类型：远程 URL 或本地文件
     if (/^https?:\/\//i.test(zipSource)) {
+      // 远程 ZIP：先下载再解压
       let finalProxyConfig;
       if (typeof proxyConfig === 'string') {
         finalProxyConfig = _parseProxyUrl(proxyConfig);
@@ -233,23 +263,29 @@ export async function installFromZip(store, zipSource, skillPath, level, proxyCo
       }
       extractRoot = await downloadAndExtractZip(zipSource, tempDir, finalProxyConfig, onProgress);
     } else {
+      // 本地 ZIP：直接解压
       const zip = new AdmZip(zipSource);
       zip.extractAllTo(tempDir, true);
       extractRoot = tempDir;
     }
 
+    // 定位 skill 目录
     let sourceDir;
     if (skillPath) {
+      // 指定了子目录路径，尝试在解压结果中查找
       sourceDir = store.findSkillDir(extractRoot, skillPath);
       if (!sourceDir) {
+        // 如果找不到指定路径，检查解压根目录是否直接包含 SKILL.md
         if (existsSync(join(extractRoot, 'SKILL.md'))) {
           sourceDir = extractRoot;
         } else {
+          // 既没有指定路径，根目录也没有 SKILL.md，说明不是有效的 skill 包
           try { rmSync(tempDir, { recursive: true, force: true }); } catch { /* ignore */ }
           return failMsg('skillNotFound');
         }
       }
     } else {
+      // 未指定子目录，直接使用解压根目录
       sourceDir = extractRoot;
       if (!existsSync(join(sourceDir, 'SKILL.md'))) {
         try { rmSync(tempDir, { recursive: true, force: true }); } catch { /* ignore */ }
@@ -257,22 +293,29 @@ export async function installFromZip(store, zipSource, skillPath, level, proxyCo
       }
     }
 
+    // 如果目标目录已存在，先删除
     if (existsSync(finalTargetDir)) rmSync(finalTargetDir, { recursive: true, force: true });
 
+    // 从临时目录复制 skill 到最终目标目录
     const meta = _extractMeta(sourceDir);
     store.copyDir(sourceDir, finalTargetDir);
 
+    // 准备原始参数用于记录
     const rawOpts = (_internal && _internal._rawOpts) || { type: 'zip', zipPath: zipSource, zipSkillName: skillPath, level: targetLevel };
+    // 写入 store 配置，完成安装
     _finalizeInstall(store, finalSkillId, targetLevel, meta, finalTargetDir, rawOpts, projectId);
 
+    // 通知前端安装完成
     if (onProgress) {
       onProgress({ stage: 'done', percent: 100, message: getServerMessage('skillProgressDone') });
     }
 
+    // 清理临时解压目录
     try { rmSync(tempDir, { recursive: true, force: true }); } catch { /* ignore */ }
 
     return okMsg('synced');
   } catch (err) {
+    // 安装失败，清理目标目录
     try { if (existsSync(finalTargetDir)) rmSync(finalTargetDir, { recursive: true, force: true }); } catch { /* ignore */ }
     const failMessage = getServerMessage('skillInstallFailed') + ': ' + err.message;
     return fail(failMessage, 'skillInstallFailed');
@@ -286,18 +329,20 @@ export async function installFromZip(store, zipSource, skillPath, level, proxyCo
 
 /**
  * 从本地 ZIP 文件路径安装 skill（带日志回调）
- * @param {SkillStore} store
- * @param {string} zipPath
- * @param {string} [skillName]
- * @param {string} [level]
- * @param {string} [proxyId]
- * @param {Function} [onProgress]
- * @param {Function} [onLog]
- * @param {Object} [_internal]          - 内部覆盖字段（update 场景）
+ * 是 installFromZip 的封装，增加了日志记录和代理配置解析
+ * @param {SkillStore} store - 数据存储层
+ * @param {string} zipPath - 本地 ZIP 文件路径
+ * @param {string} [skillName] - skill 名称
+ * @param {string} [level] - 安装级别
+ * @param {string} [proxyId] - 代理 ID
+ * @param {Function} [onProgress] - 进度回调
+ * @param {Function} [onLog] - 日志回调
+ * @param {Object} [_internal] - 内部覆盖字段（update 场景）
  */
 export async function installFromZipStream(store, zipPath, skillName, level, proxyId, onProgress, onLog, _internal) {
   let proxyConfig;
   if (proxyId) {
+    // 通过 proxyId 查找代理配置
     const proxyEntry = store.engine.findProxy(proxyId);
     if (proxyEntry) {
       proxyConfig = {
@@ -311,8 +356,11 @@ export async function installFromZipStream(store, zipPath, skillName, level, pro
     }
   }
 
+  // 记录开始解压的日志
   emitSkillInstallLog(onLog, 'INFO', { key: 'skillProgressExtracting' });
+  // 调用底层 ZIP 安装函数
   const result = await installFromZip(store, zipPath, skillName, level, proxyConfig, onProgress, _internal);
+  // 根据结果记录成功或失败日志
   if (result.success) {
     emitSkillInstallLog(onLog, 'INFO', { key: 'skillProgressDone' });
   } else {
@@ -324,22 +372,25 @@ export async function installFromZipStream(store, zipPath, skillName, level, pro
 
 /**
  * 从 GitHub Tree URL 安装 skill
- * @param {SkillStore} store
- * @param {string} githubUrl
- * @param {string} [level]
- * @param {string} [proxyId]
- * @param {string} [tokenId]
- * @param {Function} [onProgress]
- * @param {Function} [onLog]
- * @param {Object} [_extraOpts]         - 内部覆盖字段（update 场景）
+ * 适用于安装仓库中特定目录下的 skill，而不是整个仓库
+ * @param {SkillStore} store - 数据存储层
+ * @param {string} githubUrl - GitHub Tree URL
+ * @param {string} [level] - 安装级别
+ * @param {string} [proxyId] - 代理 ID
+ * @param {string} [tokenId] - Token ID
+ * @param {Function} [onProgress] - 进度回调
+ * @param {Function} [onLog] - 日志回调
+ * @param {Object} [_extraOpts] - 内部覆盖字段（update 场景）
  */
 export async function installFromGithubTreePath(store, githubUrl, level, proxyId, tokenId, onProgress, onLog, _extraOpts) {
+  // 动态导入 URL 解析工具，避免循环依赖
   const { parseGithubTreeUrl } = await import('../download/utils.js');
   const parsed = parseGithubTreeUrl(githubUrl);
   if (!parsed) {
     return failMsg('skillInvalidRepoUrl');
   }
 
+  // 构造标准 GitHub 仓库 URL
   const repoUrl = 'https://github.com/' + parsed.owner + '/' + parsed.repo;
   const skillPath = parsed.path;
 
@@ -348,11 +399,12 @@ export async function installFromGithubTreePath(store, githubUrl, level, proxyId
   delete safeExtra.repoUrl;
   delete safeExtra.skillPath;
 
-    return _installFromGitHubV2(store, {
-      repoUrl, skillPath, level, proxyId, tokenId,
-      branch: parsed.branch,
-      ...safeExtra,
-    }, onProgress, onLog);
+  // 委托给 GitHub V2 安装函数
+  return _installFromGitHubV2(store, {
+    repoUrl, skillPath, level, proxyId, tokenId,
+    branch: parsed.branch,
+    ...safeExtra,
+  }, onProgress, onLog);
 }
 
 
@@ -362,14 +414,15 @@ export async function installFromGithubTreePath(store, githubUrl, level, proxyId
 
 /**
  * 统一安装入口
- * @param {SkillStore} store
- * @param {Object} opts
- * @param {string} opts.type
- * @param {string} [opts.level]
- * @param {string} [opts._skillId]     - 内部覆盖 skillId（update 场景）
- * @param {string} [opts._targetDir]   - 内部覆盖 targetDir（update 场景）
- * @param {Function} [onProgress]
- * @param {Function} [onLog]
+ * 根据安装类型分发到不同的安装实现
+ * @param {SkillStore} store - 数据存储层
+ * @param {Object} opts - 安装选项
+ * @param {string} opts.type - 安装类型：'github' / 'githubPath' / 'zip'
+ * @param {string} [opts.level] - 安装级别
+ * @param {string} [opts._skillId] - 内部覆盖 skillId（update 场景）
+ * @param {string} [opts._targetDir] - 内部覆盖目标目录（update 场景）
+ * @param {Function} [onProgress] - 进度回调
+ * @param {Function} [onLog] - 日志回调
  */
 export async function install(store, opts, onProgress, onLog) {
   const type = opts.type || opts.installMode || 'github';
@@ -378,13 +431,16 @@ export async function install(store, opts, onProgress, onLog) {
   const tokenId = opts.tokenId || opts.selectedTokenId;
 
   if (type === 'github') {
+    // GitHub 仓库安装
     return _installFromGitHubV2(store, opts, onProgress, onLog);
   }
   if (type === 'githubPath') {
+    // GitHub Tree Path 安装（仓库子目录）
     const githubUrl = opts.githubUrl || opts.githubTreeUrl;
     return installFromGithubTreePath(store, githubUrl, level, proxyId, tokenId, onProgress, onLog, opts);
   }
   if (type === 'zip') {
+    // ZIP 文件安装
     const zipPath = opts.zipPath || opts.selectedFilePath;
     const skillName = opts.zipSkillName || opts.skillName;
     return installFromZipStream(store, zipPath, skillName, level, proxyId, onProgress, onLog, {
@@ -403,12 +459,19 @@ export async function install(store, opts, onProgress, onLog) {
 
 /**
  * 更新已安装的 skill（安全原子替换：先装到临时目录，成功后再替换）
- * @param {SkillStore} store
- * @param {Object} opts
- * @param {string} opts.skillId      - 必填，要更新的 skill id
- * @param {string} [opts.level]
- * @param {Function} [onProgress]
- * @param {Function} [onLog]
+ * 更新流程：
+ * 1. 查找现有 skill
+ * 2. 安装到临时目录
+ * 3. 删除旧目录
+ * 4. 重命名临时目录为正式目录
+ * 5. 清理 store 中的临时 entry
+ * 6. 更新原 skill entry 的路径和参数
+ * @param {SkillStore} store - 数据存储层
+ * @param {Object} opts - 更新选项
+ * @param {string} opts.skillId - 必填，要更新的 skill id
+ * @param {string} [opts.level] - 更新级别
+ * @param {Function} [onProgress] - 进度回调
+ * @param {Function} [onLog] - 日志回调
  */
 export async function update(store, opts, onProgress, onLog) {
   const skillId = opts.skillId;
@@ -431,6 +494,7 @@ export async function update(store, opts, onProgress, onLog) {
 
   const projectId = _resolveProjectId(level, opts.projectId, opts.projectPath, store);
 
+  // 创建临时 skillId 和临时目录，用于安全安装新版本
   const tempSkillId = existing.slug + '-update-' + randomUUID();
   const tempTargetDir = baseTargetDir + '.tmp-' + randomUUID();
 
@@ -466,7 +530,7 @@ export async function update(store, opts, onProgress, onLog) {
     return fail('更新失败：无法替换目录', 'skillUpdateFailed');
   }
 
-  // 3. 清理 store 中临时 entry
+  // 3. 清理 store 中临时 entry（刚才是用 tempSkillId 安装的）
   store.mutate(tempSkillId, function (entries, idx) {
     if (idx >= 0) entries.splice(idx, 1);
   }, level, projectId);

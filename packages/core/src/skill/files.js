@@ -9,43 +9,50 @@ import { ok, fail, failMsg, okMsg } from '../utils/result.js';
 
 /**
  * 获取 skill 文件列表
- * @param {SkillStore} store
- * @param {string} skillId
- * @param {string} [level]
- * @param {string} [projectId]
+ * 递归遍历 skill 目录，返回所有非隐藏、非 node_modules 的文件路径
+ * @param {SkillStore} store - 数据存储层
+ * @param {string} skillId - skill 唯一标识
+ * @param {string} [level] - 'global' 或 'project'
+ * @param {string} [projectId] - 项目 ID
  */
 export function getSkillFiles(store, skillId, level, projectId) {
   const entry = store.findEntry(skillId, level, projectId);
   if (!entry) return failMsg('skillNotFound');
 
   const files = [];
+  // 递归遍历 skill 目录
   const _walk = function (dir, prefix) {
     const items = readdirSync(dir, { withFileTypes: true });
     for (const e of items) {
+      // 跳过隐藏文件和 node_modules 目录
       if (e.name.startsWith('.') || e.name === 'node_modules') continue;
       if (e.isDirectory()) {
+        // 递归进入子目录，拼接相对路径前缀
         _walk(join(dir, e.name), prefix ? prefix + '/' + e.name : e.name);
       } else {
+        // 收集文件相对路径
         files.push(prefix ? prefix + '/' + e.name : e.name);
       }
     }
   };
 
   _walk(entry.path, '');
+  // 返回排序后的文件列表
   return ok(files.sort());
 }
 
 /**
  * 读取 skill 文件内容
- * @param {SkillStore} store
- * @param {string} skillId
- * @param {string} filePath
- * @param {string} [level]
- * @param {string} [projectId]
+ * @param {SkillStore} store - 数据存储层
+ * @param {string} skillId - skill 唯一标识
+ * @param {string} filePath - 文件相对路径
+ * @param {string} [level] - 'global' 或 'project'
+ * @param {string} [projectId] - 项目 ID
  */
 export function readSkillFile(store, skillId, filePath, level, projectId) {
   const entry = store.findEntry(skillId, level, projectId);
   if (!entry) return failMsg('skillNotFound');
+  // 拼接 skill 目录和相对文件路径
   const fullPath = join(entry.path, filePath);
   if (!existsSync(fullPath)) return failMsg('skillFileNotFound');
 
@@ -59,19 +66,23 @@ export function readSkillFile(store, skillId, filePath, level, projectId) {
 
 /**
  * 保存 skill 文件内容
- * @param {SkillStore} store
- * @param {string} skillId
- * @param {string} filePath
- * @param {string} content
- * @param {string} [level]
- * @param {string} [projectId]
+ * 直接覆写文件，并更新 skill 的 updated_at 时间戳
+ * @param {SkillStore} store - 数据存储层
+ * @param {string} skillId - skill 唯一标识
+ * @param {string} filePath - 文件相对路径
+ * @param {string} content - 要写入的文件内容
+ * @param {string} [level] - 'global' 或 'project'
+ * @param {string} [projectId] - 项目 ID
  */
 export function saveSkillFile(store, skillId, filePath, content, level, projectId) {
   return store.mutate(skillId, function (entries, idx) {
     const entry = entries[idx];
     const fullPath = join(entry.path, filePath);
+    // 文件不存在时拒绝保存，避免意外创建新文件
     if (!existsSync(fullPath)) return failMsg('skillFileNotFound');
+    // 覆写文件内容
     writeFileSync(fullPath, content, 'utf-8');
+    // 更新修改时间
     entry.updated_at = Date.now();
     return okMsg('updated');
   }, level, projectId);
@@ -79,11 +90,12 @@ export function saveSkillFile(store, skillId, filePath, content, level, projectI
 
 /**
  * 删除 skill 文件
- * @param {SkillStore} store
- * @param {string} skillId
- * @param {string} filePath
- * @param {string} [level]
- * @param {string} [projectId]
+ * 删除文件后更新 skill 的 updated_at 时间戳
+ * @param {SkillStore} store - 数据存储层
+ * @param {string} skillId - skill 唯一标识
+ * @param {string} filePath - 文件相对路径
+ * @param {string} [level] - 'global' 或 'project'
+ * @param {string} [projectId] - 项目 ID
  */
 export function removeSkillFile(store, skillId, filePath, level, projectId) {
   return store.mutate(skillId, function (entries, idx) {
@@ -98,8 +110,9 @@ export function removeSkillFile(store, skillId, filePath, level, projectId) {
 
 /**
  * 读取 SKILL.md 内容
- * @param {SkillStore} store
- * @param {string} skillId
+ * 如果读取失败，返回空字符串而不是错误，保证前端总能得到可显示的内容
+ * @param {SkillStore} store - 数据存储层
+ * @param {string} skillId - skill 唯一标识
  */
 export function getReadme(store, skillId) {
   const result = readSkillFile(store, skillId, 'SKILL.md');
@@ -108,9 +121,10 @@ export function getReadme(store, skillId) {
 
 /**
  * 保存 SKILL.md 内容
- * @param {SkillStore} store
- * @param {string} skillId
- * @param {string} content
+ * 本质是保存 skill 根目录下的 SKILL.md 文件
+ * @param {SkillStore} store - 数据存储层
+ * @param {string} skillId - skill 唯一标识
+ * @param {string} content - SKILL.md 文件内容
  */
 export function saveReadme(store, skillId, content) {
   return saveSkillFile(store, skillId, 'SKILL.md', content);

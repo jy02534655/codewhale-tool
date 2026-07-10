@@ -84,20 +84,28 @@
  */
 
 /**
+ * @typedef {object} ProjectSkillsConfig
+ * @property {boolean}   enabled    - 是否启用
+ * @property {string[]}  installed  - 已安装的 skill id 列表
+ */
+
+/**
  * @typedef {object} ProjectEntry
  * @property {string}  id      - 主键："project:" + uuid
  * @property {string}  alias   - 显示别名
  * @property {string}  path    - 项目目录路径
  * @property {boolean} [default] - 是否默认项目
  */
+
 /**
  * @typedef {object} StoreData
  * @property {OfficialKeyEntry[]} official_keys - 官方 DeepSeek API key 列表
  * @property {ProviderEntry[]}   providers     - 第三方供应商列表
- * @property {SkillsConfig}      skills        - Skill 配置
  * @property {ProxyEntry[]}      proxies       - 代理配置列表
  * @property {TokenEntry[]}      tokens        - GitHub Token 列表
  * @property {ProjectEntry[]}    projects      - 项目目录列表
+ * @property {Object<string, ProjectSkillsConfig>} [project_skills] - 项目级 Skill 配置，key 为项目 id
+ * @property {SkillsConfig}      skills        - Skill 配置
+ * @property {string}            [locale]      - 语言偏好，如 'zh-Hans'
  */
-
 export {};

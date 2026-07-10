@@ -14,8 +14,9 @@ import { _extractMeta } from './shared.js';
 
 export class SkillStore {
   /**
-   * @param {ConfigEngine} engine
-   * @param {string} [skillsDir]
+   * 构造 SkillStore 实例
+   * @param {ConfigEngine} engine - 配置引擎，用于读写全局/项目级配置
+   * @param {string} [skillsDir] - 全局 skill 安装目录，默认 ~/.codewhale/skills
    */
   constructor(engine, skillsDir) {
     this.engine = engine;
@@ -28,7 +29,11 @@ export class SkillStore {
   // 查询方法
   // ------------------------------------------------------------------ //
 
-  /** @returns {string|null} */
+  /**
+   * 获取当前默认项目 ID
+   * 如果项目引擎存在，返回默认项目 ID；否则返回 null
+   * @returns {string|null}
+   */
   getCurrentProjectId() {
     if (this.engine.projectManager) {
       return this.engine.projectManager.getDefaultProjectId();
@@ -37,8 +42,9 @@ export class SkillStore {
   }
 
   /**
-   * @param {string} projectPath
-   * @returns {string|null}
+   * 根据项目路径查找项目 ID
+   * @param {string} projectPath - 项目文件系统路径
+   * @returns {string|null} 找到返回项目 ID，否则返回 null
    */
   getProjectIdByPath(projectPath) {
     if (!projectPath || !this.engine.projectManager) return null;
@@ -46,8 +52,9 @@ export class SkillStore {
   }
 
   /**
-   * @param {string} [projectId]
-   * @returns {Object[]}
+   * 获取指定项目已安装的 skill 列表
+   * @param {string} [projectId] - 项目 ID，默认当前项目
+   * @returns {Object[]} 该项目的已安装 skill 条目数组
    */
   getProjectInstalled(projectId) {
     const targetProjectId = projectId || this.getCurrentProjectId();
@@ -55,37 +62,49 @@ export class SkillStore {
     return (this.engine.getProjectSkills(targetProjectId).installed || []).slice();
   }
 
-  /** @returns {Object[]} */
+  /**
+   * 获取全局已安装的 skill 列表
+   * @returns {Object[]} 全局已安装 skill 条目数组
+   */
   getGlobalInstalled() {
     return (this.engine.getSkills().installed || []).slice();
   }
 
   /**
-   * @param {string} level
-   * @param {string} [projectId]
-   * @returns {Object[]}
+   * 根据级别（global/project）获取已安装 skill 列表
+   * @param {string} level - 'global' 或 'project'
+   * @param {string} [projectId] - 项目级时使用的项目 ID
+   * @returns {Object[]} 对应级别的已安装 skill 条目数组
    */
   getLevelInstalled(level, projectId) {
     return level === 'project' ? this.getProjectInstalled(projectId) : this.getGlobalInstalled();
   }
 
   /**
-   * @param {string} skillId
-   * @param {string} [level]
-   * @param {string} [projectId]
-   * @returns {Object|null}
+   * 根据 skillId 查找 skill 条目
+   * 查找策略：
+   * 1. 如果指定了 level，只在该级别查找
+   * 2. 如果未指定 level，先查全局，再查项目级
+   * 3. 如果都没找到，尝试解析为本地手动安装的 skill（local- 前缀）
+   * @param {string} skillId - skill 的唯一标识
+   * @param {string} [level] - 'global' / 'project' / 不指定
+   * @param {string} [projectId] - 项目 ID
+   * @returns {Object|null} 找到返回 skill 条目对象，否则返回 null
    */
   findEntry(skillId, level, projectId) {
     if (level === 'global') {
+      // 全局级别：先在全局已安装列表中查找
       let entry = this.getGlobalInstalled().find((s) => s.id === skillId) || null;
       if (!entry) entry = this._resolveLocalEntry(skillId, level, projectId);
       return entry;
     }
     if (level === 'project') {
+      // 项目级别：先在项目已安装列表中查找
       let entry = this.getProjectInstalled(projectId).find((s) => s.id === skillId) || null;
       if (!entry) entry = this._resolveLocalEntry(skillId, level, projectId);
       return entry;
     }
+    // 未指定级别：先查全局，再查项目级，最后查本地手动安装
     let entry = this.getGlobalInstalled().find((s) => s.id === skillId) || null;
     if (!entry) {
       entry = this.getProjectInstalled(projectId).find((s) => s.id === skillId) || null;
@@ -98,10 +117,11 @@ export class SkillStore {
 
   /**
    * 解析手动安装在目录下但未注册到 store 的 skill
-   * @param {string} skillId
-   * @param {string} level
-   * @param {string} [projectId]
-   * @returns {Object|null}
+   * 这类 skill 的 ID 以 'local-' 开头，表示是用户手动放到目录里的
+   * @param {string} skillId - skill ID，必须以 'local-' 开头
+   * @param {string} level - 'global' 或 'project'
+   * @param {string} [projectId] - 项目 ID
+   * @returns {Object|null} 找到返回 skill 条目对象，否则返回 null
    */
   _resolveLocalEntry(skillId, level, projectId) {
     if (!skillId.startsWith('local-')) return null;
@@ -109,6 +129,7 @@ export class SkillStore {
     if (!rest) return null;
 
     if (level === 'global') {
+      // 全局本地 skill：直接放在全局 skills 目录下
       const skillPath = join(this.skillsDir, rest);
       if (!existsSync(join(skillPath, 'SKILL.md'))) return null;
       const meta = _extractMeta(skillPath);
@@ -124,6 +145,7 @@ export class SkillStore {
     }
 
     if (level === 'project') {
+      // 项目本地 skill：放在项目目录的 skills/ 子目录下
       let projectPath = null;
       if (projectId && this.engine.projectManager) {
         const projects = this.engine.getProjects();
@@ -132,6 +154,7 @@ export class SkillStore {
       }
       if (!projectPath) projectPath = process.cwd();
 
+      // 处理带项目 ID 前缀的 skill ID（如 project-abc-skill）
       let slug = rest;
       if (projectId) {
         const prefix = projectId + '-';
@@ -158,9 +181,11 @@ export class SkillStore {
   }
 
   /**
-   * @param {string} rootDir
-   * @param {string} skillId
-   * @returns {string|null}
+   * 在指定根目录下查找 skill 目录
+   * 用于 ZIP 安装时定位 skill 在压缩包中的路径
+   * @param {string} rootDir - 根目录路径
+   * @param {string} skillId - skill ID，可能包含子目录路径（如 'owner/skill'）
+   * @returns {string|null} 找到返回 skill 目录路径，否则返回 null
    */
   findSkillDir(rootDir, skillId) {
     if (!existsSync(rootDir)) return null;
@@ -180,9 +205,10 @@ export class SkillStore {
   // ------------------------------------------------------------------ //
 
   /**
-   * @param {string} level
-   * @param {Object[]} entries
-   * @param {string} [projectId]
+   * 设置指定级别的已安装 skill 列表
+   * @param {string} level - 'global' 或 'project'
+   * @param {Object[]} entries - 要设置的 skill 条目数组
+   * @param {string} [projectId] - 项目 ID
    */
   setLevelInstalled(level, entries, projectId) {
     if (level === 'project') {
@@ -198,9 +224,10 @@ export class SkillStore {
   }
 
   /**
-   * @param {Object} entry
-   * @param {string} level
-   * @param {string} [projectId]
+   * 向指定级别的已安装列表中添加一个 skill 条目
+   * @param {Object} entry - skill 条目对象
+   * @param {string} level - 'global' 或 'project'
+   * @param {string} [projectId] - 项目 ID
    */
   addToConfig(entry, level, projectId) {
     if (level === 'project') {
@@ -220,14 +247,20 @@ export class SkillStore {
   }
 
   /**
-   * 核心变更入口 — 查找、执行回调、持久化
-   * @param {string} skillId
-   * @param {Function} fn — (entries, idx, entry, level, engine) => result
-   * @param {string} [hintLevel]
-   * @param {string} [projectId]
+   * 核心变更入口
+   * 根据 skillId 查找条目，执行回调函数修改数据，然后持久化
+   * 查找顺序：
+   * 1. 如果指定了 hintLevel，直接在该级别查找
+   * 2. 否则先查全局，再查项目级
+   * @param {string} skillId - 要变更的 skill ID
+   * @param {Function} fn - 变更回调，签名为 (entries, idx, entry, level, engine) => result
+   * @param {string} [hintLevel] - 提示的级别，用于快速定位
+   * @param {string} [projectId] - 项目 ID
+   * @returns {Object} 变更结果对象
    */
   mutate(skillId, fn, hintLevel, projectId) {
     if (hintLevel) {
+      // 指定了级别，直接在该级别查找
       const entries = this.getLevelInstalled(hintLevel, projectId);
       const idx = entries.findIndex((s) => s.id === skillId);
       if (idx === -1) return failMsg('skillNotFound');
@@ -236,6 +269,7 @@ export class SkillStore {
       return result;
     }
 
+    // 未指定级别，先查全局
     const globalEntries = this.getGlobalInstalled();
     const idx = globalEntries.findIndex((s) => s.id === skillId);
     if (idx !== -1) {
@@ -243,6 +277,7 @@ export class SkillStore {
       this.setLevelInstalled('global', globalEntries);
       return result;
     }
+    // 再查项目级
     const projectEntries = this.getProjectInstalled(projectId);
     const pIdx = projectEntries.findIndex((s) => s.id === skillId);
     if (pIdx !== -1) {
@@ -258,8 +293,10 @@ export class SkillStore {
   // ------------------------------------------------------------------ //
 
   /**
-   * @param {Object} opts
-   * @returns {string} streamId
+   * 创建一个安装待办记录
+   * 用于前端通过 SSE 流跟踪安装进度
+   * @param {Object} opts - 安装选项
+   * @returns {string} streamId - 用于跟踪安装进度的唯一标识
    */
   createPendingInstall(opts) {
     const streamId = randomUUID();
@@ -267,6 +304,12 @@ export class SkillStore {
     return streamId;
   }
 
+  /**
+   * 创建一个更新待办记录
+   * 本质上也是安装待办，但要求必须提供 skillId
+   * @param {Object} opts - 更新选项，必须包含 skillId
+   * @returns {string} streamId
+   */
   createPendingUpdate(opts) {
     if (!opts || !opts.skillId) {
       throw new Error('skillId is required');
@@ -275,8 +318,10 @@ export class SkillStore {
   }
 
   /**
-   * @param {string} streamId
-   * @returns {Object|undefined}
+   * 获取并消费一个安装待办记录
+   * 获取后立即从 Map 中删除，确保待办只能被消费一次
+   * @param {string} streamId - 待办 stream ID
+   * @returns {Object|undefined} 待办选项对象，不存在返回 undefined
    */
   getPendingInstall(streamId) {
     const pending = this._pendingInstalls.get(streamId);
@@ -290,8 +335,9 @@ export class SkillStore {
   // ------------------------------------------------------------------ //
 
   /**
-   * @param {string} src
-   * @param {string} dst
+   * 递归复制整个目录
+   * @param {string} src - 源目录路径
+   * @param {string} dst - 目标目录路径
    */
   copyDir(src, dst) {
     mkdirSync(dst, { recursive: true });
@@ -300,8 +346,10 @@ export class SkillStore {
       const srcPath = join(src, entry.name);
       const dstPath = join(dst, entry.name);
       if (entry.isDirectory()) {
+        // 递归复制子目录
         this.copyDir(srcPath, dstPath);
       } else {
+        // 复制文件
         copyFileSync(srcPath, dstPath);
       }
     }

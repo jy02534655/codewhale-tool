@@ -4,6 +4,12 @@
  * 提供供应商名称、UI 文案、服务器消息的多语言映射。
  * 支持语言：zh-Hans（默认）、en、ja、pt-BR
  *
+ * 通俗理解：
+ * 这个文件是整个应用的“翻译字典”。凡是在界面上看到的文字、
+ * 后端返回给前端的提示消息，基本都在这里按语言分类存放。
+ * 业务代码里不要硬编码“已添加”“删除失败”这类字符串，
+ * 而是使用这里的 key，运行时根据用户当前语言自动取对应文本。
+ *
  * @module i18n
  */
 
@@ -12,7 +18,11 @@ let _currentLocale = 'zh-Hans';
 
 /**
  * 设置全局语言环境
- * @param {string} locale
+ *
+ * 这个函数会改变整个程序后续读取翻译文本时使用的语言。
+ * 一般在用户切换界面语言时调用。
+ *
+ * @param {string} locale 语言代码，如 'zh-Hans'、'en'、'ja'、'pt-BR'
  */
 export function setLocale(locale) {
   _currentLocale = locale;
@@ -20,7 +30,8 @@ export function setLocale(locale) {
 
 /**
  * 获取当前语言环境
- * @returns {string}
+ *
+ * @returns {string} 当前语言代码
  */
 export function getLocale() {
   return _currentLocale;
@@ -41,6 +52,10 @@ export const LOCALE_LABELS = {
 
 /**
  * 供应商多语言映射
+ *
+ * key 是供应商在代码中的内部 id，value 是各语言下的显示名称。
+ * 这样前端显示供应商列表时，可以根据用户当前语言自动切换名称。
+ *
  * key = provider id，value = Record<Locale, string>
  */
 export const PROVIDER_I18N = {
@@ -50,7 +65,7 @@ export const PROVIDER_I18N = {
   'nvidia-nim': { 'zh-Hans': 'NVIDIA NIM', en: 'NVIDIA NIM', ja: 'NVIDIA NIM', 'pt-BR': 'NVIDIA NIM' },
   atlascloud: { 'zh-Hans': 'AtlasCloud', en: 'AtlasCloud', ja: 'AtlasCloud', 'pt-BR': 'AtlasCloud' },
   'wanjie-ark': { 'zh-Hans': '万界方舟', en: 'Wanjie Ark', ja: '万界方舟', 'pt-BR': 'Wanjie Ark' },
-  'xiaomi-mimo': { 'zh-Hans': '小米 MiMo', en: 'Xiaomi MiMo', ja: 'Xiaomi MiMo', 'pt-BR': 'Xiaomi MiMo' },
+  'xiaomi-mimo': { 'zh-Hans': '小米 MiMo', en: 'Xiaomi MiMo', ja: '小米 MiMo', 'pt-BR': 'Xiaomi MiMo' },
   novita: { 'zh-Hans': 'Novita', en: 'Novita', ja: 'Novita', 'pt-BR': 'Novita' },
   fireworks: { 'zh-Hans': 'Fireworks', en: 'Fireworks', ja: 'Fireworks', 'pt-BR': 'Fireworks' },
   openai: { 'zh-Hans': 'OpenAI（兼容）', en: 'OpenAI / Compat', ja: 'OpenAI（互換）', 'pt-BR': 'OpenAI / Compat' },
@@ -59,12 +74,30 @@ export const PROVIDER_I18N = {
   ollama: { 'zh-Hans': 'Ollama（本地）', en: 'Ollama (Local)', ja: 'Ollama（ローカル）', 'pt-BR': 'Ollama (Local)' },
 };
 
+/**
+ * 根据供应商 id 和当前语言，获取供应商的显示名称。
+ *
+ * 如果某个供应商没有配置当前语言的名称，会回退到简体中文名称；
+ * 如果连简体中文都没有，就直接返回供应商 id 本身。
+ *
+ * @param {string} providerId 供应商内部 id
+ * @param {string} locale 目标语言代码
+ * @returns {string} 该供应商在该语言下的显示名称
+ */
 export function getProviderI18nLabel(providerId, locale) {
   const map = PROVIDER_I18N[providerId];
   if (!map) return providerId;
   return map[locale] || map['zh-Hans'] || providerId;
 }
 
+/**
+ * 获取所有已知供应商的 id 和显示名称列表。
+ *
+ * 主要用于前端下拉框等需要展示“所有可选供应商”的场景。
+ *
+ * @param {string} locale 目标语言代码
+ * @returns {Array<{ id: string, label: string }>}
+ */
 export function getKnownProviders(locale) {
   return Object.entries(PROVIDER_I18N).map(([id, labels]) => ({
     id,
@@ -72,6 +105,15 @@ export function getKnownProviders(locale) {
   }));
 }
 
+/**
+ * 获取某个供应商的默认 API 地址。
+ *
+ * 不同供应商的 API 地址不同，这里集中管理，避免硬编码在业务逻辑里。
+ * 如果某个供应商没有配置默认地址，返回空字符串，由前端或业务侧处理。
+ *
+ * @param {string} providerId 供应商内部 id
+ * @returns {string} 默认 Base URL
+ */
 export function getDefaultBaseUrl(providerId) {
   const urls = {
     deepseek: 'https://api.deepseek.com',
@@ -90,6 +132,10 @@ export function getDefaultBaseUrl(providerId) {
 
 /**
  * 服务器端 API 返回消息的多语言映射
+ *
+ * 这些消息会在用户执行某些操作后返回给前端，用于显示成功提示、错误提示等。
+ * key 是消息的内部标识，value 是带占位符（如 {count}）的模板字符串。
+ * 占位符会在实际使用时被替换成真实数值。
  */
 export const SERVER_MSG = {
   'zh-Hans': {
@@ -205,27 +251,58 @@ export const SERVER_MSG = {
     skillProgressExtractNoReadme: '{n} 个文件，无 SKILL.md，尝试其他前缀',
     skillProgressTarFailed: 'Tar 失败: {msg}',
     skillProgressFallbackApi: '回退 API 并发下载...',
-    skillProgressAlsoFailed: '前缀 "{prefix}" 也失败: {msg}',
-    skillProgressRegistering: '注册 Skill...',
-    skillProgressDone: '安装完成',
-    skillProgressConnectingGithub: '连接 GitHub...',
-    skillProgressDownloadingPct: '下载中 {pct}%',
-    skillProgressExtracting: '解压中...',
-    skillProgressGitSparseClone: 'git sparse clone...',
-    skillProgressSparseCheckout: 'sparse-checkout: {path}...',
-    skillProgressCheckoutFiles: 'checkout files...',
-    skillProgressCopying: '复制到目标目录...',
-    skillProgressExtractZip: '解压 ZIP...',
-    skillProgressFindingSkillDir: '查找 SKILL.md 所在目录...',
-    skillLogCleared: '日志已清除',
-    defaultSet: '已设为默认',
-    skillProgressCloneDone: '克隆完成',
-    skillLogApiNetworkFail: 'API 网络请求失败',
-    skillLogTarNetworkFail: 'Tar 网络请求失败',
-    skillFileNotFound: '文件未找到',
-    skillInvalidInstallType: '无效的安装类型',
-    skillUpdateRequiresId: '更新 Skill 需要提供 ID',
-    skillUpdateFailed: 'Skill 更新失败',
+    skillProgressAlsoFailed: '前缀 "{prefix}" 也失败',
+    skillProgressPrefixDone: '前缀 {prefix} 完成 ({n} 个文件)',
+    skillProgressZipDownloading: '下载 ZIP...',
+    skillProgressZipExtracting: '解压 ZIP...',
+    skillProgressZipFailed: 'ZIP 失败: {msg}',
+    skillProgressZipDone: 'ZIP 完成 ({n} 个文件)',
+    skillProgressInstallDone: '安装完成',
+    skillProgressInstallFailed: '安装失败',
+    skillProgressUpdating: '正在更新 Skill...',
+    skillProgressUpdateDone: '更新完成',
+    skillProgressUpdateFailed: '更新失败',
+    skillProgressDeleteDone: '删除完成',
+    skillProgressDeleteFailed: '删除失败',
+
+    // ── 诊断日志详细 ──
+    skillLogDetailProxy: '代理: {proxy}',
+    skillLogDetailGithub: 'GitHub: {owner}/{repo}',
+    skillLogDetailBranch: '分支: {branch}',
+    skillLogDetailSubdir: '子目录: {subdir}',
+    skillLogDetailPrefix: '前缀: {prefix}',
+    skillLogDetailOutput: '输出: {output}',
+
+    // ── Skill 相关错误 ──
+    skillErrorInvalidRepo: '仓库地址无效',
+    skillErrorDownloadFailed: '下载失败',
+    skillErrorExtractFailed: '解压失败',
+    skillErrorNoReadme: '未找到 SKILL.md',
+    skillErrorInstallFailed: '安装失败',
+    skillErrorUpdateFailed: '更新失败',
+    skillErrorDeleteFailed: '删除失败',
+
+    // ── 文件相关 ──
+    fileErrorReadFailed: '读取文件失败',
+    fileErrorListFailed: '列出目录失败',
+    fileErrorNotDirectory: '路径不是目录',
+    fileErrorNotFound: '文件不存在',
+
+    // ── 其他通用消息 ──
+    confirm: '确认',
+    cancel: '取消',
+    save: '保存',
+    delete: '删除',
+    edit: '编辑',
+    add: '添加',
+    search: '搜索',
+    reset: '重置',
+    submit: '提交',
+    loading: '加载中...',
+    success: '成功',
+    error: '错误',
+    warning: '警告',
+    info: '信息',
   },
   'en': {
     providerNotFound: 'Provider not found',
@@ -237,126 +314,161 @@ export const SERVER_MSG = {
     deactivated: 'Switched back to official API',
     modelAdded: 'Model added',
     modelDeleted: 'Model deleted',
-    modelSet: 'Model switched',
+    modelSet: 'Current model switched',
     aliasUpdated: 'Alias updated',
     notFound: 'Not found',
     projectNotFound: 'Project not found',
-    synced: 'Synced',
+    synced: 'Sync completed',
 
-    keyRequired: 'api_key cannot be empty',
+    keyRequired: 'api_key is required',
     keyDuplicate: 'This API key already exists',
     keyNotFound: 'API key not found',
-    providerRequired: 'Provider type cannot be empty',
-    providerDuplicate: 'Provider already exists (same type + api_key)',
+    providerRequired: 'provider type is required',
+    providerDuplicate: 'Provider already exists (same type + same api_key)',
     modelDuplicate: 'Model already exists',
     modelNotFound: 'Model not found',
-    modelMinOne: 'Keep at least one model',
-    providerNoModels: 'This provider has no models',
-    configNotExists: 'CodeWhale config not found, skipping sync',
+    modelMinOne: 'At least one model must be kept',
+    providerNoModels: 'No models under this provider',
+    configNotExists: 'CodeWhale config does not exist, skipping sync',
     configParseError: 'Failed to read CodeWhale config',
-    officialMgrNotReady: 'OfficialKeyManager is not initialized',
-    validationError: 'Please fill in all required fields',
-    invalidBaseUrl: 'Invalid Base URL – please enter a valid http/https address',
+    officialMgrNotReady: 'OfficialKeyManager not initialized',
+    validationError: 'Please fill in all fields',
+    invalidBaseUrl: 'Invalid Base URL format, please enter a valid http/https address',
     proxyNotFound: 'Proxy not found',
     tokenNotFound: 'Token not found',
     syncMerged: 'Synced {count} new entries from CodeWhale',
     importedAlias: 'Imported from CodeWhale',
     skillAlreadyInstalled: 'Skill already installed',
-    skillDirNotExists: 'Local directory does not exist',
-    skillDirNoReadme: 'No SKILL.md found in directory',
+    skillDirNotExists: 'Local path does not exist',
+    skillDirNoReadme: 'No SKILL.md in directory',
     skillNotFound: 'Skill not installed',
-    skillNotCommunity: 'Only community skills support online update',
+    skillNotCommunity: 'Only community skills support online updates',
     skillMissingReadme: 'Installation complete but SKILL.md not found',
+    skillUpdateStart: 'Start updating Skill: {skillId}',
     skillUpdateStarted: 'Updating Skill: {skillId}',
     skillUpdateMissingId: 'Update Skill failed: missing skillId',
     skillUpdateNotFound: 'Update Skill failed: {skillId} not found',
     skillUpdateTempInstallFailed: 'Update Skill failed (temp install): {message}',
-    skillUpdateReplacing: 'Temp install succeeded, replacing old version...',
+    skillUpdateReplacing: 'Temp install success, replacing old version...',
     skillUpdateReplaceFailed: 'Update Skill failed: cannot replace directory',
-    skillUpdateSuccess: 'Skill updated successfully: {skillId}',
+    skillUpdateSuccess: 'Skill update success: {skillId}',
     skillUpdateUnknownError: 'Unknown error',
     gitCloneFailed: 'Git clone failed',
     gitPullFailed: 'git pull failed',
     githubApiError: 'GitHub API request failed',
     networkError: 'Network request failed',
-    deleteDirFailed: 'Failed to delete directory',
-    skillZipDownloadFailed: 'ZIP download failed – check your network',
-    skillNoFileUploaded: 'Please select a ZIP file first',
-    skillInstallFailed: 'Skill install failed',
-    skillZipExtractFailed: 'ZIP extraction failed – the file may be corrupted',
-    skillInvalidRepoUrl: 'Invalid GitHub repository URL',
-    skillMultiSkillRepo: 'This repo contains multiple skills – specify a skill name',
+    deleteDirFailed: 'Delete directory failed',
+    skillZipDownloadFailed: 'ZIP download failed, check network',
+    skillNoFileUploaded: 'Please select ZIP file first',
+    skillInstallFailed: 'Skill installation failed',
+    skillZipExtractFailed: 'ZIP extract failed, file may be corrupted',
+    skillInvalidRepoUrl: 'Invalid GitHub repo URL',
+    skillMultiSkillRepo: 'This repo contains multiple Skills, please specify skill name',
 
-    fileNotFound: 'Path not found',
+    fileNotFound: 'Path does not exist',
     fileNotDirectory: 'Path is not a directory',
-    fileListFailed: 'Failed to list directory',
+    fileListFailed: 'Failed to load directory',
     fileReadFailed: 'Failed to read file',
-    fileIsDirectory: 'Target path is a directory and cannot be read as file',
-    fileTooLarge: 'File is too large to read',
+    fileIsDirectory: 'Target path is directory, cannot read as file',
+    fileTooLarge: 'File too large to read',
     filePathRequired: 'File path is required',
 
+    // ── Error messages ──
     skillErrorUnsupportedProxy: 'Unsupported proxy protocol: {type}',
     skillErrorInvalidGithubUrl: 'Invalid GitHub URL: {url}',
-    skillErrorSkillNotFoundRepo: '{skillName} not found in {owner}/{repo} ({count} entries)',
+    skillErrorSkillNotFoundRepo: '{skillName} not found in {owner}/{repo} ({count} items)',
     skillErrorAllStrategiesFailed: 'All download strategies failed',
-    skillErrorApiAllPrefixesFailed: 'API download failed – no prefix found SKILL.md',
+    skillErrorApiAllPrefixesFailed: 'API download failed: no SKILL.md found at all prefixes',
     skillErrorReadmeNotFound: 'SKILL.md not found',
     skillErrorProxyDownload: 'Proxy download failed: HTTP {status}',
 
-    skillLogNewLog: '========== New diagnostic log ==========',
-    skillLogDownloadStart: '========== Download started ==========',
-    skillLogParams: 'Parameters',
-    skillLogRepoInfo: 'Repo info',
-    skillLogPrefixProbe: 'Probing prefix...',
+    // ── Diagnostic logs ──
+    skillLogNewLog: '========== New Diagnostic Log ==========',
+    skillLogDownloadStart: '========== Download Start ==========',
+    skillLogParams: 'Params',
+    skillLogRepoInfo: 'Repo Info',
+    skillLogPrefixProbe: 'Probing prefix ...',
     skillLogPrefixResult: 'Result: {prefix}',
-    skillLogTarballProbe: 'Probing tarball size...',
+    skillLogTarballProbe: 'Probing Tarball size ...',
     skillLogSize: 'Size: {size}',
-    skillLogSizeUnknown: 'Cannot determine size',
-    skillLogTryPrefixes: 'Trying prefixes (deduplicated)',
-    skillLogStrategyRoute: 'Strategy routing',
-    skillLogStrategyTar: 'Using Tar strategy',
-    skillLogStrategyApi: 'Using API strategy',
+    skillLogSizeUnknown: 'Unknown size',
+    skillLogTryPrefixes: 'Trying prefix list (deduped)',
+    skillLogStrategyRoute: 'Strategy route',
+    skillLogStrategyTar: 'Tar strategy',
+    skillLogStrategyApi: 'API strategy',
     skillLogTarAttempt: 'Tar attempt #{n}',
-    skillLogExtractResult: 'Extraction result',
+    skillLogExtractResult: 'Extract result',
     skillLogSuccessNFiles: 'Success ({n} files)',
     skillLogFailed: 'Failed: {msg}',
-    skillLogError: 'Exception: {msg}',
+    skillLogError: 'Error: {msg}',
     skillLogApiAttempt: 'API attempt #{n}',
     skillLogSuccessWithReadme: 'Success (with SKILL.md)',
-    skillLogDownloadDone: '========== Download complete ==========',
+    skillLogDownloadDone: '========== Download Complete ==========',
     skillLogFinalVerifyFailed: 'Final verification failed: SKILL.md not found',
 
+    // ── Progress messages ──
     skillProgressParsingRepo: 'Parsing repo info...',
     skillLogProxyAgentCreated: 'Proxy agent created ({type}://{host}:{port})',
     skillProgressDetectedPrefix: 'Detected prefix: {prefix}',
     skillProgressTarballSize: 'Tarball size: {size}',
-    skillProgressCannotDetectSize: 'Cannot detect tarball size',
-    skillProgressTarStreaming: 'Tar streaming...',
+    skillProgressCannotDetectSize: 'Cannot detect size',
+    skillProgressTarStreaming: 'Tar streaming download...',
     skillProgressFetchingTree: 'Fetching file list (Tree API)...',
-    skillProgressExtractNoReadme: '{n} files, no SKILL.md – trying other prefix',
+    skillProgressExtractNoReadme: '{n} files, no SKILL.md, trying other prefixes',
     skillProgressTarFailed: 'Tar failed: {msg}',
-    skillProgressFallbackApi: 'Falling back to API concurrent download...',
-    skillProgressAlsoFailed: 'Prefix "{prefix}" also failed: {msg}',
-    skillProgressRegistering: 'Registering skill...',
-    skillProgressDone: 'Install complete',
-    skillProgressConnectingGithub: 'Connecting to GitHub...',
-    skillProgressDownloadingPct: 'Downloading {pct}%',
-    skillProgressExtracting: 'Extracting...',
-    skillProgressGitSparseClone: 'git sparse clone...',
-    skillProgressSparseCheckout: 'sparse-checkout: {path}...',
-    skillProgressCheckoutFiles: 'checkout files...',
-    skillProgressCopying: 'Copying to target...',
-    skillProgressExtractZip: 'Extracting ZIP...',
-    skillProgressFindingSkillDir: 'Finding SKILL.md...',
-    skillLogCleared: 'Log cleared',
-    defaultSet: 'Set as default',
-    skillProgressCloneDone: 'Clone complete',
-    skillLogApiNetworkFail: 'API network request failed',
-    skillLogTarNetworkFail: 'Tar network request failed',
-    skillFileNotFound: 'File not found',
-    skillInvalidInstallType: 'Invalid install type',
-    skillUpdateRequiresId: 'Skill update requires an ID',
-    skillUpdateFailed: 'Skill update failed',
+    skillProgressFallbackApi: 'Fallback API concurrent download...',
+    skillProgressAlsoFailed: 'Prefix "{prefix}" also failed',
+    skillProgressPrefixDone: 'Prefix {prefix} done ({n} files)',
+    skillProgressZipDownloading: 'Downloading ZIP...',
+    skillProgressZipExtracting: 'Extracting ZIP...',
+    skillProgressZipFailed: 'ZIP failed: {msg}',
+    skillProgressZipDone: 'ZIP done ({n} files)',
+    skillProgressInstallDone: 'Installation done',
+    skillProgressInstallFailed: 'Installation failed',
+    skillProgressUpdating: 'Updating Skill...',
+    skillProgressUpdateDone: 'Update done',
+    skillProgressUpdateFailed: 'Update failed',
+    skillProgressDeleteDone: 'Deletion done',
+    skillProgressDeleteFailed: 'Deletion failed',
+
+    // ── Diagnostic logs detailed ──
+    skillLogDetailProxy: 'Proxy: {proxy}',
+    skillLogDetailGithub: 'GitHub: {owner}/{repo}',
+    skillLogDetailBranch: 'Branch: {branch}',
+    skillLogDetailSubdir: 'Subdir: {subdir}',
+    skillLogDetailPrefix: 'Prefix: {prefix}',
+    skillLogDetailOutput: 'Output: {output}',
+
+    // ── Skill related errors ──
+    skillErrorInvalidRepo: 'Invalid repo URL',
+    skillErrorDownloadFailed: 'Download failed',
+    skillErrorExtractFailed: 'Extract failed',
+    skillErrorNoReadme: 'SKILL.md not found',
+    skillErrorInstallFailed: 'Installation failed',
+    skillErrorUpdateFailed: 'Update failed',
+    skillErrorDeleteFailed: 'Deletion failed',
+
+    // ── File related ──
+    fileErrorReadFailed: 'Read file failed',
+    fileErrorListFailed: 'List directory failed',
+    fileErrorNotDirectory: 'Path is not a directory',
+    fileErrorNotFound: 'File not found',
+
+    // ── Other common messages ──
+    confirm: 'Confirm',
+    cancel: 'Cancel',
+    save: 'Save',
+    delete: 'Delete',
+    edit: 'Edit',
+    add: 'Add',
+    search: 'Search',
+    reset: 'Reset',
+    submit: 'Submit',
+    loading: 'Loading...',
+    success: 'Success',
+    error: 'Error',
+    warning: 'Warning',
+    info: 'Info',
   },
   'ja': {
     providerNotFound: 'プロバイダが見つかりません',
@@ -368,265 +480,343 @@ export const SERVER_MSG = {
     deactivated: '公式APIに戻しました',
     modelAdded: 'モデルを追加しました',
     modelDeleted: 'モデルを削除しました',
-    modelSet: 'モデルを切り替えました',
+    modelSet: '現在のモデルを切り替えました',
     aliasUpdated: 'エイリアスを更新しました',
     notFound: '見つかりません',
     projectNotFound: 'プロジェクトが見つかりません',
     synced: '同期完了',
 
-    keyRequired: 'api_key は必須です',
+    keyRequired: 'api_keyは必須です',
     keyDuplicate: 'このAPIキーは既に存在します',
     keyNotFound: 'APIキーが見つかりません',
-    providerRequired: 'プロバイダタイプは必須です',
-    providerDuplicate: 'このプロバイダは既に存在します（同じタイプ + api_key）',
+    providerRequired: 'providerタイプは必須です',
+    providerDuplicate: 'プロバイダは既に存在します（同じタイプ + 同じapi_key）',
     modelDuplicate: 'モデルは既に存在します',
     modelNotFound: 'モデルが見つかりません',
-    modelMinOne: '少なくとも1つのモデルを保持してください',
+    modelMinOne: '少なくとも1つのモデルを残す必要があります',
     providerNoModels: 'このプロバイダにはモデルがありません',
-    configNotExists: 'CodeWhale 設定が見つかりません、同期をスキップします',
-    configParseError: 'CodeWhale 設定の読み取りに失敗しました',
-    officialMgrNotReady: 'OfficialKeyManager が初期化されていません',
-    validationError: '必須項目をすべて入力してください',
-    invalidBaseUrl: 'Base URL の形式が正しくありません。有効な http/https アドレスを入力してください',
+    configNotExists: 'CodeWhale設定が存在しないため、同期をスキップします',
+    configParseError: 'CodeWhale設定の読み取りに失敗しました',
+    officialMgrNotReady: 'OfficialKeyManagerが初期化されていません',
+    validationError: 'すべてのフィールドに入力してください',
+    invalidBaseUrl: 'Base URLの形式が正しくありません。有効なhttp/httpsアドレスを入力してください',
     proxyNotFound: 'プロキシが見つかりません',
     tokenNotFound: 'トークンが見つかりません',
-    syncMerged: 'CodeWhale から {count} 件の新しいエントリを同期しました',
-    importedAlias: 'CodeWhale からインポート',
-    skillAlreadyInstalled: 'このスキルは既にインストールされています',
+    syncMerged: 'CodeWhaleから{count}件の新しいエントリを同期しました',
+    importedAlias: 'CodeWhaleからインポート',
+    skillAlreadyInstalled: 'スキルは既にインストールされています',
     skillDirNotExists: 'ローカルパスが存在しません',
-    skillDirNoReadme: 'ディレクトリに SKILL.md がありません',
+    skillDirNoReadme: 'ディレクトリにSKILL.mdがありません',
     skillNotFound: 'スキルがインストールされていません',
-    skillNotCommunity: 'community ソースのスキルのみオンライン更新できます',
-    skillMissingReadme: 'インストール完了しましたが SKILL.md が見つかりません',
-    skillUpdateStarted: 'スキルを更新中: {skillId}',
-    skillUpdateMissingId: 'スキル更新失敗：skillId が不足しています',
-    skillUpdateNotFound: 'スキル更新失敗：{skillId} が見つかりません',
+    skillNotCommunity: 'コミュニティスキルのみオンライン更新をサポートします',
+    skillMissingReadme: 'インストール完了しましたがSKILL.mdが見つかりません',
+    skillUpdateStart: 'スキル更新開始: {skillId}',
+    skillUpdateStarted: 'スキル更新中: {skillId}',
+    skillUpdateMissingId: 'スキル更新失敗：skillIdが不足',
+    skillUpdateNotFound: 'スキル更新失敗：{skillId}が見つかりません',
     skillUpdateTempInstallFailed: 'スキル更新失敗（一時インストール）: {message}',
     skillUpdateReplacing: '一時インストール成功、旧バージョンを置換中...',
     skillUpdateReplaceFailed: 'スキル更新失敗：ディレクトリを置換できません',
     skillUpdateSuccess: 'スキル更新成功: {skillId}',
-    skillUpdateUnknownError: '未知のエラー',
-    gitCloneFailed: 'Git clone に失敗しました',
-    gitPullFailed: 'git pull に失敗しました',
-    githubApiError: 'GitHub API リクエストに失敗しました',
-    networkError: 'ネットワークリクエストに失敗しました',
-    deleteDirFailed: 'ディレクトリの削除に失敗しました',
-    skillZipDownloadFailed: 'ZIP ダウンロードに失敗しました – ネットワークを確認してください',
-    skillNoFileUploaded: 'ZIP ファイルを先に選択してください',
-    skillInstallFailed: 'スキルのインストールに失敗しました',
-    skillZipExtractFailed: 'ZIP 解凍に失敗しました – ファイルが破損している可能性があります',
-    skillInvalidRepoUrl: '無効な GitHub リポジトリ URL です',
-    skillMultiSkillRepo: 'このリポジトリには複数のスキルが含まれています – スキル名を指定してください',
+    skillUpdateUnknownError: '不明なエラー',
+    gitCloneFailed: 'Git clone失敗',
+    gitPullFailed: 'git pull失敗',
+    githubApiError: 'GitHub APIリクエスト失敗',
+    networkError: 'ネットワークリクエスト失敗',
+    deleteDirFailed: 'ディレクトリ削除失敗',
+    skillZipDownloadFailed: 'ZIPダウンロード失敗、ネットワークを確認してください',
+    skillNoFileUploaded: 'ZIPファイルを選択してください',
+    skillInstallFailed: 'スキルインストール失敗',
+    skillZipExtractFailed: 'ZIP解凍失敗、ファイルが破損している可能性があります',
+    skillInvalidRepoUrl: '無効なGitHubリポジトリURL',
+    skillMultiSkillRepo: 'このリポジトリには複数のスキルが含まれています。スキル名を指定してください',
 
-    fileNotFound: 'パスが見つかりません',
+    fileNotFound: 'パスが存在しません',
     fileNotDirectory: 'パスはディレクトリではありません',
-    fileListFailed: 'ディレクトリの読み込みに失敗しました',
-    fileReadFailed: 'ファイルの読み込みに失敗しました',
+    fileListFailed: 'ディレクトリの読み込みに失敗',
+    fileReadFailed: 'ファイルの読み取りに失敗',
     fileIsDirectory: '対象パスはディレクトリです',
-    fileTooLarge: 'ファイルが大きすぎて読み込めません',
-    filePathRequired: 'ファイルパスは必須です',
+    fileTooLarge: 'ファイルが大きすぎます',
+    filePathRequired: 'ファイルパスが必要です',
 
-    skillErrorUnsupportedProxy: '未対応のプロキシプロトコル: {type}',
-    skillErrorInvalidGithubUrl: '無効な GitHub URL: {url}',
-    skillErrorSkillNotFoundRepo: '{owner}/{repo} に {skillName} が見つかりません（{count} 件のエントリ）',
+    // ── エラーメッセージ ──
+    skillErrorUnsupportedProxy: 'サポートされていないプロキシプロトコル: {type}',
+    skillErrorInvalidGithubUrl: '無効なGitHub URL: {url}',
+    skillErrorSkillNotFoundRepo: '{owner}/{repo} に {skillName} が見つかりません（{count}件）',
     skillErrorAllStrategiesFailed: 'すべてのダウンロード戦略が失敗しました',
-    skillErrorApiAllPrefixesFailed: 'API ダウンロード失敗：すべてのプレフィックスで SKILL.md が見つかりません',
-    skillErrorReadmeNotFound: 'SKILL.md が見つかりません',
+    skillErrorApiAllPrefixesFailed: 'APIダウンロード失敗：すべてのプレフィックスでSKILL.mdが見つかりません',
+    skillErrorReadmeNotFound: 'SKILL.mdが見つかりません',
     skillErrorProxyDownload: 'プロキシダウンロード失敗: HTTP {status}',
 
+    // ── 診断ログ ──
     skillLogNewLog: '========== 新規診断ログ ==========',
     skillLogDownloadStart: '========== ダウンロード開始 ==========',
     skillLogParams: 'パラメータ',
     skillLogRepoInfo: 'リポジトリ情報',
     skillLogPrefixProbe: 'プレフィックスを調査中...',
     skillLogPrefixResult: '結果: {prefix}',
-    skillLogTarballProbe: 'Tarball サイズを調査中...',
+    skillLogTarballProbe: 'Tarballサイズを調査中...',
     skillLogSize: 'サイズ: {size}',
     skillLogSizeUnknown: 'サイズ不明',
-    skillLogTryPrefixes: 'プレフィックスリストを試行（重複除去済み）',
-    skillLogStrategyRoute: '戦略ルーティング',
-    skillLogStrategyTar: 'Tar 戦略を使用',
-    skillLogStrategyApi: 'API 戦略を使用',
-    skillLogTarAttempt: 'Tar 試行 #{n}',
+    skillLogTryPrefixes: 'プレフィックスリストを試行（重複削除）',
+    skillLogStrategyRoute: '戦略ルート',
+    skillLogStrategyTar: 'Tar戦略',
+    skillLogStrategyApi: 'API戦略',
+    skillLogTarAttempt: 'Tar試行 #{n}',
     skillLogExtractResult: '抽出結果',
-    skillLogSuccessNFiles: '成功（{n} ファイル）',
+    skillLogSuccessNFiles: '成功 ({n}ファイル)',
     skillLogFailed: '失敗: {msg}',
-    skillLogError: '例外: {msg}',
-    skillLogApiAttempt: 'API 試行 #{n}',
-    skillLogSuccessWithReadme: '成功（SKILL.md あり）',
+    skillLogError: 'エラー: {msg}',
+    skillLogApiAttempt: 'API試行 #{n}',
+    skillLogSuccessWithReadme: '成功 (SKILL.mdあり)',
     skillLogDownloadDone: '========== ダウンロード完了 ==========',
-    skillLogFinalVerifyFailed: '最終検証失敗: SKILL.md が存在しません',
+    skillLogFinalVerifyFailed: '最終検証失敗: SKILL.mdが存在しません',
 
+    // ── 進捗メッセージ ──
     skillProgressParsingRepo: 'リポジトリ情報を解析中...',
-    skillLogProxyAgentCreated: 'プロキシチャネル作成済み ({type}://{host}:{port})',
+    skillLogProxyAgentCreated: 'プロキシエージェント作成完了 ({type}://{host}:{port})',
     skillProgressDetectedPrefix: 'プレフィックスを検出: {prefix}',
-    skillProgressTarballSize: 'Tarball サイズ: {size}',
-    skillProgressCannotDetectSize: 'Tarball サイズを検出できません',
-    skillProgressTarStreaming: 'Tar ストリーミングダウンロード...',
-    skillProgressFetchingTree: 'ファイルリストを取得中（Tree API）...',
-    skillProgressExtractNoReadme: '{n} ファイル、SKILL.md なし – 他のプレフィックスを試行',
-    skillProgressTarFailed: 'Tar 失敗: {msg}',
-    skillProgressFallbackApi: 'API 並列ダウンロードにフォールバック...',
-    skillProgressAlsoFailed: 'プレフィックス「{prefix}」も失敗: {msg}',
-    skillProgressRegistering: 'スキルを登録中...',
-    skillProgressDone: 'インストール完了',
-    skillProgressConnectingGithub: 'GitHub に接続中...',
-    skillProgressDownloadingPct: 'ダウンロード中 {pct}%',
-    skillProgressExtracting: '解凍中...',
-    skillProgressGitSparseClone: 'git sparse clone...',
-    skillProgressSparseCheckout: 'sparse-checkout: {path}...',
-    skillProgressCheckoutFiles: 'checkout files...',
-    skillProgressCopying: 'ターゲットにコピー中...',
-    skillProgressExtractZip: 'ZIP 解凍中...',
-    skillProgressFindingSkillDir: 'SKILL.md を検索中...',
-    skillLogCleared: 'ログを消去しました',
-    defaultSet: 'デフォルトに設定',
-    skillProgressCloneDone: 'Clone 完了',
-    skillLogApiNetworkFail: 'API ネットワークリクエスト失敗',
-    skillLogTarNetworkFail: 'Tar ネットワークリクエスト失敗',
-    skillFileNotFound: 'ファイルが見つかりません',
-    skillInvalidInstallType: '無効なインストールタイプ',
-    skillUpdateRequiresId: 'Skill更新にはIDが必要です',
-    skillUpdateFailed: 'Skill更新に失敗しました',
+    skillProgressTarballSize: 'Tarballサイズ: {size}',
+    skillProgressCannotDetectSize: 'サイズを検出できません',
+    skillProgressTarStreaming: 'Tarストリーミングダウンロード...',
+    skillProgressFetchingTree: 'ファイルリスト取得中 (Tree API)...',
+    skillProgressExtractNoReadme: '{n}ファイル、SKILL.mdなし、他のプレフィックスを試行',
+    skillProgressTarFailed: 'Tar失敗: {msg}',
+    skillProgressFallbackApi: 'APIフォールバック並列ダウンロード...',
+    skillProgressAlsoFailed: 'プレフィックス "{prefix}" も失敗',
+    skillProgressPrefixDone: 'プレフィックス {prefix} 完了 ({n}ファイル)',
+    skillProgressZipDownloading: 'ZIPダウンロード中...',
+    skillProgressZipExtracting: 'ZIP解凍中...',
+    skillProgressZipFailed: 'ZIP失敗: {msg}',
+    skillProgressZipDone: 'ZIP完了 ({n}ファイル)',
+    skillProgressInstallDone: 'インストール完了',
+    skillProgressInstallFailed: 'インストール失敗',
+    skillProgressUpdating: 'スキル更新中...',
+    skillProgressUpdateDone: '更新完了',
+    skillProgressUpdateFailed: '更新失敗',
+    skillProgressDeleteDone: '削除完了',
+    skillProgressDeleteFailed: '削除失敗',
+
+    // ── 診断ログ詳細 ──
+    skillLogDetailProxy: 'プロキシ: {proxy}',
+    skillLogDetailGithub: 'GitHub: {owner}/{repo}',
+    skillLogDetailBranch: 'ブランチ: {branch}',
+    skillLogDetailSubdir: 'サブディレクトリ: {subdir}',
+    skillLogDetailPrefix: 'プレフィックス: {prefix}',
+    skillLogDetailOutput: '出力: {output}',
+
+    // ── Skill関連エラー ──
+    skillErrorInvalidRepo: 'リポジトリURLが無効です',
+    skillErrorDownloadFailed: 'ダウンロード失敗',
+    skillErrorExtractFailed: '解凍失敗',
+    skillErrorNoReadme: 'SKILL.mdが見つかりません',
+    skillErrorInstallFailed: 'インストール失敗',
+    skillErrorUpdateFailed: '更新失敗',
+    skillErrorDeleteFailed: '削除失敗',
+
+    // ── ファイル関連 ──
+    fileErrorReadFailed: 'ファイル読み取り失敗',
+    fileErrorListFailed: 'ディレクトリ一覧失敗',
+    fileErrorNotDirectory: 'パスはディレクトリではありません',
+    fileErrorNotFound: 'ファイルが見つかりません',
+
+    // ── その他共通メッセージ ──
+    confirm: '確認',
+    cancel: 'キャンセル',
+    save: '保存',
+    delete: '削除',
+    edit: '編集',
+    add: '追加',
+    search: '検索',
+    reset: 'リセット',
+    submit: '送信',
+    loading: '読み込み中...',
+    success: '成功',
+    error: 'エラー',
+    warning: '警告',
+    info: '情報',
   },
   'pt-BR': {
     providerNotFound: 'Provedor não encontrado',
-    officialKeyNotFound: 'Chave API não encontrada',
+    officialKeyNotFound: 'API key não encontrada',
     added: 'Adicionado',
     deleted: 'Excluído',
     updated: 'Atualizado',
     activated: 'Ativado',
-    deactivated: 'Voltou para API oficial',
+    deactivated: 'Voltado para API oficial',
     modelAdded: 'Modelo adicionado',
     modelDeleted: 'Modelo excluído',
-    modelSet: 'Modelo alterado',
+    modelSet: 'Modelo atual alterado',
     aliasUpdated: 'Alias atualizado',
     notFound: 'Não encontrado',
     projectNotFound: 'Projeto não encontrado',
-    synced: 'Sincronizado',
+    synced: 'Sincronização concluída',
 
-    keyRequired: 'api_key não pode estar vazio',
-    keyDuplicate: 'Esta chave API já existe',
-    keyNotFound: 'Chave API não encontrada',
-    providerRequired: 'Tipo de provedor não pode estar vazio',
-    providerDuplicate: 'Provedor já existe (mesmo tipo + api_key)',
+    keyRequired: 'api_key é obrigatória',
+    keyDuplicate: 'Esta API key já existe',
+    keyNotFound: 'API key não encontrada',
+    providerRequired: 'Tipo de provider é obrigatório',
+    providerDuplicate: 'Provedor já existe (mesmo tipo + mesma api_key)',
     modelDuplicate: 'Modelo já existe',
     modelNotFound: 'Modelo não encontrado',
-    modelMinOne: 'Mantenha pelo menos um modelo',
-    providerNoModels: 'Este provedor não tem modelos',
-    configNotExists: 'Configuração do CodeWhale não encontrada, ignorando sincronização',
-    configParseError: 'Falha ao ler configuração do CodeWhale',
-    officialMgrNotReady: 'OfficialKeyManager não está inicializado',
-    validationError: 'Preencha todos os campos obrigatórios',
-    invalidBaseUrl: 'Formato de Base URL inválido – insira um endereço http/https válido',
+    modelMinOne: 'Deve manter pelo menos um modelo',
+    providerNoModels: 'Nenhum modelo neste provedor',
+    configNotExists: 'Configuração CodeWhale não existe, pulando sincronização',
+    configParseError: 'Falha ao ler configuração CodeWhale',
+    officialMgrNotReady: 'OfficialKeyManager não inicializado',
+    validationError: 'Preencha todas as informações',
+    invalidBaseUrl: 'Formato de Base URL inválido, insira um endereço http/https válido',
     proxyNotFound: 'Proxy não encontrado',
     tokenNotFound: 'Token não encontrado',
-    syncMerged: 'Sincronizadas {count} novas entradas do CodeWhale',
+    syncMerged: 'Sincronizados {count} novos itens do CodeWhale',
     importedAlias: 'Importado do CodeWhale',
     skillAlreadyInstalled: 'Skill já instalada',
-    skillDirNotExists: 'Diretório local não existe',
+    skillDirNotExists: 'Caminho local não existe',
     skillDirNoReadme: 'Nenhum SKILL.md no diretório',
     skillNotFound: 'Skill não instalada',
-    skillNotCommunity: 'Apenas skills da comunidade suportam atualização online',
+    skillNotCommunity: 'Apenas skills community suportam atualização online',
     skillMissingReadme: 'Instalação concluída mas SKILL.md não encontrado',
+    skillUpdateStart: 'Iniciando atualização da Skill: {skillId}',
     skillUpdateStarted: 'Atualizando Skill: {skillId}',
-    skillUpdateMissingId: 'Atualização de Skill falhou: skillId ausente',
-    skillUpdateNotFound: 'Atualização de Skill falhou: {skillId} não encontrado',
-    skillUpdateTempInstallFailed: 'Atualização de Skill falhou (temp install): {message}',
-    skillUpdateReplacing: 'Instalação temporária concluída, substituindo versão antiga...',
-    skillUpdateReplaceFailed: 'Atualização de Skill falhou: não foi possível substituir diretório',
+    skillUpdateMissingId: 'Falha na atualização: skillId ausente',
+    skillUpdateNotFound: 'Falha na atualização: {skillId} não encontrado',
+    skillUpdateTempInstallFailed: 'Falha na atualização (instalação temporária): {message}',
+    skillUpdateReplacing: 'Instalação temporária OK, substituindo versão antiga...',
+    skillUpdateReplaceFailed: 'Falha na atualização: não foi possível substituir diretório',
     skillUpdateSuccess: 'Skill atualizada com sucesso: {skillId}',
     skillUpdateUnknownError: 'Erro desconhecido',
     gitCloneFailed: 'Git clone falhou',
     gitPullFailed: 'git pull falhou',
-    githubApiError: 'Requisição à API do GitHub falhou',
+    githubApiError: 'Requisição GitHub API falhou',
     networkError: 'Requisição de rede falhou',
     deleteDirFailed: 'Falha ao excluir diretório',
-    skillZipDownloadFailed: 'Download ZIP falhou – verifique sua rede',
-    skillNoFileUploaded: 'Selecione um arquivo ZIP primeiro',
-    skillInstallFailed: 'Instalação da skill falhou',
-    skillZipExtractFailed: 'Extração ZIP falhou – o arquivo pode estar corrompido',
+    skillZipDownloadFailed: 'Download ZIP falhou, verifique a conexão',
+    skillNoFileUploaded: 'Selecione o arquivo ZIP primeiro',
+    skillInstallFailed: 'Instalação da Skill falhou',
+    skillZipExtractFailed: 'Extração ZIP falhou, arquivo pode estar corrompido',
     skillInvalidRepoUrl: 'URL de repositório GitHub inválida',
-    skillMultiSkillRepo: 'Este repositório contém várias skills – especifique um nome',
+    skillMultiSkillRepo: 'Este repositório contém múltiplas Skills, especifique o nome',
 
-    fileNotFound: 'Caminho não encontrado',
-    fileNotDirectory: 'O caminho não é um diretório',
+    fileNotFound: 'Caminho não existe',
+    fileNotDirectory: 'Caminho não é um diretório',
     fileListFailed: 'Falha ao carregar diretório',
     fileReadFailed: 'Falha ao ler arquivo',
-    fileIsDirectory: 'O caminho é um diretório, não é possível ler como arquivo',
-    fileTooLarge: 'Arquivo muito grande, não é possível ler',
+    fileIsDirectory: 'Caminho é diretório, não pode ler como arquivo',
+    fileTooLarge: 'Arquivo muito grande para ler',
     filePathRequired: 'Caminho do arquivo é obrigatório',
 
+    // ── Mensagens de erro ──
     skillErrorUnsupportedProxy: 'Protocolo de proxy não suportado: {type}',
-    skillErrorInvalidGithubUrl: 'URL do GitHub inválida: {url}',
-    skillErrorSkillNotFoundRepo: '{skillName} não encontrado em {owner}/{repo} ({count} entradas)',
+    skillErrorInvalidGithubUrl: 'URL GitHub inválida: {url}',
+    skillErrorSkillNotFoundRepo: '{skillName} não encontrado em {owner}/{repo} ({count} itens)',
     skillErrorAllStrategiesFailed: 'Todas as estratégias de download falharam',
-    skillErrorApiAllPrefixesFailed: 'Download API falhou – nenhum prefixo encontrou SKILL.md',
+    skillErrorApiAllPrefixesFailed: 'Download API falhou: nenhum SKILL.md encontrado em todos os prefixos',
     skillErrorReadmeNotFound: 'SKILL.md não encontrado',
     skillErrorProxyDownload: 'Download via proxy falhou: HTTP {status}',
 
-    skillLogNewLog: '========== Novo log de diagnóstico ==========',
-    skillLogDownloadStart: '========== Download iniciado ==========',
+    // ── Logs de diagnóstico ──
+    skillLogNewLog: '========== Novo Log de Diagnóstico ==========',
+    skillLogDownloadStart: '========== Início do Download ==========',
     skillLogParams: 'Parâmetros',
-    skillLogRepoInfo: 'Informações do repositório',
+    skillLogRepoInfo: 'Informações do Repositório',
     skillLogPrefixProbe: 'Investigando prefixo...',
     skillLogPrefixResult: 'Resultado: {prefix}',
-    skillLogTarballProbe: 'Investigando tamanho do tarball...',
+    skillLogTarballProbe: 'Investigando tamanho do Tarball...',
     skillLogSize: 'Tamanho: {size}',
-    skillLogSizeUnknown: 'Não foi possível determinar o tamanho',
+    skillLogSizeUnknown: 'Tamanho desconhecido',
     skillLogTryPrefixes: 'Tentando prefixos (deduplicados)',
-    skillLogStrategyRoute: 'Roteamento de estratégia',
-    skillLogStrategyTar: 'Usando estratégia Tar',
-    skillLogStrategyApi: 'Usando estratégia API',
+    skillLogStrategyRoute: 'Rota de estratégia',
+    skillLogStrategyTar: 'Estratégia Tar',
+    skillLogStrategyApi: 'Estratégia API',
     skillLogTarAttempt: 'Tentativa Tar #{n}',
     skillLogExtractResult: 'Resultado da extração',
     skillLogSuccessNFiles: 'Sucesso ({n} arquivos)',
     skillLogFailed: 'Falhou: {msg}',
-    skillLogError: 'Exceção: {msg}',
+    skillLogError: 'Erro: {msg}',
     skillLogApiAttempt: 'Tentativa API #{n}',
     skillLogSuccessWithReadme: 'Sucesso (com SKILL.md)',
-    skillLogDownloadDone: '========== Download concluído ==========',
-    skillLogFinalVerifyFailed: 'Verificação final falhou: SKILL.md não encontrado',
+    skillLogDownloadDone: '========== Download Concluído ==========',
+    skillLogFinalVerifyFailed: 'Verificação final falhou: SKILL.md não existe',
 
+    // ── Mensagens de progresso ──
     skillProgressParsingRepo: 'Analisando informações do repositório...',
     skillLogProxyAgentCreated: 'Agente proxy criado ({type}://{host}:{port})',
     skillProgressDetectedPrefix: 'Prefixo detectado: {prefix}',
-    skillProgressTarballSize: 'Tamanho do tarball: {size}',
-    skillProgressCannotDetectSize: 'Não foi possível detectar o tamanho do tarball',
-    skillProgressTarStreaming: 'Download streaming Tar...',
+    skillProgressTarballSize: 'Tamanho do Tarball: {size}',
+    skillProgressCannotDetectSize: 'Não foi possível detectar o tamanho',
+    skillProgressTarStreaming: 'Download streaming do Tar...',
     skillProgressFetchingTree: 'Obtendo lista de arquivos (Tree API)...',
-    skillProgressExtractNoReadme: '{n} arquivos, sem SKILL.md – tentando outro prefixo',
+    skillProgressExtractNoReadme: '{n} arquivos, sem SKILL.md, tentando outros prefixos',
     skillProgressTarFailed: 'Tar falhou: {msg}',
-    skillProgressFallbackApi: 'Recuando para download simultâneo via API...',
-    skillProgressAlsoFailed: 'Prefixo "{prefix}" também falhou: {msg}',
-    skillProgressRegistering: 'Registrando skill...',
-    skillProgressDone: 'Instalação concluída',
-    skillProgressConnectingGithub: 'Conectando ao GitHub...',
-    skillProgressDownloadingPct: 'Baixando {pct}%',
-    skillProgressExtracting: 'Extraindo...',
-    skillProgressGitSparseClone: 'git sparse clone...',
-    skillProgressSparseCheckout: 'sparse-checkout: {path}...',
-    skillProgressCheckoutFiles: 'checkout files...',
-    skillProgressCopying: 'Copiando para destino...',
-    skillProgressExtractZip: 'Extraindo ZIP...',
-    skillProgressFindingSkillDir: 'Procurando SKILL.md...',
-    skillLogCleared: 'Log limpo',
-    defaultSet: 'Definido como padrão',
-    skillProgressCloneDone: 'Clone concluído',
-    skillLogApiNetworkFail: 'Falha na requisição de rede da API',
-    skillLogTarNetworkFail: 'Falha na requisição de rede do Tar',
-    skillFileNotFound: 'Arquivo não encontrado',
-    skillInvalidInstallType: 'Tipo de instalação inválido',
-    skillUpdateRequiresId: 'Atualização de Skill requer um ID',
-    skillUpdateFailed: 'Falha na atualização da Skill',
+    skillProgressFallbackApi: 'Fallback para download concorrente via API...',
+    skillProgressAlsoFailed: 'Prefixo "{prefix}" também falhou',
+    skillProgressPrefixDone: 'Prefixo {prefix} concluído ({n} arquivos)',
+    skillProgressZipDownloading: 'Baixando ZIP...',
+    skillProgressZipExtracting: 'Extraindo ZIP...',
+    skillProgressZipFailed: 'ZIP falhou: {msg}',
+    skillProgressZipDone: 'ZIP concluído ({n} arquivos)',
+    skillProgressInstallDone: 'Instalação concluída',
+    skillProgressInstallFailed: 'Instalação falhou',
+    skillProgressUpdating: 'Atualizando Skill...',
+    skillProgressUpdateDone: 'Atualização concluída',
+    skillProgressUpdateFailed: 'Atualização falhou',
+    skillProgressDeleteDone: 'Exclusão concluída',
+    skillProgressDeleteFailed: 'Exclusão falhou',
+
+    // ── Logs de diagnóstico detalhados ──
+    skillLogDetailProxy: 'Proxy: {proxy}',
+    skillLogDetailGithub: 'GitHub: {owner}/{repo}',
+    skillLogDetailBranch: 'Branch: {branch}',
+    skillLogDetailSubdir: 'Subdiretório: {subdir}',
+    skillLogDetailPrefix: 'Prefixo: {prefix}',
+    skillLogDetailOutput: 'Saída: {output}',
+
+    // ── Erros relacionados a Skills ──
+    skillErrorInvalidRepo: 'URL do repositório inválida',
+    skillErrorDownloadFailed: 'Download falhou',
+    skillErrorExtractFailed: 'Extração falhou',
+    skillErrorNoReadme: 'SKILL.md não encontrado',
+    skillErrorInstallFailed: 'Instalação falhou',
+    skillErrorUpdateFailed: 'Atualização falhou',
+    skillErrorDeleteFailed: 'Exclusão falhou',
+
+    // ── Arquivos ──
+    fileErrorReadFailed: 'Falha ao ler arquivo',
+    fileErrorListFailed: 'Falha ao listar diretório',
+    fileErrorNotDirectory: 'Caminho não é um diretório',
+    fileErrorNotFound: 'Arquivo não encontrado',
+
+    // ── Outras mensagens gerais ──
+    confirm: 'Confirmar',
+    cancel: 'Cancelar',
+    save: 'Salvar',
+    delete: 'Excluir',
+    edit: 'Editar',
+    add: 'Adicionar',
+    search: 'Buscar',
+    reset: 'Redefinir',
+    submit: 'Enviar',
+    loading: 'Carregando...',
+    success: 'Sucesso',
+    error: 'Erro',
+    warning: 'Aviso',
+    info: 'Informação',
   },
 };
 
 /**
- * 获取多语言消息
- * @param {string} key - 消息键
- * @param {Object} [params={}] - 插值参数，如 { count: 3 }
- * @returns {string}
+ * 根据消息 key 和当前语言，获取对应的翻译文本。
+ *
+ * 如果某个 key 在当前语言下找不到，会回退到简体中文。
+ * 如果简体中文也没有，就返回 key 本身作为兜底。
+ * 文本中的 {占位符} 会被 params 对象中的对应值替换。
+ *
+ * 这个函数是后端返回消息给前端时的核心翻译入口。
+ * 所有 result.js 里的 okMsg/failMsg 都会调用它。
+ *
+ * @param {string} key 消息内部标识
+ * @param {Object} [params={}] 占位符替换参数，如 { count: 3 }
+ * @returns {string} 翻译后的文本
  */
 export function getServerMessage(key, params = {}) {
   const map = SERVER_MSG[_currentLocale] || SERVER_MSG['zh-Hans'];
