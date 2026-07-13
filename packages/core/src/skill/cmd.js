@@ -3,6 +3,34 @@
  * 提供 update / remove / copyToProject 等变更操作
  */
 
+/**
+ * 判断是否为空值
+ * @param {*} v - 任意值
+ * @returns {boolean} 是否为空
+ */
+function isEmpty(v) {
+  if (v === null || v === undefined) return true;
+  if (typeof v === 'string' && v === '') return true;
+  if (Array.isArray(v) && v.length === 0) return true;
+  if (typeof v === 'object' && Object.keys(v).length === 0) return true;
+  return false;
+}
+
+/**
+ * 清除对象中的空值字段
+ * @param {Object} o - 源对象
+ * @returns {Object} 过滤后的对象
+ */
+function clearObject(o) {
+  const result = {};
+  for (const [key, value] of Object.entries(o)) {
+    if (!isEmpty(value)) {
+      result[key] = value;
+    }
+  }
+  return result;
+}
+
 import { existsSync, rmSync } from 'node:fs';
 import { join } from 'node:path';
 import { randomUUID } from 'node:crypto';
@@ -22,11 +50,7 @@ import { okMsg, failMsg, fail } from '../utils/result.js';
 export function updateMeta(store, { skillId, level, projectId, ...meta }) {
   return store.mutate(skillId, function (entries, idx) {
     // 只更新传入的非空字段，未传入字段保持不变
-    if (meta.name != null) entries[idx].name = meta.name;
-    if (meta.description != null) entries[idx].description = meta.description;
-    if (meta.alias != null) entries[idx].alias = meta.alias;
-    if (meta.remark != null) entries[idx].remark = meta.remark;
-    if (meta.tags != null) entries[idx].tags = meta.tags;
+    Object.assign(entries[idx], clearObject(meta));
     // 更新修改时间
     entries[idx].updated_at = Date.now();
     return okMsg('updated');
