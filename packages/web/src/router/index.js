@@ -41,6 +41,12 @@ const routes = [
     component: () => import('@/views/project/index.vue'),
     meta: { title: '项目管理' },
   },
+  {
+    path: '/settings',
+    name: 'settings',
+    component: () => import('@/views/settings/index.vue'),
+    meta: { title: '通用设置' },
+  },
 ];
 
 const router = createRouter({

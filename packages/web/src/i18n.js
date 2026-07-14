@@ -28,3 +28,9 @@ export const i18n = createI18n({
 export function t(key) {
   return i18n.global.t(key);
 }
+
+/** 设置前端语言并持久化到 localStorage */
+export function setLocale(locale) {
+  i18n.global.locale.value = locale;
+  localStorage.setItem('codewhale-locale', locale);
+}

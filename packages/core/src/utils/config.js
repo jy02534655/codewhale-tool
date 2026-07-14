@@ -20,6 +20,8 @@
 import { readFileSync, writeFileSync, copyFileSync, existsSync, mkdirSync } from 'node:fs';
 import { homedir } from 'node:os';
 import { join, dirname } from 'node:path';
+import { ok, okMsg } from './result.js';
+import { setLocale } from './i18n.js';
 
 /**
  * @typedef {import('../types.js').ProviderEntry} ProviderEntry
@@ -43,6 +45,8 @@ const DEFAULT_STORE = {
     community_cache: [],
     cached_at: 0,
   },
+  default_text_model: 'deepseek-v4-pro',
+  instructions: [],
 };
 
 export class ConfigEngine {
@@ -160,6 +164,8 @@ export class ConfigEngine {
           : def.skills.community_cache,
         cached_at: data.skills?.cached_at ?? def.skills.cached_at,
       },
+      default_text_model: data.default_text_model || def.default_text_model,
+      instructions: Array.isArray(data.instructions) ? data.instructions : def.instructions,
     };
   }
 
@@ -373,5 +379,85 @@ export class ConfigEngine {
    */
   setLocale(locale) {
     this.update((d) => { d.locale = locale; return d; });
+  }
+
+  // ─── 通用设置方法 ────────────────────────────────────────────
+
+  /**
+   * 获取全局默认文本模型。
+   *
+   * @returns {string} 模型标识，如 'deepseek-v4-pro'
+   */
+  getDefaultTextModel() {
+    return this.read().default_text_model || 'deepseek-v4-pro';
+  }
+
+  /**
+   * 持久化全局默认文本模型。
+   *
+   * @param {string} model 模型标识
+   */
+  setDefaultTextModel(model) {
+    this.update((d) => { d.default_text_model = model; return d; });
+  }
+
+  /**
+   * 获取指令文件配置列表。
+   *
+   * @returns {Array<{path: string, content?: string}>}
+   */
+  getInstructions() {
+    return this.read().instructions || [];
+  }
+
+  /**
+   * 持久化指令文件配置列表。
+   *
+   * @param {Array<{path: string, content?: string}>} instructions 指令配置数组
+   */
+  setInstructions(instructions) {
+    this.update((d) => { d.instructions = instructions; return d; });
+  }
+
+  /**
+   * 获取通用设置聚合数据（标准格式）。
+   *
+   * @returns {{ success: true, data: { locale: string, default_text_model: string, instructions: Array<{path: string, content?: string}> }, message: string }}
+   */
+  getSettings() {
+    return ok({
+      locale: this.getLocale(),
+      default_text_model: this.getDefaultTextModel(),
+      instructions: this.getInstructions(),
+    });
+  }
+
+  /**
+   * 更新通用设置（持久化 + runtime 语言切换）。
+   *
+   * @param {Object} [data]
+   * @param {string} [data.locale]
+   * @param {string} [data.default_text_model]
+   * @param {Array<{path: string, content?: string}>} [data.instructions]
+   * @returns {{ success: true, data: { locale: string, default_text_model: string, instructions: Array<{path: string, content?: string}> }, message: string }}
+   */
+  updateSettings({ locale, default_text_model, instructions }) {
+    const oldLocale = this.getLocale();
+    if (locale !== undefined || default_text_model !== undefined || Array.isArray(instructions)) {
+      this.update((d) => {
+        if (locale !== undefined) d.locale = locale;
+        if (default_text_model !== undefined) d.default_text_model = default_text_model;
+        if (Array.isArray(instructions)) d.instructions = instructions;
+        return d;
+      });
+      if (locale !== undefined && locale !== oldLocale) {
+        setLocale(locale);
+      }
+    }
+    return okMsg('updated', {
+      locale: this.getLocale(),
+      default_text_model: this.getDefaultTextModel(),
+      instructions: this.getInstructions(),
+    });
   }
 }

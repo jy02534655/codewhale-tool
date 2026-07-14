@@ -61,7 +61,7 @@ import { ref, computed, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
 import { useI18n } from 'vue-i18n';
 import {
-  Monitor, Collection, Link, Key, Folder, Fold, Expand,
+  Monitor, Collection, Link, Key, Folder, Fold, Expand, Setting,
 } from '@element-plus/icons-vue';
 
 import zhCn from 'element-plus/dist/locale/zh-cn.mjs';
@@ -114,6 +114,7 @@ const navItems = [
   { route: 'proxy', icon: Link, i18nKey: 'proxy.title' },
   { route: 'token', icon: Key, i18nKey: 'token.title' },
   { route: 'project', icon: Folder, i18nKey: 'project.title' },
+  { route: 'settings', icon: Setting, i18nKey: 'settings.title' },
 ];
 
 function onLocaleChange(val) {

@@ -63,7 +63,7 @@ export function formatTimestamp() {
  */
 export class Logger {
   constructor() {
-    this._file = null;      // 日志文件路径，null 表示不写文件
+    this._file = null; // 日志文件路径，null 表示不写文件
     this._onCallback = null; // 前端回调函数，null 表示不推送到前端
   }
 
