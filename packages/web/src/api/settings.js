@@ -11,6 +11,11 @@ export function getSettings() {
   return ajaxBack('/settings');
 }
 
+/** 获取默认配置 */
+export function getSettingsDefaults() {
+  return ajaxBack('/settings/defaults');
+}
+
 /** 更新通用设置 */
 export function updateSettings(data) {
   return ajaxPutBack('/settings', data, { successMessage: true });

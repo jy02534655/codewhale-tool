@@ -1,371 +1,315 @@
 <!--
-  index.vue — 通用设置页面
-  负责语言、默认模型、instructions 的统一配置与管理
---><template>
+  index.vue — 通用设置页面（Masonry 瀑布流布局版）
+  使用 @yeger/vue-masonry-wall 实现真正的横向瀑布流
+-->
+<template>
   <div v-loading="maskingStore.isLoading" class="page-view">
     <div class="page-section">
       <div class="section-header">
         <span class="section-title">{{ $t('settings.title') }}</span>
       </div>
 
-      <!-- 基础设置 -->
-      <el-card shadow="never" class="settings-card">
-        <el-form :model="form" class="settings-grid" size="small">
-          <el-form-item :label="$t('settings.language')" label-width="140px">
-            <el-select v-model="form.locale" @change="onSave">
-              <el-option
-                v-for="item in locales"
-                :key="item.value"
-                :label="item.label"
-                :value="item.value"
-              />
-            </el-select>
-          </el-form-item>
-          <el-form-item :label="$t('settings.default_model')" label-width="140px" class="full-width">
-            <el-input
-              v-model="form.default_text_model"
-              :placeholder="$t('settings.default_model_placeholder')"
-              @blur="onSave"
-            />
-          </el-form-item>
-        </el-form>
-      </el-card>
+      <!-- ========== Masonry 瀑布流：配置卡片 ========== -->
+      <masonry-wall
+        :items="settingCards"
+        :ssr-columns="1"
+        :column-width="380"
+        :gap="20"
+        :min-columns="1"
+        :max-columns="3"
+        class="masonry-container"
+      >
+        <template #default="{ item }">
+          <el-card shadow="never" class="settings-card">
+            <template v-if="item.hasHeader" #header>
+              <div class="card-header">
+                <span class="section-title">{{ $t(item.titleKey) }}</span>
+              </div>
+            </template>
 
-      <!-- TUI 界面 -->
-      <el-card shadow="never" class="settings-card">
-        <template #header>
-          <div class="card-header">
-            <span class="section-title">{{ $t('settings.tui_interface_title') }}</span>
-          </div>
+            <!-- 基础设置 -->
+            <template v-if="item.key === 'basic'">
+              <el-form :model="form" class="settings-grid" size="small" label-position="left">
+                <el-form-item :label="$t('settings.language')" label-width="auto">
+                  <el-select v-model="form.locale" @change="onSave">
+                    <el-option
+                      v-for="item in locales"
+                      :key="item.value"
+                      :label="item.label"
+                      :value="item.value"
+                    />
+                  </el-select>
+                </el-form-item>
+                <el-form-item :label="$t('settings.default_model')" label-width="auto" class="full-width">
+                  <el-input
+                    v-model="form.default_text_model"
+                    :placeholder="$t('settings.default_model_placeholder')"
+                    @blur="onSave"
+                  />
+                </el-form-item>
+                <el-form-item :label="$t('settings.update_check_for_updates')" label-width="auto">
+                  <el-switch v-model="form.update_check_for_updates" @change="onSave" />
+                </el-form-item>
+              </el-form>
+            </template>
+
+            <!-- TUI 界面 -->
+            <template v-if="item.key === 'tui_interface'">
+              <el-form :model="form" class="settings-grid" size="small" label-position="left">
+                <el-form-item :label="$t('settings.show_thinking')" label-width="auto">
+                  <el-switch v-model="form.show_thinking" @change="onSave" />
+                </el-form-item>
+                <el-form-item :label="$t('settings.show_tool_details')" label-width="auto">
+                  <el-switch v-model="form.show_tool_details" @change="onSave" />
+                </el-form-item>
+                <el-form-item :label="$t('settings.auto_compact')" label-width="auto">
+                  <el-switch v-model="form.auto_compact" @change="onSave" />
+                </el-form-item>
+                <el-form-item :label="$t('settings.paste_burst_detection')" label-width="auto">
+                  <el-switch v-model="form.paste_burst_detection" @change="onSave" />
+                </el-form-item>
+                <el-form-item :label="$t('settings.auto_compact_threshold_percent')" label-width="auto">
+                  <el-input-number v-model="form.auto_compact_threshold_percent" :min="10" :max="100" @change="onSave" />
+                </el-form-item>
+                <el-form-item :label="$t('settings.mention_menu_limit')" label-width="auto">
+                  <el-input-number v-model="form.mention_menu_limit" :min="1" @change="onSave" />
+                </el-form-item>
+                <el-form-item :label="$t('settings.mention_walk_depth')" label-width="auto">
+                  <el-input-number v-model="form.mention_walk_depth" :min="0" @change="onSave" />
+                </el-form-item>
+                <el-form-item :label="$t('settings.max_history')" label-width="auto">
+                  <el-input-number v-model="form.max_history" :min="1" @change="onSave" />
+                </el-form-item>
+                <el-form-item :label="$t('settings.theme')" label-width="auto">
+                  <el-select v-model="form.theme" @change="onSave">
+                    <el-option value="system" label="System" />
+                    <el-option value="dark" label="Dark" />
+                    <el-option value="light" label="Light" />
+                    <el-option value="grayscale" label="Grayscale" />
+                    <el-option value="catppuccin-mocha" label="Catppuccin Mocha" />
+                    <el-option value="tokyo-night" label="Tokyo Night" />
+                    <el-option value="dracula" label="Dracula" />
+                    <el-option value="gruvbox-dark" label="Gruvbox Dark" />
+                  </el-select>
+                </el-form-item>
+                <el-form-item :label="$t('settings.default_mode')" label-width="auto">
+                  <el-select v-model="form.default_mode" @change="onSave">
+                    <el-option value="agent" label="Agent" />
+                    <el-option value="plan" label="Plan" />
+                    <el-option value="yolo" label="Yolo" />
+                  </el-select>
+                </el-form-item>
+                <el-form-item :label="$t('settings.sidebar_focus')" label-width="auto">
+                  <el-select v-model="form.sidebar_focus" @change="onSave">
+                    <el-option value="pinned" label="Pinned" />
+                    <el-option value="auto" label="Auto" />
+                    <el-option value="tasks" label="Tasks" />
+                    <el-option value="agents" label="Agents" />
+                    <el-option value="context" label="Context" />
+                    <el-option value="hidden" label="Hidden" />
+                  </el-select>
+                </el-form-item>
+                <el-form-item :label="$t('settings.mention_menu_behavior')" label-width="auto">
+                  <el-select v-model="form.mention_menu_behavior" @change="onSave">
+                    <el-option value="fuzzy" label="Fuzzy" />
+                    <el-option value="browser" label="Browser" />
+                  </el-select>
+                </el-form-item>
+                <el-form-item :label="$t('settings.cost_currency')" label-width="auto">
+                  <el-select v-model="form.cost_currency" @change="onSave">
+                    <el-option value="usd" label="USD" />
+                    <el-option value="cny" label="CNY" />
+                    <el-option value="rmb" label="RMB" />
+                    <el-option value="yuan" label="Yuan" />
+                  </el-select>
+                </el-form-item>
+                <el-form-item :label="$t('settings.verbosity')" label-width="auto">
+                  <el-select v-model="form.verbosity" @change="onSave">
+                    <el-option value="normal" label="Normal" />
+                    <el-option value="concise" label="Concise" />
+                  </el-select>
+                </el-form-item>
+                <el-form-item :label="$t('settings.background_color')" label-width="auto" class="full-width">
+                  <el-input v-model="form.background_color" @blur="onSave" />
+                </el-form-item>
+                <el-form-item :label="$t('settings.default_model_override')" label-width="auto" class="full-width">
+                  <el-input v-model="form.default_model" @blur="onSave" />
+                </el-form-item>
+              </el-form>
+            </template>
+
+            <!-- TUI 终端 -->
+            <template v-if="item.key === 'tui_terminal'">
+              <el-form :model="form" class="settings-grid" size="small" label-position="left">
+                <el-form-item :label="$t('settings.tui_mouse_capture')" label-width="auto">
+                  <el-switch v-model="form.tui_mouse_capture" @change="onSave" />
+                </el-form-item>
+                <el-form-item :label="$t('settings.tui_osc8_links')" label-width="auto">
+                  <el-switch v-model="form.tui_osc8_links" @change="onSave" />
+                </el-form-item>
+                <el-form-item :label="$t('settings.tui_terminal_probe_timeout_ms')" label-width="auto">
+                  <el-input-number v-model="form.tui_terminal_probe_timeout_ms" :min="100" :max="5000" @change="onSave" />
+                </el-form-item>
+                <el-form-item :label="$t('settings.tui_stream_chunk_timeout_secs')" label-width="auto">
+                  <el-input-number v-model="form.tui_stream_chunk_timeout_secs" :min="1" :max="3600" @change="onSave" />
+                </el-form-item>
+                <el-form-item :label="$t('settings.tui_alternate_screen')" label-width="auto">
+                  <el-select v-model="form.tui_alternate_screen" @change="onSave">
+                    <el-option value="auto" label="Auto" />
+                    <el-option value="always" label="Always" />
+                    <el-option value="never" label="Never" />
+                  </el-select>
+                </el-form-item>
+              </el-form>
+            </template>
+
+            <!-- 安全与审批 -->
+            <template v-if="item.key === 'security'">
+              <el-form :model="form" class="settings-grid" size="small" label-position="left">
+                <el-form-item :label="$t('settings.allow_shell')" label-width="auto">
+                  <el-switch v-model="form.allow_shell" @change="onSave" />
+                </el-form-item>
+                <el-form-item :label="$t('settings.approval_policy')" label-width="auto">
+                  <el-select v-model="form.approval_policy" @change="onSave">
+                    <el-option value="on-request" label="On Request" />
+                    <el-option value="untrusted" label="Untrusted" />
+                    <el-option value="never" label="Never" />
+                  </el-select>
+                </el-form-item>
+                <el-form-item :label="$t('settings.sandbox_mode')" label-width="auto">
+                  <el-select v-model="form.sandbox_mode" @change="onSave">
+                    <el-option value="read-only" label="Read Only" />
+                    <el-option value="workspace-write" label="Workspace Write" />
+                    <el-option value="danger-full-access" label="Danger Full Access" />
+                    <el-option value="external-sandbox" label="External Sandbox" />
+                  </el-select>
+                </el-form-item>
+              </el-form>
+            </template>
+
+            <!-- 子代理 -->
+            <template v-if="item.key === 'subagents'">
+              <el-form :model="form" class="settings-grid" size="small" label-position="left">
+                <el-form-item :label="$t('settings.subagents_max_concurrent')" label-width="auto">
+                  <el-input-number v-model="form.subagents_max_concurrent" :min="1" :max="20" @change="onSave" />
+                </el-form-item>
+                <el-form-item :label="$t('settings.subagents_token_budget')" label-width="auto">
+                  <el-input-number v-model="form.subagents_token_budget" :min="0" @change="onSave" />
+                </el-form-item>
+                <el-form-item :label="$t('settings.subagents_api_timeout_secs')" label-width="auto">
+                  <el-input-number v-model="form.subagents_api_timeout_secs" :min="1" :max="1800" @change="onSave" />
+                </el-form-item>
+                <el-form-item :label="$t('settings.subagents_heartbeat_timeout_secs')" label-width="auto">
+                  <el-input-number v-model="form.subagents_heartbeat_timeout_secs" :min="30" :max="3600" @change="onSave" />
+                </el-form-item>
+                <el-form-item :label="$t('settings.subagents_default_model')" label-width="auto" class="full-width">
+                  <el-input v-model="form.subagents_default_model" @blur="onSave" />
+                </el-form-item>
+              </el-form>
+            </template>
+
+            <!-- 重试 -->
+            <template v-if="item.key === 'retry'">
+              <el-form :model="form" class="settings-grid" size="small" label-position="left">
+                <el-form-item :label="$t('settings.retry_enabled')" label-width="auto">
+                  <el-switch v-model="form.retry_enabled" @change="onSave" />
+                </el-form-item>
+                <el-form-item :label="$t('settings.retry_max_retries')" label-width="auto">
+                  <el-input-number v-model="form.retry_max_retries" :min="0" @change="onSave" />
+                </el-form-item>
+                <el-form-item :label="$t('settings.retry_initial_delay')" label-width="auto">
+                  <el-input-number v-model="form.retry_initial_delay" :min="0" :step="0.1" @change="onSave" />
+                </el-form-item>
+                <el-form-item :label="$t('settings.retry_max_delay')" label-width="auto">
+                  <el-input-number v-model="form.retry_max_delay" :min="0" :step="0.1" @change="onSave" />
+                </el-form-item>
+                <el-form-item :label="$t('settings.retry_exponential_base')" label-width="auto">
+                  <el-input-number v-model="form.retry_exponential_base" :min="1" :step="0.1" @change="onSave" />
+                </el-form-item>
+              </el-form>
+            </template>
+
+            <!-- 通知 -->
+            <template v-if="item.key === 'notifications'">
+              <el-form :model="form" class="settings-grid" size="small" label-position="left">
+                <el-form-item :label="$t('settings.notifications_threshold_secs')" label-width="auto">
+                  <el-input-number v-model="form.notifications_threshold_secs" :min="0" @change="onSave" />
+                </el-form-item>
+                <el-form-item :label="$t('settings.notifications_method')" label-width="auto">
+                  <el-select v-model="form.notifications_method" @change="onSave">
+                    <el-option value="auto" label="Auto" />
+                    <el-option value="osc9" label="OSC 9" />
+                    <el-option value="bel" label="BEL" />
+                    <el-option value="off" label="Off" />
+                  </el-select>
+                </el-form-item>
+                <el-form-item :label="$t('settings.notifications_completion_sound')" label-width="auto">
+                  <el-select v-model="form.notifications_completion_sound" @change="onSave">
+                    <el-option value="beep" label="Beep" />
+                    <el-option value="off" label="Off" />
+                    <el-option value="bell" label="Bell" />
+                    <el-option value="file" label="File" />
+                  </el-select>
+                </el-form-item>
+              </el-form>
+            </template>
+
+            <!-- 功能开关 -->
+            <template v-if="item.key === 'features'">
+              <el-form :model="form" class="settings-grid" size="small" label-position="left">
+                <el-form-item :label="$t('settings.features_shell_tool')" label-width="auto">
+                  <el-switch v-model="form.features_shell_tool" @change="onSave" />
+                </el-form-item>
+                <el-form-item :label="$t('settings.features_subagents')" label-width="auto">
+                  <el-switch v-model="form.features_subagents" @change="onSave" />
+                </el-form-item>
+                <el-form-item :label="$t('settings.features_web_search')" label-width="auto">
+                  <el-switch v-model="form.features_web_search" @change="onSave" />
+                </el-form-item>
+                <el-form-item :label="$t('settings.features_apply_patch')" label-width="auto">
+                  <el-switch v-model="form.features_apply_patch" @change="onSave" />
+                </el-form-item>
+                <el-form-item :label="$t('settings.features_mcp')" label-width="auto">
+                  <el-switch v-model="form.features_mcp" @change="onSave" />
+                </el-form-item>
+                <el-form-item :label="$t('settings.features_exec_policy')" label-width="auto">
+                  <el-switch v-model="form.features_exec_policy" @change="onSave" />
+                </el-form-item>
+                <el-form-item :label="$t('settings.features_vision_model')" label-width="auto">
+                  <el-switch v-model="form.features_vision_model" @change="onSave" />
+                </el-form-item>
+              </el-form>
+            </template>
+
+            <!-- 搜索 -->
+            <template v-if="item.key === 'search'">
+              <el-form :model="form" class="settings-grid" size="small" label-position="left">
+                <el-form-item :label="$t('settings.search_provider')" label-width="auto">
+                  <el-select v-model="form.search_provider" @change="onSave">
+                    <el-option value="duckduckgo" label="DuckDuckGo" />
+                    <el-option value="bing" label="Bing" />
+                    <el-option value="tavily" label="Tavily" />
+                    <el-option value="bocha" label="Bocha" />
+                    <el-option value="metaso" label="Metaso" />
+                    <el-option value="searxng" label="SearXNG" />
+                    <el-option value="baidu" label="Baidu" />
+                    <el-option value="volcengine" label="Volcengine" />
+                    <el-option value="sofya" label="Sofya" />
+                  </el-select>
+                </el-form-item>
+                <el-form-item :label="$t('settings.search_base_url')" label-width="auto" class="full-width">
+                  <el-input v-model="form.search_base_url" @blur="onSave" />
+                </el-form-item>
+              </el-form>
+            </template>
+
+
+          </el-card>
         </template>
-        <el-form :model="form" class="settings-grid" size="small">
-          <!-- 切换类 -->
-          <el-form-item :label="$t('settings.show_thinking')" label-width="140px">
-            <el-switch v-model="form.show_thinking" @change="onSave" />
-          </el-form-item>
-          <el-form-item :label="$t('settings.show_tool_details')" label-width="140px">
-            <el-switch v-model="form.show_tool_details" @change="onSave" />
-          </el-form-item>
-          <el-form-item :label="$t('settings.auto_compact')" label-width="140px">
-            <el-switch v-model="form.auto_compact" @change="onSave" />
-          </el-form-item>
-          <el-form-item :label="$t('settings.paste_burst_detection')" label-width="140px">
-            <el-switch v-model="form.paste_burst_detection" @change="onSave" />
-          </el-form-item>
+      </masonry-wall>
 
-          <!-- 数字配置类 -->
-          <el-form-item :label="$t('settings.auto_compact_threshold_percent')" label-width="140px">
-            <el-input-number v-model="form.auto_compact_threshold_percent" :min="10" :max="100" @change="onSave" />
-          </el-form-item>
-          <el-form-item :label="$t('settings.mention_menu_limit')" label-width="140px">
-            <el-input-number v-model="form.mention_menu_limit" :min="1" @change="onSave" />
-          </el-form-item>
-          <el-form-item :label="$t('settings.mention_walk_depth')" label-width="140px">
-            <el-input-number v-model="form.mention_walk_depth" :min="0" @change="onSave" />
-          </el-form-item>
-          <el-form-item :label="$t('settings.max_history')" label-width="140px">
-            <el-input-number v-model="form.max_history" :min="1" @change="onSave" />
-          </el-form-item>
-
-          <!-- 下拉类 -->
-          <el-form-item :label="$t('settings.theme')" label-width="140px">
-            <el-select v-model="form.theme" @change="onSave">
-              <el-option value="system" label="System" />
-              <el-option value="dark" label="Dark" />
-              <el-option value="light" label="Light" />
-              <el-option value="grayscale" label="Grayscale" />
-              <el-option value="catppuccin-mocha" label="Catppuccin Mocha" />
-              <el-option value="tokyo-night" label="Tokyo Night" />
-              <el-option value="dracula" label="Dracula" />
-              <el-option value="gruvbox-dark" label="Gruvbox Dark" />
-            </el-select>
-          </el-form-item>
-          <el-form-item :label="$t('settings.default_mode')" label-width="140px">
-            <el-select v-model="form.default_mode" @change="onSave">
-              <el-option value="agent" label="Agent" />
-              <el-option value="plan" label="Plan" />
-              <el-option value="yolo" label="Yolo" />
-            </el-select>
-          </el-form-item>
-          <el-form-item :label="$t('settings.sidebar_focus')" label-width="140px">
-            <el-select v-model="form.sidebar_focus" @change="onSave">
-              <el-option value="pinned" label="Pinned" />
-              <el-option value="auto" label="Auto" />
-              <el-option value="tasks" label="Tasks" />
-              <el-option value="agents" label="Agents" />
-              <el-option value="context" label="Context" />
-              <el-option value="hidden" label="Hidden" />
-            </el-select>
-          </el-form-item>
-          <el-form-item :label="$t('settings.mention_menu_behavior')" label-width="140px">
-            <el-select v-model="form.mention_menu_behavior" @change="onSave">
-              <el-option value="fuzzy" label="Fuzzy" />
-              <el-option value="browser" label="Browser" />
-            </el-select>
-          </el-form-item>
-          <el-form-item :label="$t('settings.cost_currency')" label-width="140px">
-            <el-select v-model="form.cost_currency" @change="onSave">
-              <el-option value="usd" label="USD" />
-              <el-option value="cny" label="CNY" />
-              <el-option value="rmb" label="RMB" />
-              <el-option value="yuan" label="Yuan" />
-            </el-select>
-          </el-form-item>
-          <el-form-item :label="$t('settings.verbosity')" label-width="140px">
-            <el-select v-model="form.verbosity" @change="onSave">
-              <el-option value="normal" label="Normal" />
-              <el-option value="concise" label="Concise" />
-            </el-select>
-          </el-form-item>
-
-          <!-- 文本输入 -->
-          <el-form-item :label="$t('settings.background_color')" label-width="140px" class="full-width">
-            <el-input v-model="form.background_color" @blur="onSave" />
-          </el-form-item>
-          <el-form-item :label="$t('settings.default_model_override')" label-width="140px" class="full-width">
-            <el-input v-model="form.default_model" @blur="onSave" />
-          </el-form-item>
-        </el-form>
-      </el-card>
-
-      <!-- TUI 终端 -->
-      <el-card shadow="never" class="settings-card">
-        <template #header>
-          <div class="card-header">
-            <span class="section-title">{{ $t('settings.tui_terminal_title') }}</span>
-          </div>
-        </template>
-        <el-form :model="form" class="settings-grid" size="small">
-          <!-- 切换类 -->
-          <el-form-item :label="$t('settings.tui_mouse_capture')" label-width="140px">
-            <el-switch v-model="form.tui_mouse_capture" @change="onSave" />
-          </el-form-item>
-          <el-form-item :label="$t('settings.tui_osc8_links')" label-width="140px">
-            <el-switch v-model="form.tui_osc8_links" @change="onSave" />
-          </el-form-item>
-
-          <!-- 数字配置类 -->
-          <el-form-item :label="$t('settings.tui_terminal_probe_timeout_ms')" label-width="140px">
-            <el-input-number v-model="form.tui_terminal_probe_timeout_ms" :min="100" :max="5000" @change="onSave" />
-          </el-form-item>
-          <el-form-item :label="$t('settings.tui_stream_chunk_timeout_secs')" label-width="140px">
-            <el-input-number v-model="form.tui_stream_chunk_timeout_secs" :min="1" :max="3600" @change="onSave" />
-          </el-form-item>
-
-          <!-- 下拉类 -->
-          <el-form-item :label="$t('settings.tui_alternate_screen')" label-width="140px">
-            <el-select v-model="form.tui_alternate_screen" @change="onSave">
-              <el-option value="auto" label="Auto" />
-              <el-option value="always" label="Always" />
-              <el-option value="never" label="Never" />
-            </el-select>
-          </el-form-item>
-        </el-form>
-      </el-card>
-
-      <!-- 安全与审批 -->
-      <el-card shadow="never" class="settings-card">
-        <template #header>
-          <div class="card-header">
-            <span class="section-title">{{ $t('settings.security_title') }}</span>
-          </div>
-        </template>
-        <el-form :model="form" class="settings-grid" size="small">
-          <!-- 切换类 -->
-          <el-form-item :label="$t('settings.allow_shell')" label-width="140px">
-            <el-switch v-model="form.allow_shell" @change="onSave" />
-          </el-form-item>
-
-          <!-- 下拉类 -->
-          <el-form-item :label="$t('settings.approval_policy')" label-width="140px">
-            <el-select v-model="form.approval_policy" @change="onSave">
-              <el-option value="on-request" label="On Request" />
-              <el-option value="untrusted" label="Untrusted" />
-              <el-option value="never" label="Never" />
-            </el-select>
-          </el-form-item>
-          <el-form-item :label="$t('settings.sandbox_mode')" label-width="140px">
-            <el-select v-model="form.sandbox_mode" @change="onSave">
-              <el-option value="read-only" label="Read Only" />
-              <el-option value="workspace-write" label="Workspace Write" />
-              <el-option value="danger-full-access" label="Danger Full Access" />
-              <el-option value="external-sandbox" label="External Sandbox" />
-            </el-select>
-          </el-form-item>
-        </el-form>
-      </el-card>
-
-      <!-- 子代理 -->
-      <el-card shadow="never" class="settings-card">
-        <template #header>
-          <div class="card-header">
-            <span class="section-title">{{ $t('settings.subagents_title') }}</span>
-          </div>
-        </template>
-        <el-form :model="form" class="settings-grid" size="small">
-          <!-- 数字配置类 -->
-          <el-form-item :label="$t('settings.subagents_max_concurrent')" label-width="140px">
-            <el-input-number v-model="form.subagents_max_concurrent" :min="1" :max="20" @change="onSave" />
-          </el-form-item>
-          <el-form-item :label="$t('settings.subagents_token_budget')" label-width="140px">
-            <el-input-number v-model="form.subagents_token_budget" :min="0" @change="onSave" />
-          </el-form-item>
-          <el-form-item :label="$t('settings.subagents_api_timeout_secs')" label-width="140px">
-            <el-input-number v-model="form.subagents_api_timeout_secs" :min="1" :max="1800" @change="onSave" />
-          </el-form-item>
-          <el-form-item :label="$t('settings.subagents_heartbeat_timeout_secs')" label-width="140px">
-            <el-input-number v-model="form.subagents_heartbeat_timeout_secs" :min="30" :max="3600" @change="onSave" />
-          </el-form-item>
-
-          <!-- 文本输入 -->
-          <el-form-item :label="$t('settings.subagents_default_model')" label-width="140px" class="full-width">
-            <el-input v-model="form.subagents_default_model" @blur="onSave" />
-          </el-form-item>
-        </el-form>
-      </el-card>
-
-      <!-- 重试 -->
-      <el-card shadow="never" class="settings-card">
-        <template #header>
-          <div class="card-header">
-            <span class="section-title">{{ $t('settings.retry_title') }}</span>
-          </div>
-        </template>
-        <el-form :model="form" class="settings-grid" size="small">
-          <!-- 切换类 -->
-          <el-form-item :label="$t('settings.retry_enabled')" label-width="140px">
-            <el-switch v-model="form.retry_enabled" @change="onSave" />
-          </el-form-item>
-
-          <!-- 数字配置类 -->
-          <el-form-item :label="$t('settings.retry_max_retries')" label-width="140px">
-            <el-input-number v-model="form.retry_max_retries" :min="0" @change="onSave" />
-          </el-form-item>
-          <el-form-item :label="$t('settings.retry_initial_delay')" label-width="140px">
-            <el-input-number v-model="form.retry_initial_delay" :min="0" :step="0.1" @change="onSave" />
-          </el-form-item>
-          <el-form-item :label="$t('settings.retry_max_delay')" label-width="140px">
-            <el-input-number v-model="form.retry_max_delay" :min="0" :step="0.1" @change="onSave" />
-          </el-form-item>
-          <el-form-item :label="$t('settings.retry_exponential_base')" label-width="140px">
-            <el-input-number v-model="form.retry_exponential_base" :min="1" :step="0.1" @change="onSave" />
-          </el-form-item>
-        </el-form>
-      </el-card>
-
-      <!-- 通知 -->
-      <el-card shadow="never" class="settings-card">
-        <template #header>
-          <div class="card-header">
-            <span class="section-title">{{ $t('settings.notifications_title') }}</span>
-          </div>
-        </template>
-        <el-form :model="form" class="settings-grid" size="small">
-          <!-- 数字配置类 -->
-          <el-form-item :label="$t('settings.notifications_threshold_secs')" label-width="140px">
-            <el-input-number v-model="form.notifications_threshold_secs" :min="0" @change="onSave" />
-          </el-form-item>
-
-          <!-- 下拉类 -->
-          <el-form-item :label="$t('settings.notifications_method')" label-width="140px">
-            <el-select v-model="form.notifications_method" @change="onSave">
-              <el-option value="auto" label="Auto" />
-              <el-option value="osc9" label="OSC 9" />
-              <el-option value="bel" label="BEL" />
-              <el-option value="off" label="Off" />
-            </el-select>
-          </el-form-item>
-          <el-form-item :label="$t('settings.notifications_completion_sound')" label-width="140px">
-            <el-select v-model="form.notifications_completion_sound" @change="onSave">
-              <el-option value="beep" label="Beep" />
-              <el-option value="off" label="Off" />
-              <el-option value="bell" label="Bell" />
-              <el-option value="file" label="File" />
-            </el-select>
-          </el-form-item>
-        </el-form>
-      </el-card>
-
-      <!-- 功能开关 -->
-      <el-card shadow="never" class="settings-card">
-        <template #header>
-          <div class="card-header">
-            <span class="section-title">{{ $t('settings.features_title') }}</span>
-          </div>
-        </template>
-        <el-form :model="form" class="settings-grid" size="small">
-          <!-- 切换类 -->
-          <el-form-item :label="$t('settings.features_shell_tool')" label-width="140px">
-            <el-switch v-model="form.features_shell_tool" @change="onSave" />
-          </el-form-item>
-          <el-form-item :label="$t('settings.features_subagents')" label-width="140px">
-            <el-switch v-model="form.features_subagents" @change="onSave" />
-          </el-form-item>
-          <el-form-item :label="$t('settings.features_web_search')" label-width="140px">
-            <el-switch v-model="form.features_web_search" @change="onSave" />
-          </el-form-item>
-          <el-form-item :label="$t('settings.features_apply_patch')" label-width="140px">
-            <el-switch v-model="form.features_apply_patch" @change="onSave" />
-          </el-form-item>
-          <el-form-item :label="$t('settings.features_mcp')" label-width="140px">
-            <el-switch v-model="form.features_mcp" @change="onSave" />
-          </el-form-item>
-          <el-form-item :label="$t('settings.features_exec_policy')" label-width="140px">
-            <el-switch v-model="form.features_exec_policy" @change="onSave" />
-          </el-form-item>
-          <el-form-item :label="$t('settings.features_vision_model')" label-width="140px">
-            <el-switch v-model="form.features_vision_model" @change="onSave" />
-          </el-form-item>
-        </el-form>
-      </el-card>
-
-      <!-- 搜索 -->
-      <el-card shadow="never" class="settings-card">
-        <template #header>
-          <div class="card-header">
-            <span class="section-title">{{ $t('settings.search_title') }}</span>
-          </div>
-        </template>
-        <el-form :model="form" class="settings-grid" size="small">
-          <!-- 下拉类 -->
-          <el-form-item :label="$t('settings.search_provider')" label-width="140px">
-            <el-select v-model="form.search_provider" @change="onSave">
-              <el-option value="duckduckgo" label="DuckDuckGo" />
-              <el-option value="bing" label="Bing" />
-              <el-option value="tavily" label="Tavily" />
-              <el-option value="bocha" label="Bocha" />
-              <el-option value="metaso" label="Metaso" />
-              <el-option value="searxng" label="SearXNG" />
-              <el-option value="baidu" label="Baidu" />
-              <el-option value="volcengine" label="Volcengine" />
-              <el-option value="sofya" label="Sofya" />
-            </el-select>
-          </el-form-item>
-
-          <!-- 文本输入 -->
-          <el-form-item :label="$t('settings.search_base_url')" label-width="140px" class="full-width">
-            <el-input v-model="form.search_base_url" @blur="onSave" />
-          </el-form-item>
-        </el-form>
-      </el-card>
-
-      <!-- 更新检查 -->
-      <el-card shadow="never" class="settings-card">
-        <template #header>
-          <div class="card-header">
-            <span class="section-title">{{ $t('settings.update_title') }}</span>
-          </div>
-        </template>
-        <el-form :model="form" class="settings-grid" size="small">
-          <!-- 切换类 -->
-          <el-form-item :label="$t('settings.update_check_for_updates')" label-width="140px">
-            <el-switch v-model="form.update_check_for_updates" @change="onSave" />
-          </el-form-item>
-        </el-form>
-      </el-card>
-
-      <!-- Instructions 管理 -->
-      <el-card shadow="never" class="settings-card">
+      <!-- ========== Instructions 全宽卡片（放在 Masonry 下方） ========== -->
+      <el-card shadow="never" class="settings-card instructions-card">
         <template #header>
           <div class="card-header">
             <span class="section-title">{{ $t('settings.instructions_title') }}</span>
@@ -421,6 +365,7 @@ import { getSettings, updateSettings } from '@/api/settings';
 import { useMaskingStore } from '@/stores/masking';
 import { compositionDialogContainer } from '@/composition/dialog/Container';
 import InstructionDialog from './edit/instruction.vue';
+import { MasonryWall } from '@yeger/vue-masonry-wall'
 
 const { t } = useI18n({ useScope: 'global' });
 const maskingStore = useMaskingStore();
@@ -431,6 +376,20 @@ const locales = [
   { value: 'en', label: 'English' },
   { value: 'ja', label: '日本語' },
   { value: 'pt-BR', label: 'Português (BR)' },
+];
+
+// ========== Masonry 卡片数据 ==========
+const settingCards = [
+  { key: 'basic', hasHeader: true, titleKey: 'settings.basic_title' },
+  { key: 'tui_interface', hasHeader: true, titleKey: 'settings.tui_interface_title' },
+  { key: 'tui_terminal', hasHeader: true, titleKey: 'settings.tui_terminal_title' },
+  { key: 'security', hasHeader: true, titleKey: 'settings.security_title' },
+  { key: 'subagents', hasHeader: true, titleKey: 'settings.subagents_title' },
+  { key: 'retry', hasHeader: true, titleKey: 'settings.retry_title' },
+  { key: 'notifications', hasHeader: true, titleKey: 'settings.notifications_title' },
+  { key: 'features', hasHeader: true, titleKey: 'settings.features_title' },
+  { key: 'search', hasHeader: true, titleKey: 'settings.search_title' },
+
 ];
 
 const form = reactive({
@@ -496,8 +455,6 @@ function fetchSettings() {
       form.locale = data.locale || 'zh-Hans';
       form.default_text_model = data.default_text_model || 'deepseek-v4-pro';
       form.instructions = Array.isArray(data.instructions) ? data.instructions : [];
-
-      // TUI 界面
       form.theme = data.theme || 'system';
       form.default_mode = data.default_mode || 'agent';
       form.sidebar_focus = data.sidebar_focus || 'pinned';
@@ -514,39 +471,27 @@ function fetchSettings() {
       form.max_history = data.max_history || 1000;
       form.default_model = data.default_model || '';
       form.verbosity = data.verbosity || 'normal';
-
-      // TUI 终端
       form.tui_alternate_screen = data.tui_alternate_screen || 'auto';
       form.tui_mouse_capture = data.tui_mouse_capture ?? true;
       form.tui_terminal_probe_timeout_ms = data.tui_terminal_probe_timeout_ms || 500;
       form.tui_stream_chunk_timeout_secs = data.tui_stream_chunk_timeout_secs || 300;
       form.tui_osc8_links = data.tui_osc8_links ?? true;
-
-      // 安全与审批
       form.approval_policy = data.approval_policy || 'on-request';
       form.sandbox_mode = data.sandbox_mode || 'read-only';
       form.allow_shell = data.allow_shell ?? false;
-
-      // 子代理
       form.subagents_max_concurrent = data.subagents_max_concurrent || 20;
       form.subagents_token_budget = data.subagents_token_budget || 0;
       form.subagents_api_timeout_secs = data.subagents_api_timeout_secs || 120;
       form.subagents_heartbeat_timeout_secs = data.subagents_heartbeat_timeout_secs || 300;
       form.subagents_default_model = data.subagents_default_model || '';
-
-      // 重试
       form.retry_enabled = data.retry_enabled ?? true;
       form.retry_max_retries = data.retry_max_retries || 3;
       form.retry_initial_delay = data.retry_initial_delay ?? 1.0;
       form.retry_max_delay = data.retry_max_delay ?? 60.0;
       form.retry_exponential_base = data.retry_exponential_base ?? 2.0;
-
-      // 通知
       form.notifications_method = data.notifications_method || 'auto';
       form.notifications_threshold_secs = data.notifications_threshold_secs || 30;
       form.notifications_completion_sound = data.notifications_completion_sound || 'beep';
-
-      // 功能开关
       form.features_shell_tool = data.features_shell_tool ?? true;
       form.features_subagents = data.features_subagents ?? true;
       form.features_web_search = data.features_web_search ?? true;
@@ -554,12 +499,8 @@ function fetchSettings() {
       form.features_mcp = data.features_mcp ?? true;
       form.features_exec_policy = data.features_exec_policy ?? true;
       form.features_vision_model = data.features_vision_model ?? false;
-
-      // 搜索
       form.search_provider = data.search_provider || 'duckduckgo';
       form.search_base_url = data.search_base_url || '';
-
-      // 更新
       form.update_check_for_updates = data.update_check_for_updates ?? true;
     })
     .finally(function () {
@@ -659,44 +600,102 @@ onMounted(fetchSettings);
 </script>
 
 <style scoped>
-.settings-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 16px 24px;
+/* ========== Masonry 容器 ========== */
+.masonry-container {
+  margin-bottom: 20px;
 }
-.settings-grid .el-form-item {
-  margin-bottom: 0;
+
+/* 覆盖 masonry-wall 默认样式，让卡片撑满列宽 */
+.masonry-container :deep(.masonry-column) {
+  display: flex;
+  flex-direction: column;
 }
-.settings-grid .full-width {
-  grid-column: 1 / -1;
-}
-.page-view {
-  padding: 16px;
-}
-.section-header {
-  margin-bottom: 12px;
-}
-.section-title {
-  font-size: 16px;
-  font-weight: 600;
-}
+
+/* ========== 卡片样式 ========== */
 .settings-card {
-  margin-bottom: 16px;
+  border-radius: 4px;
+  transition: box-shadow 0.2s, transform 0.2s;
+  margin-bottom: 0; /* gap 由 masonry 控制 */
 }
+.settings-card:hover {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  transform: translateY(-1px);
+}
+
+/* Instructions 卡片单独样式 */
+.instructions-card {
+  margin-top: 20px;
+  border-radius: 4px;
+}
+
+/* ========== 卡片头部 ========== */
 .card-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-1);
 }
+
+.card-header .section-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: #1a1a2e;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* 彩色标识条 */
+.card-header .section-title::before {
+  content: '';
+  width: 4px;
+  height: 18px;
+  border-radius: 2px;
+  background: linear-gradient(180deg, #409eff, #79bbff);
+}
+
+/* ========== 表单网格 ========== */
+.settings-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px 20px;
+}
+.settings-grid :deep(.el-form-item) {
+  margin-bottom: 0;
+}
+.settings-grid :deep(.el-form-item__content) {
+  display: flex;
+  justify-content: flex-end;
+}
+
+/* ========== 页面基础 ========== */
+.page-view {
+  padding: 16px;
+}
+.section-header {
+  margin-bottom: 16px;
+}
+.section-title {
+  font-size: 18px;
+  font-weight: 600;
+}
+
+/* ========== Instructions 列表 ========== */
 .instruction-list {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 10px;
 }
 .instruction-item {
   border: 1px solid #e4e7ed;
-  border-radius: 6px;
-  padding: 12px;
+  border-radius: 8px;
+  padding: 12px 14px;
+  background: #fafbfc;
+  transition: background 0.2s;
+}
+.instruction-item:hover {
+  background: #f5f7fa;
 }
 .instruction-main {
   display: flex;
@@ -706,7 +705,9 @@ onMounted(fetchSettings);
   flex-wrap: wrap;
 }
 .instruction-path {
-  font-family: monospace;
+  font-family: 'SF Mono', Monaco, 'Cascadia Code', monospace;
+  font-size: 13px;
+  color: #409eff;
   word-break: break-all;
 }
 .instruction-info {
@@ -719,5 +720,20 @@ onMounted(fetchSettings);
   display: flex;
   gap: 6px;
   flex-wrap: wrap;
+}
+
+/* ========== 响应式 ========== */
+@media (max-width: 768px) {
+  .settings-grid {
+    grid-template-columns: 1fr;
+  }
+  .instruction-main {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .instruction-actions {
+    width: 100%;
+    justify-content: flex-end;
+  }
 }
 </style>

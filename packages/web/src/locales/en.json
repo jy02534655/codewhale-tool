@@ -250,6 +250,7 @@
     "features_title": "Features",
     "search_title": "Search",
     "update_title": "Updates",
+    "basic_title": "Basic",
     "theme": "Theme",
     "default_mode": "Default Mode",
     "sidebar_focus": "Sidebar Focus",
@@ -296,6 +297,14 @@
     "features_vision_model": "Vision Model",
     "search_provider": "Search Provider",
     "search_base_url": "Custom Search Endpoint",
-    "update_check_for_updates": "Check For Updates"
+    "update_check_for_updates": "Check For Updates",
+    "actions_save": "Save",
+    "actions_cancel": "Cancel",
+    "actions_restore_defaults": "Restore Defaults",
+    "reset_confirm_title": "Restore Defaults",
+    "reset_confirm_message": "Are you sure you want to restore all settings to default? Unsaved changes will be lost.",
+    "reset_success": "Restored to defaults, please remember to save",
+    "save_success": "Saved successfully",
+    "cancel_reset": "Changes discarded"
   }
 }

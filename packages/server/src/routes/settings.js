@@ -449,6 +449,75 @@ export function createSettingsRouter(engine) {
    * @param {string} [body.default_text_model]
    * @param {Array<{path: string, content?: string}>} [body.instructions]
    */
+  /**
+   * 获取 CodeWhale 通用设置的默认值
+   * 不修改文件，仅返回内置默认值
+   */
+  router.get('/defaults', (req, res) => {
+    res.json(guard(() => {
+      const cw = readSettingsFromCodeWhale();
+      return ok({
+        locale: cw.locale,
+        default_text_model: cw.default_text_model,
+        instructions: cw.instructions,
+        theme: cw.theme,
+        default_mode: cw.default_mode,
+        sidebar_focus: cw.sidebar_focus,
+        show_thinking: cw.show_thinking,
+        show_tool_details: cw.show_tool_details,
+        auto_compact: cw.auto_compact,
+        auto_compact_threshold_percent: cw.auto_compact_threshold_percent,
+        paste_burst_detection: cw.paste_burst_detection,
+        mention_menu_limit: cw.mention_menu_limit,
+        mention_walk_depth: cw.mention_walk_depth,
+        mention_menu_behavior: cw.mention_menu_behavior,
+        cost_currency: cw.cost_currency,
+        background_color: cw.background_color,
+        max_history: cw.max_history,
+        verbosity: cw.verbosity,
+        tui_alternate_screen: cw.tui_alternate_screen,
+        tui_mouse_capture: cw.tui_mouse_capture,
+        tui_terminal_probe_timeout_ms: cw.tui_terminal_probe_timeout_ms,
+        tui_stream_chunk_timeout_secs: cw.tui_stream_chunk_timeout_secs,
+        tui_osc8_links: cw.tui_osc8_links,
+        approval_policy: cw.approval_policy,
+        sandbox_mode: cw.sandbox_mode,
+        allow_shell: cw.allow_shell,
+        subagents_max_concurrent: cw.subagents_max_concurrent,
+        subagents_token_budget: cw.subagents_token_budget,
+        subagents_api_timeout_secs: cw.subagents_api_timeout_secs,
+        subagents_heartbeat_timeout_secs: cw.subagents_heartbeat_timeout_secs,
+        subagents_default_model: cw.subagents_default_model,
+        retry_enabled: cw.retry_enabled,
+        retry_max_retries: cw.retry_max_retries,
+        retry_initial_delay: cw.retry_initial_delay,
+        retry_max_delay: cw.retry_max_delay,
+        retry_exponential_base: cw.retry_exponential_base,
+        notifications_method: cw.notifications_method,
+        notifications_threshold_secs: cw.notifications_threshold_secs,
+        notifications_completion_sound: cw.notifications_completion_sound,
+        features_shell_tool: cw.features_shell_tool,
+        features_subagents: cw.features_subagents,
+        features_web_search: cw.features_web_search,
+        features_apply_patch: cw.features_apply_patch,
+        features_mcp: cw.features_mcp,
+        features_exec_policy: cw.features_exec_policy,
+        features_vision_model: cw.features_vision_model,
+        search_provider: cw.search_provider,
+        search_base_url: cw.search_base_url,
+        update_check_for_updates: cw.update_check_for_updates,
+      });
+    }));
+  });
+
+  /**
+   * 更新通用设置（写入 CodeWhale config.toml，同时同步 store.json）
+   *
+   * @param {Object} body
+   * @param {string} [body.locale]
+   * @param {string} [body.default_text_model]
+   * @param {Array<{path: string, content?: string}>} [body.instructions]
+   */
   router.put('/', (req, res) => {
     res.json(guard(() => {
       const body = req.body || {};

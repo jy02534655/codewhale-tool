@@ -250,6 +250,7 @@
     "features_title": "功能开关",
     "search_title": "搜索",
     "update_title": "更新检查",
+    "basic_title": "基础设置",
     "theme": "主题",
     "default_mode": "默认模式",
     "sidebar_focus": "侧边栏焦点",
@@ -296,6 +297,14 @@
     "features_vision_model": "视觉模型",
     "search_provider": "搜索后端",
     "search_base_url": "自定义搜索端点",
-    "update_check_for_updates": "启动时检查更新"
+    "update_check_for_updates": "启动时检查更新",
+    "actions_save": "保存",
+    "actions_cancel": "取消",
+    "actions_restore_defaults": "恢复默认",
+    "reset_confirm_title": "恢复默认配置",
+    "reset_confirm_message": "确定要将所有设置恢复到默认配置吗？当前未保存的更改将丢失。",
+    "reset_success": "已恢复到默认配置，请记得保存",
+    "save_success": "保存成功",
+    "cancel_reset": "已取消更改"
   }
 }
