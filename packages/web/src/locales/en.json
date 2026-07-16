@@ -304,7 +304,7 @@
     "reset_confirm_title": "Restore Defaults",
     "reset_confirm_message": "Are you sure you want to restore all settings to default? Unsaved changes will be lost.",
     "reset_success": "Restored to defaults, please remember to save",
-    "save_success": "Saved successfully",
-    "cancel_reset": "Changes discarded"
+    "save_success": "Saved successfully"
+    
   }
 }

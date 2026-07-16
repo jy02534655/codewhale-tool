@@ -44,7 +44,7 @@ export const useMaskingStore = defineStore('masking', {
      * @param {string} opts.loadingText 提示文字
      * @param {string} opts.view 视图名称
      */
-    loading({ loadingText, view }) {
+    loading({ loadingText, view } = {}) {
       this.loadingText = loadingText;
       this.countChange({ view });
     },
@@ -55,7 +55,7 @@ export const useMaskingStore = defineStore('masking', {
      * @param {string} opts.view 视图名称
      * @param {number} [opts.nextTime] 延时关闭毫秒数，默认 100
      */
-    clear({ view, nextTime }) {
+    clear({ view, nextTime } = {}) {
       setTimeout(() => {
         this.countChange({ view, count: -1 });
       }, nextTime);

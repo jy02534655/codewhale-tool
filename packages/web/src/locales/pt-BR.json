@@ -297,6 +297,14 @@
     "features_vision_model": "Visão",
     "search_provider": "Provedor de Busca",
     "search_base_url": "Endpoint de Busca",
-    "update_check_for_updates": "Verificar Atualizações"
+    "update_check_for_updates": "Verificar Atualizações",
+    "actions_save": "Salvar",
+    "actions_cancel": "Cancelar",
+    "actions_restore_defaults": "Restaurar Padrões",
+    "reset_confirm_title": "Restaurar Padrões",
+    "reset_confirm_message": "Tem certeza que deseja restaurar todas as configurações para o padrão? Alterações não salvas serão perdidas.",
+    "reset_success": "Restaurado para os padrões, por favor salve",
+    "save_success": "Salvo com sucesso"
+    
   }
 }

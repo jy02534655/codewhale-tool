@@ -20,3 +20,8 @@ export function getSettingsDefaults() {
 export function updateSettings(data) {
   return ajaxPutBack('/settings', data, { successMessage: true });
 }
+
+/** 独立更新 instructions */
+export function updateInstructions(data) {
+  return ajaxPutBack('/settings/instructions', data, { successMessage: true });
+}

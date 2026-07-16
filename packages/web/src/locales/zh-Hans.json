@@ -304,7 +304,7 @@
     "reset_confirm_title": "恢复默认配置",
     "reset_confirm_message": "确定要将所有设置恢复到默认配置吗？当前未保存的更改将丢失。",
     "reset_success": "已恢复到默认配置，请记得保存",
-    "save_success": "保存成功",
-    "cancel_reset": "已取消更改"
+    "save_success": "保存成功"
+    
   }
 }
