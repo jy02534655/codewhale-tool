@@ -200,27 +200,6 @@ export class SyncManager {
       // 写回本地存储
       this._engine.setProviders(localProviders);
 
-      // ── 通用设置 ──
-      if (cwCfg.default_text_model) {
-        this._engine.setDefaultTextModel(cwCfg.default_text_model);
-      }
-      if (cwCfg.instructions && Array.isArray(cwCfg.instructions)) {
-        const normalized = cwCfg.instructions
-          .map((item) => {
-            if (typeof item === 'string') {
-              return { path: item, content: '' };
-            }
-            if (item && typeof item === 'object' && item.path) {
-              return { path: item.path, content: item.content || '' };
-            }
-            return null;
-          })
-          .filter(Boolean);
-        if (normalized.length > 0) {
-          this._engine.setInstructions(normalized);
-        }
-      }
-
       return okMsg('syncMerged', { merged: mergedCount }, { count: mergedCount });
     } catch {
       // 如果解析 TOML 失败，返回解析错误
@@ -264,7 +243,6 @@ export class SyncManager {
 
     // 确保这些字段存在，避免 CodeWhale 读取时缺字段
     cwCfg.auth_mode = cwCfg.auth_mode || 'api_key';
-    cwCfg.default_text_model = this._engine.getDefaultTextModel();
     // instructions 由通用设置路由直接读写 config.toml，此处不再覆盖
 
     // ── 第三方 provider ──

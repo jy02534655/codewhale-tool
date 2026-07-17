@@ -1,0 +1,22 @@
+{
+  "proxy": {
+    "title": "プロキシ管理",
+    "add": "プロキシ追加",
+    "empty": "プロキシがありません。追加してください。",
+    "alias_placeholder": "例: 会社プロキシ、自宅プロキシ",
+    "type": "タイプ",
+    "type_placeholder": "選択してください",
+    "host": "ホスト",
+    "host_placeholder": "例: 127.0.0.1",
+    "port": "ポート",
+    "port_placeholder": "例: 1080",
+    "auth_username": "ユーザー名（任意）",
+    "auth_username_placeholder": "認証ユーザー名",
+    "auth_password": "パスワード（任意）",
+    "auth_password_placeholder": "認証パスワード",
+    "add_title": "プロキシ追加",
+    "edit_title": "プロキシ編集",
+    "default": "デフォルト",
+    "setDefault": "デフォルトに設定"
+  }
+}

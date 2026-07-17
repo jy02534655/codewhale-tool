@@ -16,7 +16,7 @@
         <el-button @click="onRestoreDefaults">{{ $t('settings.actions_restore_defaults') }}</el-button>
       </div>
 
-      <el-form ref="settingsFormRef" :model="formData" :rules="rules" label-width="auto" label-position="left" size="default">
+      <el-form ref="settingsFormRef" :model="formData" :rules="rules" label-width="auto" label-position="left" size="default" require-asterisk-position="right">
 
         <div class="settings-masonry">
 
@@ -29,7 +29,12 @@
         <NotificationsCard v-model:formData="formData" />
         <FeaturesCard v-model:formData="formData" />
         <SearchCard v-model:formData="formData" />
-        <ReadOnlySettingsCard />
+        <ReadOnlyGroupCard
+          v-for="group in readonlyGroups"
+          :key="group.titleKey"
+          :title-key="group.titleKey"
+          :items="group.items"
+        />
 
         </div>
 
@@ -59,7 +64,8 @@ import RetryCard from './cards/RetryCard.vue';
 import NotificationsCard from './cards/NotificationsCard.vue';
 import FeaturesCard from './cards/FeaturesCard.vue';
 import SearchCard from './cards/SearchCard.vue';
-import ReadOnlySettingsCard from './cards/ReadOnlySettingsCard.vue';
+import ReadOnlyGroupCard from './cards/ReadOnlyGroupCard.vue';
+import { readonlyGroups } from './cards/readonlyGroups.js';
 
 const { t, locale } = useI18n({ useScope: 'global' });
 const maskingStore = useMaskingStore();
@@ -399,8 +405,7 @@ onMounted(fetchSettings);
   break-inside: avoid;
 }
 .settings-card:hover {
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
-  transform: translateY(-1px);
+  /* hover 浮动效果已移除，保持界面稳定 */
 }
 
 /* ========== 瀑布流布局 ========== */
@@ -451,7 +456,7 @@ onMounted(fetchSettings);
 .settings-grid :deep(.el-form-item) {
   margin-bottom: 0;
 }
-.settings-grid :deep(.el-form-item__content) {
+.settings-masonry :deep(.el-form-item__content) {
   display: flex;
   justify-content: flex-end;
 }

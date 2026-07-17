@@ -1,0 +1,16 @@
+{
+  "token": {
+    "title": "トークン管理",
+    "add": "トークン追加",
+    "empty": "トークンがありません。追加してください。",
+    "alias_placeholder": "例: GitHub メイン、バックアップ",
+    "token_value": "GitHub トークン",
+    "token_placeholder": "ghp_...",
+    "token_edit_placeholder": "空欄のままにすると変更なし",
+    "add_title": "トークン追加",
+    "edit_title": "トークン編集",
+    "edit_alias": "別名の編集",
+    "default": "デフォルト",
+    "setDefault": "デフォルトに設定"
+  }
+}

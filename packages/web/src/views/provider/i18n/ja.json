@@ -1,0 +1,40 @@
+{
+  "official": {
+    "title": "DeepSeek 公式 API Key",
+    "add_key": "キー追加",
+    "no_keys": "公式 API キーがありません。追加してください。",
+    "add_dialog_title": "公式 API キー追加",
+    "alias_placeholder": "例: メイン、予備",
+    "api_key_label": "API Key",
+    "edit_alias_title": "別名の編集",
+    "alias_default": "DeepSeek 公式 Key"
+  },
+  "third_party": {
+    "title": "サードパーティ",
+    "deactivate": "サードパーティを無効",
+    "hint": "現在 DeepSeek 公式 API を使用中。ベンダーの「有効化」ボタンで切り替えられます。",
+    "add_provider": "ベンダー追加",
+    "no_providers": "サードパーティベンダーは設定されていません。",
+    "api_key": "API Key",
+    "base_url": "Base URL",
+    "default_placeholder": "（デフォルト）",
+    "models": "モデル一覧",
+    "add_model": "モデル追加",
+    "set_current": "現在に設定",
+    "current_model": "現在のモデル",
+    "delete_model": "削除",
+    "add_dialog_title": "ベンダー追加",
+    "edit_dialog_title": "ベンダー編集",
+    "provider_type": "ベンダータイプ",
+    "api_key_label": "API Key",
+    "base_url_label": "Base URL（任意）",
+    "base_url_placeholder": "例: https://api.siliconflow.cn/v1",
+    "initial_models": "初期モデル（カンマ区切り、デフォルト V4-Pro）",
+    "models_placeholder": "V4-Pro,V4-Flash",
+    "add_model_dialog_title": "モデル追加",
+    "model_name_placeholder": "例: deepseek-ai/DeepSeek-V4-Flash",
+    "fetch_failed": "取得失敗",
+    "loading_failed": "読み込み失敗",
+    "error_update": "更新失敗"
+  }
+}

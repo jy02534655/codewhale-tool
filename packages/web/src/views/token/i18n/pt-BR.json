@@ -1,0 +1,16 @@
+{
+  "token": {
+    "title": "Gerenciador de Token",
+    "add": "Adicionar Token",
+    "empty": "Nenhum token configurado. Clique para adicionar.",
+    "alias_placeholder": "ex: GitHub Principal",
+    "token_value": "GitHub Token",
+    "token_placeholder": "ghp_...",
+    "token_edit_placeholder": "Deixe vazio para manter atual",
+    "add_title": "Adicionar Token",
+    "edit_title": "Editar Token",
+    "edit_alias": "Editar Apelido",
+    "default": "Padrão",
+    "setDefault": "Definir Padrão"
+  }
+}

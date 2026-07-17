@@ -1,0 +1,15 @@
+{
+  "project": {
+    "title": "Project Manager",
+    "add": "Add Project",
+    "empty": "No projects configured. Click to add.",
+    "alias": "Alias",
+    "path": "Path",
+    "alias_placeholder": "e.g. Main, Plugin",
+    "path_placeholder": "Select project directory",
+    "add_title": "Add Project",
+    "edit_title": "Edit Project",
+    "default": "Default",
+    "setDefault": "Set Default"
+  }
+}

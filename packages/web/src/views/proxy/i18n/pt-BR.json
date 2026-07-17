@@ -1,0 +1,22 @@
+{
+  "proxy": {
+    "title": "Gerenciador de Proxy",
+    "add": "Adicionar Proxy",
+    "empty": "Nenhum proxy configurado. Clique para adicionar.",
+    "alias_placeholder": "ex: Proxy da Empresa",
+    "type": "Tipo",
+    "type_placeholder": "Selecione",
+    "host": "Host",
+    "host_placeholder": "ex: 127.0.0.1",
+    "port": "Porta",
+    "port_placeholder": "ex: 1080",
+    "auth_username": "Usuário (opcional)",
+    "auth_username_placeholder": "Usuário de autenticação",
+    "auth_password": "Senha (opcional)",
+    "auth_password_placeholder": "Senha de autenticação",
+    "add_title": "Adicionar Proxy",
+    "edit_title": "Editar Proxy",
+    "default": "Padrão",
+    "setDefault": "Definir Padrão"
+  }
+}

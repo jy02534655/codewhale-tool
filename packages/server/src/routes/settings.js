@@ -2,8 +2,7 @@
  * @codewhale/server — 通用设置路由
  *
  * 挂载路径: /api/settings
- * instructions 直接从 CodeWhale config.toml 读写；
- * locale / default_text_model 同时维护 store.json 与 config.toml 双向一致。
+ * 通用设置直接从 CodeWhale config.toml 读写，不再维护本地 store.json 副本。
  * 统一通过 guard 包装返回格式。
  */
 
@@ -385,11 +384,9 @@ export function createSettingsRouter(engine) {
   router.get('/', (req, res) => {
     res.json(guard(() => {
       const cw = readSettingsFromCodeWhale();
-      // locale / default_text_model 以 store.json 为准，避免 config.toml 被外部工具篡改时影响本地状态
-      const store = engine.getSettings();
       return okMsg('', {
-        locale: cw.locale || store.data.locale,
-        default_text_model: cw.default_text_model || store.data.default_text_model,
+        locale: cw.locale,
+        default_text_model: cw.default_text_model,
         instructions: cw.instructions,
         theme: cw.theme,
         default_mode: cw.default_mode,
@@ -521,10 +518,8 @@ export function createSettingsRouter(engine) {
   router.put('/', (req, res) => {
     res.json(guard(() => {
       const body = req.body || {};
-      // 先写 CodeWhale 配置，确保用户修改不丢失
+      // 直接写入 CodeWhale 配置
       writeSettingsToCodeWhale(body);
-      // 再同步到本地 store.json，保持与其他模块一致
-      engine.updateSettings(body);
       // 从 CodeWhale 配置重新读取，返回最新数据
       const cw = readSettingsFromCodeWhale();
       return okMsg('updated', {
@@ -587,7 +582,6 @@ export function createSettingsRouter(engine) {
       const body = req.body || {};
       const instructions = Array.isArray(body.instructions) ? body.instructions : [];
       writeSettingsToCodeWhale({ instructions });
-      engine.updateSettings({ instructions });
       const cw = readSettingsFromCodeWhale();
       return okMsg('updated', {
         locale: cw.locale,
@@ -645,3 +639,5 @@ export function createSettingsRouter(engine) {
 
   return router;
 }
+
+export { writeSettingsToCodeWhale, readSettingsFromCodeWhale };

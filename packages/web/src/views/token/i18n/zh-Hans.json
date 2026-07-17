@@ -1,0 +1,16 @@
+{
+  "token": {
+    "title": "Token 管理",
+    "add": "添加 Token",
+    "empty": "暂无 Token 配置，点击添加",
+    "alias_placeholder": "如 GitHub 主账号、备用 Token",
+    "token_value": "GitHub Token",
+    "token_placeholder": "ghp_...",
+    "token_edit_placeholder": "留空则不修改",
+    "add_title": "添加 Token",
+    "edit_title": "编辑 Token",
+    "edit_alias": "修改别名",
+    "default": "默认",
+    "setDefault": "设为默认"
+  }
+}

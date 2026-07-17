@@ -1,0 +1,16 @@
+{
+  "token": {
+    "title": "Token Manager",
+    "add": "Add Token",
+    "empty": "No tokens configured. Click to add.",
+    "alias_placeholder": "e.g. Main, Backup",
+    "token_value": "GitHub Token",
+    "token_placeholder": "ghp_...",
+    "token_edit_placeholder": "Leave empty to keep current",
+    "add_title": "Add Token",
+    "edit_title": "Edit Token",
+    "edit_alias": "Edit Alias",
+    "default": "Default",
+    "setDefault": "Set Default"
+  }
+}

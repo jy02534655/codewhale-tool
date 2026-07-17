@@ -10,48 +10,30 @@
       </div>
     </template>
     <div class="settings-grid">
-      <el-form-item :label="$t('settings.language')" label-width="140px">
+      <el-form-item :label="$t('settings.language')">
         <template #label>
-          <div class="form-item-label">
-            <span>{{ $t('settings.language') }}</span>
-            <el-tooltip placement="top" :content="helpText.locale">
-              <el-icon class="help-icon"><QuestionFilled /></el-icon>
-            </el-tooltip>
-          </div>
-        </template>
+
+                  <FormItemLabel labelKey="settings.language" helpKey="settings.help.locale" />
+
+                </template>
         <el-select v-model="formData.locale" @change="emit('save')">
-          <el-option
-            v-for="item in locales"
-            :key="item.value"
-            :label="item.label"
-            :value="item.value"
-          />
+          <el-option v-for="item in localeOptions" :key="item.value" :label="item.label" :value="item.value" />
         </el-select>
       </el-form-item>
-      <el-form-item :label="$t('settings.default_model')" label-width="140px" class="full-width">
+      <el-form-item :label="$t('settings.default_model')" class="full-width">
         <template #label>
-          <div class="form-item-label">
-            <span>{{ $t('settings.default_model') }}</span>
-            <el-tooltip placement="top" :content="helpText.default_text_model">
-              <el-icon class="help-icon"><QuestionFilled /></el-icon>
-            </el-tooltip>
-          </div>
-        </template>
-        <el-input
-          v-model="formData.default_text_model"
-          :placeholder="$t('settings.default_model_placeholder')"
-          @blur="emit('save')"
-        />
+
+                  <FormItemLabel labelKey="settings.default_model" helpKey="settings.help.default_text_model" />
+
+                </template>
+        <el-input v-model="formData.default_text_model" :placeholder="$t('settings.default_model_placeholder')" @blur="emit('save')" />
       </el-form-item>
-      <el-form-item :label="$t('settings.update_check_for_updates')" label-width="140px">
+      <el-form-item :label="$t('settings.update_check_for_updates')">
         <template #label>
-          <div class="form-item-label">
-            <span>{{ $t('settings.update_check_for_updates') }}</span>
-            <el-tooltip placement="top" :content="helpText.update_check_for_updates">
-              <el-icon class="help-icon"><QuestionFilled /></el-icon>
-            </el-tooltip>
-          </div>
-        </template>
+
+                  <FormItemLabel labelKey="settings.update_check_for_updates" helpKey="settings.help.update_check_for_updates" />
+
+                </template>
         <el-switch v-model="formData.update_check_for_updates" @change="emit('save')" />
       </el-form-item>
     </div>
@@ -59,22 +41,17 @@
 </template>
 
 <script setup>
-import { QuestionFilled } from '@element-plus/icons-vue';
-import { settingsHelp } from '@/utils/settingsHelp';
+  import { QuestionFilled } from '@element-plus/icons-vue';
+import FormItemLabel from '@/components/FormItemLabel.vue';
+  import { computed } from 'vue';
+  import { useI18n } from 'vue-i18n';
+  import { getSettingsOptions } from '@/utils/i18n/settings';
+  
+  const formData = defineModel('formData');
+  const emit = defineEmits(['save']);
 
-const formData = defineModel('formData');
-const emit = defineEmits(['save']);
+  const { locale } = useI18n({ useScope: 'global' });
 
-const locales = [
-  { value: 'zh-Hans', label: '简体中文' },
-  { value: 'en', label: 'English' },
-  { value: 'ja', label: '日本語' },
-  { value: 'pt-BR', label: 'Português (BR)' },
-];
+  const localeOptions = computed(() => getSettingsOptions('locale', locale.value));
 
-const helpText = {
-  locale: settingsHelp.locale,
-  default_text_model: settingsHelp.default_text_model,
-  update_check_for_updates: settingsHelp.update_check_for_updates,
-};
-</script>
+  </script>

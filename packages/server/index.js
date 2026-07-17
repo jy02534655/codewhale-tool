@@ -29,7 +29,7 @@ import { createSkillRouter } from './src/routes/skill/index.js';
 import { createSyncRouter } from './src/routes/sync.js';
 import { createProjectRouter } from './src/routes/project.js';
 import { createFileRouter } from './src/routes/file.js';
-import { createSettingsRouter } from './src/routes/settings.js';
+import { createSettingsRouter, readSettingsFromCodeWhale } from './src/routes/settings.js';
 
 /**
  * 全局禁用 API 缓存中间件
@@ -53,11 +53,11 @@ const syncMgr = new SyncManager(engine, providerMgr, officialKeyMgr);
 const fileMgr = new FileManager();
 engine.projectManager = projectMgr;
 
-// 从持久化存储恢复语言偏好
+// 从本地 store.json 恢复项目语言偏好（codewhale-tool 自身语言）
 const savedLocale = engine.getLocale();
 if (savedLocale) setLocale(savedLocale);
 
-// 启动时从 CodeWhale 配置同步到 store.json
+// 启动时从 CodeWhale 配置同步供应商等到 store.json
 syncMgr.initSync();
 
 // 自动发现本机已有 skill

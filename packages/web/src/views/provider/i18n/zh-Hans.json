@@ -1,0 +1,40 @@
+{
+  "official": {
+    "title": "DeepSeek 官方 API Key",
+    "add_key": "添加 Key",
+    "no_keys": "暂无官方 API key，点击添加",
+    "add_dialog_title": "添加官方 API Key",
+    "alias_placeholder": "如 主账号、备用账号",
+    "api_key_label": "API Key",
+    "edit_alias_title": "修改别名",
+    "alias_default": "DeepSeek 官方 Key"
+  },
+  "third_party": {
+    "title": "第三方模型",
+    "deactivate": "关闭第三方",
+    "hint": "当前使用 DeepSeek 官方 API。点击下方供应商的「激活」按钮可切换到第三方模型。",
+    "add_provider": "添加供应商",
+    "no_providers": "暂无配置的第三方供应商",
+    "api_key": "API Key",
+    "base_url": "Base URL",
+    "default_placeholder": "（默认）",
+    "models": "模型列表",
+    "add_model": "添加模型",
+    "set_current": "设为当前",
+    "current_model": "当前模型",
+    "delete_model": "删除",
+    "add_dialog_title": "添加供应商",
+    "edit_dialog_title": "编辑供应商",
+    "provider_type": "供应商类型",
+    "api_key_label": "API Key",
+    "base_url_label": "Base URL（可选）",
+    "base_url_placeholder": "如 https://api.siliconflow.cn/v1",
+    "initial_models": "初始模型（逗号分隔，留空默认 V4-Pro）",
+    "models_placeholder": "V4-Pro,V4-Flash",
+    "add_model_dialog_title": "添加模型",
+    "model_name_placeholder": "如 deepseek-ai/DeepSeek-V4-Flash",
+    "fetch_failed": "获取失败",
+    "loading_failed": "加载失败",
+    "error_update": "更新失败"
+  }
+}

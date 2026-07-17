@@ -1,0 +1,40 @@
+{
+  "official": {
+    "title": "DeepSeek Official API Key",
+    "add_key": "Add Key",
+    "no_keys": "No official API key yet. Click to add.",
+    "add_dialog_title": "Add Official API Key",
+    "alias_placeholder": "e.g. Primary, Backup",
+    "api_key_label": "API Key",
+    "edit_alias_title": "Edit Alias",
+    "alias_default": "DeepSeek Official Key"
+  },
+  "third_party": {
+    "title": "Third-party Models",
+    "deactivate": "Disable Third-party",
+    "hint": "Using the official DeepSeek API. Click a vendor's Activate button to switch.",
+    "add_provider": "Add Vendor",
+    "no_providers": "No third-party vendors configured.",
+    "api_key": "API Key",
+    "base_url": "Base URL",
+    "default_placeholder": "(default)",
+    "models": "Models",
+    "add_model": "Add Model",
+    "set_current": "Set Active",
+    "current_model": "Active Model",
+    "delete_model": "Delete",
+    "add_dialog_title": "Add Vendor",
+    "edit_dialog_title": "Edit Vendor",
+    "provider_type": "Vendor Type",
+    "api_key_label": "API Key",
+    "base_url_label": "Base URL (optional)",
+    "base_url_placeholder": "e.g. https://api.siliconflow.cn/v1",
+    "initial_models": "Initial models (comma-separated, default V4-Pro)",
+    "models_placeholder": "V4-Pro,V4-Flash",
+    "add_model_dialog_title": "Add Model",
+    "model_name_placeholder": "e.g. deepseek-ai/DeepSeek-V4-Flash",
+    "fetch_failed": "Failed to fetch",
+    "loading_failed": "Loading failed",
+    "error_update": "Update failed"
+  }
+}

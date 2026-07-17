@@ -1,0 +1,22 @@
+{
+  "proxy": {
+    "title": "Proxy Manager",
+    "add": "Add Proxy",
+    "empty": "No proxies configured. Click to add.",
+    "alias_placeholder": "e.g. Office Proxy, Home Proxy",
+    "type": "Proxy Type",
+    "type_placeholder": "Select type",
+    "host": "Host",
+    "host_placeholder": "e.g. 127.0.0.1",
+    "port": "Port",
+    "port_placeholder": "e.g. 1080",
+    "auth_username": "Username (optional)",
+    "auth_username_placeholder": "Auth username",
+    "auth_password": "Password (optional)",
+    "auth_password_placeholder": "Auth password",
+    "add_title": "Add Proxy",
+    "edit_title": "Edit Proxy",
+    "default": "Default",
+    "setDefault": "Set Default"
+  }
+}

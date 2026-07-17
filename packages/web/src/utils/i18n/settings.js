@@ -66,6 +66,24 @@ const SETTINGS_OPTIONS = {
     ja: { beep: 'ビープ', off: 'なし', bell: 'ベル', file: 'カスタムファイル' },
     'pt-BR': { beep: 'Bip', off: 'Desligado', bell: 'Sino', file: 'Arquivo customizado' }
   },
+  locale: {
+    'zh-Hans': { 'zh-Hans': '简体中文', en: 'English', ja: '日本語', 'pt-BR': 'Português (BR)' },
+    en: { 'zh-Hans': 'Simplified Chinese', en: 'English', ja: '日本語', 'pt-BR': 'Português (BR)' },
+    ja: { 'zh-Hans': '簡体中文', en: 'English', ja: '日本語', 'pt-BR': 'Português (BR)' },
+    'pt-BR': { 'zh-Hans': 'Chinês Simplificado', en: 'English', ja: '日本語', 'pt-BR': 'Português (BR)' }
+  },
+  reasoning_effort: {
+    'zh-Hans': { off: '关闭', low: '低', medium: '中', high: '高', max: '最大', xhigh: '超高', ultracode: '极限' },
+    en: { off: 'Off', low: 'Low', medium: 'Medium', high: 'High', max: 'Max', xhigh: 'XHigh', ultracode: 'Ultra' },
+    ja: { off: 'オフ', low: '低', medium: '中', high: '高', max: '最大', xhigh: '超', ultracode: 'ウルトラ' },
+    'pt-BR': { off: 'Desligado', low: 'Baixo', medium: 'Médio', high: 'Alto', max: 'Máximo', xhigh: 'Super', ultracode: 'Ultra' }
+  },
+  verifier_verdict_policy: {
+    'zh-Hans': { hunt: ' Hunt' },
+    en: { hunt: ' Hunt' },
+    ja: { hunt: ' Hunt' },
+    'pt-BR': { hunt: ' Hunt' }
+  },
   search_provider: {
     'zh-Hans': { duckduckgo: 'DuckDuckGo', bing: 'Bing', tavily: 'Tavily', bocha: 'Bocha', metaso: '秘塔', searxng: 'SearXNG', baidu: '百度', volcengine: '火山引擎', sofya: 'Sofya' },
     en: { duckduckgo: 'DuckDuckGo', bing: 'Bing', tavily: 'Tavily', bocha: 'Bocha', metaso: 'Metaso', searxng: 'SearXNG', baidu: 'Baidu', volcengine: 'Volcengine', sofya: 'Sofya' },

@@ -2,7 +2,7 @@
  * @codewhale/server — 语言切换路由
  *
  * 挂载路径: /api/lang
- * 接收语言偏好（locale），持久化到 store.json 并同时设置运行时语言。
+ * 接收语言偏好（locale），持久化到 CodeWhale config.toml 并同时设置运行时语言。
  */
 
 import { Router } from 'express';
