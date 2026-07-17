@@ -26,7 +26,7 @@ export class XxxManager {
     return result;
   }
 
-  addXxx(input) {
+  addXxx() {
     // 手动校验、构建、写回
   }
 

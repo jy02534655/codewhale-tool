@@ -456,7 +456,7 @@ export function createSettingsRouter(engine) {
   router.get('/defaults', (req, res) => {
     res.json(guard(() => {
       const cw = readSettingsFromCodeWhale();
-      return ok({
+      return okMsg({
         locale: cw.locale,
         default_text_model: cw.default_text_model,
         instructions: cw.instructions,
