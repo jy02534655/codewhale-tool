@@ -1,7 +1,7 @@
 {
   "settings": {
     "title": "General Settings",
-    "language": "Web UI Language",
+    "language": "Interface Language",
     "default_model": "Default Model",
     "default_model_placeholder": "e.g. deepseek-v4-pro",
     "instructions_title": "Instructions",
@@ -14,51 +14,6 @@
     "instruction_content_placeholder": "Instruction content, leave empty to save path only",
     "instruction_read_file": "Read File Content",
     "instruction_readonly": "Global config (read-only)",
-    "readonly": {
-      "reasoning": "Reasoning",
-      "context": "Context Management",
-      "update": "Updates",
-      "security": "Security & Permissions",
-      "paths": "Paths",
-      "capacity": "Capacity Control",
-      "reasoning_effort": "Reasoning Effort",
-      "context.enabled": "Enable Fin Fast Path Management",
-      "context.verbatim_window_turns": "Verbatim Window Turns",
-      "context.l1_threshold": "L1 Context Pressure Threshold",
-      "context.l2_threshold": "L2 Context Pressure Threshold",
-      "context.l3_threshold": "L3 Context Pressure Threshold",
-      "context.seam_model": "Seam Model",
-      "CODEWHALE_CACHE_MAXIMAL": "Cache Maximal Mode",
-      "update.update_uri": "Custom Update Mirror",
-      "permissions.toml": "Permissions Rules File",
-      "skills_dir": "Skills Directory",
-      "skills.scan_codewhale_only": "Scan CodeWhale Skills Only",
-      "mcp_config_path": "MCP Config File Path",
-      "notes_path": "Notes File Path",
-      "memory_path": "Memory File Path",
-      "memory.enabled": "Enable Memory",
-      "snapshots.enabled": "Enable Snapshots",
-      "snapshots.max_age_days": "Snapshot Max Age (Days)",
-      "verifier.enabled": "Enable Verifier",
-      "verifier.verdict_policy": "Verifier Verdict Policy",
-      "capacity.enabled": "Enable Capacity Controller",
-      "capacity.low_risk_max": "Low Risk Max Ratio",
-      "capacity.medium_risk_max": "Medium Risk Max Ratio",
-      "capacity.severe_min_slack": "Severe Min Slack",
-      "capacity.severe_violation_ratio": "Severe Violation Ratio",
-      "capacity.refresh_cooldown_turns": "Refresh Cooldown Turns",
-      "capacity.replan_cooldown_turns": "Replan Cooldown Turns",
-      "capacity.max_replay_per_turn": "Max Replay Per Turn",
-      "capacity.min_turns_before_guardrail": "Min Turns Before Guardrail",
-      "capacity.profile_window": "Profile Window",
-      "capacity.deepseek_v3_2_chat_prior": "V3.2 Chat Priority",
-      "capacity.deepseek_v3_2_reasoner_prior": "V3.2 Reasoner Priority",
-      "capacity.deepseek_v4_pro_prior": "V4 Pro Priority",
-      "capacity.deepseek_v4_flash_prior": "V4 Flash Priority",
-      "capacity.fallback_default_prior": "Fallback Default Priority",
-      "subagents": "Subagents (Read-only)",
-      "notifications": "Notifications (Read-only)"
-    },
     "loading": "Loading...",
     "tui_interface_title": "TUI Interface",
     "tui_terminal_title": "TUI Terminal",
@@ -94,11 +49,26 @@
     "approval_policy": "Approval Policy",
     "sandbox_mode": "Sandbox Mode",
     "allow_shell": "Allow Shell",
-    "subagents_max_concurrent": "Max Concurrent Subagents",
-    "subagents_token_budget": "Token Budget",
-    "subagents_api_timeout_secs": "API Timeout",
-    "subagents_heartbeat_timeout_secs": "Heartbeat Timeout",
-    "subagents_default_model": "Default Subagent Model",
+    "subagents_max_concurrent": {
+      "label": "Max Concurrent Subagents",
+      "help": "Maximum number of concurrently active subagents, default 20, limit 1~20."
+    },
+    "subagents_token_budget": {
+      "label": "Token Budget",
+      "help": "Context token budget per subagent step. Default 200000."
+    },
+    "subagents_api_timeout_secs": {
+      "label": "API Timeout",
+      "help": "Timeout for a single model call by a subagent, default 120s, range 1~1800."
+    },
+    "subagents_heartbeat_timeout_secs": {
+      "label": "Heartbeat Timeout",
+      "help": "How long a subagent with no response is considered zombie and cleaned up, default 300s, range 30~3600, must be greater than api_timeout_secs."
+    },
+    "subagents_default_model": {
+      "label": "Default Subagent Model",
+      "help": "Fallback model when no role is specified."
+    },
     "retry_enabled": "Enable Retry",
     "retry_max_retries": "Max Retries",
     "retry_initial_delay": "Initial Delay",
@@ -128,33 +98,11 @@
     "reset_success": "Restored to defaults, please remember to save",
     "save_success": "Saved successfully",
     "help": {
-      "CODEWHALE_CACHE_MAXIMAL": "When enabled, injects the full content of active files into the system prompt each turn, leveraging KV prefix cache hits. Default 24KB per file / 96KB total. Not yet configurable.",
       "allow_shell": "Whether to allow shell tools. Available when true, but still controlled by approval_policy; false completely hides the exec_shell tool.",
       "approval_policy": "Popup approval strategy before tool execution. on-request confirms each request, untrusted only confirms untrusted operations, never never pops up.",
       "auto_compact": "Model-aware, enabled by default. Automatically generates a summary and replaces old content when context approaches the model window limit.",
       "auto_compact_threshold_percent": "Default 80. Triggers auto-compaction when active request input estimation reaches this percentage of the model context window.",
       "background_color": "Custom background color for TUI root, header, conversation history, and footer; default uses the theme default.",
-      "capacity.deepseek_v3_2_chat_prior": "Context priority weight for the V3.2 Chat model, default 3.9. Not yet configurable.",
-      "capacity.deepseek_v3_2_reasoner_prior": "Context priority weight for the V3.2 Reasoner model, default 4.1. Not yet configurable.",
-      "capacity.deepseek_v4_flash_prior": "Context priority weight for V4 Flash, default 4.2. Not yet configurable.",
-      "capacity.deepseek_v4_pro_prior": "Context priority weight for V4 Pro, default 3.5. Not yet configurable.",
-      "capacity.enabled": "Experimental capacity controller. When enabled, actively intervenes when context approaches the upper limit; may change conversation history, default false. Not yet configurable.",
-      "capacity.fallback_default_prior": "Default context priority weight for unknown models, default 3.8. Not yet configurable.",
-      "capacity.low_risk_max": "Context usage below this ratio is considered low risk, default 0.50. Not yet configurable.",
-      "capacity.max_replay_per_turn": "Maximum number of times to replay historical content into the prompt per turn, default 1. Not yet configurable.",
-      "capacity.medium_risk_max": "Usage in this range is medium risk and starts alerting, default 0.62. Not yet configurable.",
-      "capacity.min_turns_before_guardrail": "Minimum number of turns after session start before enabling capacity guardrails, default 4. Not yet configurable.",
-      "capacity.profile_window": "Number of recent turns the capacity controller analyzes for token usage trends, default 8. Not yet configurable.",
-      "capacity.refresh_cooldown_turns": "Minimum number of turns between two context refresh operations, default 6. Not yet configurable.",
-      "capacity.replan_cooldown_turns": "Minimum number of turns between two replans, default 5. Not yet configurable.",
-      "capacity.severe_min_slack": "Negative values allow brief overspend but trigger emergency compaction, default -0.25. Not yet configurable.",
-      "capacity.severe_violation_ratio": "When actual usage exceeds expected ratio by this value, it is considered a severe violation, default 0.40. Not yet configurable.",
-      "context.enabled": "Enable Fin Fast Path Management. Fin uses deepseek-v4-flash to perform coordination work, reducing the burden on the main model. Not yet configurable.",
-      "context.l1_threshold": "Level 1 context pressure threshold (tokens), triggers lightweight intervention when exceeded, default 192000. Not yet configurable.",
-      "context.l2_threshold": "Level 2 threshold; more aggressive compression strategy when exceeded, default 384000. Not yet configurable.",
-      "context.l3_threshold": "Level 3 threshold; emergency handling line when approaching model limit, default 576000. Not yet configurable.",
-      "context.seam_model": "Model for performing context coordination tasks, default deepseek-v4-flash. Not yet configurable.",
-      "context.verbatim_window_turns": "Number of recent conversation turns to keep in full original text; earlier turns are compressed or summarized, default 16. Not yet configurable.",
       "cost_currency": "Cost display currency. usd for USD, cny/rmb/yuan are normalized to CNY.",
       "default_mode": "Default mode. agent for normal conversation, plan for planning mode, yolo for direct output mode.",
       "default_model_override": "Override the default model selection for the current provider. Not yet configurable, support in future versions.",
@@ -166,23 +114,15 @@
       "features_subagents": "Enable subagent delegation and fan-out.",
       "features_vision_model": "When enabled, an independent image analysis model can be configured via [vision_model]; requires manual activation.",
       "features_web_search": "Enable web_search and compatible alias web.run, defaults to DuckDuckGo.",
-      "locale": "Web UI language. Switches the interface display language and saves directly to the CodeWhale config file.",
+      "locale": "Switches the interface display language.",
       "max_history": "Number of submitted input history to retain, cleared drafts are still kept for history search, default 1000.",
-      "mcp_config_path": "MCP server config file path; restart TUI after modification. Not yet configurable.",
-      "memory.enabled": "When enabled, TUI loads the memory file into the <user_memory> prompt block, default false. Not yet configurable.",
-      "memory_path": "User memory file path. Not yet configurable.",
       "mention_menu_behavior": "Menu behavior when @mentioning files. fuzzy for fuzzy search, browser to list subdirectories in the current directory.",
       "mention_menu_limit": "Maximum number of candidate files to keep in the @ popup, excess is truncated, default 128.",
       "mention_walk_depth": "Maximum directory depth for @ completion to traverse the workspace. 0 means unlimited depth, default 6.",
-      "notes_path": "Note file path used by the model-visible note tool. Not yet configurable.",
-      "notifications.include_summary": "When enabled, notifications include duration and estimated cost for that turn, default false. Not yet configurable.",
-      "notifications.sound_file": "Custom WAV sound file path; only used on Windows when completion_sound is file. Not yet configurable.",
       "notifications_completion_sound": "Completion sound. beep for system default beep, off to disable, bell for terminal bell, file to play custom WAV.",
       "notifications_method": "Completion notification method. auto selects automatically by terminal, osc9 sends OSC 9, bel sends terminal bell, off disables notifications.",
       "notifications_threshold_secs": "Only triggers notification for successfully completed turns with duration ≥ this value, default 30s. Failed/cancelled turns are always silent.",
       "paste_burst_detection": "Enabled by default. Detects bulk paste in terminals that do not support bracketed-paste, preventing character-by-character completion triggers.",
-      "permissions.toml": "Co-located permission rules file, supports tool + command/path fields, used for forced approval or rejection. Not yet configurable.",
-      "reasoning_effort": "Reasoning effort. off/low/medium/high/max/xhigh/ultracode control thinking depth. Not yet configurable, support in future versions.",
       "retry_enabled": "Whether to automatically retry on API request failure.",
       "retry_exponential_base": "Multiply each retry delay by this base, default 2.0 (1s → 2s → 4s → 8s...).",
       "retry_initial_delay": "Wait time before the first retry (seconds), default 1.0.",
@@ -194,34 +134,225 @@
       "show_thinking": "Whether to display the model's reasoning/thinking content in conversation history.",
       "show_tool_details": "Whether to expand and display detailed parameters and results for each tool call.",
       "sidebar_focus": "Sidebar focus behavior. pinned keeps the sidebar fixed, auto toggles visibility, tasks, agents, context, hidden.",
-      "skills.scan_codewhale_only": "When set to true, ignores cross-tool root directories like .claude/skills, .cursor/skills, default false. Not yet configurable.",
-      "skills_dir": "Skills directory, default ~/.codewhale/skills; workspace-local .agents/skills or ./skills take priority. Not yet configurable.",
-      "snapshots.enabled": "Creates side-git snapshots for file modifications, supports rollback, default true. Not yet configurable.",
-      "snapshots.max_age_days": "Snapshot retention days; auto-cleaned when exceeded, default 7. Not yet configurable.",
-      "subagents.awaiter_model": "Awaiter role subagent model. Not yet configurable.",
-      "subagents.custom_model": "Custom role subagent model. Not yet configurable.",
-      "subagents.explorer_model": "Explorer role subagent model. Not yet configurable.",
-      "subagents.launch_concurrency": "How many subagents to launch simultaneously per turn before queuing the rest; defaults to max_subagents. Not yet configurable.",
-      "subagents.max_admitted": "Total upper limit for subagents including running and queued, default 200. Not yet configurable.",
-      "subagents.max_depth": "Maximum hierarchy depth for subagent recursive delegation. Not yet configurable.",
-      "subagents.review_model": "Review role subagent model. Not yet configurable.",
-      "subagents.worker_model": "Worker role subagent model. Not yet configurable.",
-      "subagents_api_timeout_secs": "Timeout for a single model call by a subagent, default 120s, range 1~1800.",
-      "subagents_default_model": "Fallback model when no role is specified.",
-      "subagents_heartbeat_timeout_secs": "How long a subagent with no response is considered zombie and cleaned up, default 300s, range 30~3600, must be greater than api_timeout_secs.",
-      "subagents_max_concurrent": "Maximum number of concurrently active subagents, default 20, limit 1~20.",
-      "subagents_token_budget": "Context token budget per subagent step. Default 200000.",
       "theme": "Interface theme. Choose to follow the system, light, dark, etc.",
       "tui_alternate_screen": "Alternate screen strategy. auto automatically, always always on, never never; interactive sessions are usually taken over by the TUI alternate screen.",
       "tui_mouse_capture": "When enabled, supports internal scrolling, conversation selection, right-click menu, and scrollbar dragging; some terminals disable this by default.",
       "tui_osc8_links": "Wraps URLs with OSC 8 escape sequences, supporting Cmd+click navigation in iTerm2/Ghostty/Kitty/WezTerm.",
       "tui_stream_chunk_timeout_secs": "Maximum idle time between two data chunks in the SSE stream, default 300s, range 1~3600, 0 maps to the default value.",
       "tui_terminal_probe_timeout_ms": "Timeout for probing terminal mode (color, mouse protocol) at startup, default 500ms, range 100~5000.",
-      "update.update_uri": "Custom update mirror; must return GitHub-compatible latest-release JSON. Not yet configurable.",
       "update_check_for_updates": "Check for updates on startup. Checks the latest stable version in the background and shows a toast when a new version with complete resources is available.",
       "verbosity": "Output verbosity. normal for standard conversation style, concise for brief low-redundancy output.",
-      "verifier.enabled": "When enabled, automatically runs a verifier preview check when the model claims completion, default false. Not yet configurable.",
-      "verifier.verdict_policy": "Verifier verdict policy; currently the only strategy is hunt. Not yet configurable."
+      "language": "Switch the interface display language, saved directly in the CodeWhale configuration file."
+    },
+    "groups": {
+      "reasoning": "Reasoning",
+      "context": "Context Management",
+      "update": "Updates",
+      "security": "Security & Permissions",
+      "paths": "Paths",
+      "capacity": "Capacity Control",
+      "subagents": "Subagents (Read-only)",
+      "notifications": "Notifications (Read-only)"
+    },
+    "reasoning_effort": {
+      "label": "Reasoning Effort",
+      "help": "Reasoning effort. off/low/medium/high/max/xhigh/ultracode control thinking depth. Not yet configurable, support in future versions."
+    },
+    "context": {
+      "enabled": {
+        "label": "Enable Fin Fast Path Management",
+        "help": "Enable Fin Fast Path Management. Fin uses deepseek-v4-flash to perform coordination work, reducing the burden on the main model. Not yet configurable."
+      },
+      "verbatim_window_turns": {
+        "label": "Verbatim Window Turns",
+        "help": "Number of recent conversation turns to keep in full original text; earlier turns are compressed or summarized, default 16. Not yet configurable."
+      },
+      "l1_threshold": {
+        "label": "L1 Context Pressure Threshold",
+        "help": "Level 1 context pressure threshold (tokens), triggers lightweight intervention when exceeded, default 192000. Not yet configurable."
+      },
+      "l2_threshold": {
+        "label": "L2 Context Pressure Threshold",
+        "help": "Level 2 threshold; more aggressive compression strategy when exceeded, default 384000. Not yet configurable."
+      },
+      "l3_threshold": {
+        "label": "L3 Context Pressure Threshold",
+        "help": "Level 3 threshold; emergency handling line when approaching model limit, default 576000. Not yet configurable."
+      },
+      "seam_model": {
+        "label": "Seam Model",
+        "help": "Model for performing context coordination tasks, default deepseek-v4-flash. Not yet configurable."
+      }
+    },
+    "CODEWHALE_CACHE_MAXIMAL": {
+      "label": "Cache Maximal Mode",
+      "help": "When enabled, injects the full content of active files into the system prompt each turn, leveraging KV prefix cache hits. Default 24KB per file / 96KB total. Not yet configurable."
+    },
+    "update": {
+      "update_uri": {
+        "label": "Custom Update Mirror",
+        "help": "Custom update mirror; must return GitHub-compatible latest-release JSON. Not yet configurable."
+      }
+    },
+    "permissions": {
+      "toml": {
+        "label": "Permissions Rules File",
+        "help": "Co-located permission rules file, supports tool + command/path fields, used for forced approval or rejection. Not yet configurable."
+      }
+    },
+    "skills_dir": {
+      "label": "Skills Directory",
+      "help": "Skills directory, default ~/.codewhale/skills; workspace-local .agents/skills or ./skills take priority. Not yet configurable."
+    },
+    "skills": {
+      "scan_codewhale_only": {
+        "label": "Scan CodeWhale Skills Only",
+        "help": "When set to true, ignores cross-tool root directories like .claude/skills, .cursor/skills, default false. Not yet configurable."
+      }
+    },
+    "mcp_config_path": {
+      "label": "MCP Config File Path",
+      "help": "MCP server config file path; restart TUI after modification. Not yet configurable."
+    },
+    "notes_path": {
+      "label": "Notes File Path",
+      "help": "Note file path used by the model-visible note tool. Not yet configurable."
+    },
+    "memory_path": {
+      "label": "Memory File Path",
+      "help": "User memory file path. Not yet configurable."
+    },
+    "memory": {
+      "enabled": {
+        "label": "Enable Memory",
+        "help": "When enabled, TUI loads the memory file into the <user_memory> prompt block, default false. Not yet configurable."
+      }
+    },
+    "snapshots": {
+      "enabled": {
+        "label": "Enable Snapshots",
+        "help": "Creates side-git snapshots for file modifications, supports rollback, default true. Not yet configurable."
+      },
+      "max_age_days": {
+        "label": "Snapshot Max Age (Days)",
+        "help": "Snapshot retention days; auto-cleaned when exceeded, default 7. Not yet configurable."
+      }
+    },
+    "verifier": {
+      "enabled": {
+        "label": "Enable Verifier",
+        "help": "When enabled, automatically runs a verifier preview check when the model claims completion, default false. Not yet configurable."
+      },
+      "verdict_policy": {
+        "label": "Verifier Verdict Policy",
+        "help": "Verifier verdict policy; currently the only strategy is hunt. Not yet configurable."
+      }
+    },
+    "capacity": {
+      "enabled": {
+        "label": "Enable Capacity Controller",
+        "help": "Experimental capacity controller. When enabled, actively intervenes when context approaches the upper limit; may change conversation history, default false. Not yet configurable."
+      },
+      "low_risk_max": {
+        "label": "Low Risk Max Ratio",
+        "help": "Context usage below this ratio is considered low risk, default 0.50. Not yet configurable."
+      },
+      "medium_risk_max": {
+        "label": "Medium Risk Max Ratio",
+        "help": "Usage in this range is medium risk and starts alerting, default 0.62. Not yet configurable."
+      },
+      "severe_min_slack": {
+        "label": "Severe Min Slack",
+        "help": "Negative values allow brief overspend but trigger emergency compaction, default -0.25. Not yet configurable."
+      },
+      "severe_violation_ratio": {
+        "label": "Severe Violation Ratio",
+        "help": "When actual usage exceeds expected ratio by this value, it is considered a severe violation, default 0.40. Not yet configurable."
+      },
+      "refresh_cooldown_turns": {
+        "label": "Refresh Cooldown Turns",
+        "help": "Minimum number of turns between two context refresh operations, default 6. Not yet configurable."
+      },
+      "replan_cooldown_turns": {
+        "label": "Replan Cooldown Turns",
+        "help": "Minimum number of turns between two replans, default 5. Not yet configurable."
+      },
+      "max_replay_per_turn": {
+        "label": "Max Replay Per Turn",
+        "help": "Maximum number of times to replay historical content into the prompt per turn, default 1. Not yet configurable."
+      },
+      "min_turns_before_guardrail": {
+        "label": "Min Turns Before Guardrail",
+        "help": "Minimum number of turns after session start before enabling capacity guardrails, default 4. Not yet configurable."
+      },
+      "profile_window": {
+        "label": "Profile Window",
+        "help": "Number of recent turns the capacity controller analyzes for token usage trends, default 8. Not yet configurable."
+      },
+      "deepseek_v3_2_chat_prior": {
+        "label": "V3.2 Chat Priority",
+        "help": "Context priority weight for the V3.2 Chat model, default 3.9. Not yet configurable."
+      },
+      "deepseek_v3_2_reasoner_prior": {
+        "label": "V3.2 Reasoner Priority",
+        "help": "Context priority weight for the V3.2 Reasoner model, default 4.1. Not yet configurable."
+      },
+      "deepseek_v4_pro_prior": {
+        "label": "V4 Pro Priority",
+        "help": "Context priority weight for V4 Pro, default 3.5. Not yet configurable."
+      },
+      "deepseek_v4_flash_prior": {
+        "label": "V4 Flash Priority",
+        "help": "Context priority weight for V4 Flash, default 4.2. Not yet configurable."
+      },
+      "fallback_default_prior": {
+        "label": "Fallback Default Priority",
+        "help": "Default context priority weight for unknown models, default 3.8. Not yet configurable."
+      }
+    },
+    "subagents": {
+      "max_depth": {
+        "label": "Max Depth",
+        "help": "Maximum hierarchy depth for subagent recursive delegation. Not yet configurable."
+      },
+      "launch_concurrency": {
+        "label": "Launch Concurrency",
+        "help": "How many subagents to launch simultaneously per turn before queuing the rest; defaults to max_subagents. Not yet configurable."
+      },
+      "max_admitted": {
+        "label": "Max Admitted",
+        "help": "Total upper limit for subagents including running and queued, default 200. Not yet configurable."
+      },
+      "worker_model": {
+        "label": "Worker Model",
+        "help": "Worker role subagent model. Not yet configurable."
+      },
+      "explorer_model": {
+        "label": "Explorer Model",
+        "help": "Explorer role subagent model. Not yet configurable."
+      },
+      "awaiter_model": {
+        "label": "Awaiter Model",
+        "help": "Awaiter role subagent model. Not yet configurable."
+      },
+      "review_model": {
+        "label": "Review Model",
+        "help": "Review role subagent model. Not yet configurable."
+      },
+      "custom_model": {
+        "label": "Custom Model",
+        "help": "Custom role subagent model. Not yet configurable."
+      }
+    },
+    "notifications": {
+      "include_summary": {
+        "label": "Include Summary",
+        "help": "When enabled, notifications include duration and estimated cost for that turn, default false. Not yet configurable."
+      },
+      "sound_file": {
+        "label": "Sound File",
+        "help": "Custom WAV sound file path; only used on Windows when completion_sound is file. Not yet configurable."
+      }
     }
   }
 }

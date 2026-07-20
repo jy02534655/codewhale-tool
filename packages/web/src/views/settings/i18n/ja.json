@@ -1,7 +1,7 @@
 {
   "settings": {
     "title": "汎用設定",
-    "language": "Web UI 言語",
+    "language": "インターフェース言語",
     "default_model": "デフォルトモデル",
     "default_model_placeholder": "例: deepseek-v4-pro",
     "instructions_title": "Instructions",
@@ -14,51 +14,6 @@
     "instruction_content_placeholder": "指示内容、空欄の場合はパスのみ保存",
     "instruction_read_file": "ファイル内容を読み込む",
     "instruction_readonly": "グローバル設定（読み取り専用）",
-    "readonly": {
-      "reasoning": "推論",
-      "context": "コンテキスト管理",
-      "update": "更新",
-      "security": "セキュリティと権限",
-      "paths": "パス",
-      "capacity": "容量制御",
-      "reasoning_effort": "推論強度",
-      "context.enabled": "Fin 高速パス管理を有効化",
-      "context.verbatim_window_turns": "完全保持ターン数",
-      "context.l1_threshold": "L1 コンテキスト圧力閾値",
-      "context.l2_threshold": "L2 コンテキスト圧力閾値",
-      "context.l3_threshold": "L3 コンテキスト圧力閾値",
-      "context.seam_model": "シームモデル",
-      "CODEWHALE_CACHE_MAXIMAL": "キャッシュ最大化モード",
-      "update.update_uri": "カスタム更新ミラー",
-      "permissions.toml": "権限ルールファイル",
-      "skills_dir": "スキルディレクトリ",
-      "skills.scan_codewhale_only": "CodeWhale スキルのみスキャン",
-      "mcp_config_path": "MCP 設定ファイルパス",
-      "notes_path": "メモファイルパス",
-      "memory_path": "メモリファイルパス",
-      "memory.enabled": "メモリを有効化",
-      "snapshots.enabled": "スナップショットを有効化",
-      "snapshots.max_age_days": "スナップショット保持日数",
-      "verifier.enabled": "検証を有効化",
-      "verifier.verdict_policy": "検証判定ポリシー",
-      "capacity.enabled": "容量コントローラを有効化",
-      "capacity.low_risk_max": "低リスク上限比率",
-      "capacity.medium_risk_max": "中リスク上限比率",
-      "capacity.severe_min_slack": "重大リスク最小スラック",
-      "capacity.severe_violation_ratio": "重大違反比率",
-      "capacity.refresh_cooldown_turns": "リフレッシュクールダウンターン数",
-      "capacity.replan_cooldown_turns": "再計画クールダウンターン数",
-      "capacity.max_replay_per_turn": "ターンあたり最大リプレイ",
-      "capacity.min_turns_before_guardrail": "ガードレール前最小ターン数",
-      "capacity.profile_window": "プロファイルウィンドウ",
-      "capacity.deepseek_v3_2_chat_prior": "V3.2 Chat 優先度",
-      "capacity.deepseek_v3_2_reasoner_prior": "V3.2 Reasoner 優先度",
-      "capacity.deepseek_v4_pro_prior": "V4 Pro 優先度",
-      "capacity.deepseek_v4_flash_prior": "V4 Flash 優先度",
-      "capacity.fallback_default_prior": "フォールバックデフォルト優先度",
-      "subagents": "サブエージェント（読み取り専用）",
-      "notifications": "通知（読み取り専用）"
-    },
     "loading": "読み込み中...",
     "tui_interface_title": "TUI インターフェース",
     "tui_terminal_title": "TUI ターミナル",
@@ -94,11 +49,26 @@
     "approval_policy": "承認ポリシー",
     "sandbox_mode": "サンドボックス",
     "allow_shell": "シェル許可",
-    "subagents_max_concurrent": "最大同時実行数",
-    "subagents_token_budget": "トークン予算",
-    "subagents_api_timeout_secs": "API タイムアウト",
-    "subagents_heartbeat_timeout_secs": "ハートビートタイムアウト",
-    "subagents_default_model": "デフォルトモデル",
+    "subagents_max_concurrent": {
+      "label": "最大同時実行数",
+      "help": "同時にアクティブな状態の子代理の数上限。デフォルト 20、範囲 1~20。"
+    },
+    "subagents_token_budget": {
+      "label": "トークン予算",
+      "help": "子代理1ステップあたりのコンテキストトークン予算。デフォルト 200000。"
+    },
+    "subagents_api_timeout_secs": {
+      "label": "API タイムアウト",
+      "help": "子代理の単一モデル呼び出しのタイムアウト。デフォルト 120s、範囲 1~1800。"
+    },
+    "subagents_heartbeat_timeout_secs": {
+      "label": "ハートビートタイムアウト",
+      "help": "子代理が無応答と判定されゾンビ化してクリーンアップされるまでの時間。デフォルト 300s、範囲 30~3600、api_timeout_secs より大きい必要があります。"
+    },
+    "subagents_default_model": {
+      "label": "デフォルトモデル",
+      "help": "役割が未指定の場合のフォールバックモデル。"
+    },
     "retry_enabled": "リトライ有効",
     "retry_max_retries": "最大リトライ回数",
     "retry_initial_delay": "初回遅延",
@@ -128,33 +98,11 @@
     "reset_success": "デフォルトに戻しました。保存してください",
     "save_success": "保存しました",
     "help": {
-      "CODEWHALE_CACHE_MAXIMAL": "有効にすると各ターンでアクティブファイルの完全な内容をシステムプロンプトに注入し、KV プレフィックスキャッシュのヒットを活用。デフォルト 1ファイル24KB / 合計96KB。未だ設定不可。",
       "allow_shell": "シェルツールを許可するか。true の場合は使用可能だが approval_policy の制御を受ける。false は exec_shell ツールを完全に隠蔽。",
       "approval_policy": "ツール実行前のポップアップ承認戦略。on-request は毎回確認、untrusted は信頼不能操作のみ確認、never はポップアップなし。",
       "auto_compact": "モデル感知でデフォルト有効。コンテキストがモデルウィンドウ上限に近づくと自動的に要約を生成し旧内容を置換します。",
       "auto_compact_threshold_percent": "デフォルト 80。アクティブリクエスト入力推定がモデルコンテキストウィンドウのこの割合に達すると自動圧縮をトリガーします。",
       "background_color": "TUI ルート、ヘッダー、会話履歴、フッターの背景色をカスタマイズ。default はテーマデフォルトを使用。",
-      "capacity.deepseek_v3_2_chat_prior": "V3.2 Chat モデルのコンテキスト優先度重み。デフォルト 3.9。未だ設定不可。",
-      "capacity.deepseek_v3_2_reasoner_prior": "V3.2 Reasoner モデルのコンテキスト優先度重み。デフォルト 4.1。未だ設定不可。",
-      "capacity.deepseek_v4_flash_prior": "V4 Flash のコンテキスト優先度重み。デフォルト 4.2。未だ設定不可。",
-      "capacity.deepseek_v4_pro_prior": "V4 Pro のコンテキスト優先度重み。デフォルト 3.5。未だ設定不可。",
-      "capacity.enabled": "実験的容量コントローラ。有効にするとコンテキストが上限に接近した際に能動的に介入。会話履歴を変更する可能性あり。デフォルト false。未だ設定不可。",
-      "capacity.fallback_default_prior": "未知モデル時のデフォルトコンテキスト優先度重み。デフォルト 3.8。未だ設定不可。",
-      "capacity.low_risk_max": "コンテキスト使用率がこの割合未満なら低リスクと判定。デフォルト 0.50。未だ設定不可。",
-      "capacity.max_replay_per_turn": "1 ターンあたりプロンプトに履歴内容を再生する最大回数。デフォルト 1。未だ設定不可。",
-      "capacity.medium_risk_max": "この範囲の使用率は中リスクと判定し警告を開始。デフォルト 0.62。未だ設定不可。",
-      "capacity.min_turns_before_guardrail": "セッション開始後、容量ガードレールを有効化するまでの最小ターン数。デフォルト 4。未だ設定不可。",
-      "capacity.profile_window": "容量コントローラがトークン使用傾向を分析する直近ターン数。デフォルト 8。未だ設定不可。",
-      "capacity.refresh_cooldown_turns": "2 回のコンテキストリフレッシュ操作間の最小間隔（ターン数）。デフォルト 6。未だ設定不可。",
-      "capacity.replan_cooldown_turns": "2 回の再計画間の最小間隔（ターン数）。デフォルト 5。未だ設定不可。",
-      "capacity.severe_min_slack": "負の値は一時的な超過を許可するが、緊急圧縮をトリガー。デフォルト -0.25。未だ設定不可。",
-      "capacity.severe_violation_ratio": "実際の使用率が期待割合をこの値だけ超えた場合に重大違反と判定。デフォルト 0.40。未だ設定不可。",
-      "context.enabled": "Fin 高速パス管理を有効化。Fin は deepseek-v4-flash で協調作業を実行し、メインモデルの負担を軽減。未だ設定不可。",
-      "context.l1_threshold": "第1レベルコンテキスト圧力閾値（トークン数）。超過で軽量介入をトリガー、デフォルト 192000。未だ設定不可。",
-      "context.l2_threshold": "第2レベル閾値。超過でより積極的な圧縮戦略を採用、デフォルト 384000。未だ設定不可。",
-      "context.l3_threshold": "第3レベル閾値。モデル上限に接近した緊急処理線、デフォルト 576000。未だ設定不可。",
-      "context.seam_model": "コンテキスト協調タスクを実行するモデル。デフォルト deepseek-v4-flash。未だ設定不可。",
-      "context.verbatim_window_turns": "直近何ターンの会話を完全な原文で保持するか。より前のターンは圧縮または要約されます。デフォルト 16。未だ設定不可。",
       "cost_currency": "コスト表示通貨。usd は米ドル、cny/rmb/yuan は人民元に正規化されます。",
       "default_mode": "デフォルトモード。agent は通常の会話、plan は計画モード、yolo は直出しモード。",
       "default_model_override": "現在のプロバイダーのデフォルトモデル選択を上書き。未だ設定不可、今後サポート予定。",
@@ -166,23 +114,15 @@
       "features_subagents": "子代理の委譲とファンアウトを有効化します。",
       "features_vision_model": "[vision_model] で独立した画像分析モデルを設定可能。手動での有効化が必要。",
       "features_web_search": "web_search と互換エイリアス web.run を有効化。デフォルトは DuckDuckGo。",
-      "locale": "Web UI の言語。インターフェース表示言語を切り替え、CodeWhale 設定ファイルに直接保存されます。",
+      "locale": "インターフェース表示言語を切り替え。",
       "max_history": "保持する送信済み入力履歴の数。クリアされた下書きも履歴検索用に保持、デフォルト 1000。",
-      "mcp_config_path": "MCP サーバー設定ファイルパス。変更後は TUI の再起動が必要。未だ設定不可。",
-      "memory.enabled": "有効にすると TUI がメモリファイルを <user_memory> プロンプトブロックに読み込み。デフォルト false。未だ設定不可。",
-      "memory_path": "ユーザーメモリファイルパス。未だ設定不可。",
       "mention_menu_behavior": "@ メンション時のメニュー挙動。fuzzy はファジー検索、browser は現在のディレクトリのサブディレクトリを一覧表示。",
       "mention_menu_limit": "@ ポップアップに保持する候補ファイルの最大数、超過分は切り捨て、デフォルト 128。",
       "mention_walk_depth": "@ 補完がワークスペースを辿る最大ディレクトリ深度。0 は無限深度、デフォルト 6。",
-      "notes_path": "モデルから見える note ツールが使用するノートファイルパス。未だ設定不可。",
-      "notifications.include_summary": "有効にすると通知体に所要時間とそのターンの推定費用を含める。デフォルト false。未だ設定不可。",
-      "notifications.sound_file": "カスタム WAV 音声ファイルパス。Windows かつ completion_sound が file の場合のみ使用。未だ設定不可。",
       "notifications_completion_sound": "完了音。beep はシステムデフォルトビープ、off は無効、bell はターミナルベル、file はカスタム WAV 再生。",
       "notifications_method": "完了通知方法。auto はターミナルに応じて自動選択、osc9 は OSC 9 送信、bel はターミナルベル送信、off は通知無効。",
       "notifications_threshold_secs": "成功完了かつ所要時間 ≥ この値の場合のみ通知をトリガー。デフォルト 30s。失敗/キャンセルは常にサイレント。",
       "paste_burst_detection": "デフォルト有効。bracketed-paste 非対応ターミナルの一括貼り付けを検出し、文字ごとの補完トリガーを防止します。",
-      "permissions.toml": "同一階層の権限ルールファイル。tool + command/path フィールドをサポートし、強制承認または拒否に使用。未だ設定不可。",
-      "reasoning_effort": "推論強度。off/low/medium/high/max/xhigh/ultracode が思考深度を制御。未だ設定不可、今後サポート予定。",
       "retry_enabled": "API リクエスト失敗時に自動再試行するかどうか。",
       "retry_exponential_base": "各再試行の遅延に掛ける基数。デフォルト 2.0（1s → 2s → 4s → 8s...）。",
       "retry_initial_delay": "初回再試行前の待機時間（秒）、デフォルト 1.0。",
@@ -194,34 +134,225 @@
       "show_thinking": "会話履歴にモデルの reasoning/thinking 内容を表示するかどうか。",
       "show_tool_details": "各ツール呼び出しの詳細パラメータと結果を展開表示するかどうか。",
       "sidebar_focus": "サイドバーフォーカスの挙動。pinned は固定、auto は自動表示/非表示、tasks、agents、context、hidden。",
-      "skills.scan_codewhale_only": "true に設定すると .claude/skills、.cursor/skills などクロスツールルートディレクトリを無視。デフォルト false。未だ設定不可。",
-      "skills_dir": "スキルディレクトリ。デフォルト ~/.codewhale/skills。ワークスペース内の .agents/skills または ./skills が優先。未だ設定不可。",
-      "snapshots.enabled": "ファイル変更に対して side-git スナップショットを作成。ロールバックをサポート。デフォルト true。未だ設定不可。",
-      "snapshots.max_age_days": "スナップショット保持日数。超過で自動クリーンアップ。デフォルト 7。未だ設定不可。",
-      "subagents.awaiter_model": "Awaiter 役割の子代理モデル。未だ設定不可。",
-      "subagents.custom_model": "カスタム役割の子代理モデル。未だ設定不可。",
-      "subagents.explorer_model": "Explorer 役割の子代理モデル。未だ設定不可。",
-      "subagents.launch_concurrency": "1ターン中に同時に何個の子代理を起動した後、残りをキューイングするか。デフォルトは max_subagents と同等。未だ設定不可。",
-      "subagents.max_admitted": "実行中と待機中の子代理の合計上限。デフォルト 200。未だ設定不可。",
-      "subagents.max_depth": "子代理が再帰的に子代理を委譲できる最大階層深度。未だ設定不可。",
-      "subagents.review_model": "Review 役割の子代理モデル。未だ設定不可。",
-      "subagents.worker_model": "Worker 役割の子代理モデル。未だ設定不可。",
-      "subagents_api_timeout_secs": "子代理の単一モデル呼び出しのタイムアウト。デフォルト 120s、範囲 1~1800。",
-      "subagents_default_model": "役割が未指定の場合のフォールバックモデル。",
-      "subagents_heartbeat_timeout_secs": "子代理が無応答と判定されゾンビ化してクリーンアップされるまでの時間。デフォルト 300s、範囲 30~3600、api_timeout_secs より大きい必要があります。",
-      "subagents_max_concurrent": "同時にアクティブな状態の子代理の数上限。デフォルト 20、範囲 1~20。",
-      "subagents_token_budget": "子代理1ステップあたりのコンテキストトークン予算。デフォルト 200000。",
       "theme": "インターフェーステーマ。システム追従、ライト、ダークなどのモードを選択可能。",
       "tui_alternate_screen": "代替スクリーン戦略。auto 自動、always 常時、never しない。インタラクティブセッションは通常 TUI が代替スクリーンを引き継ぎます。",
       "tui_mouse_capture": "有効にすると内部スクロール、会話選択、右クリックメニュー、スクロールバードラッグをサポート。一部ターミナルはデフォルトで無効。",
       "tui_osc8_links": "URL を OSC 8 エスケープシーケンスでラップし、iTerm2/Ghostty/Kitty/WezTerm 等での Cmd+クリックナビゲーションをサポート。",
       "tui_stream_chunk_timeout_secs": "SSE ストリーム内の 2 つのデータチャンク間の最大アイドル時間。デフォルト 300s、範囲 1~3600、0 はデフォルト値にマッピング。",
       "tui_terminal_probe_timeout_ms": "起動時にターミナルモード（色、マウスプロトコル）を検出するタイムアウト。デフォルト 500ms、範囲 100~5000。",
-      "update.update_uri": "カスタム更新ミラー。GitHub 互換の latest-release JSON を返す必要があります。未だ設定不可。",
       "update_check_for_updates": "起動時に更新を確認。バックグラウンドで最新安定版を確認し、新バージョンかつリソースが完全な場合に toast を表示します。",
       "verbosity": "出力詳細度。normal は標準会話スタイル、concise は簡潔低冗長出力。",
-      "verifier.enabled": "有効にするとモデルが完了を主張した際に自動的に検証器プレビューチェックを実行。デフォルト false。未だ設定不可。",
-      "verifier.verdict_policy": "検証器の裁定ポリシー。現在の唯一の戦略は hunt。未だ設定不可。"
+      "language": "インターフェース表示言語を切り替え、CodeWhale 設定ファイルに直接保存します。"
+    },
+    "groups": {
+      "reasoning": "推論",
+      "context": "コンテキスト管理",
+      "update": "更新",
+      "security": "セキュリティと権限",
+      "paths": "パス",
+      "capacity": "容量制御",
+      "subagents": "サブエージェント（読み取り専用）",
+      "notifications": "通知（読み取り専用）"
+    },
+    "reasoning_effort": {
+      "label": "推論強度",
+      "help": "推論強度。off/low/medium/high/max/xhigh/ultracode が思考深度を制御。未だ設定不可、今後サポート予定。"
+    },
+    "context": {
+      "enabled": {
+        "label": "Fin 高速パス管理を有効化",
+        "help": "Fin 高速パス管理を有効化。Fin は deepseek-v4-flash で協調作業を実行し、メインモデルの負担を軽減。未だ設定不可。"
+      },
+      "verbatim_window_turns": {
+        "label": "完全保持ターン数",
+        "help": "直近何ターンの会話を完全な原文で保持するか。より前のターンは圧縮または要約されます。デフォルト 16。未だ設定不可。"
+      },
+      "l1_threshold": {
+        "label": "L1 コンテキスト圧力閾値",
+        "help": "第1レベルコンテキスト圧力閾値（トークン数）。超過で軽量介入をトリガー、デフォルト 192000。未だ設定不可。"
+      },
+      "l2_threshold": {
+        "label": "L2 コンテキスト圧力閾値",
+        "help": "第2レベル閾値。超過でより積極的な圧縮戦略を採用、デフォルト 384000。未だ設定不可。"
+      },
+      "l3_threshold": {
+        "label": "L3 コンテキスト圧力閾値",
+        "help": "第3レベル閾値。モデル上限に接近した緊急処理線、デフォルト 576000。未だ設定不可。"
+      },
+      "seam_model": {
+        "label": "シームモデル",
+        "help": "コンテキスト協調タスクを実行するモデル。デフォルト deepseek-v4-flash。未だ設定不可。"
+      }
+    },
+    "CODEWHALE_CACHE_MAXIMAL": {
+      "label": "キャッシュ最大化モード",
+      "help": "有効にすると各ターンでアクティブファイルの完全な内容をシステムプロンプトに注入し、KV プレフィックスキャッシュのヒットを活用。デフォルト 1ファイル24KB / 合計96KB。未だ設定不可。"
+    },
+    "update": {
+      "update_uri": {
+        "label": "カスタム更新ミラー",
+        "help": "カスタム更新ミラー。GitHub 互換の latest-release JSON を返す必要があります。未だ設定不可。"
+      }
+    },
+    "permissions": {
+      "toml": {
+        "label": "権限ルールファイル",
+        "help": "同一階層の権限ルールファイル。tool + command/path フィールドをサポートし、強制承認または拒否に使用。未だ設定不可。"
+      }
+    },
+    "skills_dir": {
+      "label": "スキルディレクトリ",
+      "help": "スキルディレクトリ。デフォルト ~/.codewhale/skills。ワークスペース内の .agents/skills または ./skills が優先。未だ設定不可。"
+    },
+    "skills": {
+      "scan_codewhale_only": {
+        "label": "CodeWhale スキルのみスキャン",
+        "help": "true に設定すると .claude/skills、.cursor/skills などクロスツールルートディレクトリを無視。デフォルト false。未だ設定不可。"
+      }
+    },
+    "mcp_config_path": {
+      "label": "MCP 設定ファイルパス",
+      "help": "MCP サーバー設定ファイルパス。変更後は TUI の再起動が必要。未だ設定不可。"
+    },
+    "notes_path": {
+      "label": "メモファイルパス",
+      "help": "モデルから見える note ツールが使用するノートファイルパス。未だ設定不可。"
+    },
+    "memory_path": {
+      "label": "メモリファイルパス",
+      "help": "ユーザーメモリファイルパス。未だ設定不可。"
+    },
+    "memory": {
+      "enabled": {
+        "label": "メモリを有効化",
+        "help": "有効にすると TUI がメモリファイルを <user_memory> プロンプトブロックに読み込み。デフォルト false。未だ設定不可。"
+      }
+    },
+    "snapshots": {
+      "enabled": {
+        "label": "スナップショットを有効化",
+        "help": "ファイル変更に対して side-git スナップショットを作成。ロールバックをサポート。デフォルト true。未だ設定不可。"
+      },
+      "max_age_days": {
+        "label": "スナップショット保持日数",
+        "help": "スナップショット保持日数。超過で自動クリーンアップ。デフォルト 7。未だ設定不可。"
+      }
+    },
+    "verifier": {
+      "enabled": {
+        "label": "検証を有効化",
+        "help": "有効にするとモデルが完了を主張した際に自動的に検証器プレビューチェックを実行。デフォルト false。未だ設定不可。"
+      },
+      "verdict_policy": {
+        "label": "検証判定ポリシー",
+        "help": "検証器の裁定ポリシー。現在の唯一の戦略は hunt。未だ設定不可。"
+      }
+    },
+    "capacity": {
+      "enabled": {
+        "label": "容量コントローラを有効化",
+        "help": "実験的容量コントローラ。有効にするとコンテキストが上限に接近した際に能動的に介入。会話履歴を変更する可能性あり。デフォルト false。未だ設定不可。"
+      },
+      "low_risk_max": {
+        "label": "低リスク上限比率",
+        "help": "コンテキスト使用率がこの割合未満なら低リスクと判定。デフォルト 0.50。未だ設定不可。"
+      },
+      "medium_risk_max": {
+        "label": "中リスク上限比率",
+        "help": "この範囲の使用率は中リスクと判定し警告を開始。デフォルト 0.62。未だ設定不可。"
+      },
+      "severe_min_slack": {
+        "label": "重大リスク最小スラック",
+        "help": "負の値は一時的な超過を許可するが、緊急圧縮をトリガー。デフォルト -0.25。未だ設定不可。"
+      },
+      "severe_violation_ratio": {
+        "label": "重大違反比率",
+        "help": "実際の使用率が期待割合をこの値だけ超えた場合に重大違反と判定。デフォルト 0.40。未だ設定不可。"
+      },
+      "refresh_cooldown_turns": {
+        "label": "リフレッシュクールダウンターン数",
+        "help": "2 回のコンテキストリフレッシュ操作間の最小間隔（ターン数）。デフォルト 6。未だ設定不可。"
+      },
+      "replan_cooldown_turns": {
+        "label": "再計画クールダウンターン数",
+        "help": "2 回の再計画間の最小間隔（ターン数）。デフォルト 5。未だ設定不可。"
+      },
+      "max_replay_per_turn": {
+        "label": "ターンあたり最大リプレイ",
+        "help": "1 ターンあたりプロンプトに履歴内容を再生する最大回数。デフォルト 1。未だ設定不可。"
+      },
+      "min_turns_before_guardrail": {
+        "label": "ガードレール前最小ターン数",
+        "help": "セッション開始後、容量ガードレールを有効化するまでの最小ターン数。デフォルト 4。未だ設定不可。"
+      },
+      "profile_window": {
+        "label": "プロファイルウィンドウ",
+        "help": "容量コントローラがトークン使用傾向を分析する直近ターン数。デフォルト 8。未だ設定不可。"
+      },
+      "deepseek_v3_2_chat_prior": {
+        "label": "V3.2 Chat 優先度",
+        "help": "V3.2 Chat モデルのコンテキスト優先度重み。デフォルト 3.9。未だ設定不可。"
+      },
+      "deepseek_v3_2_reasoner_prior": {
+        "label": "V3.2 Reasoner 優先度",
+        "help": "V3.2 Reasoner モデルのコンテキスト優先度重み。デフォルト 4.1。未だ設定不可。"
+      },
+      "deepseek_v4_pro_prior": {
+        "label": "V4 Pro 優先度",
+        "help": "V4 Pro のコンテキスト優先度重み。デフォルト 3.5。未だ設定不可。"
+      },
+      "deepseek_v4_flash_prior": {
+        "label": "V4 Flash 優先度",
+        "help": "V4 Flash のコンテキスト優先度重み。デフォルト 4.2。未だ設定不可。"
+      },
+      "fallback_default_prior": {
+        "label": "フォールバックデフォルト優先度",
+        "help": "未知モデル時のデフォルトコンテキスト優先度重み。デフォルト 3.8。未だ設定不可。"
+      }
+    },
+    "subagents": {
+      "max_depth": {
+        "label": "最大深度",
+        "help": "子代理が再帰的に子代理を委譲できる最大階層深度。未だ設定不可。"
+      },
+      "launch_concurrency": {
+        "label": "起動並列数",
+        "help": "1ターン中に同時に何個の子代理を起動した後、残りをキューイングするか。デフォルトは max_subagents と同等。未だ設定不可。"
+      },
+      "max_admitted": {
+        "label": "最大許可数",
+        "help": "実行中と待機中の子代理の合計上限。デフォルト 200。未だ設定不可。"
+      },
+      "worker_model": {
+        "label": "Worker モデル",
+        "help": "Worker 役割の子代理モデル。未だ設定不可。"
+      },
+      "explorer_model": {
+        "label": "Explorer モデル",
+        "help": "Explorer 役割の子代理モデル。未だ設定不可。"
+      },
+      "awaiter_model": {
+        "label": "Awaiter モデル",
+        "help": "Awaiter 役割の子代理モデル。未だ設定不可。"
+      },
+      "review_model": {
+        "label": "Review モデル",
+        "help": "Review 役割の子代理モデル。未だ設定不可。"
+      },
+      "custom_model": {
+        "label": "カスタムモデル",
+        "help": "カスタム役割の子代理モデル。未だ設定不可。"
+      }
+    },
+    "notifications": {
+      "include_summary": {
+        "label": "概要を含める",
+        "help": "有効にすると通知体に所要時間とそのターンの推定費用を含める。デフォルト false。未だ設定不可。"
+      },
+      "sound_file": {
+        "label": "音声ファイル",
+        "help": "カスタム WAV 音声ファイルパス。Windows かつ completion_sound が file の場合のみ使用。未だ設定不可。"
+      }
     }
   }
 }

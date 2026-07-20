@@ -57,7 +57,7 @@
 
 <script setup>
   import { QuestionFilled } from '@element-plus/icons-vue';
-import FormItemLabel from '@/components/FormItemLabel.vue';
+import FormItemLabel from '@/components/label/index.vue';
   import { computed } from 'vue';
   import { useI18n } from 'vue-i18n';
   

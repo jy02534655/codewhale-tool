@@ -249,7 +249,8 @@ src/
 │       ├── Form.js      # 表单提交 + 新增/编辑模式
 │       └── Container.js # 父组件弹窗管理
 ├── stores/              # Pinia 状态
-├── locales/             # 多语言包（zh-Hans/en/ja/pt-BR）
+├── locales/             # 通用多语言包（app / message / common）
+├── views/*/i18n/        # 页面级多语言包（供应商 / 代理 / Skill / 项目 / Token / 设置）
 └── utils/               # 工具函数（request.js / Masking.js）
 ```
 
@@ -258,7 +259,7 @@ src/
 - 所有数据通过 `/api/*` 端点获取
 - 弹窗统一使用 `composition/dialog/` 三层组合函数
 - 每个 API 文件对应一个 API 路由前缀
-- 国际化使用 `vue-i18n`，语言包在 `locales/`
+- 国际化使用 `vue-i18n`，通用语言包放在 `locales/`，页面级语言包放在对应 `views/*/i18n/` 目录下
 - API 函数简洁封装：`ajaxBack` / `ajaxPostBack` / `ajaxPutBack` / `ajaxDeleteBack`
 - 成功提示通过 `{ successMessage: true }` 参数自动触发
 

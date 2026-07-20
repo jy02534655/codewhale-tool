@@ -1,92 +1,99 @@
 /**
  * 通用设置页面：只读分组数据
  * 统一维护不可配置项分组，供 ReadOnlyGroupCard 使用。
+ *
+ * 字段说明：
+ * - key:      唯一标识，也用于 v-for :key
+ * - tag:      直接使用组件标识符，如 el-input / el-input-number / el-switch / ReadOnlySelect
+ * - label:    i18n key，指向 settings.xxx
+ * - value:    当前值（只读展示）
+ * - optionKey: select 类型专用，对应 SETTINGS_OPTIONS 中的选项映射键
  */
 
 export const readonlyGroups = [
   {
-    titleKey: 'settings.readonly.reasoning',
+    titleKey: 'settings.groups.reasoning',
     items: [
-      { key: 'reasoning_effort', label: '推理强度', type: 'select', value: '' },
+      { key: 'reasoning_effort', tag: 'SettingsSelect', label: 'settings.reasoning_effort', optionKey: 'reasoning_effort', value: '' },
     ],
   },
   {
-    titleKey: 'settings.readonly.context',
+    titleKey: 'settings.groups.context',
     items: [
-      { key: 'context.enabled', label: '启用 Fin 快速路径管理', type: 'switch', value: '' },
-      { key: 'context.verbatim_window_turns', label: '完整保留轮数', type: 'number', value: '' },
-      { key: 'context.l1_threshold', label: 'L1 上下文压力阈值', type: 'number', value: '' },
-      { key: 'context.l2_threshold', label: 'L2 上下文压力阈值', type: 'number', value: '' },
-      { key: 'context.l3_threshold', label: 'L3 上下文压力阈值', type: 'number', value: '' },
-      { key: 'context.seam_model', label: '接缝模型', type: 'text', value: '' },
-      { key: 'CODEWHALE_CACHE_MAXIMAL', label: '缓存最大化模式', type: 'switch', value: '' },
+      { key: 'context.enabled', tag: 'el-switch', label: 'settings.context.enabled', value: '' },
+      { key: 'context.verbatim_window_turns', tag: 'el-input-number', label: 'settings.context.verbatim_window_turns', value: '' },
+      { key: 'context.l1_threshold', tag: 'el-input-number', label: 'settings.context.l1_threshold', value: '' },
+      { key: 'context.l2_threshold', tag: 'el-input-number', label: 'settings.context.l2_threshold', value: '' },
+      { key: 'context.l3_threshold', tag: 'el-input-number', label: 'settings.context.l3_threshold', value: '' },
+      { key: 'context.seam_model', tag: 'el-input', label: 'settings.context.seam_model', value: '' },
+      { key: 'CODEWHALE_CACHE_MAXIMAL', tag: 'el-switch', label: 'settings.CODEWHALE_CACHE_MAXIMAL', value: '' },
     ],
   },
   {
-    titleKey: 'settings.readonly.update',
+    titleKey: 'settings.groups.update',
     items: [
-      { key: 'update.update_uri', label: '自定义更新镜像', type: 'text', value: '' },
+      { key: 'update.update_uri', tag: 'el-input', label: 'settings.update.update_uri', value: '' },
     ],
   },
   {
-    titleKey: 'settings.readonly.security',
+    titleKey: 'settings.groups.security',
     items: [
-      { key: 'permissions.toml', label: '权限规则文件', type: 'text', value: '' },
+      { key: 'permissions.toml', tag: 'el-input', label: 'settings.permissions.toml', value: '' },
     ],
   },
   {
-    titleKey: 'settings.readonly.paths',
+    titleKey: 'settings.groups.paths',
     items: [
-      { key: 'skills_dir', label: '技能目录', type: 'text', value: '' },
-      { key: 'skills.scan_codewhale_only', label: '仅扫描 CodeWhale 技能', type: 'switch', value: '' },
-      { key: 'mcp_config_path', label: 'MCP 配置文件路径', type: 'text', value: '' },
-      { key: 'notes_path', label: '笔记文件路径', type: 'text', value: '' },
-      { key: 'memory_path', label: '记忆文件路径', type: 'text', value: '' },
-      { key: 'memory.enabled', label: '启用记忆', type: 'switch', value: '' },
-      { key: 'snapshots.enabled', label: '启用快照', type: 'switch', value: '' },
-      { key: 'snapshots.max_age_days', label: '快照保留天数', type: 'number', value: '' },
-      { key: 'verifier.enabled', label: '启用验证器', type: 'switch', value: '' },
-      { key: 'verifier.verdict_policy', label: '验证器裁决策略', type: 'select', value: '' },
+      { key: 'skills_dir', tag: 'el-input', label: 'settings.skills_dir', value: '' },
+      { key: 'skills.scan_codewhale_only', tag: 'el-switch', label: 'settings.skills.scan_codewhale_only', value: '' },
+      { key: 'mcp_config_path', tag: 'el-input', label: 'settings.mcp_config_path', value: '' },
+      { key: 'notes_path', tag: 'el-input', label: 'settings.notes_path', value: '' },
+      { key: 'memory_path', tag: 'el-input', label: 'settings.memory_path', value: '' },
+      { key: 'memory.enabled', tag: 'el-switch', label: 'settings.memory.enabled', value: '' },
+      { key: 'snapshots.enabled', tag: 'el-switch', label: 'settings.snapshots.enabled', value: '' },
+      { key: 'snapshots.max_age_days', tag: 'el-input-number', label: 'settings.snapshots.max_age_days', value: '' },
+      { key: 'verifier.enabled', tag: 'el-switch', label: 'settings.verifier.enabled', value: '' },
+      { key: 'verifier.verdict_policy', tag: 'SettingsSelect', label: 'settings.verifier.verdict_policy', optionKey: 'verifier_verdict_policy', value: '' },
     ],
   },
   {
-    titleKey: 'settings.readonly.capacity',
+    titleKey: 'settings.groups.capacity',
     items: [
-      { key: 'capacity.enabled', label: '启用容量控制器', type: 'switch', value: '' },
-      { key: 'capacity.low_risk_max', label: '低风险上限比例', type: 'number', value: '' },
-      { key: 'capacity.medium_risk_max', label: '中风险上限比例', type: 'number', value: '' },
-      { key: 'capacity.severe_min_slack', label: '严重风险最小余量', type: 'number', value: '' },
-      { key: 'capacity.severe_violation_ratio', label: '严重违规比例', type: 'number', value: '' },
-      { key: 'capacity.refresh_cooldown_turns', label: '刷新冷却轮数', type: 'number', value: '' },
-      { key: 'capacity.replan_cooldown_turns', label: '重规划冷却轮数', type: 'number', value: '' },
-      { key: 'capacity.max_replay_per_turn', label: '每轮最大重放', type: 'number', value: '' },
-      { key: 'capacity.min_turns_before_guardrail', label: '护栏前最小轮数', type: 'number', value: '' },
-      { key: 'capacity.profile_window', label: '分析窗口', type: 'number', value: '' },
-      { key: 'capacity.deepseek_v3_2_chat_prior', label: 'V3.2 Chat 优先级', type: 'number', value: '' },
-      { key: 'capacity.deepseek_v3_2_reasoner_prior', label: 'V3.2 Reasoner 优先级', type: 'number', value: '' },
-      { key: 'capacity.deepseek_v4_pro_prior', label: 'V4 Pro 优先级', type: 'number', value: '' },
-      { key: 'capacity.deepseek_v4_flash_prior', label: 'V4 Flash 优先级', type: 'number', value: '' },
-      { key: 'capacity.fallback_default_prior', label: '回退默认优先级', type: 'number', value: '' },
+      { key: 'capacity.enabled', tag: 'el-switch', label: 'settings.capacity.enabled', value: '' },
+      { key: 'capacity.low_risk_max', tag: 'el-input-number', label: 'settings.capacity.low_risk_max', value: '' },
+      { key: 'capacity.medium_risk_max', tag: 'el-input-number', label: 'settings.capacity.medium_risk_max', value: '' },
+      { key: 'capacity.severe_min_slack', tag: 'el-input-number', label: 'settings.capacity.severe_min_slack', value: '' },
+      { key: 'capacity.severe_violation_ratio', tag: 'el-input-number', label: 'settings.capacity.severe_violation_ratio', value: '' },
+      { key: 'capacity.refresh_cooldown_turns', tag: 'el-input-number', label: 'settings.capacity.refresh_cooldown_turns', value: '' },
+      { key: 'capacity.replan_cooldown_turns', tag: 'el-input-number', label: 'settings.capacity.replan_cooldown_turns', value: '' },
+      { key: 'capacity.max_replay_per_turn', tag: 'el-input-number', label: 'settings.capacity.max_replay_per_turn', value: '' },
+      { key: 'capacity.min_turns_before_guardrail', tag: 'el-input-number', label: 'settings.capacity.min_turns_before_guardrail', value: '' },
+      { key: 'capacity.profile_window', tag: 'el-input-number', label: 'settings.capacity.profile_window', value: '' },
+      { key: 'capacity.deepseek_v3_2_chat_prior', tag: 'el-input-number', label: 'settings.capacity.deepseek_v3_2_chat_prior', value: '' },
+      { key: 'capacity.deepseek_v3_2_reasoner_prior', tag: 'el-input-number', label: 'settings.capacity.deepseek_v3_2_reasoner_prior', value: '' },
+      { key: 'capacity.deepseek_v4_pro_prior', tag: 'el-input-number', label: 'settings.capacity.deepseek_v4_pro_prior', value: '' },
+      { key: 'capacity.deepseek_v4_flash_prior', tag: 'el-input-number', label: 'settings.capacity.deepseek_v4_flash_prior', value: '' },
+      { key: 'capacity.fallback_default_prior', tag: 'el-input-number', label: 'settings.capacity.fallback_default_prior', value: '' },
     ],
   },
   {
-    titleKey: 'settings.readonly.subagents',
+    titleKey: 'settings.groups.subagents',
     items: [
-      { key: 'subagents.max_depth', label: '最大嵌套深度', type: 'number', value: '' },
-      { key: 'subagents.launch_concurrency', label: '同时启动数', type: 'number', value: '' },
-      { key: 'subagents.max_admitted', label: '排队+运行总数上限', type: 'number', value: '' },
-      { key: 'subagents.worker_model', label: 'Worker 模型', type: 'text', value: '' },
-      { key: 'subagents.explorer_model', label: 'Explorer 模型', type: 'text', value: '' },
-      { key: 'subagents.awaiter_model', label: 'Awaiter 模型', type: 'text', value: '' },
-      { key: 'subagents.review_model', label: 'Review 模型', type: 'text', value: '' },
-      { key: 'subagents.custom_model', label: '自定义角色模型', type: 'text', value: '' },
+      { key: 'subagents.max_depth', tag: 'el-input-number', label: 'settings.subagents.max_depth', value: '' },
+      { key: 'subagents.launch_concurrency', tag: 'el-input-number', label: 'settings.subagents.launch_concurrency', value: '' },
+      { key: 'subagents.max_admitted', tag: 'el-input-number', label: 'settings.subagents.max_admitted', value: '' },
+      { key: 'subagents.worker_model', tag: 'el-input', label: 'settings.subagents.worker_model', value: '' },
+      { key: 'subagents.explorer_model', tag: 'el-input', label: 'settings.subagents.explorer_model', value: '' },
+      { key: 'subagents.awaiter_model', tag: 'el-input', label: 'settings.subagents.awaiter_model', value: '' },
+      { key: 'subagents.review_model', tag: 'el-input', label: 'settings.subagents.review_model', value: '' },
+      { key: 'subagents.custom_model', tag: 'el-input', label: 'settings.subagents.custom_model', value: '' },
     ],
   },
   {
-    titleKey: 'settings.readonly.notifications',
+    titleKey: 'settings.groups.notifications',
     items: [
-      { key: 'notifications.include_summary', label: '通知包含摘要', type: 'switch', value: '' },
-      { key: 'notifications.sound_file', label: '自定义声音文件', type: 'text', value: '' },
+      { key: 'notifications.include_summary', tag: 'el-switch', label: 'settings.notifications.include_summary', value: '' },
+      { key: 'notifications.sound_file', tag: 'el-input', label: 'settings.notifications.sound_file', value: '' },
     ],
   },
 ];

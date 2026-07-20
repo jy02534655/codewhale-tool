@@ -29,9 +29,10 @@
         <NotificationsCard v-model:formData="formData" />
         <FeaturesCard v-model:formData="formData" />
         <SearchCard v-model:formData="formData" />
-        <ReadOnlyGroupCard
+        <SettingsGroupCard
           v-for="group in readonlyGroups"
           :key="group.titleKey"
+          v-model:formData="formData"
           :title-key="group.titleKey"
           :items="group.items"
         />
@@ -64,7 +65,7 @@ import RetryCard from './cards/RetryCard.vue';
 import NotificationsCard from './cards/NotificationsCard.vue';
 import FeaturesCard from './cards/FeaturesCard.vue';
 import SearchCard from './cards/SearchCard.vue';
-import ReadOnlyGroupCard from './cards/ReadOnlyGroupCard.vue';
+import SettingsGroupCard from './cards/SettingsGroupCard.vue';
 import { readonlyGroups } from './cards/readonlyGroups.js';
 
 const { t, locale } = useI18n({ useScope: 'global' });

@@ -1,10 +1,9 @@
-<!--
-  FormItemLabel.vue — 通用设置表单标签
-  将 label、tooltip、help icon 封装为可复用组件，供 #label 插槽使用
--->
+<!-- FormItemLabel.vue — 通用设置：表单项标签与帮助提示 -->
 <template>
   <div class="form-item-label">
+    <!-- 显示当前语言的 label 文本 -->
     <span>{{ $t(labelKey) }}</span>
+    <!-- 帮助图标悬停时显示 tooltip 文本 -->
     <el-tooltip placement="top" :content="$t(helpKey)">
       <el-icon class="help-icon"><QuestionFilled /></el-icon>
     </el-tooltip>
@@ -12,11 +11,11 @@
 </template>
 
 <script setup>
-  // 引入 Element Plus 的问号图标，用于展示配置项说明
+  // 引入 Element Plus 问号图标
   import { QuestionFilled } from '@element-plus/icons-vue';
 
-  // labelKey：表单标签的 i18n key
-  // helpKey：tooltip 说明文本的 i18n key
+  // labelKey: vue-i18n key，如 'settings.language'
+  // helpKey: vue-i18n key，如 'settings.help.locale'
   defineProps({
     labelKey: {
       type: String,
