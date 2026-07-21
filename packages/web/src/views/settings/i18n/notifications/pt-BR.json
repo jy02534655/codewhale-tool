@@ -3,11 +3,11 @@
     "notifications": "Notificações",
     "notifications.include_summary": {
       "label": "Incluir Resumo",
-      "help": ""
+      "help": "Padrão é false. Quando ativado, as notificações incluirão o tempo decorrido e o custo estimado da turno."
     },
     "notifications.sound_file": {
       "label": "Arquivo de Som",
-      "help": ""
+      "help": "Usado apenas quando completion_sound estiver definido como file. Caminho do arquivo de som WAV personalizado, apenas Windows."
     }
   }
 }

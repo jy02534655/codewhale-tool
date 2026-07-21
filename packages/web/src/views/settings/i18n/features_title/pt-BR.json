@@ -3,31 +3,31 @@
     "features_title": "Recursos",
     "features_shell_tool": {
       "label": "Shell",
-      "help": "Habilita a ferramenta exec_shell para permitir a execução de comandos shell."
+      "help": "Habilitar ferramenta shell, permitindo a execução de comandos shell."
     },
     "features_subagents": {
       "label": "Subagentes",
-      "help": "Habilita delegação e fan-out de subagentes."
+      "help": "Habilitar delegação de subagentes e funcionalidade de fan-out."
     },
     "features_web_search": {
       "label": "Busca Web",
-      "help": "Habilita web_search e alias compatível web.run, padrão DuckDuckGo."
+      "help": "Habilitar pesquisa na web e alias compatível web.run, usando DuckDuckGo por padrão."
     },
     "features_apply_patch": {
       "label": "Aplicar Patch",
-      "help": "Habilita a ferramenta apply_patch, suportando modificações em lote no formato unified diff."
+      "help": "Habilitar ferramenta apply_patch, suportando formato de diff unificado para modificações em lote."
     },
     "features_mcp": {
       "label": "MCP",
-      "help": "Habilita suporte ao Model Context Protocol, permitindo conexão com servidores MCP externos para expandir o conjunto de ferramentas."
+      "help": "Habilitar suporte ao Model Context Protocol, permitindo conexão com servidores MCP externos para estender o conjunto de ferramentas."
     },
     "features_exec_policy": {
       "label": "Política de Execução",
-      "help": "Habilita o mecanismo de política de execução para realizar verificações de permissão e aprovação nas chamadas de ferramentas."
+      "help": "Habilitar mecanismo de política de execução, realizando verificações de permissão e aprovação em chamadas de ferramentas."
     },
     "features_vision_model": {
       "label": "Visão",
-      "help": "Quando ativado, um modelo de análise de imagem independente pode ser configurado via [vision_model]; requer ativação manual."
+      "help": "Precisa ser ativado manualmente. Após ativar, um modelo de análise de imagem independente (como Xiaomi MiMo) pode ser configurado via [vision_model]."
     }
   }
 }

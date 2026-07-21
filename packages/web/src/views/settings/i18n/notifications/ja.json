@@ -3,11 +3,11 @@
     "notifications": "通知",
     "notifications.include_summary": {
       "label": "概要を含める",
-      "help": ""
+      "help": "デフォルトは false。有効にすると通知に所要時間とターンの推定費用が含まれます。"
     },
     "notifications.sound_file": {
       "label": "サウンドファイル",
-      "help": ""
+      "help": "completion_sound が file の場合のみ使用。カスタム WAV サウンドファイルのパス。Windows のみ。"
     }
   }
 }

@@ -3,19 +3,19 @@
     "subagents_title": "Subagents",
     "subagents_max_concurrent": {
       "label": "Max Concurrent Subagents",
-      "help": "Maximum number of concurrently active subagents, default 20, limit 1~20."
+      "help": "Maximum number of simultaneously active subagents, default 20, range 1~20."
     },
     "subagents_token_budget": {
       "label": "Token Budget",
-      "help": "Context token budget per subagent step. Default 200000."
+      "help": "Context token budget per subagent step call. Default 200000."
     },
     "subagents_api_timeout_secs": {
       "label": "API Timeout",
-      "help": "Timeout for a single model call by a subagent, default 120s, range 1~1800."
+      "help": "Timeout for subagent single-step model calls, default 120s, range 1~1800."
     },
     "subagents_heartbeat_timeout_secs": {
       "label": "Heartbeat Timeout",
-      "help": "How long a subagent with no response is considered zombie and cleaned up, default 300s, range 30~3600, must be greater than api_timeout_secs."
+      "help": "How long a subagent can be unresponsive before being considered dead and cleaned up, default 300s, range 30~3600, must be greater than api_timeout_secs."
     },
     "subagents_default_model": {
       "label": "Default Subagent Model",

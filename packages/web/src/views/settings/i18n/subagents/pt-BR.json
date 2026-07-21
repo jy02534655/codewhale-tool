@@ -3,35 +3,35 @@
     "subagents": "Subagentes",
     "subagents.max_depth": {
       "label": "Profundidade Máxima",
-      "help": ""
+      "help": "Profundidade hierárquica máxima que subagentes podem delegar recursivamente para outros subagentes."
     },
     "subagents.launch_concurrency": {
       "label": "Concorrência de Inicialização",
-      "help": ""
+      "help": "Quantos subagentes iniciar simultaneamente em um turno antes de enfileirar o resto. Evita que bursts instantâneos causem limitação de taxa da API."
     },
     "subagents.max_admitted": {
       "label": "Máx. Admitidos",
-      "help": ""
+      "help": "Número total de subagentes incluindo os em execução e na fila. Tarefas de alto fan-out podem ser enfileiradas, mas a pressão de lançamento em tempo de execução é controlada."
     },
     "subagents.worker_model": {
       "label": "Modelo de Trabalho",
-      "help": ""
+      "help": "Modelo de subagente para executar tarefas específicas de codificação/modificação."
     },
     "subagents.explorer_model": {
       "label": "Modelo de Exploração",
-      "help": ""
+      "help": "Modelo de subagente para explorar a base de código e pesquisar arquivos."
     },
     "subagents.awaiter_model": {
       "label": "Modelo de Espera",
-      "help": ""
+      "help": "Modelo de subagente para aguardar eventos externos e pesquisar resultados."
     },
     "subagents.review_model": {
       "label": "Modelo de Revisão",
-      "help": ""
+      "help": "Modelo de subagente para revisão de código e verificação de resultados."
     },
     "subagents.custom_model": {
       "label": "Modelo Personalizado",
-      "help": ""
+      "help": "Modelo de subagente para papéis definidos pelo usuário."
     }
   }
 }

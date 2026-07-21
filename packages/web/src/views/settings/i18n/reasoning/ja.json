@@ -3,7 +3,7 @@
     "reasoning": "推論",
     "reasoning_effort": {
       "label": "推論強度",
-      "help": ""
+      "help": "モデルの推論強度を制御します。low / medium / high / xhigh から選択、デフォルト low。強いほど深く思考しますが、時間とトークン消費も増加します。"
     }
   }
 }

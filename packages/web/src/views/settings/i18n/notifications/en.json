@@ -3,11 +3,11 @@
     "notifications": "Notifications",
     "notifications.include_summary": {
       "label": "Include Summary",
-      "help": ""
+      "help": "Defaults to false. When enabled, notifications will include elapsed time and estimated cost for the turn."
     },
     "notifications.sound_file": {
       "label": "Sound File",
-      "help": ""
+      "help": "Only used when completion_sound is set to file. Custom WAV sound file path, Windows only."
     }
   }
 }

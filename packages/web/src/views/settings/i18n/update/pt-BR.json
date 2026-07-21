@@ -3,7 +3,7 @@
     "update": "Atualizações",
     "update.update_uri": {
       "label": "Espelho de Atualização Personalizado",
-      "help": ""
+      "help": "Aponta para um endpoint de espelhamento interno que deve retornar JSON latest-release compatível com GitHub (pelo menos contendo tag_name). Se assets estiverem configurados, o CodeWhale exigirá o mesmo conjunto de assets do lançamento oficial antes de solicitar a atualização."
     }
   }
 }

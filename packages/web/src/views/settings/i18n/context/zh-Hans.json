@@ -3,31 +3,31 @@
     "context": "上下文管理",
     "context.enabled": {
       "label": "启用 Fin 快速路径管理",
-      "help": ""
+      "help": "需手动开启。Fin 使用 deepseek-v4-flash（thinking 关闭）执行协调工作（路由、摘要、上下文维护），减轻主模型负担"
     },
     "CODEWHALE_CACHE_MAXIMAL": {
       "label": "缓存最大化模式",
-      "help": ""
+      "help": "开启后，每轮将活跃文件的完整内容（而非仅路径）注入系统提示，利用 DeepSeek KV 前缀缓存命中。文件未修改时块内容稳定，编辑后从该块开始 cache miss。默认每文件 24KB / 总计 96KB 上限"
     },
     "context.verbatim_window_turns": {
       "label": "完整保留轮数",
-      "help": ""
+      "help": "最近多少轮对话保持完整原文，更早的轮次会被压缩或摘要"
     },
     "context.l1_threshold": {
       "label": "L1 上下文压力阈值",
-      "help": ""
+      "help": "第一级上下文压力阈值（Token 数）。超过此值触发轻量级干预"
     },
     "context.l2_threshold": {
       "label": "L2 上下文压力阈值",
-      "help": ""
+      "help": "第二级阈值。超过后采取更激进的压缩策略"
     },
     "context.l3_threshold": {
       "label": "L3 上下文压力阈值",
-      "help": ""
+      "help": "第三级阈值。接近模型上限时的紧急处理线"
     },
     "context.seam_model": {
       "label": "接缝模型",
-      "help": ""
+      "help": "执行上下文协调任务的模型。Flash 路径无 reasoning，速度更快"
     }
   }
 }

@@ -3,7 +3,7 @@
     "security": "Security & Permissions",
     "permissions.toml": {
       "label": "Permissions Rules File",
-      "help": ""
+      "help": "Supports tool + optional command/path fields. Matching rules force approval in non-YOLO mode; in never mode, matches are directly rejected (because no popup can be shown)."
     }
   }
 }

@@ -3,63 +3,63 @@
     "capacity": "Controle de Capacidade",
     "capacity.enabled": {
       "label": "Habilitar Controlador de Capacidade",
-      "help": ""
+      "help": "Recurso experimental. Quando ativado, o controlador intervém ativamente (ex: comprimindo, reescrevendo a transcrição) quando o contexto se aproxima do limite superior do modelo, o que pode alterar o histórico de conversa."
     },
     "capacity.low_risk_max": {
       "label": "Proporção Máxima de Baixo Risco",
-      "help": ""
+      "help": "Uso de contexto abaixo de 50% é considerado baixo risco, nenhuma intervenção necessária."
     },
     "capacity.medium_risk_max": {
       "label": "Proporção Máxima de Médio Risco",
-      "help": ""
+      "help": "Uso entre 50%~62% é risco médio, começar a alertar."
     },
     "capacity.severe_min_slack": {
       "label": "Slack Mínimo de Risco Severo",
-      "help": ""
+      "help": "Valores negativos permitem ultrapassagem breve, mas acionam compressão de emergência."
     },
     "capacity.severe_violation_ratio": {
       "label": "Proporção de Violação Severa",
-      "help": ""
+      "help": "Considerada violação grave quando o uso real excede a proporção esperada em 40%."
     },
     "capacity.refresh_cooldown_turns": {
       "label": "Turnos de Resfriamento de Refresh",
-      "help": ""
+      "help": "Número mínimo de turnos entre duas operações de atualização de contexto para evitar tremor frequente."
     },
     "capacity.replan_cooldown_turns": {
       "label": "Turnos de Resfriamento de Replanejamento",
-      "help": ""
+      "help": "Número mínimo de turnos entre duas operações de replanejamento."
     },
     "capacity.max_replay_per_turn": {
       "label": "Máx. Replay por Turno",
-      "help": ""
+      "help": "Número máximo de vezes que o conteúdo histórico pode ser reproduzido no prompt em um único turno."
     },
     "capacity.min_turns_before_guardrail": {
       "label": "Mín. Turnos Antes do Guardrail",
-      "help": ""
+      "help": "Número mínimo de turnos após o início da sessão antes de ativar as guardrails de capacidade, deixando espaço para a configuração inicial."
     },
     "capacity.profile_window": {
       "label": "Janela de Perfil",
-      "help": ""
+      "help": "O controlador de capacidade analisa as tendências de uso de tokens nas últimas quantas turnos."
     },
     "capacity.deepseek_v3_2_chat_prior": {
       "label": "Prioridade V3.2 Chat",
-      "help": ""
+      "help": "Peso de prioridade de contexto ao usar o modelo V3.2 Chat."
     },
     "capacity.deepseek_v3_2_reasoner_prior": {
       "label": "Prioridade V3.2 Reasoner",
-      "help": ""
+      "help": "Peso ao usar o modelo V3.2 Reasoner (ligeiramente maior que o Chat, pois o raciocínio consome mais)."
     },
     "capacity.deepseek_v4_pro_prior": {
       "label": "Prioridade V4 Pro",
-      "help": ""
+      "help": "Peso de contexto para V4 Pro."
     },
     "capacity.deepseek_v4_flash_prior": {
       "label": "Prioridade V4 Flash",
-      "help": ""
+      "help": "Peso para V4 Flash (mais alto, porque o Flash é usado para coordenação e precisa de mais margem de contexto)."
     },
     "capacity.fallback_default_prior": {
       "label": "Prioridade Padrão de Fallback",
-      "help": ""
+      "help": "Peso padrão para modelos desconhecidos."
     }
   }
 }

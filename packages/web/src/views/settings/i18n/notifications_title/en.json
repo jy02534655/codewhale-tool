@@ -3,15 +3,15 @@
     "notifications_title": "Notifications",
     "notifications_method": {
       "label": "Notification Method",
-      "help": "Completion notification method. auto selects automatically by terminal, osc9 sends OSC 9, bel sends terminal bell, off disables notifications."
+      "help": "Completion notification method. auto selects based on terminal, osc9 sends OSC 9, bel sends terminal bell, off disables notifications."
     },
     "notifications_threshold_secs": {
       "label": "Threshold",
-      "help": "Only triggers notification for successfully completed turns with duration ≥ this value, default 30s. Failed/cancelled turns are always silent."
+      "help": "Only triggers notifications for successfully completed turns that take >= this value, default 30s. Failed/cancelled turns are always silent."
     },
     "notifications_completion_sound": {
       "label": "Completion Sound",
-      "help": "Completion sound. beep for system default beep, off to disable, bell for terminal bell, file to play custom WAV."
+      "help": "Completion sound. beep uses the system default beep, off disables it, bell sends terminal bell, file plays a custom WAV."
     }
   }
 }

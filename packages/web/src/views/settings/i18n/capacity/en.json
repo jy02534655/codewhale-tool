@@ -3,63 +3,63 @@
     "capacity": "Capacity Control",
     "capacity.enabled": {
       "label": "Enable Capacity Controller",
-      "help": ""
+      "help": "Experimental feature. When enabled, the controller actively intervenes (e.g., compressing, rewriting transcript) when context approaches the model's upper limit, which may alter conversation history."
     },
     "capacity.low_risk_max": {
       "label": "Low Risk Max Ratio",
-      "help": ""
+      "help": "Context usage below 50% is considered low risk, no intervention needed."
     },
     "capacity.medium_risk_max": {
       "label": "Medium Risk Max Ratio",
-      "help": ""
+      "help": "Usage between 50%~62% is medium risk, start warning."
     },
     "capacity.severe_min_slack": {
       "label": "Severe Min Slack",
-      "help": ""
+      "help": "Negative values allow brief overshoot but trigger emergency compression."
     },
     "capacity.severe_violation_ratio": {
       "label": "Severe Violation Ratio",
-      "help": ""
+      "help": "Considered a severe violation when actual usage exceeds the expected ratio by 40%."
     },
     "capacity.refresh_cooldown_turns": {
       "label": "Refresh Cooldown Turns",
-      "help": ""
+      "help": "Minimum number of turns between two context refresh operations to prevent frequent jitter."
     },
     "capacity.replan_cooldown_turns": {
       "label": "Replan Cooldown Turns",
-      "help": ""
+      "help": "Minimum number of turns between two replanning operations."
     },
     "capacity.max_replay_per_turn": {
       "label": "Max Replay Per Turn",
-      "help": ""
+      "help": "Maximum number of times historical content can be replayed into the prompt within a single turn."
     },
     "capacity.min_turns_before_guardrail": {
       "label": "Min Turns Before Guardrail",
-      "help": ""
+      "help": "Minimum number of turns after session start before enabling capacity guardrails, leaving room for initial setup."
     },
     "capacity.profile_window": {
       "label": "Profile Window",
-      "help": ""
+      "help": "The capacity controller analyzes token usage trends over how many recent turns."
     },
     "capacity.deepseek_v3_2_chat_prior": {
       "label": "V3.2 Chat Priority",
-      "help": ""
+      "help": "Context priority weight when using V3.2 Chat model."
     },
     "capacity.deepseek_v3_2_reasoner_prior": {
       "label": "V3.2 Reasoner Priority",
-      "help": ""
+      "help": "Weight when using V3.2 Reasoner model (slightly higher than Chat, because reasoning consumes more)."
     },
     "capacity.deepseek_v4_pro_prior": {
       "label": "V4 Pro Priority",
-      "help": ""
+      "help": "Context weight for V4 Pro."
     },
     "capacity.deepseek_v4_flash_prior": {
       "label": "V4 Flash Priority",
-      "help": ""
+      "help": "Weight for V4 Flash (highest, because Flash is used for coordination and needs more context headroom)."
     },
     "capacity.fallback_default_prior": {
       "label": "Fallback Default Priority",
-      "help": ""
+      "help": "Default weight for unknown models."
     }
   }
 }

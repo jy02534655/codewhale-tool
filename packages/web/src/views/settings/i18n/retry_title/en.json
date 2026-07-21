@@ -7,19 +7,19 @@
     },
     "retry_max_retries": {
       "label": "Max Retries",
-      "help": "Maximum retries for a single request before reporting an error, default 3."
+      "help": "Maximum number of retries for a single request before reporting an error, default 3."
     },
     "retry_initial_delay": {
       "label": "Initial Delay",
-      "help": "Wait time before the first retry (seconds), default 1.0."
+      "help": "Wait time before the first retry (in seconds), default 1.0."
     },
     "retry_max_delay": {
       "label": "Max Delay",
-      "help": "Upper limit for backoff delay (seconds), preventing unlimited growth, default 60.0."
+      "help": "Upper limit of backoff delay (in seconds) to prevent unlimited growth, default 60.0."
     },
     "retry_exponential_base": {
       "label": "Exponential Base",
-      "help": "Multiply each retry delay by this base, default 2.0 (1s → 2s → 4s → 8s...)."
+      "help": "Each retry delay is multiplied by this base, default 2.0 (1s -> 2s -> 4s -> 8s...)."
     }
   }
 }

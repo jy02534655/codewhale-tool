@@ -108,8 +108,6 @@ export const groups = [
       { key: 'search_base_url', tag: 'el-input', labelKey: 'settings.search_base_url.label', helpKey: 'settings.search_base_url.help' }
     ]
   },
-
-  // ========== 只读分组 ==========
   {
     titleKey: 'settings.reasoning',
     items: [
@@ -117,7 +115,7 @@ export const groups = [
     ]
   },
   {
-    titleKey: 'settings.context',
+    titleKey: 'settings.context._title',
     items: [
       { key: 'context.enabled', tag: 'el-switch', labelKey: 'settings.context.enabled.label', helpKey: 'settings.context.enabled.help', disabled: true },
       { key: 'CODEWHALE_CACHE_MAXIMAL', tag: 'el-switch', labelKey: 'settings.CODEWHALE_CACHE_MAXIMAL.label', helpKey: 'settings.CODEWHALE_CACHE_MAXIMAL.help', disabled: true },
@@ -129,7 +127,7 @@ export const groups = [
     ]
   },
   {
-    titleKey: 'settings.update',
+    titleKey: 'settings.update._title',
     items: [
       { key: 'update.update_uri', tag: 'el-input', labelKey: 'settings.update.update_uri.label', helpKey: 'settings.update.update_uri.help', disabled: true }
     ]
@@ -156,7 +154,7 @@ export const groups = [
     ]
   },
   {
-    titleKey: 'settings.capacity',
+    titleKey: 'settings.capacity._title',
     items: [
       { key: 'capacity.enabled', tag: 'el-switch', labelKey: 'settings.capacity.enabled.label', helpKey: 'settings.capacity.enabled.help', disabled: true },
       { key: 'capacity.low_risk_max', tag: 'el-input-number', labelKey: 'settings.capacity.low_risk_max.label', helpKey: 'settings.capacity.low_risk_max.help', disabled: true },
@@ -176,7 +174,7 @@ export const groups = [
     ]
   },
   {
-    titleKey: 'settings.subagents',
+    titleKey: 'settings.subagents._title',
     items: [
       { key: 'subagents.max_depth', tag: 'el-input-number', labelKey: 'settings.subagents.max_depth.label', helpKey: 'settings.subagents.max_depth.help', disabled: true },
       { key: 'subagents.launch_concurrency', tag: 'el-input-number', labelKey: 'settings.subagents.launch_concurrency.label', helpKey: 'settings.subagents.launch_concurrency.help', disabled: true },
@@ -189,7 +187,7 @@ export const groups = [
     ]
   },
   {
-    titleKey: 'settings.notifications',
+    titleKey: 'settings.notifications._title',
     items: [
       { key: 'notifications.include_summary', tag: 'el-switch', labelKey: 'settings.notifications.include_summary.label', helpKey: 'settings.notifications.include_summary.help', disabled: true },
       { key: 'notifications.sound_file', tag: 'el-input', labelKey: 'settings.notifications.sound_file.label', helpKey: 'settings.notifications.sound_file.help', disabled: true }

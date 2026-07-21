@@ -3,43 +3,43 @@
     "paths": "パス",
     "skills.scan_codewhale_only": {
       "label": "CodeWhale スキルのみスキャン",
-      "help": ""
+      "help": "true に設定すると、.claude/skills、.opencode/skills、.cursor/skills、~/.agents/skills などのクロスツールルートディレクトリを無視します。"
     },
     "memory.enabled": {
       "label": "メモリを有効化",
-      "help": ""
+      "help": "有効にすると、TUI は記憶ファイルを <user_memory> プロンプトブロックに読み込み、# foo クイックキャプチャと remember ツールを有効にします。"
     },
     "snapshots.enabled": {
       "label": "スナップショットを有効化",
-      "help": ""
+      "help": "ファイル変更のために side-git スナップショットを作成し、ロールバックをサポート。スナップショットは ~/.codewhale/snapshots/... に保存され、ワークスペース自身の .git は使用しません。"
     },
     "verifier.enabled": {
       "label": "検証を有効化",
-      "help": ""
+      "help": "有効にすると、モデルがタスクの完了を主張したとき、自動的に検証器プレビューチェックを実行します。"
     },
     "snapshots.max_age_days": {
       "label": "スナップショット保持日数",
-      "help": ""
+      "help": "この日数を超えたスナップショットは自動的にクリーンアップされます。"
     },
     "verifier.verdict_policy": {
       "label": "検証判定ポリシー",
-      "help": ""
+      "help": "現在唯一のポリシー。検証者の pass/partial/fail を hunted/wounded/escaped セマンティクスにマッピングします。不明な値は拒否され、将来のポリシー拡張のために予約されています。"
     },
     "skills_dir": {
       "label": "スキルディレクトリ",
-      "help": ""
+      "help": "各スキルは SKILL.md を含むディレクトリです。ワークスペースローカルの .agents/skills または ./skills がグローバルディレクトリより優先されます。"
     },
     "mcp_config_path": {
       "label": "MCP 設定ファイルパス",
-      "help": ""
+      "help": "MCP サーバー設定ファイルのパス。TUI 内で /mcp で表示でき、変更後は TUI を再起動してツールプールを再構築する必要があります。"
     },
     "notes_path": {
       "label": "メモファイルパス",
-      "help": ""
+      "help": "モデルから見える note ツールが使用するノートファイルのパス。"
     },
     "memory_path": {
       "label": "メモリファイルパス",
-      "help": ""
+      "help": "ユーザー記憶ファイルのパス。memory_path はトップレベルフィールドで、[memory] の下にはネストされていません。"
     }
   }
 }

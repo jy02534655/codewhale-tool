@@ -3,15 +3,15 @@
     "notifications_title": "Notificações",
     "notifications_method": {
       "label": "Método de Notificação",
-      "help": "Método de notificação de conclusão. auto seleciona automaticamente pelo terminal, osc9 envia OSC 9, bel envia sino do terminal, off desativa notificações."
+      "help": "Método de notificação de conclusão. auto seleciona automaticamente com base no terminal, osc9 envia OSC 9, bel envia o sinal sonoro do terminal, off desativa notificações."
     },
     "notifications_threshold_secs": {
       "label": "Limite",
-      "help": "Aciona notificação apenas para turnos concluídos com sucesso e duração ≥ este valor, padrão 30s. Turnos falhos/cancelados são sempre silenciosos."
+      "help": "Aciona notificações apenas para turnos concluídos com sucesso que duram >= este valor, padrão 30s. Turnos falhos/cancelados são sempre silenciosos."
     },
     "notifications_completion_sound": {
       "label": "Som de Conclusão",
-      "help": "Som de conclusão. beep bipe padrão do sistema, off desativado, bell sino do terminal, file reproduz WAV personalizado."
+      "help": "Som de conclusão. beep usa o bipe padrão do sistema, off desativa, bell envia o sinal sonoro do terminal, file reproduz um WAV personalizado."
     }
   }
 }

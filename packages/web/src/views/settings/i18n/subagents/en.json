@@ -3,35 +3,35 @@
     "subagents": "Subagents",
     "subagents.max_depth": {
       "label": "Max Depth",
-      "help": ""
+      "help": "Maximum hierarchical depth that subagents can recursively delegate to other subagents."
     },
     "subagents.launch_concurrency": {
       "label": "Launch Concurrency",
-      "help": ""
+      "help": "How many subagents to launch simultaneously in one turn before queuing the rest. Prevents instant burst from causing API rate limiting."
     },
     "subagents.max_admitted": {
       "label": "Max Admitted",
-      "help": ""
+      "help": "Total number of subagents including running and queued. High fan-out tasks can be queued, but runtime launch pressure is controlled."
     },
     "subagents.worker_model": {
       "label": "Worker Model",
-      "help": ""
+      "help": "Subagent model for executing specific coding/modification tasks."
     },
     "subagents.explorer_model": {
       "label": "Explorer Model",
-      "help": ""
+      "help": "Subagent model for exploring codebase and searching files."
     },
     "subagents.awaiter_model": {
       "label": "Awaiter Model",
-      "help": ""
+      "help": "Subagent model for waiting for external events and polling results."
     },
     "subagents.review_model": {
       "label": "Review Model",
-      "help": ""
+      "help": "Subagent model for code review and result verification."
     },
     "subagents.custom_model": {
       "label": "Custom Model",
-      "help": ""
+      "help": "Subagent model for user-defined roles."
     }
   }
 }

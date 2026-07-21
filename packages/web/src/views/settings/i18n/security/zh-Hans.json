@@ -3,7 +3,7 @@
     "security": "安全与权限",
     "permissions.toml": {
       "label": "权限规则文件",
-      "help": ""
+      "help": "支持 tool + 可选 command / path 字段。匹配的规则会在非 YOLO 模式下强制触发审批；never 模式下匹配则直接拒绝（因为无法弹窗）"
     }
   }
 }

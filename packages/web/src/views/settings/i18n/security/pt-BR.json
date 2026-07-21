@@ -3,7 +3,7 @@
     "security": "Segurança e Permissões",
     "permissions.toml": {
       "label": "Arquivo de Regras de Permissão",
-      "help": ""
+      "help": "Suporta campos tool + command/path opcionais. Regras correspondentes forçam aprovação no modo não-YOLO; no modo never, correspondências são diretamente rejeitadas (pois nenhum popup pode ser exibido)."
     }
   }
 }
