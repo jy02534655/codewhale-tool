@@ -20,15 +20,14 @@
 
         <div class="settings-masonry">
 
-        <BasicSettingsCard v-model:formData="formData" @save="onSave" />
-        <TuiInterfaceCard v-model:formData="formData" />
-        <TuiTerminalCard v-model:formData="formData" />
-        <SecurityCard v-model:formData="formData" />
-        <SubagentsCard v-model:formData="formData" />
-        <RetryCard v-model:formData="formData" />
-        <NotificationsCard v-model:formData="formData" />
-        <FeaturesCard v-model:formData="formData" />
-        <SearchCard v-model:formData="formData" />
+        <SettingsGroupCard
+          v-for="group in editableGroups"
+          :key="group.titleKey"
+          v-model:formData="formData"
+          :title-key="group.titleKey"
+          :items="group.items"
+          @save="onSave"
+        />
         <SettingsGroupCard
           v-for="group in readonlyGroups"
           :key="group.titleKey"
@@ -53,17 +52,9 @@ import { ElMessage, ElMessageBox } from 'element-plus';
 import { getSettings, getSettingsDefaults, updateSettings, updateInstructions as updateInstructionsApi } from '@/api/settings';
 import { useMaskingStore } from '@/stores/masking';
 import Instructions from './instructions.vue';
-import BasicSettingsCard from './cards/BasicSettingsCard.vue';
-import TuiInterfaceCard from './cards/TuiInterfaceCard.vue';
-import TuiTerminalCard from './cards/TuiTerminalCard.vue';
-import SecurityCard from './cards/SecurityCard.vue';
-import SubagentsCard from './cards/SubagentsCard.vue';
-import RetryCard from './cards/RetryCard.vue';
-import NotificationsCard from './cards/NotificationsCard.vue';
-import FeaturesCard from './cards/FeaturesCard.vue';
-import SearchCard from './cards/SearchCard.vue';
 import SettingsGroupCard from './cards/SettingsGroupCard.vue';
 import { readonlyGroups } from './cards/readonlyGroups.js';
+import { editableGroups } from './cards/editableGroups.js';
 
 const { t } = useI18n({ useScope: 'global' });
 const maskingStore = useMaskingStore();
