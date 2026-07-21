@@ -11,42 +11,42 @@
       </div>
     </template>
     <div class="settings-grid">
-      <el-form-item :label="$t('settings.subagents_max_concurrent')" prop="subagents_max_concurrent">
+      <el-form-item :label="$t('settings.subagents_max_concurrent.label')" prop="subagents_max_concurrent">
         <template #label>
 
-                  <FormItemLabel labelKey="settings.subagents_max_concurrent" helpKey="settings.help.subagents_max_concurrent" />
+                  <FormItemLabel labelKey="settings.subagents_max_concurrent.label" helpKey="settings.subagents_max_concurrent.help" />
 
                 </template>
         <el-input-number v-model="formData.subagents_max_concurrent" :min="1" :max="20" />
       </el-form-item>
-      <el-form-item :label="$t('settings.subagents_token_budget')" prop="subagents_token_budget">
+      <el-form-item :label="$t('settings.subagents_token_budget.label')" prop="subagents_token_budget">
         <template #label>
 
-                  <FormItemLabel labelKey="settings.subagents_token_budget" helpKey="settings.help.subagents_token_budget" />
+                  <FormItemLabel labelKey="settings.subagents_token_budget.label" helpKey="settings.subagents_token_budget.help" />
 
                 </template>
         <el-input-number v-model="formData.subagents_token_budget" :min="0" />
       </el-form-item>
-      <el-form-item :label="$t('settings.subagents_api_timeout_secs')" prop="subagents_api_timeout_secs">
+      <el-form-item :label="$t('settings.subagents_api_timeout_secs.label')" prop="subagents_api_timeout_secs">
         <template #label>
 
-                  <FormItemLabel labelKey="settings.subagents_api_timeout_secs" helpKey="settings.help.subagents_api_timeout_secs" />
+                  <FormItemLabel labelKey="settings.subagents_api_timeout_secs.label" helpKey="settings.subagents_api_timeout_secs.help" />
 
                 </template>
         <el-input-number v-model="formData.subagents_api_timeout_secs" :min="1" :max="1800" />
       </el-form-item>
-      <el-form-item :label="$t('settings.subagents_heartbeat_timeout_secs')" prop="subagents_heartbeat_timeout_secs">
+      <el-form-item :label="$t('settings.subagents_heartbeat_timeout_secs.label')" prop="subagents_heartbeat_timeout_secs">
         <template #label>
 
-                  <FormItemLabel labelKey="settings.subagents_heartbeat_timeout_secs" helpKey="settings.help.subagents_heartbeat_timeout_secs" />
+                  <FormItemLabel labelKey="settings.subagents_heartbeat_timeout_secs.label" helpKey="settings.subagents_heartbeat_timeout_secs.help" />
 
                 </template>
         <el-input-number v-model="formData.subagents_heartbeat_timeout_secs" :min="30" :max="3600" />
       </el-form-item>
-      <el-form-item :label="$t('settings.subagents_default_model')" prop="subagents_default_model">
+      <el-form-item :label="$t('settings.subagents_default_model.label')" prop="subagents_default_model">
         <template #label>
 
-                  <FormItemLabel labelKey="settings.subagents_default_model" helpKey="settings.help.subagents_default_model" />
+                  <FormItemLabel labelKey="settings.subagents_default_model.label" helpKey="settings.subagents_default_model.help" />
 
                 </template>
         <el-input v-model="formData.subagents_default_model" placeholder="deepseek-v4-pro" />
@@ -56,12 +56,7 @@
 </template>
 
 <script setup>
-import { QuestionFilled } from '@element-plus/icons-vue';
 import FormItemLabel from '@/components/label/index.vue';
-import { computed } from 'vue';
-import { useI18n } from 'vue-i18n';
-
-const { locale } = useI18n({ useScope: 'global' });
 
 const formData = defineModel('formData');
 

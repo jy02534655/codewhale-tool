@@ -20,8 +20,7 @@
 import { readFileSync, writeFileSync, copyFileSync, existsSync, mkdirSync } from 'node:fs';
 import { homedir } from 'node:os';
 import { join, dirname } from 'node:path';
-import { ok, okMsg } from './result.js';
-import { setLocale } from './i18n.js';
+
 
 /**
  * @typedef {import('../types.js').ProviderEntry} ProviderEntry

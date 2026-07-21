@@ -14,11 +14,12 @@
       </div>
     </template>
 
-    <div v-if="localInstructions.length === 0" class="instructions-empty">
-      {{ $t('settings.instructions_empty') }}
-    </div>
-    <div v-else class="instruction-list">
-      <div v-for="(inst, index) in localInstructions" :key="index" class="instruction-item">
+    <div :class="localInstructions.length === 0 ? 'instructions-empty' : 'instruction-list'">
+      <template v-if="localInstructions.length === 0">
+        {{ $t('settings.instructions_empty') }}
+      </template>
+      <template v-else>
+        <div v-for="(inst, index) in localInstructions" :key="index" class="instruction-item">
         <div class="instruction-main">
           <div class="instruction-info">
             <span class="instruction-path">{{ inst.path }}</span>
@@ -43,6 +44,7 @@
         </div>
         <div v-if="inst.content" class="instruction-content">{{ inst.content }}</div>
       </div>
+      </template>
     </div>
 
     <InstructionDialog ref="instructionDialog" @submitSuccess="onInstructionSubmit" />
@@ -51,11 +53,8 @@
 
 <script setup>
 import { ref, watch } from 'vue';
-import { useI18n } from 'vue-i18n';
-import { useMaskingStore } from '@/stores/masking';
 import { compositionDialogContainer } from '@/composition/dialog/Container';
 import InstructionDialog from './edit/instruction.vue';
-import { updateInstructions as updateInstructionsApi } from '@/api/settings';
 
 const props = defineProps({
   instructions: {
@@ -66,8 +65,6 @@ const props = defineProps({
 
 const emit = defineEmits(['update:instructions', 'save']);
 
-const { t } = useI18n({ useScope: 'global' });
-const maskingStore = useMaskingStore();
 const dialogCtrl = compositionDialogContainer();
 
 const editingInstructionIndex = ref(-1);

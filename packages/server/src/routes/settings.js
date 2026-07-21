@@ -370,10 +370,9 @@ function writeSettingsToCodeWhale(data) {
 }
 
 /**
- * @param {import('@codewhale/core').ConfigEngine} engine
  * @returns {import('express').Router}
  */
-export function createSettingsRouter(engine) {
+export function createSettingsRouter() {
   const router = Router();
 
   /**

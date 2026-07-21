@@ -29,7 +29,7 @@ import { createSkillRouter } from './src/routes/skill/index.js';
 import { createSyncRouter } from './src/routes/sync.js';
 import { createProjectRouter } from './src/routes/project.js';
 import { createFileRouter } from './src/routes/file.js';
-import { createSettingsRouter, readSettingsFromCodeWhale } from './src/routes/settings.js';
+import { createSettingsRouter } from './src/routes/settings.js';
 
 /**
  * 全局禁用 API 缓存中间件

@@ -1,6 +1,6 @@
 <!-- SettingsSelect.vue — 通用设置：下拉选择（el-select + optionKey） -->
 <template>
-  <el-select :model-value="modelValue" @update:modelValue="$emit('update:modelValue', $event)" placeholder=" ">
+  <el-select :model-value="modelValue" placeholder=" " @update:modelValue="$emit('update:modelValue', $event)">
     <el-option
       v-for="opt in resolvedOptions"
       :key="opt.value"
@@ -17,7 +17,7 @@
 
   // modelValue: 当前选中值
   // optionKey: SETTINGS_OPTIONS 中的键，用于获取当前语言的选项列表
-  defineProps({
+  const props = defineProps({
     modelValue: {
       type: [String, Number],
       default: ''
@@ -28,7 +28,7 @@
     }
   });
 
-  const emit = defineEmits(['update:modelValue']);
+  const emit = defineEmits(['update:modelValue']); // eslint-disable-line no-unused-vars
 
   const { locale } = useI18n({ useScope: 'global' });
 

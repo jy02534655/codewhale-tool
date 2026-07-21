@@ -15,7 +15,7 @@
           <FormItemLabel :label-key="`${item.label}.label`" :help-key="helpKey(item)" />
         </template>
         <!-- 动态组件：item.tag 指定组件，v-model 直接绑定 formData 字段 -->
-        <component :is="item.tag" v-model="formData[item.key]" v-bind="extraProps(item)" />
+        <component :is="resolveComponent(item.tag)" v-model="formData[item.key]" v-bind="extraProps(item)" />
       </el-form-item>
     </div>
   </el-card>
@@ -26,6 +26,11 @@
   import { useI18n } from 'vue-i18n';
   import FormItemLabel from '@/components/label/index.vue';
   import SettingsSelect from '@/components/form/select/index.vue';
+
+  // 动态组件名到实际组件的映射，确保本地组件也能通过字符串 tag 正确渲染
+  const componentMap = {
+    SettingsSelect
+  };
 
   const formData = defineModel('formData');
 
@@ -50,13 +55,23 @@
     return translated;
   });
 
+  // 将字符串 tag 解析为实际组件；未知组件保持原字符串，依赖全局注册
+  function resolveComponent(tag) {
+    return componentMap[tag] || tag;
+  }
+
   // 过滤掉非组件配置项（key / label / tag / value 等元数据），只传递组件真正需要的 props
   function extraProps(item) {
     const { key, label, tag, value, ...rest } = item;
+    void key;
+    void label;
+    void tag;
+    void value;
     return rest;
   }
 
   function helpKey(item) {
+    console.log('helpKey', `${item.label}.help`)
     return `${item.label}.help`;
   }
 </script>

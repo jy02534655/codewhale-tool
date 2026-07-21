@@ -47,14 +47,11 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, onMounted } from 'vue';
+import { ref, reactive, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { Edit, Delete, Top, Bottom } from '@element-plus/icons-vue';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import { getSettings, getSettingsDefaults, updateSettings, updateInstructions as updateInstructionsApi } from '@/api/settings';
 import { useMaskingStore } from '@/stores/masking';
-import { compositionDialogContainer } from '@/composition/dialog/Container';
-import InstructionDialog from './edit/instruction.vue';
 import Instructions from './instructions.vue';
 import BasicSettingsCard from './cards/BasicSettingsCard.vue';
 import TuiInterfaceCard from './cards/TuiInterfaceCard.vue';
@@ -68,9 +65,8 @@ import SearchCard from './cards/SearchCard.vue';
 import SettingsGroupCard from './cards/SettingsGroupCard.vue';
 import { readonlyGroups } from './cards/readonlyGroups.js';
 
-const { t, locale } = useI18n({ useScope: 'global' });
+const { t } = useI18n({ useScope: 'global' });
 const maskingStore = useMaskingStore();
-const dialogCtrl = compositionDialogContainer();
 
 // ========== 表单引用 ==========
 const settingsFormRef = ref(null);

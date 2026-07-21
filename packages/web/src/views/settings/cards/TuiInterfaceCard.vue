@@ -158,11 +158,10 @@
 </template>
 
 <script setup>
-  import { QuestionFilled } from '@element-plus/icons-vue';
 import FormItemLabel from '@/components/label/index.vue';
-  import { computed } from 'vue';
-  import { useI18n } from 'vue-i18n';
-  import { getSettingsOptions } from '@/utils/i18n/settings';
+import { computed } from 'vue';
+import { useI18n } from 'vue-i18n';
+import { getSettingsOptions } from '@/utils/i18n/settings';
   
   const formData = defineModel('formData');
 

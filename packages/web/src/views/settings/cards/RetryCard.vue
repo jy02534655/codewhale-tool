@@ -56,12 +56,7 @@
 </template>
 
 <script setup>
-  import { QuestionFilled } from '@element-plus/icons-vue';
 import FormItemLabel from '@/components/label/index.vue';
-  import { computed } from 'vue';
-  import { useI18n } from 'vue-i18n';
-  
-  const { locale } = useI18n({ useScope: 'global' });
 
   const formData = defineModel('formData');
 
