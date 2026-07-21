@@ -1,0 +1,33 @@
+{
+  "settings": {
+    "features_title": "Features",
+    "features_shell_tool": {
+      "label": "Shell Tool",
+      "help": "Enable the exec_shell tool to allow executing shell commands."
+    },
+    "features_subagents": {
+      "label": "Subagents",
+      "help": "Enable subagent delegation and fan-out."
+    },
+    "features_web_search": {
+      "label": "Web Search",
+      "help": "Enable web_search and compatible alias web.run, defaults to DuckDuckGo."
+    },
+    "features_apply_patch": {
+      "label": "Apply Patch",
+      "help": "Enable the apply_patch tool, supporting unified diff format batch modifications."
+    },
+    "features_mcp": {
+      "label": "MCP",
+      "help": "Enable Model Context Protocol support, allowing connections to external MCP servers to extend the toolset."
+    },
+    "features_exec_policy": {
+      "label": "Exec Policy",
+      "help": "Enable the execution policy engine to perform permission checks and approval on tool calls."
+    },
+    "features_vision_model": {
+      "label": "Vision Model",
+      "help": "When enabled, an independent image analysis model can be configured via [vision_model]; requires manual activation."
+    }
+  }
+}

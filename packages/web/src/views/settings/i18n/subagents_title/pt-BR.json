@@ -1,0 +1,25 @@
+{
+  "settings": {
+    "subagents_title": "Subagentes",
+    "subagents_max_concurrent": {
+      "label": "Máx. Subagentes",
+      "help": "Número máximo de subagentes ativos simultaneamente, padrão 20, limite 1~20."
+    },
+    "subagents_token_budget": {
+      "label": "Orçamento de Tokens",
+      "help": "Orçamento de tokens de contexto por passo do subagente. Padrão 200000."
+    },
+    "subagents_api_timeout_secs": {
+      "label": "Timeout de API",
+      "help": "Timeout para uma única chamada de modelo pelo subagente, padrão 120s, intervalo 1~1800."
+    },
+    "subagents_heartbeat_timeout_secs": {
+      "label": "Timeout de Heartbeat",
+      "help": "Quanto tempo sem resposta até o subagente ser considerado zumbi e limpo, padrão 300s, intervalo 30~3600, deve ser maior que api_timeout_secs."
+    },
+    "subagents_default_model": {
+      "label": "Modelo Padrão",
+      "help": "Modelo fallback quando nenhum papel é especificado."
+    }
+  }
+}

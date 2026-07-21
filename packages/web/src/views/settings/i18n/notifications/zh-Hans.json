@@ -1,0 +1,13 @@
+{
+  "settings": {
+    "notifications": "通知",
+    "notifications.include_summary": {
+      "label": "包含摘要",
+      "help": ""
+    },
+    "notifications.sound_file": {
+      "label": "声音文件",
+      "help": ""
+    }
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "settings": {
+    "reasoning": "Raciocínio",
+    "reasoning_effort": {
+      "label": "Esforço de Raciocínio",
+      "help": ""
+    }
+  }
+}

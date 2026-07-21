@@ -1,0 +1,13 @@
+{
+  "settings": {
+    "search_title": "Busca",
+    "search_provider": {
+      "label": "Provedor de Busca",
+      "help": "Backend de busca. DuckDuckGo não requer API Key; outras opções requerem a API Key ou configuração correspondente."
+    },
+    "search_base_url": {
+      "label": "Endpoint de Busca",
+      "help": "Endpoint de busca personalizado compatível com DuckDuckGo; obrigatório para SearXNG."
+    }
+  }
+}

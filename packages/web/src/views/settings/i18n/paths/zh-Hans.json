@@ -1,0 +1,45 @@
+{
+  "settings": {
+    "paths": "路径",
+    "skills.scan_codewhale_only": {
+      "label": "仅扫描 CodeWhale 技能",
+      "help": ""
+    },
+    "memory.enabled": {
+      "label": "启用记忆",
+      "help": ""
+    },
+    "snapshots.enabled": {
+      "label": "启用快照",
+      "help": ""
+    },
+    "verifier.enabled": {
+      "label": "启用验证器",
+      "help": ""
+    },
+    "snapshots.max_age_days": {
+      "label": "快照保留天数",
+      "help": ""
+    },
+    "verifier.verdict_policy": {
+      "label": "验证器裁决策略",
+      "help": ""
+    },
+    "skills_dir": {
+      "label": "技能目录",
+      "help": ""
+    },
+    "mcp_config_path": {
+      "label": "MCP 配置文件路径",
+      "help": ""
+    },
+    "notes_path": {
+      "label": "笔记文件路径",
+      "help": ""
+    },
+    "memory_path": {
+      "label": "记忆文件路径",
+      "help": ""
+    }
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "settings": {
+    "basic_title": "基础设置",
+    "language": {
+      "label": "Web UI 语言",
+      "help": ""
+    },
+    "default_model": {
+      "label": "默认模型",
+      "help": ""
+    },
+    "update_check_for_updates": {
+      "label": "启动时检查更新",
+      "help": "启动时检查更新。后台检查最新稳定版，有新版本且资源完整时显示 toast 提示。"
+    }
+  }
+}

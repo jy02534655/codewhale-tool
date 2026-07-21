@@ -21,15 +21,7 @@
         <div class="settings-masonry">
 
         <SettingsGroupCard
-          v-for="group in editableGroups"
-          :key="group.titleKey"
-          v-model:formData="formData"
-          :title-key="group.titleKey"
-          :items="group.items"
-          @save="onSave"
-        />
-        <SettingsGroupCard
-          v-for="group in readonlyGroups"
+          v-for="group in groups"
           :key="group.titleKey"
           v-model:formData="formData"
           :title-key="group.titleKey"
@@ -53,8 +45,7 @@ import { getSettings, getSettingsDefaults, updateSettings, updateInstructions as
 import { useMaskingStore } from '@/stores/masking';
 import Instructions from './instructions.vue';
 import SettingsGroupCard from './cards/SettingsGroupCard.vue';
-import { readonlyGroups } from './cards/readonlyGroups.js';
-import { editableGroups } from './cards/editableGroups.js';
+import { groups } from './cards/settingsGroups.js';
 
 const { t } = useI18n({ useScope: 'global' });
 const maskingStore = useMaskingStore();

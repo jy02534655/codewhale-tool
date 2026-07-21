@@ -1,0 +1,9 @@
+{
+  "settings": {
+    "security": "セキュリティと権限",
+    "permissions.toml": {
+      "label": "権限ルールファイル",
+      "help": ""
+    }
+  }
+}

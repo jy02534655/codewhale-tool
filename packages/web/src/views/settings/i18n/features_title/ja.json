@@ -1,0 +1,33 @@
+{
+  "settings": {
+    "features_title": "機能スイッチ",
+    "features_shell_tool": {
+      "label": "シェルツール",
+      "help": "exec_shell ツールを有効化し、shell コマンドの実行を許可します。"
+    },
+    "features_subagents": {
+      "label": "サブエージェント",
+      "help": "子代理の委譲とファンアウトを有効化します。"
+    },
+    "features_web_search": {
+      "label": "Web 検索",
+      "help": "web_search と互換エイリアス web.run を有効化。デフォルトは DuckDuckGo。"
+    },
+    "features_apply_patch": {
+      "label": "パッチ適用",
+      "help": "apply_patch ツールを有効化。ユニファイド diff 形式の一括変更をサポート。"
+    },
+    "features_mcp": {
+      "label": "MCP",
+      "help": "Model Context Protocol サポートを有効化。外部 MCP サーバーに接続してツールセットを拡張可能。"
+    },
+    "features_exec_policy": {
+      "label": "実行ポリシー",
+      "help": "実行ポリシーエンジンを有効化。ツール呼び出しの権限チェックと承認を実施。"
+    },
+    "features_vision_model": {
+      "label": "ビジョンモデル",
+      "help": "[vision_model] で独立した画像分析モデルを設定可能。手動での有効化が必要。"
+    }
+  }
+}

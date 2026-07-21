@@ -1,0 +1,37 @@
+{
+  "settings": {
+    "subagents": "子代理",
+    "subagents.max_depth": {
+      "label": "最大深度",
+      "help": ""
+    },
+    "subagents.launch_concurrency": {
+      "label": "启动并发数",
+      "help": ""
+    },
+    "subagents.max_admitted": {
+      "label": "最大入场数",
+      "help": ""
+    },
+    "subagents.worker_model": {
+      "label": "工作模型",
+      "help": ""
+    },
+    "subagents.explorer_model": {
+      "label": "探索模型",
+      "help": ""
+    },
+    "subagents.awaiter_model": {
+      "label": "等待模型",
+      "help": ""
+    },
+    "subagents.review_model": {
+      "label": "审查模型",
+      "help": ""
+    },
+    "subagents.custom_model": {
+      "label": "自定义模型",
+      "help": ""
+    }
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "settings": {
+    "search_title": "検索",
+    "search_provider": {
+      "label": "検索プロバイダー",
+      "help": "検索バックエンド。DuckDuckGo は API Key 不要、その他は対応する API Key または設定が必要。"
+    },
+    "search_base_url": {
+      "label": "検索エンドポイント",
+      "help": "DuckDuckGo 互換のカスタム検索エンドポイント。SearXNG はこの設定が必須。"
+    }
+  }
+}

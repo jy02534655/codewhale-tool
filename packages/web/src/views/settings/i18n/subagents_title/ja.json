@@ -1,0 +1,25 @@
+{
+  "settings": {
+    "subagents_title": "サブエージェント",
+    "subagents_max_concurrent": {
+      "label": "最大同時実行数",
+      "help": "同時にアクティブな状態の子代理の数上限。デフォルト 20、範囲 1~20。"
+    },
+    "subagents_token_budget": {
+      "label": "トークン予算",
+      "help": "子代理1ステップあたりのコンテキストトークン予算。デフォルト 200000。"
+    },
+    "subagents_api_timeout_secs": {
+      "label": "API タイムアウト",
+      "help": "子代理の単一モデル呼び出しのタイムアウト。デフォルト 120s、範囲 1~1800。"
+    },
+    "subagents_heartbeat_timeout_secs": {
+      "label": "ハートビートタイムアウト",
+      "help": "子代理が無応答と判定されゾンビ化してクリーンアップされるまでの時間。デフォルト 300s、範囲 30~3600、api_timeout_secs より大きい必要があります。"
+    },
+    "subagents_default_model": {
+      "label": "デフォルトモデル",
+      "help": "役割が未指定の場合のフォールバックモデル。"
+    }
+  }
+}

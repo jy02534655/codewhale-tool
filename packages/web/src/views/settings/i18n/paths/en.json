@@ -1,0 +1,45 @@
+{
+  "settings": {
+    "paths": "Paths",
+    "skills.scan_codewhale_only": {
+      "label": "Scan CodeWhale Skills Only",
+      "help": ""
+    },
+    "memory.enabled": {
+      "label": "Enable Memory",
+      "help": ""
+    },
+    "snapshots.enabled": {
+      "label": "Enable Snapshots",
+      "help": ""
+    },
+    "verifier.enabled": {
+      "label": "Enable Verifier",
+      "help": ""
+    },
+    "snapshots.max_age_days": {
+      "label": "Snapshot Max Age (Days)",
+      "help": ""
+    },
+    "verifier.verdict_policy": {
+      "label": "Verifier Verdict Policy",
+      "help": ""
+    },
+    "skills_dir": {
+      "label": "Skills Directory",
+      "help": ""
+    },
+    "mcp_config_path": {
+      "label": "MCP Config File Path",
+      "help": ""
+    },
+    "notes_path": {
+      "label": "Notes File Path",
+      "help": ""
+    },
+    "memory_path": {
+      "label": "Memory File Path",
+      "help": ""
+    }
+  }
+}

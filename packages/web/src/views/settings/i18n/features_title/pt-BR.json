@@ -1,0 +1,33 @@
+{
+  "settings": {
+    "features_title": "Recursos",
+    "features_shell_tool": {
+      "label": "Shell",
+      "help": "Habilita a ferramenta exec_shell para permitir a execução de comandos shell."
+    },
+    "features_subagents": {
+      "label": "Subagentes",
+      "help": "Habilita delegação e fan-out de subagentes."
+    },
+    "features_web_search": {
+      "label": "Busca Web",
+      "help": "Habilita web_search e alias compatível web.run, padrão DuckDuckGo."
+    },
+    "features_apply_patch": {
+      "label": "Aplicar Patch",
+      "help": "Habilita a ferramenta apply_patch, suportando modificações em lote no formato unified diff."
+    },
+    "features_mcp": {
+      "label": "MCP",
+      "help": "Habilita suporte ao Model Context Protocol, permitindo conexão com servidores MCP externos para expandir o conjunto de ferramentas."
+    },
+    "features_exec_policy": {
+      "label": "Política de Execução",
+      "help": "Habilita o mecanismo de política de execução para realizar verificações de permissão e aprovação nas chamadas de ferramentas."
+    },
+    "features_vision_model": {
+      "label": "Visão",
+      "help": "Quando ativado, um modelo de análise de imagem independente pode ser configurado via [vision_model]; requer ativação manual."
+    }
+  }
+}

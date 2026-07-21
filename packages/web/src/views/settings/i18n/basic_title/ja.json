@@ -1,0 +1,17 @@
+{
+  "settings": {
+    "basic_title": "基本設定",
+    "language": {
+      "label": "Web UI 言語",
+      "help": ""
+    },
+    "default_model": {
+      "label": "デフォルトモデル",
+      "help": ""
+    },
+    "update_check_for_updates": {
+      "label": "更新を確認",
+      "help": "起動時に更新を確認。バックグラウンドで最新安定版を確認し、新バージョンかつリソースが完全な場合に toast を表示します。"
+    }
+  }
+}

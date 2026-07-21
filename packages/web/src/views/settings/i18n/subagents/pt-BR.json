@@ -1,0 +1,37 @@
+{
+  "settings": {
+    "subagents": "Subagentes",
+    "subagents.max_depth": {
+      "label": "Profundidade Máxima",
+      "help": ""
+    },
+    "subagents.launch_concurrency": {
+      "label": "Concorrência de Inicialização",
+      "help": ""
+    },
+    "subagents.max_admitted": {
+      "label": "Máx. Admitidos",
+      "help": ""
+    },
+    "subagents.worker_model": {
+      "label": "Modelo de Trabalho",
+      "help": ""
+    },
+    "subagents.explorer_model": {
+      "label": "Modelo de Exploração",
+      "help": ""
+    },
+    "subagents.awaiter_model": {
+      "label": "Modelo de Espera",
+      "help": ""
+    },
+    "subagents.review_model": {
+      "label": "Modelo de Revisão",
+      "help": ""
+    },
+    "subagents.custom_model": {
+      "label": "Modelo Personalizado",
+      "help": ""
+    }
+  }
+}

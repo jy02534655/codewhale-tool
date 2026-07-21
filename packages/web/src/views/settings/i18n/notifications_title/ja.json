@@ -1,0 +1,17 @@
+{
+  "settings": {
+    "notifications_title": "通知",
+    "notifications_method": {
+      "label": "通知方法",
+      "help": "完了通知方法。auto はターミナルに応じて自動選択、osc9 は OSC 9 送信、bel はターミナルベル送信、off は通知無効。"
+    },
+    "notifications_threshold_secs": {
+      "label": "通知しきい値",
+      "help": "成功完了かつ所要時間 ≥ この値の場合のみ通知をトリガー。デフォルト 30s。失敗/キャンセルは常にサイレント。"
+    },
+    "notifications_completion_sound": {
+      "label": "完了音",
+      "help": "完了音。beep はシステムデフォルトビープ、off は無効、bell はターミナルベル、file はカスタム WAV 再生。"
+    }
+  }
+}

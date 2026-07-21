@@ -1,0 +1,17 @@
+{
+  "settings": {
+    "security_title": "セキュリティと承認",
+    "approval_policy": {
+      "label": "承認ポリシー",
+      "help": "ツール実行前のポップアップ承認戦略。on-request は毎回確認、untrusted は信頼不能操作のみ確認、never はポップアップなし。"
+    },
+    "sandbox_mode": {
+      "label": "サンドボックス",
+      "help": "ファイルシステムアクセスサンドボックス。read-only が最厳格、workspace-write はワークスペース内書き込み許可、danger-full-access は無制限、external-sandbox は外部ツール分離に依存。"
+    },
+    "allow_shell": {
+      "label": "シェル許可",
+      "help": "シェルツールを許可するか。true の場合は使用可能だが approval_policy の制御を受ける。false は exec_shell ツールを完全に隠蔽。"
+    }
+  }
+}

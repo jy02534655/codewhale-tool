@@ -1,0 +1,9 @@
+{
+  "settings": {
+    "security": "Segurança e Permissões",
+    "permissions.toml": {
+      "label": "Arquivo de Regras de Permissão",
+      "help": ""
+    }
+  }
+}

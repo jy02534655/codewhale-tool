@@ -1,0 +1,65 @@
+{
+  "settings": {
+    "capacity": "容量控制",
+    "capacity.enabled": {
+      "label": "启用容量控制器",
+      "help": ""
+    },
+    "capacity.low_risk_max": {
+      "label": "低风险上限比例",
+      "help": ""
+    },
+    "capacity.medium_risk_max": {
+      "label": "中风险上限比例",
+      "help": ""
+    },
+    "capacity.severe_min_slack": {
+      "label": "严重风险最小余量",
+      "help": ""
+    },
+    "capacity.severe_violation_ratio": {
+      "label": "严重违规比例",
+      "help": ""
+    },
+    "capacity.refresh_cooldown_turns": {
+      "label": "刷新冷却轮数",
+      "help": ""
+    },
+    "capacity.replan_cooldown_turns": {
+      "label": "重规划冷却轮数",
+      "help": ""
+    },
+    "capacity.max_replay_per_turn": {
+      "label": "每轮最大重放",
+      "help": ""
+    },
+    "capacity.min_turns_before_guardrail": {
+      "label": "护栏前最小轮数",
+      "help": ""
+    },
+    "capacity.profile_window": {
+      "label": "分析窗口",
+      "help": ""
+    },
+    "capacity.deepseek_v3_2_chat_prior": {
+      "label": "V3.2 Chat 优先级",
+      "help": ""
+    },
+    "capacity.deepseek_v3_2_reasoner_prior": {
+      "label": "V3.2 Reasoner 优先级",
+      "help": ""
+    },
+    "capacity.deepseek_v4_pro_prior": {
+      "label": "V4 Pro 优先级",
+      "help": ""
+    },
+    "capacity.deepseek_v4_flash_prior": {
+      "label": "V4 Flash 优先级",
+      "help": ""
+    },
+    "capacity.fallback_default_prior": {
+      "label": "回退默认优先级",
+      "help": ""
+    }
+  }
+}

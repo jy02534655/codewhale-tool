@@ -1,0 +1,65 @@
+{
+  "settings": {
+    "capacity": "Controle de Capacidade",
+    "capacity.enabled": {
+      "label": "Habilitar Controlador de Capacidade",
+      "help": ""
+    },
+    "capacity.low_risk_max": {
+      "label": "Proporção Máxima de Baixo Risco",
+      "help": ""
+    },
+    "capacity.medium_risk_max": {
+      "label": "Proporção Máxima de Médio Risco",
+      "help": ""
+    },
+    "capacity.severe_min_slack": {
+      "label": "Slack Mínimo de Risco Severo",
+      "help": ""
+    },
+    "capacity.severe_violation_ratio": {
+      "label": "Proporção de Violação Severa",
+      "help": ""
+    },
+    "capacity.refresh_cooldown_turns": {
+      "label": "Turnos de Resfriamento de Refresh",
+      "help": ""
+    },
+    "capacity.replan_cooldown_turns": {
+      "label": "Turnos de Resfriamento de Replanejamento",
+      "help": ""
+    },
+    "capacity.max_replay_per_turn": {
+      "label": "Máx. Replay por Turno",
+      "help": ""
+    },
+    "capacity.min_turns_before_guardrail": {
+      "label": "Mín. Turnos Antes do Guardrail",
+      "help": ""
+    },
+    "capacity.profile_window": {
+      "label": "Janela de Perfil",
+      "help": ""
+    },
+    "capacity.deepseek_v3_2_chat_prior": {
+      "label": "Prioridade V3.2 Chat",
+      "help": ""
+    },
+    "capacity.deepseek_v3_2_reasoner_prior": {
+      "label": "Prioridade V3.2 Reasoner",
+      "help": ""
+    },
+    "capacity.deepseek_v4_pro_prior": {
+      "label": "Prioridade V4 Pro",
+      "help": ""
+    },
+    "capacity.deepseek_v4_flash_prior": {
+      "label": "Prioridade V4 Flash",
+      "help": ""
+    },
+    "capacity.fallback_default_prior": {
+      "label": "Prioridade Padrão de Fallback",
+      "help": ""
+    }
+  }
+}

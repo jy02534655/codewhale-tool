@@ -1,0 +1,37 @@
+{
+  "settings": {
+    "subagents": "サブエージェント",
+    "subagents.max_depth": {
+      "label": "最大深度",
+      "help": ""
+    },
+    "subagents.launch_concurrency": {
+      "label": "起動並行数",
+      "help": ""
+    },
+    "subagents.max_admitted": {
+      "label": "最大入場数",
+      "help": ""
+    },
+    "subagents.worker_model": {
+      "label": "作業モデル",
+      "help": ""
+    },
+    "subagents.explorer_model": {
+      "label": "探索モデル",
+      "help": ""
+    },
+    "subagents.awaiter_model": {
+      "label": "待機モデル",
+      "help": ""
+    },
+    "subagents.review_model": {
+      "label": "レビューモデル",
+      "help": ""
+    },
+    "subagents.custom_model": {
+      "label": "カスタムモデル",
+      "help": ""
+    }
+  }
+}

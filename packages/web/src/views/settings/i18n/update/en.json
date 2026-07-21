@@ -1,0 +1,9 @@
+{
+  "settings": {
+    "update": "Updates",
+    "update.update_uri": {
+      "label": "Custom Update Mirror",
+      "help": ""
+    }
+  }
+}

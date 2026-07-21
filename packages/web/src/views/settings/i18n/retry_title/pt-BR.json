@@ -1,0 +1,25 @@
+{
+  "settings": {
+    "retry_title": "Tentativas",
+    "retry_enabled": {
+      "label": "Habilitar Retry",
+      "help": "Se deve tentar novamente automaticamente em caso de falha na solicitação da API."
+    },
+    "retry_max_retries": {
+      "label": "Máx. Tentativas",
+      "help": "Máximo de tentativas para uma única solicitação antes de reportar erro, padrão 3."
+    },
+    "retry_initial_delay": {
+      "label": "Atraso Inicial",
+      "help": "Tempo de espera antes da primeira tentativa (segundos), padrão 1.0."
+    },
+    "retry_max_delay": {
+      "label": "Atraso Máximo",
+      "help": "Limite superior para atraso de recuo (segundos), evitando crescimento ilimitado, padrão 60.0."
+    },
+    "retry_exponential_base": {
+      "label": "Base Exponencial",
+      "help": "Multiplicar cada atraso de tentativa por esta base, padrão 2.0 (1s → 2s → 4s → 8s...)."
+    }
+  }
+}

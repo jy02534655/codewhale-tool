@@ -1,0 +1,33 @@
+{
+  "settings": {
+    "context": "コンテキスト管理",
+    "context.enabled": {
+      "label": "Fin 高速パス管理を有効化",
+      "help": ""
+    },
+    "CODEWHALE_CACHE_MAXIMAL": {
+      "label": "キャッシュ最大化モード",
+      "help": ""
+    },
+    "context.verbatim_window_turns": {
+      "label": "完全保持ターン数",
+      "help": ""
+    },
+    "context.l1_threshold": {
+      "label": "L1 コンテキスト圧力閾値",
+      "help": ""
+    },
+    "context.l2_threshold": {
+      "label": "L2 コンテキスト圧力閾値",
+      "help": ""
+    },
+    "context.l3_threshold": {
+      "label": "L3 コンテキスト圧力閾値",
+      "help": ""
+    },
+    "context.seam_model": {
+      "label": "シームモデル",
+      "help": ""
+    }
+  }
+}

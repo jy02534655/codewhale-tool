@@ -1,0 +1,9 @@
+{
+  "settings": {
+    "update": "更新",
+    "update.update_uri": {
+      "label": "自定义更新镜像",
+      "help": ""
+    }
+  }
+}

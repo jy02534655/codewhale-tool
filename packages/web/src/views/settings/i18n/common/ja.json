@@ -1,0 +1,28 @@
+{
+  "settings": {
+    "title": "汎用設定",
+    "default_model_placeholder": "例: deepseek-v4-pro",
+    "instructions_title": "Instructions",
+    "instructions_add": "指示を追加",
+    "add_instruction_dialog_title": "指示を追加",
+    "edit_instruction_dialog_title": "指示を編集",
+    "instructions_empty": "指示がありません。追加してください。",
+    "instruction_path": "指示パス",
+    "instruction_path_placeholder": "指示ファイルパス、例: ./AGENTS.md",
+    "instruction_content_placeholder": "指示内容、空欄の場合はパスのみ保存",
+    "instruction_read_file": "ファイル内容を読み込む",
+    "instruction_readonly": "グローバル設定（読み取り専用）",
+    "loading": "読み込み中...",
+    "update_title": "更新確認",
+    "placeholder_search_base_url": "https://...",
+    "placeholder_background_color": "#RRGGBB or default",
+    "placeholder_default_model_override": "deepseek-v4-pro",
+    "actions_save": "保存",
+    "actions_cancel": "キャンセル",
+    "actions_restore_defaults": "デフォルトに戻す",
+    "reset_confirm_title": "デフォルトに戻す",
+    "reset_confirm_message": "すべての設定をデフォルトに戻しますか？保存されていない変更は失われます。",
+    "reset_success": "デフォルトに戻しました。保存してください",
+    "save_success": "保存しました"
+  }
+}

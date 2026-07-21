@@ -12,7 +12,7 @@
     <div class="settings-grid">
       <el-form-item v-for="item in items" :key="item.key" :prop="item.key">
         <template #label>
-          <FormItemLabel :label-key="resolveLabelKey(item)" :help-key="resolveHelpKey(item)" />
+          <FormItemLabel :label-key="item.labelKey" :help-key="item.helpKey" />
         </template>
         <!-- 动态组件：item.tag 指定组件，v-model 直接绑定 formData 字段 -->
         <component :is="resolveComponent(item.tag)" v-model="formData[item.key]" v-bind="extraProps(item)" />
@@ -33,7 +33,6 @@
   };
 
   const formData = defineModel('formData');
-  const emit = defineEmits(['save']);
 
   const props = defineProps({
     titleKey: {
@@ -79,43 +78,8 @@
       rest.disabled = item.disabled;
     }
 
-    // 自动保存：值变更时触发父级 save
-    if (item.autoSave) {
-      if (item.tag === 'el-select') {
-        rest.onChange = () => {
-          emit('save');
-        };
-      } else if (item.tag === 'el-input') {
-        rest.onBlur = () => {
-          emit('save');
-        };
-      } else if (item.tag === 'el-input-number') {
-        rest.onChange = () => {
-          emit('save');
-        };
-      }
-    }
-
     return rest;
   }
 
-  // 智能解析 label key：优先使用 .label 嵌套格式，找不到则回退到基础路径
-  function resolveLabelKey(item) {
-    const withLabel = `${item.label}.label`;
-    const translated = t(withLabel);
-    if (translated && translated !== withLabel) {
-      return withLabel;
-    }
-    return item.label;
-  }
 
-  // 智能解析 help key：优先使用 .help 嵌套格式，找不到则回退
-  function resolveHelpKey(item) {
-    const withHelp = `${item.label}.help`;
-    const translated = t(withHelp);
-    if (translated && translated !== withHelp) {
-      return withHelp;
-    }
-    return withHelp;
-  }
 </script>

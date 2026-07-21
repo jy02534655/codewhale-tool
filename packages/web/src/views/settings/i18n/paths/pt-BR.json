@@ -1,0 +1,45 @@
+{
+  "settings": {
+    "paths": "Caminhos",
+    "skills.scan_codewhale_only": {
+      "label": "Scanear Apenas Skills do CodeWhale",
+      "help": ""
+    },
+    "memory.enabled": {
+      "label": "Habilitar Memória",
+      "help": ""
+    },
+    "snapshots.enabled": {
+      "label": "Habilitar Snapshots",
+      "help": ""
+    },
+    "verifier.enabled": {
+      "label": "Habilitar Verificador",
+      "help": ""
+    },
+    "snapshots.max_age_days": {
+      "label": "Dias de Retenção de Snapshot",
+      "help": ""
+    },
+    "verifier.verdict_policy": {
+      "label": "Política de Veredito do Verificador",
+      "help": ""
+    },
+    "skills_dir": {
+      "label": "Diretório de Skills",
+      "help": ""
+    },
+    "mcp_config_path": {
+      "label": "Caminho do Arquivo de Config MCP",
+      "help": ""
+    },
+    "notes_path": {
+      "label": "Caminho do Arquivo de Notas",
+      "help": ""
+    },
+    "memory_path": {
+      "label": "Caminho do Arquivo de Memória",
+      "help": ""
+    }
+  }
+}

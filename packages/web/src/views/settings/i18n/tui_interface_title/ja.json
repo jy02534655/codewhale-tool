@@ -1,0 +1,69 @@
+{
+  "settings": {
+    "tui_interface_title": "TUI インターフェース",
+    "theme": {
+      "label": "テーマ",
+      "help": "インターフェーステーマ。システム追従、ライト、ダークなどのモードを選択可能。"
+    },
+    "default_mode": {
+      "label": "デフォルトモード",
+      "help": "デフォルトモード。agent は通常の会話、plan は計画モード、yolo は直出しモード。"
+    },
+    "sidebar_focus": {
+      "label": "サイドバーフォーカス",
+      "help": "サイドバーフォーカスの挙動。pinned は固定、auto は自動表示/非表示、tasks、agents、context、hidden。"
+    },
+    "mention_menu_behavior": {
+      "label": "メンション動作",
+      "help": "@ メンション時のメニュー挙動。fuzzy はファジー検索、browser は現在のディレクトリのサブディレクトリを一覧表示。"
+    },
+    "cost_currency": {
+      "label": "通貨",
+      "help": "コスト表示通貨。usd は米ドル、cny/rmb/yuan は人民元に正規化されます。"
+    },
+    "verbosity": {
+      "label": "詳細レベル",
+      "help": "出力詳細度。normal は標準会話スタイル、concise は簡潔低冗長出力。"
+    },
+    "show_thinking": {
+      "label": "思考を表示",
+      "help": "会話履歴にモデルの reasoning/thinking 内容を表示するかどうか。"
+    },
+    "show_tool_details": {
+      "label": "ツール詳細を表示",
+      "help": "各ツール呼び出しの詳細パラメータと結果を展開表示するかどうか。"
+    },
+    "auto_compact": {
+      "label": "自動コンパクト",
+      "help": "モデル感知でデフォルト有効。コンテキストがモデルウィンドウ上限に近づくと自動的に要約を生成し旧内容を置換します。"
+    },
+    "paste_burst_detection": {
+      "label": "貼り付けバースト検出",
+      "help": "デフォルト有効。bracketed-paste 非対応ターミナルの一括貼り付けを検出し、文字ごとの補完トリガーを防止します。"
+    },
+    "auto_compact_threshold_percent": {
+      "label": "自動コンパクト閾値",
+      "help": "デフォルト 80。アクティブリクエスト入力推定がモデルコンテキストウィンドウのこの割合に達すると自動圧縮をトリガーします。"
+    },
+    "mention_menu_limit": {
+      "label": "メンション候補数",
+      "help": "@ ポップアップに保持する候補ファイルの最大数、超過分は切り捨て、デフォルト 128。"
+    },
+    "mention_walk_depth": {
+      "label": "メンション探索深度",
+      "help": "@ 補完がワークスペースを辿る最大ディレクトリ深度。0 は無限深度、デフォルト 6。"
+    },
+    "max_history": {
+      "label": "履歴最大数",
+      "help": "保持する送信済み入力履歴の数。クリアされた下書きも履歴検索用に保持、デフォルト 1000。"
+    },
+    "background_color": {
+      "label": "背景色",
+      "help": "TUI ルート、ヘッダー、会話履歴、フッターの背景色をカスタマイズ。default はテーマデフォルトを使用。"
+    },
+    "default_model_override": {
+      "label": "デフォルトモデル",
+      "help": "現在のプロバイダーのデフォルトモデル選択を上書き。未だ設定不可、今後サポート予定。"
+    }
+  }
+}

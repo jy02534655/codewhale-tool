@@ -1,0 +1,17 @@
+{
+  "settings": {
+    "notifications_title": "Notifications",
+    "notifications_method": {
+      "label": "Notification Method",
+      "help": "Completion notification method. auto selects automatically by terminal, osc9 sends OSC 9, bel sends terminal bell, off disables notifications."
+    },
+    "notifications_threshold_secs": {
+      "label": "Threshold",
+      "help": "Only triggers notification for successfully completed turns with duration ≥ this value, default 30s. Failed/cancelled turns are always silent."
+    },
+    "notifications_completion_sound": {
+      "label": "Completion Sound",
+      "help": "Completion sound. beep for system default beep, off to disable, bell for terminal bell, file to play custom WAV."
+    }
+  }
+}

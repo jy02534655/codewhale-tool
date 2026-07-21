@@ -1,0 +1,17 @@
+{
+  "settings": {
+    "notifications_title": "通知",
+    "notifications_method": {
+      "label": "通知方式",
+      "help": "完成通知方式。auto 按终端自动选择，osc9 发送 OSC 9，bel 发送终端响铃，off 关闭通知。"
+    },
+    "notifications_threshold_secs": {
+      "label": "触发阈值",
+      "help": "只有成功完成且耗时 ≥ 该值的回合才触发通知，默认 30s。失败/取消的回合始终静默。"
+    },
+    "notifications_completion_sound": {
+      "label": "完成声音",
+      "help": "完成声音。beep 系统默认蜂鸣，off 关闭，bell 终端响铃，file 播放自定义 WAV。"
+    }
+  }
+}

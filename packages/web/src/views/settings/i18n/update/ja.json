@@ -1,0 +1,9 @@
+{
+  "settings": {
+    "update": "更新",
+    "update.update_uri": {
+      "label": "カスタム更新ミラー",
+      "help": ""
+    }
+  }
+}

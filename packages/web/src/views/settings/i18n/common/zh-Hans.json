@@ -1,0 +1,28 @@
+{
+  "settings": {
+    "title": "通用设置",
+    "default_model_placeholder": "如 deepseek-v4-pro",
+    "instructions_title": "Instructions",
+    "instructions_add": "添加指令",
+    "add_instruction_dialog_title": "添加指令",
+    "edit_instruction_dialog_title": "编辑指令",
+    "instructions_empty": "暂无指令配置，点击添加",
+    "instruction_path": "指令路径",
+    "instruction_path_placeholder": "指令文件路径，如 ./AGENTS.md",
+    "instruction_content_placeholder": "指令内容，留空则仅保存路径",
+    "instruction_read_file": "读取文件内容",
+    "instruction_readonly": "全局配置（只读）",
+    "loading": "加载中...",
+    "update_title": "更新检查",
+    "placeholder_search_base_url": "https://...",
+    "placeholder_background_color": "#RRGGBB or default",
+    "placeholder_default_model_override": "deepseek-v4-pro",
+    "actions_save": "保存",
+    "actions_cancel": "取消",
+    "actions_restore_defaults": "恢复默认",
+    "reset_confirm_title": "恢复默认配置",
+    "reset_confirm_message": "确定要将所有设置恢复到默认配置吗？当前未保存的更改将丢失。",
+    "reset_success": "已恢复到默认配置，请记得保存",
+    "save_success": "保存成功"
+  }
+}

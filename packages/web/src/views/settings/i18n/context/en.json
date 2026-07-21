@@ -1,0 +1,33 @@
+{
+  "settings": {
+    "context": "Context Management",
+    "context.enabled": {
+      "label": "Enable Fin Fast Path Management",
+      "help": ""
+    },
+    "CODEWHALE_CACHE_MAXIMAL": {
+      "label": "Cache Maximal Mode",
+      "help": ""
+    },
+    "context.verbatim_window_turns": {
+      "label": "Verbatim Window Turns",
+      "help": ""
+    },
+    "context.l1_threshold": {
+      "label": "L1 Context Pressure Threshold",
+      "help": ""
+    },
+    "context.l2_threshold": {
+      "label": "L2 Context Pressure Threshold",
+      "help": ""
+    },
+    "context.l3_threshold": {
+      "label": "L3 Context Pressure Threshold",
+      "help": ""
+    },
+    "context.seam_model": {
+      "label": "Seam Model",
+      "help": ""
+    }
+  }
+}

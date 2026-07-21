@@ -1,0 +1,33 @@
+{
+  "settings": {
+    "context": "上下文管理",
+    "context.enabled": {
+      "label": "启用 Fin 快速路径管理",
+      "help": ""
+    },
+    "CODEWHALE_CACHE_MAXIMAL": {
+      "label": "缓存最大化模式",
+      "help": ""
+    },
+    "context.verbatim_window_turns": {
+      "label": "完整保留轮数",
+      "help": ""
+    },
+    "context.l1_threshold": {
+      "label": "L1 上下文压力阈值",
+      "help": ""
+    },
+    "context.l2_threshold": {
+      "label": "L2 上下文压力阈值",
+      "help": ""
+    },
+    "context.l3_threshold": {
+      "label": "L3 上下文压力阈值",
+      "help": ""
+    },
+    "context.seam_model": {
+      "label": "接缝模型",
+      "help": ""
+    }
+  }
+}

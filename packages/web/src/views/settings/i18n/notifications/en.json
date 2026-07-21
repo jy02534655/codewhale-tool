@@ -1,0 +1,13 @@
+{
+  "settings": {
+    "notifications": "Notifications",
+    "notifications.include_summary": {
+      "label": "Include Summary",
+      "help": ""
+    },
+    "notifications.sound_file": {
+      "label": "Sound File",
+      "help": ""
+    }
+  }
+}

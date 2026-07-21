@@ -1,0 +1,65 @@
+{
+  "settings": {
+    "capacity": "容量制御",
+    "capacity.enabled": {
+      "label": "容量コントローラを有効化",
+      "help": ""
+    },
+    "capacity.low_risk_max": {
+      "label": "低リスク上限比率",
+      "help": ""
+    },
+    "capacity.medium_risk_max": {
+      "label": "中リスク上限比率",
+      "help": ""
+    },
+    "capacity.severe_min_slack": {
+      "label": "重大リスク最小スラック",
+      "help": ""
+    },
+    "capacity.severe_violation_ratio": {
+      "label": "重大違反比率",
+      "help": ""
+    },
+    "capacity.refresh_cooldown_turns": {
+      "label": "リフレッシュクールダウンターン数",
+      "help": ""
+    },
+    "capacity.replan_cooldown_turns": {
+      "label": "再計画クールダウンターン数",
+      "help": ""
+    },
+    "capacity.max_replay_per_turn": {
+      "label": "ターンあたり最大リプレイ",
+      "help": ""
+    },
+    "capacity.min_turns_before_guardrail": {
+      "label": "ガードレール前最小ターン数",
+      "help": ""
+    },
+    "capacity.profile_window": {
+      "label": "プロファイルウィンドウ",
+      "help": ""
+    },
+    "capacity.deepseek_v3_2_chat_prior": {
+      "label": "V3.2 Chat 優先度",
+      "help": ""
+    },
+    "capacity.deepseek_v3_2_reasoner_prior": {
+      "label": "V3.2 Reasoner 優先度",
+      "help": ""
+    },
+    "capacity.deepseek_v4_pro_prior": {
+      "label": "V4 Pro 優先度",
+      "help": ""
+    },
+    "capacity.deepseek_v4_flash_prior": {
+      "label": "V4 Flash 優先度",
+      "help": ""
+    },
+    "capacity.fallback_default_prior": {
+      "label": "フォールバックデフォルト優先度",
+      "help": ""
+    }
+  }
+}

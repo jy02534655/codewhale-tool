@@ -1,0 +1,17 @@
+{
+  "settings": {
+    "basic_title": "Básico",
+    "language": {
+      "label": "Idioma da Web UI",
+      "help": ""
+    },
+    "default_model": {
+      "label": "Modelo Padrão",
+      "help": ""
+    },
+    "update_check_for_updates": {
+      "label": "Verificar Atualizações",
+      "help": "Verificar atualizações na inicialização. Verifica a versão estável mais recente em segundo plano e exibe um toast quando há uma nova versão com recursos completos."
+    }
+  }
+}

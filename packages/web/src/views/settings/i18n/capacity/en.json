@@ -1,0 +1,65 @@
+{
+  "settings": {
+    "capacity": "Capacity Control",
+    "capacity.enabled": {
+      "label": "Enable Capacity Controller",
+      "help": ""
+    },
+    "capacity.low_risk_max": {
+      "label": "Low Risk Max Ratio",
+      "help": ""
+    },
+    "capacity.medium_risk_max": {
+      "label": "Medium Risk Max Ratio",
+      "help": ""
+    },
+    "capacity.severe_min_slack": {
+      "label": "Severe Min Slack",
+      "help": ""
+    },
+    "capacity.severe_violation_ratio": {
+      "label": "Severe Violation Ratio",
+      "help": ""
+    },
+    "capacity.refresh_cooldown_turns": {
+      "label": "Refresh Cooldown Turns",
+      "help": ""
+    },
+    "capacity.replan_cooldown_turns": {
+      "label": "Replan Cooldown Turns",
+      "help": ""
+    },
+    "capacity.max_replay_per_turn": {
+      "label": "Max Replay Per Turn",
+      "help": ""
+    },
+    "capacity.min_turns_before_guardrail": {
+      "label": "Min Turns Before Guardrail",
+      "help": ""
+    },
+    "capacity.profile_window": {
+      "label": "Profile Window",
+      "help": ""
+    },
+    "capacity.deepseek_v3_2_chat_prior": {
+      "label": "V3.2 Chat Priority",
+      "help": ""
+    },
+    "capacity.deepseek_v3_2_reasoner_prior": {
+      "label": "V3.2 Reasoner Priority",
+      "help": ""
+    },
+    "capacity.deepseek_v4_pro_prior": {
+      "label": "V4 Pro Priority",
+      "help": ""
+    },
+    "capacity.deepseek_v4_flash_prior": {
+      "label": "V4 Flash Priority",
+      "help": ""
+    },
+    "capacity.fallback_default_prior": {
+      "label": "Fallback Default Priority",
+      "help": ""
+    }
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "settings": {
+    "basic_title": "Basic",
+    "language": {
+      "label": "Web UI Language",
+      "help": ""
+    },
+    "default_model": {
+      "label": "Default Model",
+      "help": ""
+    },
+    "update_check_for_updates": {
+      "label": "Check For Updates",
+      "help": "Check for updates on startup. Checks the latest stable version in the background and shows a toast when a new version with complete resources is available."
+    }
+  }
+}

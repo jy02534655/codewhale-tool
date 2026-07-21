@@ -1,0 +1,9 @@
+{
+  "settings": {
+    "reasoning": "推論",
+    "reasoning_effort": {
+      "label": "推論強度",
+      "help": ""
+    }
+  }
+}

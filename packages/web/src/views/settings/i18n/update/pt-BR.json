@@ -1,0 +1,9 @@
+{
+  "settings": {
+    "update": "Atualizações",
+    "update.update_uri": {
+      "label": "Espelho de Atualização Personalizado",
+      "help": ""
+    }
+  }
+}

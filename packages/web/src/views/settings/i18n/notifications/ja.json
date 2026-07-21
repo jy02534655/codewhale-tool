@@ -1,0 +1,13 @@
+{
+  "settings": {
+    "notifications": "通知",
+    "notifications.include_summary": {
+      "label": "概要を含める",
+      "help": ""
+    },
+    "notifications.sound_file": {
+      "label": "サウンドファイル",
+      "help": ""
+    }
+  }
+}

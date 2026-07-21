@@ -1,0 +1,45 @@
+{
+  "settings": {
+    "paths": "パス",
+    "skills.scan_codewhale_only": {
+      "label": "CodeWhale スキルのみスキャン",
+      "help": ""
+    },
+    "memory.enabled": {
+      "label": "メモリを有効化",
+      "help": ""
+    },
+    "snapshots.enabled": {
+      "label": "スナップショットを有効化",
+      "help": ""
+    },
+    "verifier.enabled": {
+      "label": "検証を有効化",
+      "help": ""
+    },
+    "snapshots.max_age_days": {
+      "label": "スナップショット保持日数",
+      "help": ""
+    },
+    "verifier.verdict_policy": {
+      "label": "検証判定ポリシー",
+      "help": ""
+    },
+    "skills_dir": {
+      "label": "スキルディレクトリ",
+      "help": ""
+    },
+    "mcp_config_path": {
+      "label": "MCP 設定ファイルパス",
+      "help": ""
+    },
+    "notes_path": {
+      "label": "メモファイルパス",
+      "help": ""
+    },
+    "memory_path": {
+      "label": "メモリファイルパス",
+      "help": ""
+    }
+  }
+}
