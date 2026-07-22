@@ -1,6 +1,6 @@
 {
   "settings": {
-    "basic_title": "基础设置",
+    "basic_title._title": "基础设置",
     "language": {
       "label": "Web UI 语言",
       "help": "选择 Web 界面的显示语言。"

@@ -45,7 +45,7 @@ import { getSettings, getSettingsDefaults, updateSettings, updateInstructions as
 import { useMaskingStore } from '@/stores/masking';
 import Instructions from './instructions.vue';
 import SettingsGroupCard from './cards/SettingsGroupCard.vue';
-import { groups } from './cards/settingsGroups.js';
+import { groups } from './cards/index.js';
 
 const { t } = useI18n({ useScope: 'global' });
 const maskingStore = useMaskingStore();

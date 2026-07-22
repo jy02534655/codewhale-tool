@@ -1,6 +1,6 @@
 {
   "settings": {
-    "features_title": "機能スイッチ",
+    "features_title._title": "機能スイッチ",
     "features_shell_tool": {
       "label": "シェルツール",
       "help": "シェルツールを有効にし、シェルコマンドの実行を許可します。"

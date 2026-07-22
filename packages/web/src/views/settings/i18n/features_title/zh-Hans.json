@@ -1,6 +1,6 @@
 {
   "settings": {
-    "features_title": "功能开关",
+    "features_title._title": "功能开关",
     "features_shell_tool": {
       "label": "Shell 工具",
       "help": "启用 shell 工具，允许执行 shell 命令"

@@ -1,6 +1,6 @@
 {
   "settings": {
-    "capacity": "Controle de Capacidade",
+    "capacity._title": "Controle de Capacidade",
     "capacity.enabled": {
       "label": "Habilitar Controlador de Capacidade",
       "help": "Recurso experimental. Quando ativado, o controlador intervém ativamente (ex: comprimindo, reescrevendo a transcrição) quando o contexto se aproxima do limite superior do modelo, o que pode alterar o histórico de conversa."

@@ -1,6 +1,6 @@
 {
   "settings": {
-    "tui_terminal_title": "Terminal TUI",
+    "tui_terminal_title._title": "Terminal TUI",
     "tui_alternate_screen": {
       "label": "Tela Alternativa",
       "help": "Estratégia de tela alternativa. auto automático, always sempre, never nunca; sessões interativas são geralmente assumidas pela tela alternativa do TUI."

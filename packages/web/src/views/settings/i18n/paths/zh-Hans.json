@@ -1,6 +1,6 @@
 {
   "settings": {
-    "paths": "路径",
+    "paths._title": "路径",
     "skills.scan_codewhale_only": {
       "label": "仅扫描 CodeWhale 技能",
       "help": "设为 true 时，忽略 .claude/skills、.opencode/skills、.cursor/skills、~/.agents/skills 等跨工具根目录"

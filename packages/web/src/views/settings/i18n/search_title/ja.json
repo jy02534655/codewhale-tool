@@ -1,6 +1,6 @@
 {
   "settings": {
-    "search_title": "検索",
+    "search_title._title": "検索",
     "search_provider": {
       "label": "検索プロバイダー",
       "help": "検索バックエンドプロバイダー。"

@@ -1,6 +1,6 @@
 {
   "settings": {
-    "capacity": "容量控制",
+    "capacity._title": "容量控制",
     "capacity.enabled": {
       "label": "启用容量控制器",
       "help": "实验性功能。开启后，当上下文接近模型上限时，控制器会主动干预（如压缩、重写 transcript），可能改变对话历史"

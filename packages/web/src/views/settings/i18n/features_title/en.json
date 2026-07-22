@@ -1,6 +1,6 @@
 {
   "settings": {
-    "features_title": "Features",
+    "features_title._title": "Features",
     "features_shell_tool": {
       "label": "Shell Tool",
       "help": "Enable shell tool, allowing execution of shell commands."

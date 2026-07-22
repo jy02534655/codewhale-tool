@@ -1,6 +1,6 @@
 {
   "settings": {
-    "subagents": "サブエージェント",
+    "subagents._title": "サブエージェント",
     "subagents.max_depth": {
       "label": "最大深度",
       "help": "サブエージェントが再帰的に委派できる最大階層深度。"
@@ -32,6 +32,26 @@
     "subagents.custom_model": {
       "label": "カスタムモデル",
       "help": "ユーザー定義ロールのサブエージェントモデル。"
+    },
+    "subagents_max_concurrent": {
+      "label": "最大同時実行数",
+      "help": "同時にアクティブなサブエージェントの最大数。デフォルト 20、範囲 1~20。"
+    },
+    "subagents_token_budget": {
+      "label": "トークン予算",
+      "help": "サブエージェントのステップ呼び出しごとのコンテキストトークン予算。デフォルト 200000。"
+    },
+    "subagents_api_timeout_secs": {
+      "label": "API タイムアウト",
+      "help": "サブエージェントのシングルステップモデル呼び出しのタイムアウト。デフォルト 120s、範囲 1~1800。"
+    },
+    "subagents_heartbeat_timeout_secs": {
+      "label": "ハートビートタイムアウト",
+      "help": "サブエージェントが無応答とみなされ清理されるまでの時間。デフォルト 300s、範囲 30~3600、api_timeout_secs より大きい必要があります。"
+    },
+    "subagents_default_model": {
+      "label": "デフォルトモデル",
+      "help": "ロールが指定されていない場合のフォールバックモデル。"
     }
   }
 }

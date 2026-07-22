@@ -1,6 +1,6 @@
 {
   "settings": {
-    "retry_title": "重试",
+    "retry_title._title": "重试",
     "retry_enabled": {
       "label": "启用重试",
       "help": "API 请求失败时是否自动重试。"

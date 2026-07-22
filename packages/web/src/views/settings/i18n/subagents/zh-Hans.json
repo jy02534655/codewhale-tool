@@ -1,6 +1,6 @@
 {
   "settings": {
-    "subagents": "子代理",
+    "subagents._title": "子代理",
     "subagents.max_depth": {
       "label": "最大深度",
       "help": "子代理可以递归委派子代理的最大层级深度"
@@ -32,6 +32,26 @@
     "subagents.custom_model": {
       "label": "自定义模型",
       "help": "用户自定义角色的子代理模型"
+    },
+    "subagents_max_concurrent": {
+      "label": "最大并发子代理数",
+      "help": "同时处于活跃状态的子代理数量上限，默认 20，限制 1~20。"
+    },
+    "subagents_token_budget": {
+      "label": "令牌预算",
+      "help": "子代理单步调用的上下文 Token 预算。默认 200000。"
+    },
+    "subagents_api_timeout_secs": {
+      "label": "API 超时",
+      "help": "子代理单步模型调用的超时时间，默认 120s，范围 1~1800。"
+    },
+    "subagents_heartbeat_timeout_secs": {
+      "label": "心跳超时",
+      "help": "子代理多久无响应会被视为僵死并清理，默认 300s，范围 30~3600，必须大于 api_timeout_secs。"
+    },
+    "subagents_default_model": {
+      "label": "默认子代理模型",
+      "help": "未指定角色时的 fallback 模型。"
     }
   }
 }

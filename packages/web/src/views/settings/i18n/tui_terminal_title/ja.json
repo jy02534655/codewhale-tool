@@ -1,6 +1,6 @@
 {
   "settings": {
-    "tui_terminal_title": "TUI ターミナル",
+    "tui_terminal_title._title": "TUI ターミナル",
     "tui_alternate_screen": {
       "label": "代替スクリーン",
       "help": "代替スクリーン戦略。auto 自動、always 常時、never しない。インタラクティブセッションは通常 TUI が代替スクリーンを引き継ぎます。"

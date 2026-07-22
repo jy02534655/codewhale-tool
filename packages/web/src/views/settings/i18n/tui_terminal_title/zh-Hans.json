@@ -1,6 +1,6 @@
 {
   "settings": {
-    "tui_terminal_title": "TUI 终端",
+    "tui_terminal_title._title": "TUI 终端",
     "tui_alternate_screen": {
       "label": "备用屏幕",
       "help": "备用屏幕策略。auto 自动，always 始终，never 从不；交互会话通常由 TUI 接管备用屏幕。"

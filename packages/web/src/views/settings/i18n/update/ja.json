@@ -1,6 +1,6 @@
 {
   "settings": {
-    "update": "更新",
+    "update._title": "更新",
     "update.update_uri": {
       "label": "カスタム更新ミラー",
       "help": "内部ミラーエンドポイントを指定。GitHub 互換の latest-release JSON（少なくとも tag_name を含む）を返す必要があります。assets が設定されている場合、CodeWhale は公式リリースと同じアセットセットを要求してから更新を提示します。"

@@ -1,6 +1,6 @@
 {
   "settings": {
-    "search_title": "Busca",
+    "search_title._title": "Busca",
     "search_provider": {
       "label": "Provedor de Busca",
       "help": "Provedor de backend de pesquisa."

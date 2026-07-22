@@ -1,6 +1,6 @@
 {
   "settings": {
-    "retry_title": "Retry",
+    "retry_title._title": "Retry",
     "retry_enabled": {
       "label": "Enable Retry",
       "help": "Whether to automatically retry on API request failure."

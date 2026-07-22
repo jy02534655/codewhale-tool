@@ -1,6 +1,6 @@
 {
   "settings": {
-    "tui_interface_title": "TUI インターフェース",
+    "tui_interface_title._title": "TUI インターフェース",
     "theme": {
       "label": "テーマ",
       "help": "インターフェーステーマ。システム追従、ライト、ダークなどのモードを選択可能。"

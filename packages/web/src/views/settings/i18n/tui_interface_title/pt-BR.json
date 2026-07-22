@@ -1,6 +1,6 @@
 {
   "settings": {
-    "tui_interface_title": "Interface TUI",
+    "tui_interface_title._title": "Interface TUI",
     "theme": {
       "label": "Tema",
       "help": "Tema da interface. Escolha seguir o sistema, claro, escuro, etc."

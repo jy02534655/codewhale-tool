@@ -1,9 +1,21 @@
 {
   "settings": {
-    "security": "Segurança e Permissões",
+    "security._title": "Segurança e Permissões",
     "permissions.toml": {
       "label": "Arquivo de Regras de Permissão",
       "help": "Suporta campos tool + command/path opcionais. Regras correspondentes forçam aprovação no modo não-YOLO; no modo never, correspondências são diretamente rejeitadas (pois nenhum popup pode ser exibido)."
+    },
+    "approval_policy": {
+      "label": "Política de Aprovação",
+      "help": "Estratégia de aprovação popup antes da execução da ferramenta. on-request confirma cada solicitação, untrusted confirma apenas operações não confiáveis, never nunca exibe popup."
+    },
+    "sandbox_mode": {
+      "label": "Modo Sandbox",
+      "help": "Sandbox de acesso ao sistema de arquivos. read-only é o mais rigoroso, workspace-write permite gravação dentro do workspace, danger-full-access sem limites, external-sandbox depende de isolamento de ferramenta externa."
+    },
+    "allow_shell": {
+      "label": "Permitir Shell",
+      "help": "Se deve permitir ferramentas shell. Disponível quando true, mas ainda controlado por approval_policy; false oculta completamente a ferramenta exec_shell."
     }
   }
 }

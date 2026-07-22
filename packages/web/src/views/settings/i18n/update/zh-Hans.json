@@ -1,6 +1,6 @@
 {
   "settings": {
-    "update": "更新",
+    "update._title": "更新",
     "update.update_uri": {
       "label": "自定义更新镜像",
       "help": "指向内部镜像端点，需返回 GitHub 兼容的 latest-release JSON（至少包含 tag_name）。若配置了 assets，CodeWhale 会要求与官方发布相同的资源集才提示更新"

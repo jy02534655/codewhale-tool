@@ -1,6 +1,6 @@
 {
   "settings": {
-    "features_title": "Recursos",
+    "features_title._title": "Recursos",
     "features_shell_tool": {
       "label": "Shell",
       "help": "Habilitar ferramenta shell, permitindo a execução de comandos shell."

@@ -1,6 +1,6 @@
 {
   "settings": {
-    "tui_interface_title": "TUI 界面",
+    "tui_interface_title._title": "TUI 界面",
     "theme": {
       "label": "主题",
       "help": "界面主题。可选择跟随系统、浅色、深色等模式。"

@@ -1,6 +1,6 @@
 {
   "settings": {
-    "retry_title": "リトライ",
+    "retry_title._title": "リトライ",
     "retry_enabled": {
       "label": "リトライ有効",
       "help": "API リクエスト失敗時に自動再試行するかどうか。"

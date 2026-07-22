@@ -1,6 +1,6 @@
 {
   "settings": {
-    "reasoning": "Raciocínio",
+    "reasoning._title": "Raciocínio",
     "reasoning_effort": {
       "label": "Esforço de Raciocínio",
       "help": "Controla o esforço de raciocínio do modelo. Opções: low / medium / high / xhigh, padrão low. Esforço maior significa pensamento mais profundo, mas mais tempo e consumo de tokens."

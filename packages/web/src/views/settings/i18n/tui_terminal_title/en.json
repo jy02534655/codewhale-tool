@@ -1,6 +1,6 @@
 {
   "settings": {
-    "tui_terminal_title": "TUI Terminal",
+    "tui_terminal_title._title": "TUI Terminal",
     "tui_alternate_screen": {
       "label": "Alternate Screen",
       "help": "Alternate screen strategy. auto automatically, always always on, never never; interactive sessions are usually taken over by the TUI alternate screen."

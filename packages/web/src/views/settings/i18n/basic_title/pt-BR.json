@@ -1,6 +1,6 @@
 {
   "settings": {
-    "basic_title": "Básico",
+    "basic_title._title": "Básico",
     "language": {
       "label": "Idioma da Web UI",
       "help": "Selecione o idioma de exibição para a interface Web."

@@ -1,6 +1,6 @@
 {
   "settings": {
-    "paths": "Paths",
+    "paths._title": "Paths",
     "skills.scan_codewhale_only": {
       "label": "Scan CodeWhale Skills Only",
       "help": "When set to true, ignores cross-tool root directories like .claude/skills, .opencode/skills, .cursor/skills, ~/.agents/skills, etc."

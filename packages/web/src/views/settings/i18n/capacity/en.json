@@ -1,6 +1,6 @@
 {
   "settings": {
-    "capacity": "Capacity Control",
+    "capacity._title": "Capacity Control",
     "capacity.enabled": {
       "label": "Enable Capacity Controller",
       "help": "Experimental feature. When enabled, the controller actively intervenes (e.g., compressing, rewriting transcript) when context approaches the model's upper limit, which may alter conversation history."

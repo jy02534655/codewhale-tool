@@ -1,6 +1,6 @@
 {
   "settings": {
-    "context": "Context Management",
+    "context._title": "Context Management",
     "context.enabled": {
       "label": "Enable Fin Fast Path Management",
       "help": "Needs to be manually enabled. Fin uses deepseek-v4-flash (thinking disabled) to perform coordination tasks (routing, summarization, context maintenance), reducing the burden on the main model."

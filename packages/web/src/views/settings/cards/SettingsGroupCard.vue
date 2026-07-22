@@ -49,6 +49,9 @@
 
   const title = computed(() => {
     const translated = t(props.titleKey);
+    if (typeof translated === 'object' && translated !== null) {
+      return translated._title || props.titleKey.split('.').pop();
+    }
     if (!translated || translated === props.titleKey) {
       return props.titleKey.split('.').pop();
     }

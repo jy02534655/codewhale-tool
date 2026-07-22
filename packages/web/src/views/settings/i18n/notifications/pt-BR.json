@@ -1,6 +1,6 @@
 {
   "settings": {
-    "notifications": "Notificações",
+    "notifications._title": "Notificações",
     "notifications.include_summary": {
       "label": "Incluir Resumo",
       "help": "Padrão é false. Quando ativado, as notificações incluirão o tempo decorrido e o custo estimado da turno."
@@ -8,6 +8,18 @@
     "notifications.sound_file": {
       "label": "Arquivo de Som",
       "help": "Usado apenas quando completion_sound estiver definido como file. Caminho do arquivo de som WAV personalizado, apenas Windows."
+    },
+    "notifications_method": {
+      "label": "Método de Notificação",
+      "help": "Método de notificação de conclusão. auto seleciona automaticamente com base no terminal, osc9 envia OSC 9, bel envia o sinal sonoro do terminal, off desativa notificações."
+    },
+    "notifications_threshold_secs": {
+      "label": "Limite",
+      "help": "Aciona notificações apenas para turnos concluídos com sucesso que duram >= este valor, padrão 30s. Turnos falhos/cancelados são sempre silenciosos."
+    },
+    "notifications_completion_sound": {
+      "label": "Som de Conclusão",
+      "help": "Som de conclusão. beep usa o bipe padrão do sistema, off desativa, bell envia o sinal sonoro do terminal, file reproduz um WAV personalizado."
     }
   }
 }

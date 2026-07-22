@@ -1,6 +1,6 @@
 {
   "settings": {
-    "context": "Gerenciamento de Contexto",
+    "context._title": "Gerenciamento de Contexto",
     "context.enabled": {
       "label": "Habilitar Gerenciamento de Caminho Rápido Fin",
       "help": "Precisa ser ativado manualmente. O Fin usa deepseek-v4-flash (pensamento desativado) para executar tarefas de coordenação (roteamento, resumo, manutenção de contexto), reduzindo a carga no modelo principal."

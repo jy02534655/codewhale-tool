@@ -1,6 +1,6 @@
 {
   "settings": {
-    "retry_title": "Tentativas",
+    "retry_title._title": "Tentativas",
     "retry_enabled": {
       "label": "Habilitar Retry",
       "help": "Se deve repetir automaticamente em caso de falha na solicitação da API."
