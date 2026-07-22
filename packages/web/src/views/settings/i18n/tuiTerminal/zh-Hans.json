@@ -1,0 +1,26 @@
+﻿{
+  "settings": {
+    "tuiTerminal": "TUI 终端",
+    "tui_alternate_screen": {
+      "label": "备用屏幕",
+      "help": "备用屏幕策略。auto 自动，always 始终，never 从不；交互会话通常由 TUI 接管备用屏幕。"
+    },
+    "tui_mouse_capture": {
+      "label": "鼠标捕获",
+      "help": "启用后支持内部滚动、对话选择、右键菜单、滚动条拖拽；部分终端默认关闭。"
+    },
+    "tui_terminal_probe_timeout_ms": {
+      "label": "终端探测超时",
+      "help": "启动时探测终端模式（颜色、鼠标协议）的超时，默认 500ms，范围 100~5000。"
+    },
+    "tui_stream_chunk_timeout_secs": {
+      "label": "流式块超时",
+      "help": "SSE 流中两个数据块之间的最大空闲时间，默认 300s，范围 1~3600，0 映射为默认值。"
+    },
+    "tui_osc8_links": {
+      "label": "OSC 8 超链接",
+      "help": "在 URL 周围包裹 OSC 8 转义序列，支持 iTerm2/Ghostty/Kitty/WezTerm 等终端的 Cmd+点击跳转。"
+    }
+  }
+}
+

@@ -1,6 +1,6 @@
-{
+﻿{
   "settings": {
-    "security._title": "Security & Permissions",
+    "security": "Security & Permissions",
     "permissions.toml": {
       "label": "Permissions Rules File",
       "help": "Supports tool + optional command/path fields. Matching rules force approval in non-YOLO mode; in never mode, matches are directly rejected (because no popup can be shown)."
@@ -19,3 +19,4 @@
     }
   }
 }
+

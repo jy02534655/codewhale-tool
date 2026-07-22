@@ -1,6 +1,6 @@
-{
+﻿{
   "settings": {
-    "subagents._title": "サブエージェント",
+    "subagents": "サブエージェント",
     "subagents.max_depth": {
       "label": "最大深度",
       "help": "サブエージェントが再帰的に委派できる最大階層深度。"
@@ -55,3 +55,4 @@
     }
   }
 }
+

@@ -1,6 +1,6 @@
-{
+﻿{
   "settings": {
-    "paths._title": "Caminhos",
+    "paths": "Caminhos",
     "skills.scan_codewhale_only": {
       "label": "Scanear Apenas Skills do CodeWhale",
       "help": "Quando definido como true, ignora diretórios raiz entre ferramentas como .claude/skills, .opencode/skills, .cursor/skills, ~/.agents/skills, etc."
@@ -43,3 +43,4 @@
     }
   }
 }
+

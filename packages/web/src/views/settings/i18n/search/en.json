@@ -1,0 +1,14 @@
+﻿{
+  "settings": {
+    "search": "Search",
+    "search_provider": {
+      "label": "Search Provider",
+      "help": "Search backend provider."
+    },
+    "search_base_url": {
+      "label": "Custom Search Endpoint",
+      "help": "Custom search endpoint URL. Only needs to be configured when using a non-default search provider."
+    }
+  }
+}
+

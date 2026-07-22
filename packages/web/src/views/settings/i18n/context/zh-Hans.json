@@ -1,6 +1,6 @@
-{
+﻿{
   "settings": {
-    "context._title": "上下文管理",
+    "context": "上下文管理",
     "context.enabled": {
       "label": "启用 Fin 快速路径管理",
       "help": "需手动开启。Fin 使用 deepseek-v4-flash（thinking 关闭）执行协调工作（路由、摘要、上下文维护），减轻主模型负担"
@@ -31,3 +31,4 @@
     }
   }
 }
+

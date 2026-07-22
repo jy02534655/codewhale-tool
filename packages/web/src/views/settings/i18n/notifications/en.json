@@ -1,6 +1,6 @@
-{
+﻿{
   "settings": {
-    "notifications._title": "Notifications",
+    "notifications": "Notifications",
     "notifications.include_summary": {
       "label": "Include Summary",
       "help": "Defaults to false. When enabled, notifications will include elapsed time and estimated cost for the turn."
@@ -23,3 +23,4 @@
     }
   }
 }
+

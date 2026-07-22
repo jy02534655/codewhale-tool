@@ -1,6 +1,6 @@
-{
+﻿{
   "settings": {
-    "subagents._title": "Subagentes",
+    "subagents": "Subagentes",
     "subagents.max_depth": {
       "label": "Profundidade Máxima",
       "help": "Profundidade hierárquica máxima que subagentes podem delegar recursivamente para outros subagentes."
@@ -55,3 +55,4 @@
     }
   }
 }
+

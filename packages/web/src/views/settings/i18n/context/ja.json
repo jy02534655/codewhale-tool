@@ -1,6 +1,6 @@
-{
+﻿{
   "settings": {
-    "context._title": "コンテキスト管理",
+    "context": "コンテキスト管理",
     "context.enabled": {
       "label": "Fin 高速パス管理を有効化",
       "help": "手動で有効にする必要があります。Fin は deepseek-v4-flash（thinking オフ）を使用してルーティング、要約、コンテキスト維持などの調整作業を実行し、メインモデルの負担を軽減します。"
@@ -31,3 +31,4 @@
     }
   }
 }
+

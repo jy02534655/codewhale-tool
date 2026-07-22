@@ -1,6 +1,6 @@
-{
+﻿{
   "settings": {
-    "paths._title": "パス",
+    "paths": "パス",
     "skills.scan_codewhale_only": {
       "label": "CodeWhale スキルのみスキャン",
       "help": "true に設定すると、.claude/skills、.opencode/skills、.cursor/skills、~/.agents/skills などのクロスツールルートディレクトリを無視します。"
@@ -43,3 +43,4 @@
     }
   }
 }
+

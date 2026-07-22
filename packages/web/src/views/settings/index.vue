@@ -104,6 +104,7 @@ const formData = reactive({
   search_provider: 'duckduckgo',
   search_base_url: '',
   update_check_for_updates: true,
+  update_uri: '',
 });
 
 // 用于取消重置的原始数据快照

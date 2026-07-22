@@ -1,6 +1,6 @@
-{
+﻿{
   "settings": {
-    "notifications._title": "Notificações",
+    "notifications": "Notificações",
     "notifications.include_summary": {
       "label": "Incluir Resumo",
       "help": "Padrão é false. Quando ativado, as notificações incluirão o tempo decorrido e o custo estimado da turno."
@@ -23,3 +23,4 @@
     }
   }
 }
+

@@ -1,6 +1,6 @@
-{
+﻿{
   "settings": {
-    "subagents._title": "子代理",
+    "subagents": "子代理",
     "subagents.max_depth": {
       "label": "最大深度",
       "help": "子代理可以递归委派子代理的最大层级深度"
@@ -55,3 +55,4 @@
     }
   }
 }
+

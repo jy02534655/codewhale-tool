@@ -1,0 +1,70 @@
+﻿{
+  "settings": {
+    "tuiInterface": "TUI 界面",
+    "theme": {
+      "label": "主题",
+      "help": "界面主题。可选择跟随系统、浅色、深色等模式。"
+    },
+    "default_mode": {
+      "label": "默认模式",
+      "help": "默认模式。agent 为普通对话，plan 为计划模式，yolo 为直出模式。"
+    },
+    "sidebar_focus": {
+      "label": "侧边栏焦点",
+      "help": "侧边栏焦点行为。pinned 固定侧边栏，auto 自动显隐，tasks 任务，agents 智能体，context 上下文，hidden 隐藏。"
+    },
+    "mention_menu_behavior": {
+      "label": "@提及菜单行为",
+      "help": "@ 提及文件时的菜单行为。fuzzy 模糊搜索，browser 按当前目录段子目录列举。"
+    },
+    "cost_currency": {
+      "label": "成本显示货币",
+      "help": "成本显示货币。usd 为美元，cny/rmb/yuan 会归一化为人民币。"
+    },
+    "verbosity": {
+      "label": "输出详细程度",
+      "help": "输出详细程度。normal 为标准对话风格，concise 为简洁低冗余输出。"
+    },
+    "show_thinking": {
+      "label": "显示思考过程",
+      "help": "是否在对话记录中展示模型的 reasoning/thinking 内容。"
+    },
+    "show_tool_details": {
+      "label": "显示工具详情",
+      "help": "是否展开显示每次工具调用的详细参数和结果。"
+    },
+    "auto_compact": {
+      "label": "自动压缩上下文",
+      "help": "模型感知默认开启。上下文接近模型窗口上限时自动生成摘要并替换旧内容。"
+    },
+    "paste_burst_detection": {
+      "label": "粘贴突发检测",
+      "help": "默认开启。检测不支持 bracketed-paste 的终端中的批量粘贴，防止逐字符触发补全。"
+    },
+    "auto_compact_threshold_percent": {
+      "label": "自动压缩阈值",
+      "help": "默认 80。活跃请求输入估算达到模型上下文窗口该百分比时触发自动压缩。"
+    },
+    "mention_menu_limit": {
+      "label": "@提及菜单候选数",
+      "help": "@ 弹窗最多保留多少候选文件，超出部分截断，默认 128。"
+    },
+    "mention_walk_depth": {
+      "label": "@提及遍历深度",
+      "help": "@ 补全遍历工作区的最大目录深度。设为 0 表示无限深度，默认 6。"
+    },
+    "max_history": {
+      "label": "输入历史条数",
+      "help": "保留多少条已提交输入历史，已清除草稿仍保留用于历史搜索，默认 1000。"
+    },
+    "background_color": {
+      "label": "自定义背景色",
+      "help": "自定义 TUI 根、头部、对话记录、底部的背景色，default 使用主题默认。"
+    },
+    "default_model_override": {
+      "label": "默认模型覆盖",
+      "help": "覆盖当前提供商的默认模型选择。暂不可配置，后续版本支持。"
+    }
+  }
+}
+

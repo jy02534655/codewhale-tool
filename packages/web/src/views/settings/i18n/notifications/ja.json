@@ -1,6 +1,6 @@
-{
+﻿{
   "settings": {
-    "notifications._title": "通知",
+    "notifications": "通知",
     "notifications.include_summary": {
       "label": "概要を含める",
       "help": "デフォルトは false。有効にすると通知に所要時間とターンの推定費用が含まれます。"
@@ -23,3 +23,4 @@
     }
   }
 }
+

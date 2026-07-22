@@ -28,42 +28,6 @@ function deepMerge(target, source) {
   return target;
 }
 
-// 将平铺的点分隔 key 展开为嵌套对象，兼容拆分后的 i18n JSON
-// 例: { "settings": { "capacity.enabled": { "label": "..." }, "capacity": "容量控制" } }
-//   => { "settings": { "capacity": { "_title": "容量控制", "enabled": { "label": "..." } } } }
-function expandFlatKeys(obj) {
-  if (!obj || typeof obj !== 'object') return obj;
-
-  const result = {};
-  const flatEntries = [];
-
-  // 先处理非平铺 key，确保标题等字符串值先进入 result
-  for (const [key, value] of Object.entries(obj)) {
-    if (!key.includes('.')) {
-      result[key] = expandFlatKeys(value);
-    } else {
-      flatEntries.push([key, value]);
-    }
-  }
-
-  // 再处理平铺 key，若前缀已被字符串占用，则将其作为 _title 移入嵌套对象
-  for (const [key, value] of flatEntries) {
-    const parts = key.split('.');
-    let current = result;
-    for (let i = 0; i < parts.length - 1; i++) {
-      if (!(parts[i] in current)) {
-        current[parts[i]] = {};
-      } else if (typeof current[parts[i]] === 'string') {
-        current[parts[i]] = { _title: current[parts[i]] };
-      }
-      current = current[parts[i]];
-    }
-    current[parts[parts.length - 1]] = expandFlatKeys(value);
-  }
-
-  return result;
-}
-
 function buildMessages() {
   const messages = {};
 
@@ -77,7 +41,7 @@ function buildMessages() {
   for (const [path, mod] of Object.entries(moduleLocales)) {
     const locale = path.match(/\/([^/]+)\.json$/)?.[1];
     if (locale && mod.default) {
-      messages[locale] = deepMerge(messages[locale] || {}, expandFlatKeys(mod.default));
+      messages[locale] = deepMerge(messages[locale] || {}, mod.default);
     }
   }
 

@@ -1,9 +1,0 @@
-{
-  "settings": {
-    "update._title": "Updates",
-    "update.update_uri": {
-      "label": "Custom Update Mirror",
-      "help": "Points to an internal mirror endpoint that must return GitHub-compatible latest-release JSON (at least containing tag_name). If assets are configured, CodeWhale requires the same asset set as the official release before prompting for an update."
-    }
-  }
-}

@@ -1,0 +1,26 @@
+﻿{
+  "settings": {
+    "retry": "Retry",
+    "retry_enabled": {
+      "label": "Enable Retry",
+      "help": "Whether to automatically retry on API request failure."
+    },
+    "retry_max_retries": {
+      "label": "Max Retries",
+      "help": "Maximum number of retries for a single request before reporting an error, default 3."
+    },
+    "retry_initial_delay": {
+      "label": "Initial Delay",
+      "help": "Wait time before the first retry (in seconds), default 1.0."
+    },
+    "retry_max_delay": {
+      "label": "Max Delay",
+      "help": "Upper limit of backoff delay (in seconds) to prevent unlimited growth, default 60.0."
+    },
+    "retry_exponential_base": {
+      "label": "Exponential Base",
+      "help": "Each retry delay is multiplied by this base, default 2.0 (1s -> 2s -> 4s -> 8s...)."
+    }
+  }
+}
+

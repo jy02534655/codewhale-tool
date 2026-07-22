@@ -1,0 +1,22 @@
+﻿{
+  "settings": {
+    "basic": "Básico",
+    "language": {
+      "label": "Idioma da Web UI",
+      "help": "Selecione o idioma de exibição para a interface Web."
+    },
+    "default_model": {
+      "label": "Modelo Padrão",
+      "help": "Modelo de texto padrão. Exemplos: deepseek-v4-pro, deepseek-v4-flash, claude-sonnet-4-6, etc. A DeepSeek atualmente recomenda deepseek-v4-pro."
+    },
+    "update_check_for_updates": {
+      "label": "Verificar Atualizações",
+      "help": "Verifica a versão estável mais recente em segundo plano. Mostra uma notificação toast quando uma nova versão está disponível e os recursos estão completos."
+    },
+    "basic.update_uri": {
+      "label": "Espelho de Atualização Personalizado",
+      "help": "Aponta para um endpoint de espelhamento interno que deve retornar JSON latest-release compatível com GitHub (pelo menos contendo tag_name). Se assets estiverem configurados, o CodeWhale exigirá o mesmo conjunto de assets do lançamento oficial antes de solicitar a atualização."
+    }
+  }
+}
+
