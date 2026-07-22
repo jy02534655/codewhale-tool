@@ -6,7 +6,7 @@ export const securityGroups = [
       { key: 'approval_policy', tag: 'SettingsSelect', optionKey: 'approval_policy' },
       { key: 'sandbox_mode', tag: 'SettingsSelect', optionKey: 'sandbox_mode' },
       { key: 'allow_shell', tag: 'el-switch' },
-      { key: 'permissions.toml', tag: 'el-input', disabled: true }
+      { key: 'permissions_toml', tag: 'el-input' }
     ]
   }
 ];

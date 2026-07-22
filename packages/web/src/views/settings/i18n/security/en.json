@@ -1,24 +1,22 @@
 {
   "settings": {
     "security": {
-      "title": "Security & Permissions",
+      "title": "Security",
       "approval_policy": {
         "label": "Approval Policy",
-        "help": "Popup approval strategy before tool execution. on-request confirms each request, untrusted only confirms untrusted operations, never never pops up."
+        "help": "Approval policy. on-request: prompt for confirmation before every tool execution (default); untrusted: only request approval for untrusted operations; never: never prompt for approval, enabling full automation when combined with YOLO mode"
       },
       "sandbox_mode": {
         "label": "Sandbox Mode",
-        "help": "File system access sandbox. read-only is the strictest, workspace-write allows writes within the workspace, danger-full-access has no limits, external-sandbox relies on external tool isolation."
+        "help": "Sandbox execution mode. read-only: prohibit any filesystem writes; workspace-write: allow writes within the workspace directory; danger-full-access: no sandbox restrictions; external-sandbox: use external sandbox tools (Docker, Seatbelt, Landlock)"
       },
       "allow_shell": {
-        "label": "Allow Shell",
-        "help": "Whether to allow shell tools. Available when true, but still controlled by approval_policy; false completely hides the exec_shell tool."
+        "label": "Allow Shell Operations",
+        "help": "Whether shell tools are allowed. When true, shell tools are available but still controlled by the approval policy (on-request / untrusted / never); when false, the exec_shell tool is completely hidden"
       },
-      "permissions": {
-        "toml": {
-          "label": "Permissions Rules File",
-          "help": "Supports tool + optional command/path fields. Matching rules force approval in non-YOLO mode; in never mode, matches are directly rejected (because no popup can be shown)."
-        }
+      "permissions_toml": {
+        "label": "Permissions TOML File",
+        "help": "Path to the TOML-formatted permissions rules file"
       }
     }
   }

@@ -2,25 +2,25 @@
   "settings": {
     "notifications": {
       "title": "Notificações",
-      "include_summary": {
-        "label": "Incluir Resumo",
-        "help": "Padrão é false. Quando ativado, as notificações incluirão o tempo decorrido e o custo estimado da turno."
-      },
-      "sound_file": {
-        "label": "Arquivo de Som",
-        "help": "Usado apenas quando completion_sound estiver definido como file. Caminho do arquivo de som WAV personalizado, apenas Windows."
-      },
       "notifications_method": {
         "label": "Método de Notificação",
-        "help": "Método de notificação de conclusão. auto seleciona automaticamente com base no terminal, osc9 envia OSC 9, bel envia o sinal sonoro do terminal, off desativa notificações."
+        "help": "Método de notificação. auto: detecta terminal automaticamente (iTerm.app, Ghostty, WezTerm usam osc9, outros recorrem a bel); osc9: envia sequência de escape OSC 9; bel: envia caractere BEL; off: desativa completamente as notificações de conclusão"
       },
       "notifications_threshold_secs": {
-        "label": "Limite",
-        "help": "Aciona notificações apenas para turnos concluídos com sucesso que duram >= este valor, padrão 30s. Turnos falhos/cancelados são sempre silenciosos."
+        "label": "Limite de Gatilho (segundos)",
+        "help": "Apenas notificar se a tarefa durar mais que isso"
       },
       "notifications_completion_sound": {
         "label": "Som de Conclusão",
-        "help": "Som de conclusão. beep usa o bipe padrão do sistema, off desativa, bell envia o sinal sonoro do terminal, file reproduz um WAV personalizado."
+        "help": "Som de conclusão. beep: bipe padrão do sistema (padrão); off: desativa o som de conclusão; bell: usa o bell do terminal; file: reproduz arquivo WAV personalizado (especifique o caminho via sound_file)"
+      },
+      "notifications_include_summary": {
+        "label": "Incluir Resumo",
+        "help": "Se a mensagem de notificação inclui o resumo do resultado da tarefa"
+      },
+      "sound_file": {
+        "label": "Caminho do Arquivo de Som",
+        "help": "Caminho do arquivo de som de notificação personalizado"
       }
     }
   }

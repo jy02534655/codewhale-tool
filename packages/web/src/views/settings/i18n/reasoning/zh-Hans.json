@@ -4,7 +4,7 @@
       "title": "推理",
       "reasoning_effort": {
         "label": "推理强度",
-        "help": "控制模型推理强度。可选 low / medium / high / xhigh，默认 low。强度越高，模型思考越深入，但耗时和 Token 消耗也越大。"
+        "help": "控制模型推理强度。可选值：off（完全关闭推理）、low（低强度）、medium（中等强度）、high（高强度）、max（最大推理深度）、xhigh（极高强度）、ultracode（专为代码生成优化的最高推理强度）"
       }
     }
   }

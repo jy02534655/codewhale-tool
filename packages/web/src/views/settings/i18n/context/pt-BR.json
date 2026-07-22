@@ -6,27 +6,27 @@
         "label": "Modo de Cache Máximo",
         "help": "Quando ativado, o conteúdo completo dos arquivos ativos (não apenas os caminhos) é injetado no prompt do sistema a cada turno, aproveitando os acertos de cache de prefixo KV do DeepSeek. O conteúdo do bloco permanece estável quando os arquivos não são modificados; erros de cache começam do bloco editado. Limite padrão de 24KB por arquivo / 96KB no total."
       },
-      "enabled": {
+      "context_enabled": {
         "label": "Habilitar Gerenciamento de Caminho Rápido Fin",
         "help": "Precisa ser ativado manualmente. O Fin usa deepseek-v4-flash (pensamento desativado) para executar tarefas de coordenação (roteamento, resumo, manutenção de contexto), reduzindo a carga no modelo principal."
       },
-      "verbatim_window_turns": {
+      "context_verbatim_window_turns": {
         "label": "Turnos de Janela Verbatim",
         "help": "Quantas conversas recentes manter no texto original completo; as conversas mais antigas serão comprimidas ou resumidas."
       },
-      "l1_threshold": {
+      "context_l1_threshold": {
         "label": "Limite de Pressão de Contexto L1",
         "help": "Limite de pressão de contexto de nível 1 (em tokens). Exceder este valor aciona intervenção leve."
       },
-      "l2_threshold": {
+      "context_l2_threshold": {
         "label": "Limite de Pressão de Contexto L2",
         "help": "Limite de nível 2. Estratégias de compressão mais agressivas são aplicadas após exceder este valor."
       },
-      "l3_threshold": {
+      "context_l3_threshold": {
         "label": "Limite de Pressão de Contexto L3",
         "help": "Limite de nível 3. Linha de tratamento de emergência ao se aproximar do limite superior do modelo."
       },
-      "seam_model": {
+      "context_seam_model": {
         "label": "Modelo de Emenda",
         "help": "Modelo para executar tarefas de coordenação de contexto. O caminho Flash não tem raciocínio, tornando-o mais rápido."
       }

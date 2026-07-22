@@ -2,25 +2,25 @@
   "settings": {
     "notifications": {
       "title": "Notifications",
-      "include_summary": {
-        "label": "Include Summary",
-        "help": "Defaults to false. When enabled, notifications will include elapsed time and estimated cost for the turn."
-      },
-      "sound_file": {
-        "label": "Sound File",
-        "help": "Only used when completion_sound is set to file. Custom WAV sound file path, Windows only."
-      },
       "notifications_method": {
         "label": "Notification Method",
-        "help": "Completion notification method. auto selects based on terminal, osc9 sends OSC 9, bel sends terminal bell, off disables notifications."
+        "help": "Notification method. auto: automatically detect terminal (iTerm.app, Ghostty, WezTerm use osc9, others fallback to bel); osc9: send OSC 9 escape sequence; bel: send BEL character; off: completely disable completion notifications"
       },
       "notifications_threshold_secs": {
-        "label": "Threshold",
-        "help": "Only triggers notifications for successfully completed turns that take >= this value, default 30s. Failed/cancelled turns are always silent."
+        "label": "Trigger Threshold (secs)",
+        "help": "Only remind if the task lasts longer than this"
       },
       "notifications_completion_sound": {
         "label": "Completion Sound",
-        "help": "Completion sound. beep uses the system default beep, off disables it, bell sends terminal bell, file plays a custom WAV."
+        "help": "Completion sound. beep: system default beep (default); off: disable completion sound; bell: use terminal bell; file: play custom WAV file (specify path via sound_file)"
+      },
+      "notifications_include_summary": {
+        "label": "Include Summary",
+        "help": "Whether the notification message includes the task result summary"
+      },
+      "sound_file": {
+        "label": "Sound File Path",
+        "help": "Custom notification sound file path"
       }
     }
   }

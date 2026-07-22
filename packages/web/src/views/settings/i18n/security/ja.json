@@ -4,21 +4,19 @@
       "title": "セキュリティと権限",
       "approval_policy": {
         "label": "承認ポリシー",
-        "help": "ツール実行前のポップアップ承認戦略。on-request は毎回確認、untrusted は信頼不能操作のみ確認、never はポップアップなし。"
+        "help": "承認ポリシー。on-request：すべてのツール実行前に確認を求める（デフォルト）；untrusted：信頼できない操作のみ承認を要求；never：承認を求めない、YOLO モードと組み合わせて全自動実行"
       },
       "sandbox_mode": {
-        "label": "サンドボックス",
-        "help": "ファイルシステムアクセスサンドボックス。read-only が最厳格、workspace-write はワークスペース内書き込み許可、danger-full-access は無制限、external-sandbox は外部ツール分離に依存。"
+        "label": "サンドボックスモード",
+        "help": "サンドボックス実行モード。read-only：ファイルシステムへの書き込みを禁止；workspace-write：ワークスペースディレクトリ内での書き込みを許可；danger-full-access：サンドボックス制限なし；external-sandbox：外部サンドボックスツール（Docker、Seatbelt、Landlock）を使用"
       },
       "allow_shell": {
-        "label": "シェル許可",
-        "help": "シェルツールを許可するか。true の場合は使用可能だが approval_policy の制御を受ける。false は exec_shell ツールを完全に隠蔽。"
+        "label": "シェル操作を許可",
+        "help": "シェルツールを許可するか。true 時は使用可能だが、承認ポリシー（on-request / untrusted / never）の制御下にある。false 時は exec_shell ツールを完全に非表示"
       },
-      "permissions": {
-        "toml": {
-          "label": "権限ルールファイル",
-          "help": "tool + オプションの command/path フィールドをサポート。一致するルールは非 YOLO モードで強制承認をトリガーします。never モードでは一致すると直接拒否されます（ポップアップを表示できないため）。"
-        }
+      "permissions_toml": {
+        "label": "権限ルールファイル",
+        "help": "TOML 形式の権限ルールファイルパス"
       }
     }
   }

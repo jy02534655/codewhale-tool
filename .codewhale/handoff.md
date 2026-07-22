@@ -1,51 +1,60 @@
 # CodeWhale Handoff — 2026-07-22
 
-## 当前目标
-统一 settings cards 的 labelKey/helpKey 生成规则：去掉冗余显式配置，改由 groupCard.vue 动态生成，并同步调整 i18n 字段名。
+## 当前目标（已完成）
+1. 修复 views/settings/i18n 中不准确的翻译，参考 codewhale_configuration.md
+2. 确保包含其他选项的说明在翻译中正确体现对应选项值
+3. 特别修正 approval_policy 在翻译中体现为对应选项（on-request / untrusted / never）
 
-## 已完成
-- `packages/web/src/views/settings/cards/groupCard.vue`：模板中动态生成 `labelKey` 和 `helpKey`，规则为 `${titleKey}.${item.key}.label` 和 `${titleKey}.${item.key}.help`
-- 13 个 cards JS 文件：全部去掉 item 中的显式 `labelKey` 和 `helpKey` 配置
-- 52 个 i18n JSON 文件已大部分调整为 `${titleKey}.${key}` 结构
-- `final-fix.cjs` 已修正 paths 和 subagents 目录中不符合规则的扁平化/下划线键
+## 已完成的修改
 
-## 未完成任务
+### 1. security/i18n（4 种语言）
+- `approval_policy.help`：补充具体选项说明（on-request / untrusted / never）及默认值
+- `sandbox_mode.help`：补充四种模式的详细说明（read-only / workspace-write / danger-full-access / external-sandbox）
+- `allow_shell.help`：补充 true/false 行为说明，并提及仍受 approval_policy 控制
 
-### 1. 修正 security 目录的 i18n 键
-**当前状态**：`security/zh-Hans.json` 中 `permissions_toml` 仍在 `settings.security` 内部，且 `settings.permissions` 存在空对象。
-**需要修正为**：`settings.security.permissions.toml`（真正嵌套结构），并删除 `settings.security.permissions_toml` 和 `settings.permissions` 空对象。
-**影响文件**：`security/*.json`（4 种语言）
+| 文件 | 修改字段 |
+|------|----------|
+| `packages/web/src/views/settings/i18n/security/en.json` | approval_policy, sandbox_mode, allow_shell |
+| `packages/web/src/views/settings/i18n/security/ja.json` | approval_policy, sandbox_mode, allow_shell |
+| `packages/web/src/views/settings/i18n/security/pt-BR.json` | approval_policy, sandbox_mode, allow_shell |
+| `packages/web/src/views/settings/i18n/security/zh-Hans.json` | approval_policy, sandbox_mode, allow_shell |
 
-### 2. 全面验证 i18n 键是否符合 `titleKey + key` 规则
-**需要检查**：遍历 13 个 cards JS 文件中的每个 item，确认其 `key` 与对应 i18n 目录中的字段名完全匹配 `${titleKey}.${key}`。
-**已知可能问题**：
-- `paths` 目录中的 `skills_dir`、`mcp_config_path`、`notes_path`、`memory_path` 这些 key 本身不包含点号，动态生成的 i18n 键应为 `settings.paths.skills_dir` 等，需确认 i18n 中是否已正确嵌套
-- `tuiInterface` 和 `tuiTerminal` 目录中所有字段名是否已从 `settings` 根下正确移动到 `settings.tuiInterface.*` 和 `settings.tuiTerminal.*`
+### 2. notifications/i18n（4 种语言）
+- `notifications_method.help`：修正错误选项描述（原译 "system notification, email, Telegram" 与配置文档不符），替换为实际选项（auto / osc9 / bel / off）
+- `notifications_completion_sound.help`：补充具体选项说明（beep / off / bell / file）
 
-### 3. 清理临时脚本
-`.codewhale/scripts/` 下的临时脚本需要删除：
-- `strip-labelhelpkeys.mjs`
-- `strip-labelhelpkeys.cjs`
-- `test-path.cjs`
-- `test-i18n.cjs`
-- `update-i18n-keys.cjs`
-- `fix-i18n-keys.cjs`
-- `final-fix.cjs`
+| 文件 | 修改字段 |
+|------|----------|
+| `packages/web/src/views/settings/i18n/notifications/en.json` | notifications_method, notifications_completion_sound |
+| `packages/web/src/views/settings/i18n/notifications/ja.json` | notifications_method, notifications_completion_sound |
+| `packages/web/src/views/settings/i18n/notifications/pt-BR.json` | notifications_method, notifications_completion_sound |
+| `packages/web/src/views/settings/i18n/notifications/zh-Hans.json` | notifications_method, notifications_completion_sound |
 
-### 4. 最终验证
-- 确认 settings 目录中无残留 `labelKey`/`helpKey` 引用
-- 确认 i18n 中无孤立旧键
-- 确认所有 JSON 文件语法正确
-- 确认所有 JS 文件语法正确
+### 3. reasoning/i18n（4 种语言）
+- `reasoning_effort.help`：补充缺失选项 `off`、`max`、`ultracode`
 
-## 关键文件
-- `packages/web/src/views/settings/cards/groupCard.vue` — 已修改
-- `packages/web/src/views/settings/cards/*.js` — 已修改（13 个文件）
-- `packages/web/src/views/settings/i18n/**/*.json` — 已修改（52 个文件）
-- `.codewhale/scripts/final-fix.cjs` — 待执行 security 修正后删除
+| 文件 | 修改字段 |
+|------|----------|
+| `packages/web/src/views/settings/i18n/reasoning/en.json` | reasoning_effort |
+| `packages/web/src/views/settings/i18n/reasoning/ja.json` | reasoning_effort |
+| `packages/web/src/views/settings/i18n/reasoning/pt-BR.json` | reasoning_effort |
+| `packages/web/src/views/settings/i18n/reasoning/zh-Hans.json` | reasoning_effort |
 
-## 下一步
-1. 修正 security 目录的 i18n 键
-2. 全面验证所有 i18n 键是否符合规则
-3. 清理临时脚本
-4. 运行最终验证
+### 4. basic/zh-Hans
+- `update_check_for_updates.help`：补充 `false` 选项说明（完全关闭更新检查）
+
+| 文件 | 修改字段 |
+|------|----------|
+| `packages/web/src/views/settings/i18n/basic/zh-Hans.json` | update_check_for_updates |
+
+## 验证结果
+- 所有修改的 JSON 文件语法验证通过
+- `npm run lint` 通过（0 错误）
+
+## 遗留工作（来自上一会话，尚未开始）
+- settings cards 禁用项清理
+- settings/index.vue 重构（clearObject + assign，formData 无默认值）
+- onRestoreDefaults 改为调用后端接口恢复默认
+- core 层统一管理通用设置（defaults.js、reader.js、writer.js）
+- server routes 瘦身委托 core 层
+- 去除冗余 maskingStore.loading 调用

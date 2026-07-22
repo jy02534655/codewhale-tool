@@ -4,21 +4,19 @@
       "title": "Segurança e Permissões",
       "approval_policy": {
         "label": "Política de Aprovação",
-        "help": "Estratégia de aprovação popup antes da execução da ferramenta. on-request confirma cada solicitação, untrusted confirma apenas operações não confiáveis, never nunca exibe popup."
+        "help": "Política de aprovação. on-request: solicita confirmação antes de cada execução de ferramenta (padrão); untrusted: solicita aprovação apenas para operações não confiáveis; never: nunca solicita aprovação, permitindo automação total quando combinado com o modo YOLO"
       },
       "sandbox_mode": {
         "label": "Modo Sandbox",
-        "help": "Sandbox de acesso ao sistema de arquivos. read-only é o mais rigoroso, workspace-write permite gravação dentro do workspace, danger-full-access sem limites, external-sandbox depende de isolamento de ferramenta externa."
+        "help": "Modo de execução sandbox. read-only: proíbe qualquer escrita no sistema de arquivos; workspace-write: permite escrita dentro do diretório do workspace; danger-full-access: sem restrições de sandbox; external-sandbox: usa ferramentas de sandbox externas (Docker, Seatbelt, Landlock)"
       },
       "allow_shell": {
-        "label": "Permitir Shell",
-        "help": "Se deve permitir ferramentas shell. Disponível quando true, mas ainda controlado por approval_policy; false oculta completamente a ferramenta exec_shell."
+        "label": "Permitir Operações de Shell",
+        "help": "Se ferramentas de shell são permitidas. Quando true, as ferramentas de shell estão disponíveis mas ainda controladas pela política de aprovação (on-request / untrusted / never); quando false, a ferramenta exec_shell é completamente ocultada"
       },
-      "permissions": {
-        "toml": {
-          "label": "Arquivo de Regras de Permissão",
-          "help": "Suporta campos tool + command/path opcionais. Regras correspondentes forçam aprovação no modo não-YOLO; no modo never, correspondências são diretamente rejeitadas (pois nenhum popup pode ser exibido)."
-        }
+      "permissions_toml": {
+        "label": "Arquivo de Permissões TOML",
+        "help": "Caminho para o arquivo de regras de permissões no formato TOML"
       }
     }
   }

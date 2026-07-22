@@ -3,16 +3,16 @@ export const pathsGroups = [
   {
     titleKey: 'settings.paths',
     items: [
-      { key: 'skills.scan_codewhale_only', tag: 'el-switch', disabled: true },
-      { key: 'memory.enabled', tag: 'el-switch', disabled: true },
-      { key: 'snapshots.enabled', tag: 'el-switch', disabled: true },
-      { key: 'verifier.enabled', tag: 'el-switch', disabled: true },
-      { key: 'snapshots.max_age_days', tag: 'el-input-number', disabled: true },
-      { key: 'verifier.verdict_policy', tag: 'SettingsSelect', optionKey: 'verifier_verdict_policy', disabled: true },
-      { key: 'skills_dir', tag: 'el-input', disabled: true },
-      { key: 'mcp_config_path', tag: 'el-input', disabled: true },
-      { key: 'notes_path', tag: 'el-input', disabled: true },
-      { key: 'memory_path', tag: 'el-input', disabled: true }
+      { key: 'skills_scan_codewhale_only', tag: 'el-switch' },
+      { key: 'memory_enabled', tag: 'el-switch' },
+      { key: 'snapshots_enabled', tag: 'el-switch' },
+      { key: 'verifier_enabled', tag: 'el-switch' },
+      { key: 'snapshots_max_age_days', tag: 'el-input-number' },
+      { key: 'verifier_verdict_policy', tag: 'SettingsSelect', optionKey: 'verifier_verdict_policy', disabled: true },
+      { key: 'skills_dir', tag: 'el-input' },
+      { key: 'mcp_config_path', tag: 'el-input' },
+      { key: 'notes_path', tag: 'el-input' },
+      { key: 'memory_path', tag: 'el-input' }
     ]
   }
 ];

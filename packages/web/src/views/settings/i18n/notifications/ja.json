@@ -1,26 +1,26 @@
 {
   "settings": {
     "notifications": {
-      "title": "通知",
-      "include_summary": {
-        "label": "概要を含める",
-        "help": "デフォルトは false。有効にすると通知に所要時間とターンの推定費用が含まれます。"
-      },
-      "sound_file": {
-        "label": "サウンドファイル",
-        "help": "completion_sound が file の場合のみ使用。カスタム WAV サウンドファイルのパス。Windows のみ。"
-      },
+      "title": "通知設定",
       "notifications_method": {
         "label": "通知方法",
-        "help": "完了通知方式。auto は端末に応じて自動選択、osc9 は OSC 9 を送信、bel は端末ベルを送信、off は通知を無効化。"
+        "help": "通知方法。auto：端末を自動検出（iTerm.app、Ghostty、WezTerm は osc9、他は bel にフォールバック）；osc9：OSC 9 エスケープシーケンスを送信；bel：BEL 文字を送信；off：完了通知を完全に無効化"
       },
       "notifications_threshold_secs": {
-        "label": "通知しきい値",
-        "help": "成功して完了し、所要時間がこの値以上のターンのみ通知をトリガーします。デフォルト 30s。失敗/キャンセルされたターンは常に静寂です。"
+        "label": "トリガーしきい値（秒）",
+        "help": "タスクがこの秒数を超えた場合のみ通知"
       },
       "notifications_completion_sound": {
-        "label": "完了音",
-        "help": "完了音。beep はシステムデフォルトのビープ音、off は無効化、bell は端末ベル、file はカスタム WAV を再生。"
+        "label": "完了通知音",
+        "help": "完了通知音。beep：システムデフォルトの蜂鳴音（デフォルト）；off：完了音をオフ；bell：ターミナルの bell を使用；file：カスタム WAV ファイルを再生（sound_file でパス指定）"
+      },
+      "notifications_include_summary": {
+        "label": "摘要を含める",
+        "help": "通知メッセージにタスク結果の摘要を含めるかどうか"
+      },
+      "sound_file": {
+        "label": "サウンドファイルパス",
+        "help": "カスタム通知音ファイルパス"
       }
     }
   }

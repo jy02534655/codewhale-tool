@@ -2,53 +2,46 @@
   "settings": {
     "paths": {
       "title": "Paths",
+      "skills_scan_codewhale_only": {
+        "label": "Scan CodeWhale Only",
+        "help": "When enabled, the skill installer only scans the CodeWhale official source, ignoring local and third-party directories"
+      },
+      "memory_enabled": {
+        "label": "Enable Memory",
+        "help": "When enabled, cross-session memory is persisted"
+      },
+      "snapshots_enabled": {
+        "label": "Enable Snapshots",
+        "help": "When enabled, project snapshots are saved automatically"
+      },
+      "verifier_enabled": {
+        "label": "Enable Verifier",
+        "help": "When enabled, the verifier runs automatically before each save"
+      },
+      "snapshots_max_age_days": {
+        "label": "Snapshot Max Age (days)",
+        "help": "Old snapshots exceeding this age are cleaned up automatically"
+      },
+      "verifier_verdict_policy": {
+        "label": "Verdict Policy",
+        "help": "Unknown values will be rejected, reserved for future policy extension",
+        "disabled": true
+      },
       "skills_dir": {
         "label": "Skills Directory",
-        "help": "Each skill is a directory containing SKILL.md. Workspace-local .agents/skills or ./skills take precedence over global directories."
+        "help": "Path to the skill installation directory"
       },
       "mcp_config_path": {
-        "label": "MCP Config File Path",
-        "help": "MCP server configuration file path. Can be viewed with /mcp in the TUI; after modification, the TUI must be restarted to rebuild the tool pool."
+        "label": "MCP Config Path",
+        "help": "Path to the MCP configuration file"
       },
       "notes_path": {
-        "label": "Notes File Path",
-        "help": "Note file path used by the note tool visible to the model."
+        "label": "Notes Path",
+        "help": "Path to the notes file"
       },
       "memory_path": {
-        "label": "Memory File Path",
-        "help": "User memory file path. memory_path is a top-level field, not nested under [memory]."
-      },
-      "skills": {
-        "scan_codewhale_only": {
-          "label": "Scan CodeWhale Skills Only",
-          "help": "When set to true, ignores cross-tool root directories like .claude/skills, .opencode/skills, .cursor/skills, ~/.agents/skills, etc."
-        }
-      },
-      "memory": {
-        "enabled": {
-          "label": "Enable Memory",
-          "help": "When enabled, the TUI loads the memory file into the <user_memory> prompt block, enabling # foo quick capture and the remember tool."
-        }
-      },
-      "snapshots": {
-        "enabled": {
-          "label": "Enable Snapshots",
-          "help": "Creates side-git snapshots for file modifications, supporting rollback. Snapshots are stored in ~/.codewhale/snapshots/..., never using the workspace's own .git."
-        },
-        "max_age_days": {
-          "label": "Snapshot Max Age (Days)",
-          "help": "Snapshots older than this many days are automatically cleaned up."
-        }
-      },
-      "verifier": {
-        "enabled": {
-          "label": "Enable Verifier",
-          "help": "When enabled, automatically runs a verifier preview check when the model claims a task is complete."
-        },
-        "verdict_policy": {
-          "label": "Verifier Verdict Policy",
-          "help": "Currently the only policy. Maps the verifier's pass/partial/fail to hunted/wounded/escaped semantics. Unknown values are rejected, reserving extension for future policies."
-        }
+        "label": "Memory Path",
+        "help": "Path to the memory file"
       }
     }
   }

@@ -24,3 +24,5 @@ export {
   SUPPORTED_LOCALES,
   LOCALE_LABELS,
 } from './utils/i18n.js';
+
+export { DEFAULT_SETTINGS, readSettingsFromCodeWhale, writeSettingsToCodeWhale, codeWhalePath, SettingsManager } from './settings/index.js';

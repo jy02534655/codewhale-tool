@@ -4,14 +4,7 @@
  * 提供 isEmpty、getValueByData、nameIncreasePrefix 等辅助方法。
  */
 
-import {
-  isNumber,
-  isEmpty as lodashIsEmpty,
-  isBoolean,
-  isDate,
-  isFunction,
-  get,
-} from 'lodash';
+import { isNumber, isEmpty as lodashIsEmpty, isBoolean, isDate, isFunction, get, pickBy } from 'lodash';
 
 /**
  * 判断是否为空对象、空字符串、null
@@ -26,6 +19,10 @@ export function isEmpty(v) {
     return false;
   }
   return lodashIsEmpty(v);
+}
+
+export function clearObject(o) {
+  return pickBy(o, (item) => !isEmpty(item));
 }
 
 /**

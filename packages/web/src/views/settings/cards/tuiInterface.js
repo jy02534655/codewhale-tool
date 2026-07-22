@@ -18,7 +18,7 @@ export const tuiInterfaceGroups = [
       { key: 'mention_walk_depth', tag: 'el-input-number', attrs: { min: 0 } },
       { key: 'max_history', tag: 'el-input-number', attrs: { min: 1 } },
       { key: 'background_color', tag: 'el-input' },
-      { key: 'default_model', tag: 'el-input', disabled: true }
+      { key: 'default_model', tag: 'el-input' }
     ]
   }
 ];

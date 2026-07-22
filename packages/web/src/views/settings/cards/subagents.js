@@ -8,14 +8,14 @@ export const subagentsGroups = [
       { key: 'subagents_api_timeout_secs', tag: 'el-input-number', attrs: { min: 1, max: 1800 } },
       { key: 'subagents_heartbeat_timeout_secs', tag: 'el-input-number', attrs: { min: 30, max: 3600 } },
       { key: 'subagents_default_model', tag: 'el-input' },
-      { key: 'subagents.max_depth', tag: 'el-input-number', disabled: true },
-      { key: 'subagents.launch_concurrency', tag: 'el-input-number', disabled: true },
-      { key: 'subagents.max_admitted', tag: 'el-input-number', disabled: true },
-      { key: 'subagents.worker_model', tag: 'el-input', disabled: true },
-      { key: 'subagents.explorer_model', tag: 'el-input', disabled: true },
-      { key: 'subagents.awaiter_model', tag: 'el-input', disabled: true },
-      { key: 'subagents.review_model', tag: 'el-input', disabled: true },
-      { key: 'subagents.custom_model', tag: 'el-input', disabled: true }
+      { key: 'subagents_max_depth', tag: 'el-input-number' },
+      { key: 'subagents_launch_concurrency', tag: 'el-input-number' },
+      { key: 'subagents_max_admitted', tag: 'el-input-number' },
+      { key: 'subagents_worker_model', tag: 'el-input' },
+      { key: 'subagents_explorer_model', tag: 'el-input' },
+      { key: 'subagents_awaiter_model', tag: 'el-input' },
+      { key: 'subagents_review_model', tag: 'el-input' },
+      { key: 'subagents_custom_model', tag: 'el-input' }
     ]
   }
 ];

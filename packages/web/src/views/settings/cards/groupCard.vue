@@ -22,8 +22,6 @@
 </template>
 
 <script setup>
-  import { computed } from 'vue';
-  import { useI18n } from 'vue-i18n';
   import FormItemLabel from '@/components/label/index.vue';
   import SettingsSelect from '@/components/form/select/index.vue';
 
@@ -43,19 +41,6 @@
       type: Array,
       default: () => []
     }
-  });
-
-  const { t } = useI18n({ useScope: 'global' });
-
-  const title = computed(() => {
-    const translated = t(props.titleKey);
-    if (typeof translated === 'object' && translated !== null) {
-      return translated.title || props.titleKey.split('.').pop();
-    }
-    if (!translated || translated === props.titleKey) {
-      return props.titleKey.split('.').pop();
-    }
-    return translated;
   });
 
   // 将字符串 tag 解析为实际组件；未知组件保持原字符串，依赖全局注册

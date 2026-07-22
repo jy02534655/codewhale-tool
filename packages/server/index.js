@@ -19,6 +19,7 @@ import {
   setLocale,
   FileManager,
   ProjectManager,
+  SettingsManager,
 } from '@codewhale/core';
 import { createLangRouter } from './src/routes/lang.js';
 import { createOfficialKeyRouter } from './src/routes/officialKey.js';
@@ -51,6 +52,7 @@ const projectMgr = new ProjectManager(engine);
 const skillMgr = new SkillManager(engine);
 const syncMgr = new SyncManager(engine, providerMgr, officialKeyMgr);
 const fileMgr = new FileManager();
+const settingsMgr = new SettingsManager();
 engine.projectManager = projectMgr;
 
 // 从本地 store.json 恢复项目语言偏好（codewhale-tool 自身语言）
@@ -81,7 +83,7 @@ app.use('/api/project', createProjectRouter(projectMgr));
 app.use('/api/files', createFileRouter(fileMgr));
 app.use('/api/skill', createSkillRouter(skillMgr));
 app.use('/api', createSyncRouter(syncMgr));
-app.use('/api/settings', createSettingsRouter(engine));
+app.use('/api/settings', createSettingsRouter(settingsMgr));
 
 // ─── 启动服务 ──────────────────────────────────────────────────
 

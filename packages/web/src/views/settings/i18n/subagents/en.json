@@ -4,57 +4,55 @@
       "title": "Subagents",
       "subagents_max_concurrent": {
         "label": "Max Concurrent Subagents",
-        "help": "Maximum number of simultaneously active subagents, default 20, range 1~20."
+        "help": "Upper limit of concurrently active subagents, default 20, range 1~20."
       },
       "subagents_token_budget": {
         "label": "Token Budget",
-        "help": "Context token budget per subagent step call. Default 200000."
+        "help": "Context token budget for a single subagent step. Default 200000."
       },
       "subagents_api_timeout_secs": {
         "label": "API Timeout",
-        "help": "Timeout for subagent single-step model calls, default 120s, range 1~1800."
+        "help": "Timeout for a single subagent model call, default 120s, range 1~1800."
       },
       "subagents_heartbeat_timeout_secs": {
         "label": "Heartbeat Timeout",
-        "help": "How long a subagent can be unresponsive before being considered dead and cleaned up, default 300s, range 30~3600, must be greater than api_timeout_secs."
+        "help": "How long a subagent with no response is considered stuck and cleaned up, default 300s, range 30~3600, must be greater than api_timeout_secs."
       },
       "subagents_default_model": {
         "label": "Default Subagent Model",
         "help": "Fallback model when no role is specified."
       },
-      "subagents": {
-        "max_depth": {
-          "label": "Max Depth",
-          "help": "Maximum hierarchical depth that subagents can recursively delegate to other subagents."
-        },
-        "launch_concurrency": {
-          "label": "Launch Concurrency",
-          "help": "How many subagents to launch simultaneously in one turn before queuing the rest. Prevents instant burst from causing API rate limiting."
-        },
-        "max_admitted": {
-          "label": "Max Admitted",
-          "help": "Total number of subagents including running and queued. High fan-out tasks can be queued, but runtime launch pressure is controlled."
-        },
-        "worker_model": {
-          "label": "Worker Model",
-          "help": "Subagent model for executing specific coding/modification tasks."
-        },
-        "explorer_model": {
-          "label": "Explorer Model",
-          "help": "Subagent model for exploring codebase and searching files."
-        },
-        "awaiter_model": {
-          "label": "Awaiter Model",
-          "help": "Subagent model for waiting for external events and polling results."
-        },
-        "review_model": {
-          "label": "Review Model",
-          "help": "Subagent model for code review and result verification."
-        },
-        "custom_model": {
-          "label": "Custom Model",
-          "help": "Subagent model for user-defined roles."
-        }
+      "subagents_max_depth": {
+        "label": "Max Depth",
+        "help": "Maximum hierarchy depth for recursive subagent delegation"
+      },
+      "subagents_launch_concurrency": {
+        "label": "Launch Concurrency",
+        "help": "How many subagents to start simultaneously in one turn before queuing the rest. Prevents burst rate limiting"
+      },
+      "subagents_max_admitted": {
+        "label": "Max Admitted",
+        "help": "Total number of subagents including running and queued. High fan-out tasks can queue, but runtime launch pressure is controlled"
+      },
+      "subagents_worker_model": {
+        "label": "Worker Model",
+        "help": "Model for executing specific coding/modification tasks"
+      },
+      "subagents_explorer_model": {
+        "label": "Explorer Model",
+        "help": "Model for exploring codebase, searching files"
+      },
+      "subagents_awaiter_model": {
+        "label": "Awaiter Model",
+        "help": "Model for waiting for external events, polling results"
+      },
+      "subagents_review_model": {
+        "label": "Review Model",
+        "help": "Model for code review, validating results"
+      },
+      "subagents_custom_model": {
+        "label": "Custom Model",
+        "help": "Model for user-defined roles"
       }
     }
   }

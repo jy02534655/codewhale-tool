@@ -1,54 +1,47 @@
 {
   "settings": {
     "paths": {
-      "title": "Caminhos",
+      "title": "Caminhos e Armazenamento",
+      "skills_scan_codewhale_only": {
+        "label": "Digitalizar Apenas CodeWhale",
+        "help": "Quando ativado, o instalador de habilidades apenas digitaliza a fonte oficial do CodeWhale, ignorando diretórios locais e de terceiros"
+      },
+      "memory_enabled": {
+        "label": "Habilitar Memória",
+        "help": "Quando ativado, a memória entre sessões é persistida"
+      },
+      "snapshots_enabled": {
+        "label": "Habilitar Snapshots",
+        "help": "Quando ativado, snapshots do projeto são salvos automaticamente"
+      },
+      "verifier_enabled": {
+        "label": "Habilitar Verificador",
+        "help": "Quando ativado, o verificador é executado automaticamente antes de cada salvamento"
+      },
+      "snapshots_max_age_days": {
+        "label": "Idade Máx. do Snapshot (dias)",
+        "help": "Snapshots antigos que excedem essa idade são limpos automaticamente"
+      },
+      "verifier_verdict_policy": {
+        "label": "Política de Veredito",
+        "help": "Valores desconhecidos serão rejeitados, reservado para futura extensão de política",
+        "disabled": true
+      },
       "skills_dir": {
-        "label": "Diretório de Skills",
-        "help": "Cada skill é um diretório contendo SKILL.md. Os diretórios .agents/skills ou ./skills locais do workspace têm precedência sobre os diretórios globais."
+        "label": "Diretório de Habilidades",
+        "help": "Caminho para o diretório de instalação de habilidades"
       },
       "mcp_config_path": {
-        "label": "Caminho do Arquivo de Config MCP",
-        "help": "Caminho do arquivo de configuração do servidor MCP. Pode ser visualizado com /mcp na TUI; após modificação, a TUI deve ser reiniciada para reconstruir o pool de ferramentas."
+        "label": "Caminho de Config. MCP",
+        "help": "Caminho para o arquivo de configuração MCP"
       },
       "notes_path": {
-        "label": "Caminho do Arquivo de Notas",
-        "help": "Caminho do arquivo de notas usado pela ferramenta note visível ao modelo."
+        "label": "Caminho das Notas",
+        "help": "Caminho para o arquivo de notas"
       },
       "memory_path": {
-        "label": "Caminho do Arquivo de Memória",
-        "help": "Caminho do arquivo de memória do usuário. memory_path é um campo de nível superior, não aninhado em [memory]."
-      },
-      "skills": {
-        "scan_codewhale_only": {
-          "label": "Scanear Apenas Skills do CodeWhale",
-          "help": "Quando definido como true, ignora diretórios raiz entre ferramentas como .claude/skills, .opencode/skills, .cursor/skills, ~/.agents/skills, etc."
-        }
-      },
-      "memory": {
-        "enabled": {
-          "label": "Habilitar Memória",
-          "help": "Quando ativado, o TUI carrega o arquivo de memória no bloco de prompt <user_memory>, habilitando a captura rápida # foo e a ferramenta remember."
-        }
-      },
-      "snapshots": {
-        "enabled": {
-          "label": "Habilitar Snapshots",
-          "help": "Cria snapshots side-git para modificações de arquivo, suportando rollback. Snapshots são armazenados em ~/.codewhale/snapshots/..., nunca usando o .git do próprio workspace."
-        },
-        "max_age_days": {
-          "label": "Dias de Retenção de Snapshot",
-          "help": "Snapshots mais antigos que esse número de dias são limpos automaticamente."
-        }
-      },
-      "verifier": {
-        "enabled": {
-          "label": "Habilitar Verificador",
-          "help": "Quando ativado, executa automaticamente uma verificação de preview do verificador quando o modelo afirma que uma tarefa está concluída."
-        },
-        "verdict_policy": {
-          "label": "Política de Veredito do Verificador",
-          "help": "Atualmente a única política. Mapeia o pass/partial/fail do verificador para a semântica hunted/wounded/escaped. Valores desconhecidos são rejeitados, reservando extensão para políticas futuras."
-        }
+        "label": "Caminho da Memória",
+        "help": "Caminho para o arquivo de memória"
       }
     }
   }

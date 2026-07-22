@@ -4,7 +4,7 @@
       "title": "Raciocínio",
       "reasoning_effort": {
         "label": "Esforço de Raciocínio",
-        "help": "Controla o esforço de raciocínio do modelo. Opções: low / medium / high / xhigh, padrão low. Esforço maior significa pensamento mais profundo, mas mais tempo e consumo de tokens."
+        "help": "Controla o esforço de raciocínio do modelo. Opções: off (desativa completamente o raciocínio), low (baixo esforço), medium (esforço médio), high (alto esforço), max (profundidade máxima de raciocínio), xhigh (esforço extremamente alto), ultracode (maior esforço de raciocínio otimizado para geração de código)"
       }
     }
   }

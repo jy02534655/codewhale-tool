@@ -1,54 +1,47 @@
 {
   "settings": {
     "paths": {
-      "title": "パス",
+      "title": "パスとストレージ",
+      "skills_scan_codewhale_only": {
+        "label": "CodeWhale のみスキャン",
+        "help": "有効にすると、スキルインストーラーは CodeWhale 公式ソースのみをスキャンし、ローカルおよびサードパーティディレクトリを無視します"
+      },
+      "memory_enabled": {
+        "label": "メモリを有効化",
+        "help": "有効にすると、セッション間のメモリが永続化されます"
+      },
+      "snapshots_enabled": {
+        "label": "スナップショットを有効化",
+        "help": "有効にすると、プロジェクトスナップショットが自動的に保存されます"
+      },
+      "verifier_enabled": {
+        "label": "検証器を有効化",
+        "help": "有効にすると、保存するたびに検証器が自動的に実行されます"
+      },
+      "snapshots_max_age_days": {
+        "label": "スナップショット最大保持日数",
+        "help": "この日数を超えた古いスナップショットは自動的にクリーンアップされます"
+      },
+      "verifier_verdict_policy": {
+        "label": "判定ポリシー",
+        "help": "未知の値は拒否され、将来のポリシー拡張のために予約されています",
+        "disabled": true
+      },
       "skills_dir": {
         "label": "スキルディレクトリ",
-        "help": "各スキルは SKILL.md を含むディレクトリです。ワークスペースローカルの .agents/skills または ./skills がグローバルディレクトリより優先されます。"
+        "help": "スキルインストールディレクトリパス"
       },
       "mcp_config_path": {
-        "label": "MCP 設定ファイルパス",
-        "help": "MCP サーバー設定ファイルのパス。TUI 内で /mcp で表示でき、変更後は TUI を再起動してツールプールを再構築する必要があります。"
+        "label": "MCP 設定パス",
+        "help": "MCP 設定ファイルパス"
       },
       "notes_path": {
-        "label": "メモファイルパス",
-        "help": "モデルから見える note ツールが使用するノートファイルのパス。"
+        "label": "ノートパス",
+        "help": "ノートファイルパス"
       },
       "memory_path": {
-        "label": "メモリファイルパス",
-        "help": "ユーザー記憶ファイルのパス。memory_path はトップレベルフィールドで、[memory] の下にはネストされていません。"
-      },
-      "skills": {
-        "scan_codewhale_only": {
-          "label": "CodeWhale スキルのみスキャン",
-          "help": "true に設定すると、.claude/skills、.opencode/skills、.cursor/skills、~/.agents/skills などのクロスツールルートディレクトリを無視します。"
-        }
-      },
-      "memory": {
-        "enabled": {
-          "label": "メモリを有効化",
-          "help": "有効にすると、TUI は記憶ファイルを <user_memory> プロンプトブロックに読み込み、# foo クイックキャプチャと remember ツールを有効にします。"
-        }
-      },
-      "snapshots": {
-        "enabled": {
-          "label": "スナップショットを有効化",
-          "help": "ファイル変更のために side-git スナップショットを作成し、ロールバックをサポート。スナップショットは ~/.codewhale/snapshots/... に保存され、ワークスペース自身の .git は使用しません。"
-        },
-        "max_age_days": {
-          "label": "スナップショット保持日数",
-          "help": "この日数を超えたスナップショットは自動的にクリーンアップされます。"
-        }
-      },
-      "verifier": {
-        "enabled": {
-          "label": "検証を有効化",
-          "help": "有効にすると、モデルがタスクの完了を主張したとき、自動的に検証器プレビューチェックを実行します。"
-        },
-        "verdict_policy": {
-          "label": "検証判定ポリシー",
-          "help": "現在唯一のポリシー。検証者の pass/partial/fail を hunted/wounded/escaped セマンティクスにマッピングします。不明な値は拒否され、将来のポリシー拡張のために予約されています。"
-        }
+        "label": "メモリパス",
+        "help": "メモリファイルパス"
       }
     }
   }

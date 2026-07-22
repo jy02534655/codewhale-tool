@@ -4,21 +4,19 @@
       "title": "安全与权限",
       "approval_policy": {
         "label": "审批策略",
-        "help": "工具执行前的弹窗审批策略。on-request 每次请求确认，untrusted 仅对不可信操作确认，never 永不弹窗。"
+        "help": "审批策略。on-request：每次执行工具前弹窗请求确认（默认）；untrusted：仅对不可信操作请求审批；never：永不弹窗审批，配合 YOLO 模式实现全自动执行"
       },
       "sandbox_mode": {
         "label": "沙箱模式",
-        "help": "文件系统访问沙箱。read-only 最严格，workspace-write 允许工作区内写入，danger-full-access 无限制，external-sandbox 依赖外部工具隔离。"
+        "help": "沙箱执行模式。read-only：禁止任何文件系统写入；workspace-write：允许在工作区目录内写入文件；danger-full-access：无沙箱限制；external-sandbox：使用外部沙箱工具（如 Docker、Seatbelt、Landlock）"
       },
       "allow_shell": {
-        "label": "允许 shell",
-        "help": "是否允许 shell 工具。true 时可用，但仍受 approval_policy 控制；false 完全隐藏 exec_shell 工具。"
+        "label": "允许 Shell 操作",
+        "help": "是否允许 shell 工具。true 时可用，但仍受审批策略（on-request / untrusted / never）控制；false 完全隐藏 exec_shell 工具"
       },
-      "permissions": {
-        "toml": {
-          "label": "权限规则文件",
-          "help": "支持 tool + 可选 command / path 字段。匹配的规则会在非 YOLO 模式下强制触发审批；never 模式下匹配则直接拒绝（因为无法弹窗）"
-        }
+      "permissions_toml": {
+        "label": "权限规则文件",
+        "help": "TOML 格式的权限规则文件路径"
       }
     }
   }

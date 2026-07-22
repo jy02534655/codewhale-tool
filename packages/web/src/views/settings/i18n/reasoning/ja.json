@@ -4,7 +4,7 @@
       "title": "推論",
       "reasoning_effort": {
         "label": "推論強度",
-        "help": "モデルの推論強度を制御します。low / medium / high / xhigh から選択、デフォルト low。強いほど深く思考しますが、時間とトークン消費も増加します。"
+        "help": "モデルの推論強度を制御。オプション：off（推論を完全に無効化）、low（低強度）、medium（中強度）、high（高強度）、max（最大推論深度）、xhigh（極高強度）、ultracode（コード生成に最適化された最高推論強度）"
       }
     }
   }

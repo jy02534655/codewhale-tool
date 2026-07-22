@@ -3,13 +3,13 @@ export const contextGroups = [
   {
     titleKey: 'settings.context',
     items: [
-      { key: 'enabled', tag: 'el-switch', disabled: true },
-      { key: 'CODEWHALE_CACHE_MAXIMAL', tag: 'el-switch', disabled: true },
-      { key: 'verbatim_window_turns', tag: 'el-input-number', disabled: true },
-      { key: 'l1_threshold', tag: 'el-input-number', disabled: true },
-      { key: 'l2_threshold', tag: 'el-input-number', disabled: true },
-      { key: 'l3_threshold', tag: 'el-input-number', disabled: true },
-      { key: 'seam_model', tag: 'el-input', disabled: true }
+      { key: 'context_enabled', tag: 'el-switch' },
+      { key: 'CODEWHALE_CACHE_MAXIMAL', tag: 'el-switch' },
+      { key: 'context_verbatim_window_turns', tag: 'el-input-number' },
+      { key: 'context_l1_threshold', tag: 'el-input-number' },
+      { key: 'context_l2_threshold', tag: 'el-input-number' },
+      { key: 'context_l3_threshold', tag: 'el-input-number' },
+      { key: 'context_seam_model', tag: 'el-input' }
     ]
   }
 ];

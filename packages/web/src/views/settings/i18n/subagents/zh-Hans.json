@@ -22,39 +22,37 @@
         "label": "默认子代理模型",
         "help": "未指定角色时的 fallback 模型。"
       },
-      "subagents": {
-        "max_depth": {
-          "label": "最大深度",
-          "help": "子代理可以递归委派子代理的最大层级深度"
-        },
-        "launch_concurrency": {
-          "label": "启动并发数",
-          "help": "一轮中同时启动多少子代理后再让其余排队。防止瞬间 burst 导致 API 限流"
-        },
-        "max_admitted": {
-          "label": "最大入场数",
-          "help": "包括正在运行和排队等待的子代理总数。高扇出任务可以排队，但运行时启动压力受控"
-        },
-        "worker_model": {
-          "label": "工作模型",
-          "help": "执行具体编码/修改任务的子代理模型"
-        },
-        "explorer_model": {
-          "label": "探索模型",
-          "help": "探索代码库、搜索文件的子代理模型"
-        },
-        "awaiter_model": {
-          "label": "等待模型",
-          "help": "等待外部事件、轮询结果的子代理模型"
-        },
-        "review_model": {
-          "label": "审查模型",
-          "help": "代码审查、验证结果的子代理模型"
-        },
-        "custom_model": {
-          "label": "自定义模型",
-          "help": "用户自定义角色的子代理模型"
-        }
+      "subagents_max_depth": {
+        "label": "最大深度",
+        "help": "子代理可以递归委派子代理的最大层级深度"
+      },
+      "subagents_launch_concurrency": {
+        "label": "启动并发数",
+        "help": "一轮中同时启动多少子代理后再让其余排队。防止瞬间 burst 导致 API 限流"
+      },
+      "subagents_max_admitted": {
+        "label": "最大入场数",
+        "help": "包括正在运行和排队等待的子代理总数。高扇出任务可以排队，但运行时启动压力受控"
+      },
+      "subagents_worker_model": {
+        "label": "工作模型",
+        "help": "执行具体编码/修改任务的子代理模型"
+      },
+      "subagents_explorer_model": {
+        "label": "探索模型",
+        "help": "探索代码库、搜索文件的子代理模型"
+      },
+      "subagents_awaiter_model": {
+        "label": "等待模型",
+        "help": "等待外部事件、轮询结果的子代理模型"
+      },
+      "subagents_review_model": {
+        "label": "审查模型",
+        "help": "代码审查、验证结果的子代理模型"
+      },
+      "subagents_custom_model": {
+        "label": "自定义模型",
+        "help": "用户自定义角色的子代理模型"
       }
     }
   }

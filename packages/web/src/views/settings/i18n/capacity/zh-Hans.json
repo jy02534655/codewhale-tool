@@ -2,63 +2,63 @@
   "settings": {
     "capacity": {
       "title": "容量控制",
-      "enabled": {
+      "capacity_enabled": {
         "label": "启用容量控制器",
         "help": "实验性功能。开启后，当上下文接近模型上限时，控制器会主动干预（如压缩、重写 transcript），可能改变对话历史"
       },
-      "low_risk_max": {
+      "capacity_low_risk_max": {
         "label": "低风险上限比例",
         "help": "上下文使用率低于 50% 时视为低风险，无需干预"
       },
-      "medium_risk_max": {
+      "capacity_medium_risk_max": {
         "label": "中风险上限比例",
         "help": "使用率在 50%~62% 之间为中等风险，开始预警"
       },
-      "severe_min_slack": {
+      "capacity_severe_min_slack": {
         "label": "严重风险最小余量",
         "help": "负值表示允许短暂超额，但触发紧急压缩"
       },
-      "severe_violation_ratio": {
+      "capacity_severe_violation_ratio": {
         "label": "严重违规比例",
         "help": "当实际使用率超过预期比例的 40% 时视为严重违规"
       },
-      "refresh_cooldown_turns": {
+      "capacity_refresh_cooldown_turns": {
         "label": "刷新冷却轮数",
         "help": "两次上下文刷新操作之间至少间隔多少轮，防止频繁抖动"
       },
-      "replan_cooldown_turns": {
+      "capacity_replan_cooldown_turns": {
         "label": "重规划冷却轮数",
         "help": "两次重新规划之间至少间隔多少轮"
       },
-      "max_replay_per_turn": {
+      "capacity_max_replay_per_turn": {
         "label": "每轮最大重放",
         "help": "单轮内最多重放多少次历史内容到提示中"
       },
-      "min_turns_before_guardrail": {
+      "capacity_min_turns_before_guardrail": {
         "label": "护栏前最小轮数",
         "help": "会话开始至少多少轮后才启用容量护栏，给初始设置留空间"
       },
-      "profile_window": {
+      "capacity_profile_window": {
         "label": "分析窗口",
         "help": "容量控制器分析最近多少轮的 Token 使用趋势"
       },
-      "deepseek_v3_2_chat_prior": {
+      "capacity_deepseek_v3_2_chat_prior": {
         "label": "V3.2 Chat 优先级",
         "help": "使用 V3.2 Chat 模型时的上下文优先级权重"
       },
-      "deepseek_v3_2_reasoner_prior": {
+      "capacity_deepseek_v3_2_reasoner_prior": {
         "label": "V3.2 Reasoner 优先级",
         "help": "使用 V3.2 Reasoner 模型时的权重（略高于 Chat，因为推理消耗更多）"
       },
-      "deepseek_v4_pro_prior": {
+      "capacity_deepseek_v4_pro_prior": {
         "label": "V4 Pro 优先级",
         "help": "V4 Pro 的上下文权重"
       },
-      "deepseek_v4_flash_prior": {
+      "capacity_deepseek_v4_flash_prior": {
         "label": "V4 Flash 优先级",
         "help": "V4 Flash 的权重（最高，因为 Flash 用于协调，需要更多上下文余量）"
       },
-      "fallback_default_prior": {
+      "capacity_fallback_default_prior": {
         "label": "回退默认优先级",
         "help": "未知模型时的默认权重"
       }

@@ -4,7 +4,7 @@
       "title": "Reasoning",
       "reasoning_effort": {
         "label": "Reasoning Effort",
-        "help": "Controls the model's reasoning effort. Options: low / medium / high / xhigh, default low. Higher effort means deeper thinking but more time and token consumption."
+        "help": "Controls the model's reasoning effort. Options: off (completely disable reasoning), low (low effort), medium (medium effort), high (high effort), max (maximum reasoning depth), xhigh (extremely high effort), ultracode (highest reasoning effort optimized for code generation)"
       }
     }
   }
