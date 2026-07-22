@@ -3,8 +3,8 @@ export const searchGroups = [
   {
     titleKey: 'settings.search',
     items: [
-      { key: 'search_provider', tag: 'SettingsSelect', labelKey: 'settings.search_provider.label', helpKey: 'settings.search_provider.help', optionKey: 'search_provider' },
-      { key: 'search_base_url', tag: 'el-input', labelKey: 'settings.search_base_url.label', helpKey: 'settings.search_base_url.help' }
+      { key: 'search_provider', tag: 'SettingsSelect', optionKey: 'search_provider' },
+      { key: 'search_base_url', tag: 'el-input' }
     ]
   }
 ];

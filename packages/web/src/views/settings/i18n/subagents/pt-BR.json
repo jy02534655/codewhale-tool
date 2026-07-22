@@ -1,58 +1,61 @@
-﻿{
+{
   "settings": {
-    "subagents": "Subagentes",
-    "subagents.max_depth": {
-      "label": "Profundidade Máxima",
-      "help": "Profundidade hierárquica máxima que subagentes podem delegar recursivamente para outros subagentes."
-    },
-    "subagents.launch_concurrency": {
-      "label": "Concorrência de Inicialização",
-      "help": "Quantos subagentes iniciar simultaneamente em um turno antes de enfileirar o resto. Evita que bursts instantâneos causem limitação de taxa da API."
-    },
-    "subagents.max_admitted": {
-      "label": "Máx. Admitidos",
-      "help": "Número total de subagentes incluindo os em execução e na fila. Tarefas de alto fan-out podem ser enfileiradas, mas a pressão de lançamento em tempo de execução é controlada."
-    },
-    "subagents.worker_model": {
-      "label": "Modelo de Trabalho",
-      "help": "Modelo de subagente para executar tarefas específicas de codificação/modificação."
-    },
-    "subagents.explorer_model": {
-      "label": "Modelo de Exploração",
-      "help": "Modelo de subagente para explorar a base de código e pesquisar arquivos."
-    },
-    "subagents.awaiter_model": {
-      "label": "Modelo de Espera",
-      "help": "Modelo de subagente para aguardar eventos externos e pesquisar resultados."
-    },
-    "subagents.review_model": {
-      "label": "Modelo de Revisão",
-      "help": "Modelo de subagente para revisão de código e verificação de resultados."
-    },
-    "subagents.custom_model": {
-      "label": "Modelo Personalizado",
-      "help": "Modelo de subagente para papéis definidos pelo usuário."
-    },
-    "subagents_max_concurrent": {
-      "label": "Máx. Subagentes",
-      "help": "Número máximo de subagentes ativos simultaneamente, padrão 20, intervalo 1~20."
-    },
-    "subagents_token_budget": {
-      "label": "Orçamento de Tokens",
-      "help": "Orçamento de tokens de contexto por chamada de passo de subagente. Padrão 200000."
-    },
-    "subagents_api_timeout_secs": {
-      "label": "Timeout de API",
-      "help": "Tempo limite para chamadas de modelo de passo único de subagente, padrão 120s, intervalo 1~1800."
-    },
-    "subagents_heartbeat_timeout_secs": {
-      "label": "Timeout de Heartbeat",
-      "help": "Quanto tempo um subagente pode ficar sem resposta antes de ser considerado morto e limpo, padrão 300s, intervalo 30~3600, deve ser maior que api_timeout_secs."
-    },
-    "subagents_default_model": {
-      "label": "Modelo Padrão",
-      "help": "Modelo de fallback quando nenhum papel é especificado."
+    "subagents": {
+      "title": "Subagentes",
+      "subagents_max_concurrent": {
+        "label": "Máx. Subagentes",
+        "help": "Número máximo de subagentes ativos simultaneamente, padrão 20, intervalo 1~20."
+      },
+      "subagents_token_budget": {
+        "label": "Orçamento de Tokens",
+        "help": "Orçamento de tokens de contexto por chamada de passo de subagente. Padrão 200000."
+      },
+      "subagents_api_timeout_secs": {
+        "label": "Timeout de API",
+        "help": "Tempo limite para chamadas de modelo de passo único de subagente, padrão 120s, intervalo 1~1800."
+      },
+      "subagents_heartbeat_timeout_secs": {
+        "label": "Timeout de Heartbeat",
+        "help": "Quanto tempo um subagente pode ficar sem resposta antes de ser considerado morto e limpo, padrão 300s, intervalo 30~3600, deve ser maior que api_timeout_secs."
+      },
+      "subagents_default_model": {
+        "label": "Modelo Padrão",
+        "help": "Modelo de fallback quando nenhum papel é especificado."
+      },
+      "subagents": {
+        "max_depth": {
+          "label": "Profundidade Máxima",
+          "help": "Profundidade hierárquica máxima que subagentes podem delegar recursivamente para outros subagentes."
+        },
+        "launch_concurrency": {
+          "label": "Concorrência de Inicialização",
+          "help": "Quantos subagentes iniciar simultaneamente em um turno antes de enfileirar o resto. Evita que bursts instantâneos causem limitação de taxa da API."
+        },
+        "max_admitted": {
+          "label": "Máx. Admitidos",
+          "help": "Número total de subagentes incluindo os em execução e na fila. Tarefas de alto fan-out podem ser enfileiradas, mas a pressão de lançamento em tempo de execução é controlada."
+        },
+        "worker_model": {
+          "label": "Modelo de Trabalho",
+          "help": "Modelo de subagente para executar tarefas específicas de codificação/modificação."
+        },
+        "explorer_model": {
+          "label": "Modelo de Exploração",
+          "help": "Modelo de subagente para explorar a base de código e pesquisar arquivos."
+        },
+        "awaiter_model": {
+          "label": "Modelo de Espera",
+          "help": "Modelo de subagente para aguardar eventos externos e pesquisar resultados."
+        },
+        "review_model": {
+          "label": "Modelo de Revisão",
+          "help": "Modelo de subagente para revisão de código e verificação de resultados."
+        },
+        "custom_model": {
+          "label": "Modelo Personalizado",
+          "help": "Modelo de subagente para papéis definidos pelo usuário."
+        }
+      }
     }
   }
 }
-

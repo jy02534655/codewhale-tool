@@ -1,34 +1,35 @@
-﻿{
+{
   "settings": {
-    "features": "Features",
-    "features_shell_tool": {
-      "label": "Shell Tool",
-      "help": "Enable shell tool, allowing execution of shell commands."
-    },
-    "features_subagents": {
-      "label": "Subagents",
-      "help": "Enable subagent delegation and fan-out functionality."
-    },
-    "features_web_search": {
-      "label": "Web Search",
-      "help": "Enable web search and compatible alias web.run, using DuckDuckGo by default."
-    },
-    "features_apply_patch": {
-      "label": "Apply Patch",
-      "help": "Enable apply_patch tool, supporting unified diff format for batch modifications."
-    },
-    "features_mcp": {
-      "label": "MCP",
-      "help": "Enable Model Context Protocol support, allowing connection to external MCP servers to extend the toolset."
-    },
-    "features_exec_policy": {
-      "label": "Exec Policy",
-      "help": "Enable execution policy engine, performing permission checks and approval on tool calls."
-    },
-    "features_vision_model": {
-      "label": "Vision Model",
-      "help": "Needs to be manually enabled. After enabling, an independent image analysis model (such as Xiaomi MiMo) can be configured via [vision_model]."
+    "features": {
+      "title": "Features",
+      "features_shell_tool": {
+        "label": "Shell Tool",
+        "help": "Enable shell tool, allowing execution of shell commands."
+      },
+      "features_subagents": {
+        "label": "Subagents",
+        "help": "Enable subagent delegation and fan-out functionality."
+      },
+      "features_web_search": {
+        "label": "Web Search",
+        "help": "Enable web search and compatible alias web.run, using DuckDuckGo by default."
+      },
+      "features_apply_patch": {
+        "label": "Apply Patch",
+        "help": "Enable apply_patch tool, supporting unified diff format for batch modifications."
+      },
+      "features_mcp": {
+        "label": "MCP",
+        "help": "Enable Model Context Protocol support, allowing connection to external MCP servers to extend the toolset."
+      },
+      "features_exec_policy": {
+        "label": "Exec Policy",
+        "help": "Enable execution policy engine, performing permission checks and approval on tool calls."
+      },
+      "features_vision_model": {
+        "label": "Vision Model",
+        "help": "Needs to be manually enabled. After enabling, an independent image analysis model (such as Xiaomi MiMo) can be configured via [vision_model]."
+      }
     }
   }
 }
-

@@ -1,26 +1,27 @@
-﻿{
+{
   "settings": {
-    "tuiTerminal": "TUI Terminal",
-    "tui_alternate_screen": {
-      "label": "Alternate Screen",
-      "help": "Alternate screen strategy. auto automatically, always always on, never never; interactive sessions are usually taken over by the TUI alternate screen."
-    },
-    "tui_mouse_capture": {
-      "label": "Mouse Capture",
-      "help": "When enabled, supports internal scrolling, conversation selection, right-click menu, and scrollbar dragging; some terminals disable this by default."
-    },
-    "tui_terminal_probe_timeout_ms": {
-      "label": "Terminal Probe Timeout",
-      "help": "Timeout for probing terminal mode (color, mouse protocol) at startup, default 500ms, range 100~5000."
-    },
-    "tui_stream_chunk_timeout_secs": {
-      "label": "Stream Chunk Timeout",
-      "help": "Maximum idle time between two data chunks in the SSE stream, default 300s, range 1~3600, 0 maps to the default value."
-    },
-    "tui_osc8_links": {
-      "label": "OSC 8 Links",
-      "help": "Wraps URLs with OSC 8 escape sequences, supporting Cmd+click navigation in iTerm2/Ghostty/Kitty/WezTerm."
+    "tuiTerminal": {
+      "title": "TUI Terminal",
+      "tui_alternate_screen": {
+        "label": "Alternate Screen",
+        "help": "Alternate screen strategy. auto automatically, always always on, never never; interactive sessions are usually taken over by the TUI alternate screen."
+      },
+      "tui_mouse_capture": {
+        "label": "Mouse Capture",
+        "help": "When enabled, supports internal scrolling, conversation selection, right-click menu, and scrollbar dragging; some terminals disable this by default."
+      },
+      "tui_terminal_probe_timeout_ms": {
+        "label": "Terminal Probe Timeout",
+        "help": "Timeout for probing terminal mode (color, mouse protocol) at startup, default 500ms, range 100~5000."
+      },
+      "tui_stream_chunk_timeout_secs": {
+        "label": "Stream Chunk Timeout",
+        "help": "Maximum idle time between two data chunks in the SSE stream, default 300s, range 1~3600, 0 maps to the default value."
+      },
+      "tui_osc8_links": {
+        "label": "OSC 8 Links",
+        "help": "Wraps URLs with OSC 8 escape sequences, supporting Cmd+click navigation in iTerm2/Ghostty/Kitty/WezTerm."
+      }
     }
   }
 }
-

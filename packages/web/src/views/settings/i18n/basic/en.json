@@ -1,22 +1,23 @@
-﻿{
+{
   "settings": {
-    "basic": "Basic",
-    "language": {
-      "label": "Web UI Language",
-      "help": "Select the display language for the Web UI."
-    },
-    "default_model": {
-      "label": "Default Model",
-      "help": "Default text model. Examples: deepseek-v4-pro, deepseek-v4-flash, claude-sonnet-4-6, etc. DeepSeek currently recommends deepseek-v4-pro."
-    },
-    "update_check_for_updates": {
-      "label": "Check For Updates",
-      "help": "Checks for the latest stable version in the background. Shows a toast notification when a new version is available and resources are complete."
-    },
-    "basic.update_uri": {
-      "label": "Custom Update Mirror",
-      "help": "Points to an internal mirror endpoint that must return GitHub-compatible latest-release JSON (at least containing tag_name). If assets are configured, CodeWhale requires the same asset set as the official release before prompting for an update."
+    "basic": {
+      "title": "Basic",
+      "update_uri": {
+        "label": "Custom Update Mirror",
+        "help": "Points to an internal mirror endpoint that must return GitHub-compatible latest-release JSON (at least containing tag_name). If assets are configured, CodeWhale requires the same asset set as the official release before prompting for an update."
+      },
+      "locale": {
+        "label": "Web UI Language",
+        "help": "Select the display language for the Web UI."
+      },
+      "default_text_model": {
+        "label": "Default Model",
+        "help": "Default text model. Examples: deepseek-v4-pro, deepseek-v4-flash, claude-sonnet-4-6, etc. DeepSeek currently recommends deepseek-v4-pro."
+      },
+      "update_check_for_updates": {
+        "label": "Check For Updates",
+        "help": "Checks for the latest stable version in the background. Shows a toast notification when a new version is available and resources are complete."
+      }
     }
   }
 }
-

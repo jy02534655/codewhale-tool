@@ -3,7 +3,7 @@ export const reasoningGroups = [
   {
     titleKey: 'settings.reasoning',
     items: [
-      { key: 'reasoning_effort', tag: 'SettingsSelect', labelKey: 'settings.reasoning_effort.label', helpKey: 'settings.reasoning_effort.help', optionKey: 'reasoning_effort', disabled: true }
+      { key: 'reasoning_effort', tag: 'SettingsSelect', optionKey: 'reasoning_effort', disabled: true }
     ]
   }
 ];

@@ -1,26 +1,27 @@
-﻿{
+{
   "settings": {
-    "retry": "重试",
-    "retry_enabled": {
-      "label": "启用重试",
-      "help": "API 请求失败时是否自动重试。"
-    },
-    "retry_max_retries": {
-      "label": "最大重试次数",
-      "help": "单次请求最多重试几次后仍失败则报错，默认 3。"
-    },
-    "retry_initial_delay": {
-      "label": "初始延迟",
-      "help": "第一次重试前的等待时间（秒），默认 1.0。"
-    },
-    "retry_max_delay": {
-      "label": "最大延迟",
-      "help": "退避延迟的上限（秒），防止无限增长，默认 60.0。"
-    },
-    "retry_exponential_base": {
-      "label": "指数退避基数",
-      "help": "每次重试延迟乘以该基数，默认 2.0（1s → 2s → 4s → 8s...）。"
+    "retry": {
+      "title": "重试",
+      "retry_enabled": {
+        "label": "启用重试",
+        "help": "API 请求失败时是否自动重试。"
+      },
+      "retry_max_retries": {
+        "label": "最大重试次数",
+        "help": "单次请求最多重试几次后仍失败则报错，默认 3。"
+      },
+      "retry_initial_delay": {
+        "label": "初始延迟",
+        "help": "第一次重试前的等待时间（秒），默认 1.0。"
+      },
+      "retry_max_delay": {
+        "label": "最大延迟",
+        "help": "退避延迟的上限（秒），防止无限增长，默认 60.0。"
+      },
+      "retry_exponential_base": {
+        "label": "指数退避基数",
+        "help": "每次重试延迟乘以该基数，默认 2.0（1s → 2s → 4s → 8s...）。"
+      }
     }
   }
 }
-

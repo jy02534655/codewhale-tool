@@ -1,22 +1,23 @@
-﻿{
+{
   "settings": {
-    "basic": "基础设置",
-    "language": {
-      "label": "Web UI 语言",
-      "help": "选择 Web 界面的显示语言。"
-    },
-    "default_model": {
-      "label": "默认模型",
-      "help": "默认文本模型。如 deepseek-v4-pro、deepseek-v4-flash、claude-sonnet-4-6 等。DeepSeek 官方当前推荐 deepseek-v4-pro"
-    },
-    "update_check_for_updates": {
-      "label": "启动时检查更新",
-      "help": "启动时检查更新。后台检查最新稳定版，有新版本且资源完整时显示 toast 提示。"
-    },
-    "basic.update_uri": {
-      "label": "自定义更新镜像",
-      "help": "指向内部镜像端点，需返回 GitHub 兼容的 latest-release JSON（至少包含 tag_name）。若配置了 assets，CodeWhale 会要求与官方发布相同的资源集才提示更新"
+    "basic": {
+      "title": "基础设置",
+      "update_uri": {
+        "label": "自定义更新镜像",
+        "help": "指向内部镜像端点，需返回 GitHub 兼容的 latest-release JSON（至少包含 tag_name）。若配置了 assets，CodeWhale 会要求与官方发布相同的资源集才提示更新"
+      },
+      "locale": {
+        "label": "Web UI 语言",
+        "help": "选择 Web 界面的显示语言。"
+      },
+      "default_text_model": {
+        "label": "默认模型",
+        "help": "默认文本模型。如 deepseek-v4-pro、deepseek-v4-flash、claude-sonnet-4-6 等。DeepSeek 官方当前推荐 deepseek-v4-pro"
+      },
+      "update_check_for_updates": {
+        "label": "启动时检查更新",
+        "help": "启动时检查更新。后台检查最新稳定版，有新版本且资源完整时显示 toast 提示。"
+      }
     }
   }
 }
-

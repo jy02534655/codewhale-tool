@@ -6,13 +6,13 @@
   <el-card class="settings-card" shadow="never">
     <template #header>
       <div class="card-header">
-        <span class="section-title">{{ title }}</span>
+        <span class="section-title">{{ $t(`${titleKey}.title`) }}</span>
       </div>
     </template>
     <div class="settings-grid">
       <el-form-item v-for="item in items" :key="item.key" :prop="item.key">
         <template #label>
-          <FormItemLabel :label-key="item.labelKey" :help-key="item.helpKey" />
+          <FormItemLabel :label-key="`${props.titleKey}.${item.key}.label`" :help-key="`${props.titleKey}.${item.key}.help`" />
         </template>
         <!-- 动态组件：item.tag 指定组件，v-model 直接绑定 formData 字段 -->
         <component :is="resolveComponent(item.tag)" v-model="formData[item.key]" v-bind="extraProps(item)" />
@@ -50,7 +50,7 @@
   const title = computed(() => {
     const translated = t(props.titleKey);
     if (typeof translated === 'object' && translated !== null) {
-      return translated._title || props.titleKey.split('.').pop();
+      return translated.title || props.titleKey.split('.').pop();
     }
     if (!translated || translated === props.titleKey) {
       return props.titleKey.split('.').pop();

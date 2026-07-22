@@ -1,34 +1,35 @@
-﻿{
+{
   "settings": {
-    "features": "功能开关",
-    "features_shell_tool": {
-      "label": "Shell 工具",
-      "help": "启用 shell 工具，允许执行 shell 命令"
-    },
-    "features_subagents": {
-      "label": "子代理",
-      "help": "启用子代理委派和扇出功能"
-    },
-    "features_web_search": {
-      "label": "网页搜索",
-      "help": "启用网页搜索和兼容别名 web.run，默认使用 DuckDuckGo"
-    },
-    "features_apply_patch": {
-      "label": "应用补丁",
-      "help": "启用 apply_patch 工具，支持统一差异格式（unified diff）批量修改"
-    },
-    "features_mcp": {
-      "label": "MCP 协议",
-      "help": "启用 Model Context Protocol 支持，可连接外部 MCP 服务器扩展工具集"
-    },
-    "features_exec_policy": {
-      "label": "执行策略",
-      "help": "启用执行策略引擎，对工具调用进行权限检查和审批"
-    },
-    "features_vision_model": {
-      "label": "视觉模型",
-      "help": "需手动开启。启用后可通过 [vision_model] 配置独立的图像分析模型（如小米 MiMo）"
+    "features": {
+      "title": "功能开关",
+      "features_shell_tool": {
+        "label": "Shell 工具",
+        "help": "启用 shell 工具，允许执行 shell 命令"
+      },
+      "features_subagents": {
+        "label": "子代理",
+        "help": "启用子代理委派和扇出功能"
+      },
+      "features_web_search": {
+        "label": "网页搜索",
+        "help": "启用网页搜索和兼容别名 web.run，默认使用 DuckDuckGo"
+      },
+      "features_apply_patch": {
+        "label": "应用补丁",
+        "help": "启用 apply_patch 工具，支持统一差异格式（unified diff）批量修改"
+      },
+      "features_mcp": {
+        "label": "MCP 协议",
+        "help": "启用 Model Context Protocol 支持，可连接外部 MCP 服务器扩展工具集"
+      },
+      "features_exec_policy": {
+        "label": "执行策略",
+        "help": "启用执行策略引擎，对工具调用进行权限检查和审批"
+      },
+      "features_vision_model": {
+        "label": "视觉模型",
+        "help": "需手动开启。启用后可通过 [vision_model] 配置独立的图像分析模型（如小米 MiMo）"
+      }
     }
   }
 }
-

@@ -1,46 +1,55 @@
-﻿{
+{
   "settings": {
-    "paths": "路径",
-    "skills.scan_codewhale_only": {
-      "label": "仅扫描 CodeWhale 技能",
-      "help": "设为 true 时，忽略 .claude/skills、.opencode/skills、.cursor/skills、~/.agents/skills 等跨工具根目录"
-    },
-    "memory.enabled": {
-      "label": "启用记忆",
-      "help": "开启后，TUI 加载记忆文件到 <user_memory> 提示块，启用 # foo 快速捕获和 remember 工具"
-    },
-    "snapshots.enabled": {
-      "label": "启用快照",
-      "help": "为文件修改创建 side-git 快照，支持回滚。快照存储在 ~/.codewhale/snapshots/...，从不使用工作区自身的 .git"
-    },
-    "verifier.enabled": {
-      "label": "启用验证器",
-      "help": "开启后，模型声称任务完成时会自动运行验证器预览检查"
-    },
-    "snapshots.max_age_days": {
-      "label": "快照保留天数",
-      "help": "超过该天数的快照自动清理"
-    },
-    "verifier.verdict_policy": {
-      "label": "验证器裁决策略",
-      "help": "当前唯一策略。将验证器的 pass/partial/fail 映射为 hunted/wounded/escaped 语义。未知值会被拒绝，为未来策略预留扩展"
-    },
-    "skills_dir": {
-      "label": "技能目录",
-      "help": "每个技能是一个包含 SKILL.md 的目录。工作区本地 .agents/skills 或 ./skills 优先于全局目录"
-    },
-    "mcp_config_path": {
-      "label": "MCP 配置文件路径",
-      "help": "MCP 服务器配置文件路径。TUI 内可通过 /mcp 查看，修改后需重启 TUI 重建工具池"
-    },
-    "notes_path": {
-      "label": "笔记文件路径",
-      "help": "模型可见的 note 工具使用的笔记文件路径"
-    },
-    "memory_path": {
-      "label": "记忆文件路径",
-      "help": "用户记忆文件路径。memory_path 是顶层字段，不嵌套在 [memory] 下"
+    "paths": {
+      "title": "路径",
+      "skills_dir": {
+        "label": "技能目录",
+        "help": "每个技能是一个包含 SKILL.md 的目录。工作区本地 .agents/skills 或 ./skills 优先于全局目录"
+      },
+      "mcp_config_path": {
+        "label": "MCP 配置文件路径",
+        "help": "MCP 服务器配置文件路径。TUI 内可通过 /mcp 查看，修改后需重启 TUI 重建工具池"
+      },
+      "notes_path": {
+        "label": "笔记文件路径",
+        "help": "模型可见的 note 工具使用的笔记文件路径"
+      },
+      "memory_path": {
+        "label": "记忆文件路径",
+        "help": "用户记忆文件路径。memory_path 是顶层字段，不嵌套在 [memory] 下"
+      },
+      "skills": {
+        "scan_codewhale_only": {
+          "label": "仅扫描 CodeWhale 技能",
+          "help": "设为 true 时，忽略 .claude/skills、.opencode/skills、.cursor/skills、~/.agents/skills 等跨工具根目录"
+        }
+      },
+      "memory": {
+        "enabled": {
+          "label": "启用记忆",
+          "help": "开启后，TUI 加载记忆文件到 <user_memory> 提示块，启用 # foo 快速捕获和 remember 工具"
+        }
+      },
+      "snapshots": {
+        "enabled": {
+          "label": "启用快照",
+          "help": "为文件修改创建 side-git 快照，支持回滚。快照存储在 ~/.codewhale/snapshots/...，从不使用工作区自身的 .git"
+        },
+        "max_age_days": {
+          "label": "快照保留天数",
+          "help": "超过该天数的快照自动清理"
+        }
+      },
+      "verifier": {
+        "enabled": {
+          "label": "启用验证器",
+          "help": "开启后，模型声称任务完成时会自动运行验证器预览检查"
+        },
+        "verdict_policy": {
+          "label": "验证器裁决策略",
+          "help": "当前唯一策略。将验证器的 pass/partial/fail 映射为 hunted/wounded/escaped 语义。未知值会被拒绝，为未来策略预留扩展"
+        }
+      }
     }
   }
 }
-

@@ -1,58 +1,61 @@
-﻿{
+{
   "settings": {
-    "subagents": "サブエージェント",
-    "subagents.max_depth": {
-      "label": "最大深度",
-      "help": "サブエージェントが再帰的に委派できる最大階層深度。"
-    },
-    "subagents.launch_concurrency": {
-      "label": "起動並行数",
-      "help": "1ターンで同時に起動するサブエージェント数。残りはキューに入れます。瞬間的なバーストによる API レート制限を防止します。"
-    },
-    "subagents.max_admitted": {
-      "label": "最大入場数",
-      "help": "実行中とキュー待ちを含むサブエージェントの総数。高ファンアウトタスクはキューに入れられますが、実行時の起動圧力は制御されます。"
-    },
-    "subagents.worker_model": {
-      "label": "作業モデル",
-      "help": "具体的なコーディング/変更タスクを実行するサブエージェントモデル。"
-    },
-    "subagents.explorer_model": {
-      "label": "探索モデル",
-      "help": "コードベースの探索とファイル検索を行うサブエージェントモデル。"
-    },
-    "subagents.awaiter_model": {
-      "label": "待機モデル",
-      "help": "外部イベントの待機と結果のポーリングを行うサブエージェントモデル。"
-    },
-    "subagents.review_model": {
-      "label": "レビューモデル",
-      "help": "コードレビューと結果検証を行うサブエージェントモデル。"
-    },
-    "subagents.custom_model": {
-      "label": "カスタムモデル",
-      "help": "ユーザー定義ロールのサブエージェントモデル。"
-    },
-    "subagents_max_concurrent": {
-      "label": "最大同時実行数",
-      "help": "同時にアクティブなサブエージェントの最大数。デフォルト 20、範囲 1~20。"
-    },
-    "subagents_token_budget": {
-      "label": "トークン予算",
-      "help": "サブエージェントのステップ呼び出しごとのコンテキストトークン予算。デフォルト 200000。"
-    },
-    "subagents_api_timeout_secs": {
-      "label": "API タイムアウト",
-      "help": "サブエージェントのシングルステップモデル呼び出しのタイムアウト。デフォルト 120s、範囲 1~1800。"
-    },
-    "subagents_heartbeat_timeout_secs": {
-      "label": "ハートビートタイムアウト",
-      "help": "サブエージェントが無応答とみなされ清理されるまでの時間。デフォルト 300s、範囲 30~3600、api_timeout_secs より大きい必要があります。"
-    },
-    "subagents_default_model": {
-      "label": "デフォルトモデル",
-      "help": "ロールが指定されていない場合のフォールバックモデル。"
+    "subagents": {
+      "title": "サブエージェント",
+      "subagents_max_concurrent": {
+        "label": "最大同時実行数",
+        "help": "同時にアクティブなサブエージェントの最大数。デフォルト 20、範囲 1~20。"
+      },
+      "subagents_token_budget": {
+        "label": "トークン予算",
+        "help": "サブエージェントのステップ呼び出しごとのコンテキストトークン予算。デフォルト 200000。"
+      },
+      "subagents_api_timeout_secs": {
+        "label": "API タイムアウト",
+        "help": "サブエージェントのシングルステップモデル呼び出しのタイムアウト。デフォルト 120s、範囲 1~1800。"
+      },
+      "subagents_heartbeat_timeout_secs": {
+        "label": "ハートビートタイムアウト",
+        "help": "サブエージェントが無応答とみなされ清理されるまでの時間。デフォルト 300s、範囲 30~3600、api_timeout_secs より大きい必要があります。"
+      },
+      "subagents_default_model": {
+        "label": "デフォルトモデル",
+        "help": "ロールが指定されていない場合のフォールバックモデル。"
+      },
+      "subagents": {
+        "max_depth": {
+          "label": "最大深度",
+          "help": "サブエージェントが再帰的に委派できる最大階層深度。"
+        },
+        "launch_concurrency": {
+          "label": "起動並行数",
+          "help": "1ターンで同時に起動するサブエージェント数。残りはキューに入れます。瞬間的なバーストによる API レート制限を防止します。"
+        },
+        "max_admitted": {
+          "label": "最大入場数",
+          "help": "実行中とキュー待ちを含むサブエージェントの総数。高ファンアウトタスクはキューに入れられますが、実行時の起動圧力は制御されます。"
+        },
+        "worker_model": {
+          "label": "作業モデル",
+          "help": "具体的なコーディング/変更タスクを実行するサブエージェントモデル。"
+        },
+        "explorer_model": {
+          "label": "探索モデル",
+          "help": "コードベースの探索とファイル検索を行うサブエージェントモデル。"
+        },
+        "awaiter_model": {
+          "label": "待機モデル",
+          "help": "外部イベントの待機と結果のポーリングを行うサブエージェントモデル。"
+        },
+        "review_model": {
+          "label": "レビューモデル",
+          "help": "コードレビューと結果検証を行うサブエージェントモデル。"
+        },
+        "custom_model": {
+          "label": "カスタムモデル",
+          "help": "ユーザー定義ロールのサブエージェントモデル。"
+        }
+      }
     }
   }
 }
-

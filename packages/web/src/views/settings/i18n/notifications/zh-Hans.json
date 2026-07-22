@@ -1,26 +1,27 @@
-﻿{
+{
   "settings": {
-    "notifications": "通知",
-    "notifications.include_summary": {
-      "label": "包含摘要",
-      "help": "默认 false。开启后通知体会包含耗时和该回合的估算费用"
-    },
-    "notifications.sound_file": {
-      "label": "声音文件",
-      "help": "仅当 completion_sound 为 file 时使用。自定义 WAV 声音文件路径，仅 Windows"
-    },
-    "notifications_method": {
-      "label": "通知方式",
-      "help": "完成通知方式。auto 按终端自动选择，osc9 发送 OSC 9，bel 发送终端响铃，off 关闭通知。"
-    },
-    "notifications_threshold_secs": {
-      "label": "触发阈值",
-      "help": "只有成功完成且耗时 ≥ 该值的回合才触发通知，默认 30s。失败/取消的回合始终静默。"
-    },
-    "notifications_completion_sound": {
-      "label": "完成声音",
-      "help": "完成声音。beep 系统默认蜂鸣，off 关闭，bell 终端响铃，file 播放自定义 WAV。"
+    "notifications": {
+      "title": "通知",
+      "include_summary": {
+        "label": "包含摘要",
+        "help": "默认 false。开启后通知体会包含耗时和该回合的估算费用"
+      },
+      "sound_file": {
+        "label": "声音文件",
+        "help": "仅当 completion_sound 为 file 时使用。自定义 WAV 声音文件路径，仅 Windows"
+      },
+      "notifications_method": {
+        "label": "通知方式",
+        "help": "完成通知方式。auto 按终端自动选择，osc9 发送 OSC 9，bel 发送终端响铃，off 关闭通知。"
+      },
+      "notifications_threshold_secs": {
+        "label": "触发阈值",
+        "help": "只有成功完成且耗时 ≥ 该值的回合才触发通知，默认 30s。失败/取消的回合始终静默。"
+      },
+      "notifications_completion_sound": {
+        "label": "完成声音",
+        "help": "完成声音。beep 系统默认蜂鸣，off 关闭，bell 终端响铃，file 播放自定义 WAV。"
+      }
     }
   }
 }
-

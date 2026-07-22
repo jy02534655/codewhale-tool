@@ -1,34 +1,35 @@
-﻿{
+{
   "settings": {
-    "features": "Recursos",
-    "features_shell_tool": {
-      "label": "Shell",
-      "help": "Habilitar ferramenta shell, permitindo a execução de comandos shell."
-    },
-    "features_subagents": {
-      "label": "Subagentes",
-      "help": "Habilitar delegação de subagentes e funcionalidade de fan-out."
-    },
-    "features_web_search": {
-      "label": "Busca Web",
-      "help": "Habilitar pesquisa na web e alias compatível web.run, usando DuckDuckGo por padrão."
-    },
-    "features_apply_patch": {
-      "label": "Aplicar Patch",
-      "help": "Habilitar ferramenta apply_patch, suportando formato de diff unificado para modificações em lote."
-    },
-    "features_mcp": {
-      "label": "MCP",
-      "help": "Habilitar suporte ao Model Context Protocol, permitindo conexão com servidores MCP externos para estender o conjunto de ferramentas."
-    },
-    "features_exec_policy": {
-      "label": "Política de Execução",
-      "help": "Habilitar mecanismo de política de execução, realizando verificações de permissão e aprovação em chamadas de ferramentas."
-    },
-    "features_vision_model": {
-      "label": "Visão",
-      "help": "Precisa ser ativado manualmente. Após ativar, um modelo de análise de imagem independente (como Xiaomi MiMo) pode ser configurado via [vision_model]."
+    "features": {
+      "title": "Recursos",
+      "features_shell_tool": {
+        "label": "Shell",
+        "help": "Habilitar ferramenta shell, permitindo a execução de comandos shell."
+      },
+      "features_subagents": {
+        "label": "Subagentes",
+        "help": "Habilitar delegação de subagentes e funcionalidade de fan-out."
+      },
+      "features_web_search": {
+        "label": "Busca Web",
+        "help": "Habilitar pesquisa na web e alias compatível web.run, usando DuckDuckGo por padrão."
+      },
+      "features_apply_patch": {
+        "label": "Aplicar Patch",
+        "help": "Habilitar ferramenta apply_patch, suportando formato de diff unificado para modificações em lote."
+      },
+      "features_mcp": {
+        "label": "MCP",
+        "help": "Habilitar suporte ao Model Context Protocol, permitindo conexão com servidores MCP externos para estender o conjunto de ferramentas."
+      },
+      "features_exec_policy": {
+        "label": "Política de Execução",
+        "help": "Habilitar mecanismo de política de execução, realizando verificações de permissão e aprovação em chamadas de ferramentas."
+      },
+      "features_vision_model": {
+        "label": "Visão",
+        "help": "Precisa ser ativado manualmente. Após ativar, um modelo de análise de imagem independente (como Xiaomi MiMo) pode ser configurado via [vision_model]."
+      }
     }
   }
 }
-

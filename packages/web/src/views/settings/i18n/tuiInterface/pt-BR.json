@@ -1,70 +1,71 @@
-﻿{
+{
   "settings": {
-    "tuiInterface": "Interface TUI",
-    "theme": {
-      "label": "Tema",
-      "help": "Tema da interface. Escolha seguir o sistema, claro, escuro, etc."
-    },
-    "default_mode": {
-      "label": "Modo Padrão",
-      "help": "Modo padrão. agent para conversa normal, plan para modo de planejamento, yolo para modo de saída direta."
-    },
-    "sidebar_focus": {
-      "label": "Foco da Barra Lateral",
-      "help": "Comportamento do foco da barra lateral. pinned fixa a barra lateral, auto alterna visibilidade, tasks, agents, context, hidden."
-    },
-    "mention_menu_behavior": {
-      "label": "Comportamento de Menções",
-      "help": "Comportamento do menu ao @mencionar arquivos. fuzzy para busca fuzzy, browser lista subdiretórios no diretório atual."
-    },
-    "cost_currency": {
-      "label": "Moeda de Custo",
-      "help": "Moeda de exibição de custo. usd para USD, cny/rmb/yuan são normalizados para CNY."
-    },
-    "verbosity": {
-      "label": "Verbosity",
-      "help": "Detalhamento da saída. normal para estilo de conversa padrão, concise para saída breve e de baixa redundância."
-    },
-    "show_thinking": {
-      "label": "Mostrar Raciocínio",
-      "help": "Se deve exibir o conteúdo de reasoning/thinking do modelo no histórico de conversas."
-    },
-    "show_tool_details": {
-      "label": "Mostrar Detalhes das Ferramentas",
-      "help": "Se deve expandir e exibir parâmetros e resultados detalhados de cada chamada de ferramenta."
-    },
-    "auto_compact": {
-      "label": "Compactação Automática",
-      "help": "Consciência de modelo, ativado por padrão. Gera automaticamente um resumo e substitui o conteúdo antigo quando o contexto se aproxima do limite da janela do modelo."
-    },
-    "paste_burst_detection": {
-      "label": "Detecção de Colagem",
-      "help": "Ativado por padrão. Detecta colagem em massa em terminais que não suportam bracketed-paste, evitando acionar complementos caractere por caractere."
-    },
-    "auto_compact_threshold_percent": {
-      "label": "Limite de Compactação",
-      "help": "Padrão 80. Aciona compactação automática quando a estimativa de entrada da solicitação ativa atingir esta porcentagem da janela de contexto do modelo."
-    },
-    "mention_menu_limit": {
-      "label": "Limite de Menções",
-      "help": "Número máximo de arquivos candidatos a manter no popup @, o excesso é truncado, padrão 128."
-    },
-    "mention_walk_depth": {
-      "label": "Profundidade de Menções",
-      "help": "Profundidade máxima de diretório para o @ percorrer o workspace. 0 significa profundidade ilimitada, padrão 6."
-    },
-    "max_history": {
-      "label": "Histórico Máximo",
-      "help": "Número de histórico de entrada submetida a reter. Rascunhos limpos ainda são mantidos para pesquisa no histórico, padrão 1000."
-    },
-    "background_color": {
-      "label": "Cor de Fundo",
-      "help": "Personaliza a cor de fundo da raiz, cabeçalho, histórico de conversas e rodapé do TUI; default usa o padrão do tema."
-    },
-    "default_model_override": {
-      "label": "Modelo Padrão",
-      "help": "Substitui a seleção de modelo padrão para o provedor atual. Ainda não configurável, suporte em versões futuras."
+    "tuiInterface": {
+      "title": "Interface TUI",
+      "theme": {
+        "label": "Tema",
+        "help": "Tema da interface. Escolha seguir o sistema, claro, escuro, etc."
+      },
+      "default_mode": {
+        "label": "Modo Padrão",
+        "help": "Modo padrão. agent para conversa normal, plan para modo de planejamento, yolo para modo de saída direta."
+      },
+      "sidebar_focus": {
+        "label": "Foco da Barra Lateral",
+        "help": "Comportamento do foco da barra lateral. pinned fixa a barra lateral, auto alterna visibilidade, tasks, agents, context, hidden."
+      },
+      "mention_menu_behavior": {
+        "label": "Comportamento de Menções",
+        "help": "Comportamento do menu ao @mencionar arquivos. fuzzy para busca fuzzy, browser lista subdiretórios no diretório atual."
+      },
+      "cost_currency": {
+        "label": "Moeda de Custo",
+        "help": "Moeda de exibição de custo. usd para USD, cny/rmb/yuan são normalizados para CNY."
+      },
+      "verbosity": {
+        "label": "Verbosity",
+        "help": "Detalhamento da saída. normal para estilo de conversa padrão, concise para saída breve e de baixa redundância."
+      },
+      "show_thinking": {
+        "label": "Mostrar Raciocínio",
+        "help": "Se deve exibir o conteúdo de reasoning/thinking do modelo no histórico de conversas."
+      },
+      "show_tool_details": {
+        "label": "Mostrar Detalhes das Ferramentas",
+        "help": "Se deve expandir e exibir parâmetros e resultados detalhados de cada chamada de ferramenta."
+      },
+      "auto_compact": {
+        "label": "Compactação Automática",
+        "help": "Consciência de modelo, ativado por padrão. Gera automaticamente um resumo e substitui o conteúdo antigo quando o contexto se aproxima do limite da janela do modelo."
+      },
+      "paste_burst_detection": {
+        "label": "Detecção de Colagem",
+        "help": "Ativado por padrão. Detecta colagem em massa em terminais que não suportam bracketed-paste, evitando acionar complementos caractere por caractere."
+      },
+      "auto_compact_threshold_percent": {
+        "label": "Limite de Compactação",
+        "help": "Padrão 80. Aciona compactação automática quando a estimativa de entrada da solicitação ativa atingir esta porcentagem da janela de contexto do modelo."
+      },
+      "mention_menu_limit": {
+        "label": "Limite de Menções",
+        "help": "Número máximo de arquivos candidatos a manter no popup @, o excesso é truncado, padrão 128."
+      },
+      "mention_walk_depth": {
+        "label": "Profundidade de Menções",
+        "help": "Profundidade máxima de diretório para o @ percorrer o workspace. 0 significa profundidade ilimitada, padrão 6."
+      },
+      "max_history": {
+        "label": "Histórico Máximo",
+        "help": "Número de histórico de entrada submetida a reter. Rascunhos limpos ainda são mantidos para pesquisa no histórico, padrão 1000."
+      },
+      "background_color": {
+        "label": "Cor de Fundo",
+        "help": "Personaliza a cor de fundo da raiz, cabeçalho, histórico de conversas e rodapé do TUI; default usa o padrão do tema."
+      },
+      "default_model": {
+        "label": "Modelo Padrão",
+        "help": "Substitui a seleção de modelo padrão para o provedor atual. Ainda não configurável, suporte em versões futuras."
+      }
     }
   }
 }
-

@@ -1,46 +1,55 @@
-﻿{
+{
   "settings": {
-    "paths": "Caminhos",
-    "skills.scan_codewhale_only": {
-      "label": "Scanear Apenas Skills do CodeWhale",
-      "help": "Quando definido como true, ignora diretórios raiz entre ferramentas como .claude/skills, .opencode/skills, .cursor/skills, ~/.agents/skills, etc."
-    },
-    "memory.enabled": {
-      "label": "Habilitar Memória",
-      "help": "Quando ativado, o TUI carrega o arquivo de memória no bloco de prompt <user_memory>, habilitando a captura rápida # foo e a ferramenta remember."
-    },
-    "snapshots.enabled": {
-      "label": "Habilitar Snapshots",
-      "help": "Cria snapshots side-git para modificações de arquivo, suportando rollback. Snapshots são armazenados em ~/.codewhale/snapshots/..., nunca usando o .git do próprio workspace."
-    },
-    "verifier.enabled": {
-      "label": "Habilitar Verificador",
-      "help": "Quando ativado, executa automaticamente uma verificação de preview do verificador quando o modelo afirma que uma tarefa está concluída."
-    },
-    "snapshots.max_age_days": {
-      "label": "Dias de Retenção de Snapshot",
-      "help": "Snapshots mais antigos que esse número de dias são limpos automaticamente."
-    },
-    "verifier.verdict_policy": {
-      "label": "Política de Veredito do Verificador",
-      "help": "Atualmente a única política. Mapeia o pass/partial/fail do verificador para a semântica hunted/wounded/escaped. Valores desconhecidos são rejeitados, reservando extensão para políticas futuras."
-    },
-    "skills_dir": {
-      "label": "Diretório de Skills",
-      "help": "Cada skill é um diretório contendo SKILL.md. Os diretórios .agents/skills ou ./skills locais do workspace têm precedência sobre os diretórios globais."
-    },
-    "mcp_config_path": {
-      "label": "Caminho do Arquivo de Config MCP",
-      "help": "Caminho do arquivo de configuração do servidor MCP. Pode ser visualizado com /mcp na TUI; após modificação, a TUI deve ser reiniciada para reconstruir o pool de ferramentas."
-    },
-    "notes_path": {
-      "label": "Caminho do Arquivo de Notas",
-      "help": "Caminho do arquivo de notas usado pela ferramenta note visível ao modelo."
-    },
-    "memory_path": {
-      "label": "Caminho do Arquivo de Memória",
-      "help": "Caminho do arquivo de memória do usuário. memory_path é um campo de nível superior, não aninhado em [memory]."
+    "paths": {
+      "title": "Caminhos",
+      "skills_dir": {
+        "label": "Diretório de Skills",
+        "help": "Cada skill é um diretório contendo SKILL.md. Os diretórios .agents/skills ou ./skills locais do workspace têm precedência sobre os diretórios globais."
+      },
+      "mcp_config_path": {
+        "label": "Caminho do Arquivo de Config MCP",
+        "help": "Caminho do arquivo de configuração do servidor MCP. Pode ser visualizado com /mcp na TUI; após modificação, a TUI deve ser reiniciada para reconstruir o pool de ferramentas."
+      },
+      "notes_path": {
+        "label": "Caminho do Arquivo de Notas",
+        "help": "Caminho do arquivo de notas usado pela ferramenta note visível ao modelo."
+      },
+      "memory_path": {
+        "label": "Caminho do Arquivo de Memória",
+        "help": "Caminho do arquivo de memória do usuário. memory_path é um campo de nível superior, não aninhado em [memory]."
+      },
+      "skills": {
+        "scan_codewhale_only": {
+          "label": "Scanear Apenas Skills do CodeWhale",
+          "help": "Quando definido como true, ignora diretórios raiz entre ferramentas como .claude/skills, .opencode/skills, .cursor/skills, ~/.agents/skills, etc."
+        }
+      },
+      "memory": {
+        "enabled": {
+          "label": "Habilitar Memória",
+          "help": "Quando ativado, o TUI carrega o arquivo de memória no bloco de prompt <user_memory>, habilitando a captura rápida # foo e a ferramenta remember."
+        }
+      },
+      "snapshots": {
+        "enabled": {
+          "label": "Habilitar Snapshots",
+          "help": "Cria snapshots side-git para modificações de arquivo, suportando rollback. Snapshots são armazenados em ~/.codewhale/snapshots/..., nunca usando o .git do próprio workspace."
+        },
+        "max_age_days": {
+          "label": "Dias de Retenção de Snapshot",
+          "help": "Snapshots mais antigos que esse número de dias são limpos automaticamente."
+        }
+      },
+      "verifier": {
+        "enabled": {
+          "label": "Habilitar Verificador",
+          "help": "Quando ativado, executa automaticamente uma verificação de preview do verificador quando o modelo afirma que uma tarefa está concluída."
+        },
+        "verdict_policy": {
+          "label": "Política de Veredito do Verificador",
+          "help": "Atualmente a única política. Mapeia o pass/partial/fail do verificador para a semântica hunted/wounded/escaped. Valores desconhecidos são rejeitados, reservando extensão para políticas futuras."
+        }
+      }
     }
   }
 }
-

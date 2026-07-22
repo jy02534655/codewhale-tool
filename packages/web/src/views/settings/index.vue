@@ -20,7 +20,7 @@
 
         <div class="settings-masonry">
 
-        <SettingsGroupCard
+        <groupCard
           v-for="group in groups"
           :key="group.titleKey"
           v-model:formData="formData"
@@ -44,7 +44,7 @@ import { ElMessage, ElMessageBox } from 'element-plus';
 import { getSettings, getSettingsDefaults, updateSettings, updateInstructions as updateInstructionsApi } from '@/api/settings';
 import { useMaskingStore } from '@/stores/masking';
 import Instructions from './instructions.vue';
-import SettingsGroupCard from './cards/SettingsGroupCard.vue';
+import groupCard from './cards/groupCard.vue';
 import { groups } from './cards/index.js';
 
 const { t } = useI18n({ useScope: 'global' });

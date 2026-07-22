@@ -1,34 +1,35 @@
-﻿{
+{
   "settings": {
-    "context": "Context Management",
-    "context.enabled": {
-      "label": "Enable Fin Fast Path Management",
-      "help": "Needs to be manually enabled. Fin uses deepseek-v4-flash (thinking disabled) to perform coordination tasks (routing, summarization, context maintenance), reducing the burden on the main model."
-    },
-    "CODEWHALE_CACHE_MAXIMAL": {
-      "label": "Cache Maximal Mode",
-      "help": "When enabled, the full content of active files (not just paths) is injected into the system prompt each turn, leveraging DeepSeek KV prefix cache hits. Block content remains stable when files are unmodified; cache misses start from the edited block. Default limit is 24KB per file / 96KB total."
-    },
-    "context.verbatim_window_turns": {
-      "label": "Verbatim Window Turns",
-      "help": "How many recent conversation turns to keep in full original text; earlier turns will be compressed or summarized."
-    },
-    "context.l1_threshold": {
-      "label": "L1 Context Pressure Threshold",
-      "help": "Level 1 context pressure threshold (in tokens). Exceeding this value triggers lightweight intervention."
-    },
-    "context.l2_threshold": {
-      "label": "L2 Context Pressure Threshold",
-      "help": "Level 2 threshold. More aggressive compression strategies are applied after exceeding this value."
-    },
-    "context.l3_threshold": {
-      "label": "L3 Context Pressure Threshold",
-      "help": "Level 3 threshold. Emergency handling line when approaching the model's upper limit."
-    },
-    "context.seam_model": {
-      "label": "Seam Model",
-      "help": "Model for executing context coordination tasks. The Flash path has no reasoning, making it faster."
+    "context": {
+      "title": "Context Management",
+      "CODEWHALE_CACHE_MAXIMAL": {
+        "label": "Cache Maximal Mode",
+        "help": "When enabled, the full content of active files (not just paths) is injected into the system prompt each turn, leveraging DeepSeek KV prefix cache hits. Block content remains stable when files are unmodified; cache misses start from the edited block. Default limit is 24KB per file / 96KB total."
+      },
+      "enabled": {
+        "label": "Enable Fin Fast Path Management",
+        "help": "Needs to be manually enabled. Fin uses deepseek-v4-flash (thinking disabled) to perform coordination tasks (routing, summarization, context maintenance), reducing the burden on the main model."
+      },
+      "verbatim_window_turns": {
+        "label": "Verbatim Window Turns",
+        "help": "How many recent conversation turns to keep in full original text; earlier turns will be compressed or summarized."
+      },
+      "l1_threshold": {
+        "label": "L1 Context Pressure Threshold",
+        "help": "Level 1 context pressure threshold (in tokens). Exceeding this value triggers lightweight intervention."
+      },
+      "l2_threshold": {
+        "label": "L2 Context Pressure Threshold",
+        "help": "Level 2 threshold. More aggressive compression strategies are applied after exceeding this value."
+      },
+      "l3_threshold": {
+        "label": "L3 Context Pressure Threshold",
+        "help": "Level 3 threshold. Emergency handling line when approaching the model's upper limit."
+      },
+      "seam_model": {
+        "label": "Seam Model",
+        "help": "Model for executing context coordination tasks. The Flash path has no reasoning, making it faster."
+      }
     }
   }
 }
-

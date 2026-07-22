@@ -1,46 +1,55 @@
-﻿{
+{
   "settings": {
-    "paths": "Paths",
-    "skills.scan_codewhale_only": {
-      "label": "Scan CodeWhale Skills Only",
-      "help": "When set to true, ignores cross-tool root directories like .claude/skills, .opencode/skills, .cursor/skills, ~/.agents/skills, etc."
-    },
-    "memory.enabled": {
-      "label": "Enable Memory",
-      "help": "When enabled, the TUI loads the memory file into the <user_memory> prompt block, enabling # foo quick capture and the remember tool."
-    },
-    "snapshots.enabled": {
-      "label": "Enable Snapshots",
-      "help": "Creates side-git snapshots for file modifications, supporting rollback. Snapshots are stored in ~/.codewhale/snapshots/..., never using the workspace's own .git."
-    },
-    "verifier.enabled": {
-      "label": "Enable Verifier",
-      "help": "When enabled, automatically runs a verifier preview check when the model claims a task is complete."
-    },
-    "snapshots.max_age_days": {
-      "label": "Snapshot Max Age (Days)",
-      "help": "Snapshots older than this many days are automatically cleaned up."
-    },
-    "verifier.verdict_policy": {
-      "label": "Verifier Verdict Policy",
-      "help": "Currently the only policy. Maps the verifier's pass/partial/fail to hunted/wounded/escaped semantics. Unknown values are rejected, reserving extension for future policies."
-    },
-    "skills_dir": {
-      "label": "Skills Directory",
-      "help": "Each skill is a directory containing SKILL.md. Workspace-local .agents/skills or ./skills take precedence over global directories."
-    },
-    "mcp_config_path": {
-      "label": "MCP Config File Path",
-      "help": "MCP server configuration file path. Can be viewed with /mcp in the TUI; after modification, the TUI must be restarted to rebuild the tool pool."
-    },
-    "notes_path": {
-      "label": "Notes File Path",
-      "help": "Note file path used by the note tool visible to the model."
-    },
-    "memory_path": {
-      "label": "Memory File Path",
-      "help": "User memory file path. memory_path is a top-level field, not nested under [memory]."
+    "paths": {
+      "title": "Paths",
+      "skills_dir": {
+        "label": "Skills Directory",
+        "help": "Each skill is a directory containing SKILL.md. Workspace-local .agents/skills or ./skills take precedence over global directories."
+      },
+      "mcp_config_path": {
+        "label": "MCP Config File Path",
+        "help": "MCP server configuration file path. Can be viewed with /mcp in the TUI; after modification, the TUI must be restarted to rebuild the tool pool."
+      },
+      "notes_path": {
+        "label": "Notes File Path",
+        "help": "Note file path used by the note tool visible to the model."
+      },
+      "memory_path": {
+        "label": "Memory File Path",
+        "help": "User memory file path. memory_path is a top-level field, not nested under [memory]."
+      },
+      "skills": {
+        "scan_codewhale_only": {
+          "label": "Scan CodeWhale Skills Only",
+          "help": "When set to true, ignores cross-tool root directories like .claude/skills, .opencode/skills, .cursor/skills, ~/.agents/skills, etc."
+        }
+      },
+      "memory": {
+        "enabled": {
+          "label": "Enable Memory",
+          "help": "When enabled, the TUI loads the memory file into the <user_memory> prompt block, enabling # foo quick capture and the remember tool."
+        }
+      },
+      "snapshots": {
+        "enabled": {
+          "label": "Enable Snapshots",
+          "help": "Creates side-git snapshots for file modifications, supporting rollback. Snapshots are stored in ~/.codewhale/snapshots/..., never using the workspace's own .git."
+        },
+        "max_age_days": {
+          "label": "Snapshot Max Age (Days)",
+          "help": "Snapshots older than this many days are automatically cleaned up."
+        }
+      },
+      "verifier": {
+        "enabled": {
+          "label": "Enable Verifier",
+          "help": "When enabled, automatically runs a verifier preview check when the model claims a task is complete."
+        },
+        "verdict_policy": {
+          "label": "Verifier Verdict Policy",
+          "help": "Currently the only policy. Maps the verifier's pass/partial/fail to hunted/wounded/escaped semantics. Unknown values are rejected, reserving extension for future policies."
+        }
+      }
     }
   }
 }
-

@@ -1,22 +1,23 @@
-﻿{
+{
   "settings": {
-    "basic": "基本設定",
-    "language": {
-      "label": "Web UI 言語",
-      "help": "Web UI の表示言語を選択します。"
-    },
-    "default_model": {
-      "label": "デフォルトモデル",
-      "help": "デフォルトのテキストモデル。例: deepseek-v4-pro、deepseek-v4-flash、claude-sonnet-4-6 など。DeepSeek 公式は現在 deepseek-v4-pro を推奨しています。"
-    },
-    "update_check_for_updates": {
-      "label": "更新を確認",
-      "help": "バックグラウンドで最新の安定版をチェックします。新バージョンがありリソースが完整な場合、toast 通知を表示します。"
-    },
-    "basic.update_uri": {
-      "label": "カスタム更新ミラー",
-      "help": "内部ミラーエンドポイントを指定。GitHub 互換の latest-release JSON（少なくとも tag_name を含む）を返す必要があります。assets が設定されている場合、CodeWhale は公式リリースと同じアセットセットを要求してから更新を提示します。"
+    "basic": {
+      "title": "基本設定",
+      "update_uri": {
+        "label": "カスタム更新ミラー",
+        "help": "内部ミラーエンドポイントを指定。GitHub 互換の latest-release JSON（少なくとも tag_name を含む）を返す必要があります。assets が設定されている場合、CodeWhale は公式リリースと同じアセットセットを要求してから更新を提示します。"
+      },
+      "locale": {
+        "label": "Web UI 言語",
+        "help": "Web UI の表示言語を選択します。"
+      },
+      "default_text_model": {
+        "label": "デフォルトモデル",
+        "help": "デフォルトのテキストモデル。例: deepseek-v4-pro、deepseek-v4-flash、claude-sonnet-4-6 など。DeepSeek 公式は現在 deepseek-v4-pro を推奨しています。"
+      },
+      "update_check_for_updates": {
+        "label": "更新を確認",
+        "help": "バックグラウンドで最新の安定版をチェックします。新バージョンがありリソースが完整な場合、toast 通知を表示します。"
+      }
     }
   }
 }
-
