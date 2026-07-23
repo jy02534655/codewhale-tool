@@ -7,7 +7,8 @@
  */
 
 import { SCHEMA } from './schema.js';
-import { applyToTomlBySchema, isEmpty } from './utils.js';
+import { applyToTomlBySchema } from './utils.js';
+import { isEmpty } from '../utils/index.js';
 import { readConfig, writeConfig } from './io.js';
 import { cloneDeep } from 'lodash-es';
 
