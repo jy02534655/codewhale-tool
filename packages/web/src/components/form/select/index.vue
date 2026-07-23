@@ -1,12 +1,7 @@
 <!-- SettingsSelect.vue — 通用设置：下拉选择（el-select + optionKey） -->
 <template>
   <el-select :model-value="modelValue" placeholder=" " @update:modelValue="$emit('update:modelValue', $event)">
-    <el-option
-      v-for="opt in resolvedOptions"
-      :key="opt.value"
-      :value="opt.value"
-      :label="opt.label"
-    />
+    <el-option v-for="opt in resolvedOptions" :key="opt.value" :value="opt.value" :label="`${opt.label}(${opt.value})`" />
   </el-select>
 </template>
 
