@@ -96,7 +96,10 @@ function onSave() {
       ElMessage.warning('请检查表单填写是否正确');
       return;
     }
-    updateSettings(clearObject(formData))
+    // instructions 由独立组件管理，不随通用设置一起保存
+    const settingsData = clearObject({ ...formData });
+    delete settingsData.instructions;
+    updateSettings(settingsData)
       .then(function () {
         // 保存成功后更新原始快照
         assign(originalForm, JSON.parse(JSON.stringify(formData)));

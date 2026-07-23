@@ -6,9 +6,8 @@
 
 export const DEFAULT_SETTINGS = {
   // 基础
-  locale: 'zh-Hans',
+  locale: 'auto',
   default_text_model: 'deepseek-v4-pro',
-  instructions: [],
 
   // TUI 界面
   theme: 'system',
@@ -114,6 +113,7 @@ export const DEFAULT_SETTINGS = {
   memory_enabled: false,
   snapshots_enabled: true,
   verifier_enabled: false,
+  verifier_verdict_policy: 'hunt',
   snapshots_max_age_days: 7,
   skills_dir: '~/.codewhale/skills',
   mcp_config_path: '~/.codewhale/mcp.json',
