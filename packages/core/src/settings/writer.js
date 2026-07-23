@@ -9,7 +9,7 @@
 import { SCHEMA } from './schema.js';
 import { applyToTomlBySchema, isEmpty } from './utils.js';
 import { readConfig, writeConfig } from './io.js';
-import { cloneDeep } from 'lodash';
+import { cloneDeep } from 'lodash-es';
 
 /**
  * 将通用设置写入 CodeWhale config.toml

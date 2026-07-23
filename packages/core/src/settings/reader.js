@@ -13,8 +13,7 @@ import { SCHEMA } from './schema.js';
 import { readFromTomlBySchema } from './utils.js';
 import { isEmpty } from '../utils/index.js';
 import { readConfig } from './io.js';
-import pkg from 'lodash';
-const { get } = pkg;
+import { get } from 'lodash-es';
 
 // ---------- instruction 路径与内容解析工具 ----------
 

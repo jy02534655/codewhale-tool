@@ -6,7 +6,7 @@
  */
 
 import { defineStore } from 'pinia';
-import { find } from 'lodash';
+import { find } from 'lodash-es';
 import { nameIncreasePrefix } from '@/utils';
 
 export const useMaskingStore = defineStore('masking', {

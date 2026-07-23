@@ -1,5 +1,5 @@
 import { isEmpty } from '@/utils';
-import { set, get, isFunction } from 'lodash';
+import { set, get, isFunction } from 'lodash-es';
 export default {
   /**
    * 读取数据

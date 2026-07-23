@@ -1,7 +1,7 @@
 import { getCurrentInstance } from 'vue';
 import { compositionViewForm } from '@/composition/view/Form';
 import { compositionDialogBase } from '@/composition/dialog/Base';
-import { cloneDeep } from 'lodash';
+import { cloneDeep } from 'lodash-es';
 
 /**
  * compositionDialogForm — 弹窗表单操作

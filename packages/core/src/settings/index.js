@@ -10,7 +10,7 @@ export { readSettingsFromCodeWhale, codeWhalePath } from './reader.js';
 export { writeSettingsToCodeWhale } from './writer.js';
 
 import { ok, okMsg } from '../utils/result.js';
-import { cloneDeep } from 'lodash';
+import { cloneDeep } from 'lodash-es';
 import { DEFAULT_SETTINGS as _DEFAULT_SETTINGS } from './defaults.js';
 import { readSettingsFromCodeWhale as _readSettingsFromCodeWhale } from './reader.js';
 import { writeSettingsToCodeWhale as _writeSettingsToCodeWhale } from './writer.js';

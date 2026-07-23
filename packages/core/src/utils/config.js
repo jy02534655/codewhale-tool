@@ -21,7 +21,7 @@ import { readFileSync, writeFileSync, copyFileSync, existsSync, mkdirSync, renam
 import { homedir } from 'node:os';
 import { join, dirname } from 'node:path';
 import { randomUUID } from 'node:crypto';
-import { cloneDeep } from 'lodash';
+import { cloneDeep } from 'lodash-es';
 
 
 

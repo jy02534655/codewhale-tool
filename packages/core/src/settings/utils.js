@@ -1,7 +1,6 @@
 // 通用嵌套操作工具 + 基于 lodash 的清理/比较工具
 // lodash 作为 CommonJS 模块，在 ESM 中需通过默认导入解构，避免个别 named export 缺失报错
-import pkg from 'lodash';
-const { isEqual, get, set, unset } = pkg;
+import { isEqual, get, set, unset } from 'lodash-es';
 import { clearObject } from '../utils/index.js';
 
 // ---------- 嵌套读写删 ----------
