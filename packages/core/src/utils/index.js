@@ -1,4 +1,4 @@
-import { pickBy, isNumber, isEmpty: lodashIsEmpty, isBoolean, isDate, isFunction } from 'lodash-es';
+import { pickBy, isNumber, isEmpty as lodashIsEmpty, isBoolean, isDate, isFunction } from 'lodash-es';
 
 export function isEmpty(v) {
   if (isNumber(v) || isBoolean(v) || isDate(v) || isFunction(v)) {
