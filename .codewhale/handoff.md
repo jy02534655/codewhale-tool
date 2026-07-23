@@ -12,7 +12,7 @@
   - 新增 `safeResolve(userPath)`：`path.resolve()` + `fs.realpathSync()`，路径不存在时回退到 resolved。
   - `FileManager.list()` / `FileManager.read()` 已改为 `safeResolve(...)`。
 
-### 阶段 2：中优先级改进（部分完成）
+### 阶段 2：中优先级改进（已完成）
 - **#9 applyRenameMap 目录匹配加固**：`packages/core/src/download/utils.js`
   - 目录映射增加精确前缀边界检查，避免 `skills/my-skill-old/` 误匹配 `skills/my-skill/`。
 - **#6 魔法数字提取为常量**：`packages/core/src/constants.js` 已新建
@@ -32,25 +32,28 @@
     - 语法错误已修复：将无参数 `catch` 改为 `catch (err)`，`throw;` 改为 `throw err;`。
   - `packages/core/src/sync.js`：
     - `syncToCodeWhale()` 已改为临时文件 + `renameSync` 覆盖。
-    - **待修复语法错误**：同位置的无参数 `catch` + `throw;` 仍需改为 `catch (err)` + `throw err;`。
+    - 语法错误已修复：`catch` 改为 `catch (err)`，`throw;` 改为 `throw err;`。
+
+- **#8 错误日志保留堆栈**：
+-  - `packages/core/src/download/orchestrator.js`：
+-    - `span.finish('ERROR', 'skillLogError', ...)` 已追加 `{ error: tarErr.stack }` / `{ error: err.stack }`。
+-    - `logger.log('ERROR', 'skillLogApiAllFailed', ...)` 已追加 `{ error: err.stack }`。
+-  - `packages/core/src/skill/install.js`：
+-    - 导入 `writeSkillLog`，两处 `catch (err)` 均已追加 `writeSkillLog('ERROR', ..., { error: err.stack })`。
+-  - `packages/core/src/skill/cmd.js`：
+-    - 导入 `writeSkillLog`，`catch (err)` 已追加 `writeSkillLog('ERROR', ..., { error: err.stack })`。
+-  - `packages/core/src/skill/files.js`：
+-    - 导入 `writeSkillLog`，`catch (err)` 已追加 `writeSkillLog('ERROR', ..., { error: err.stack })`。
+- **#1 ConfigEngine I/O 缓存 + 原子写入**：
+-  - `packages/core/src/utils/config.js`：
+-    - `ConfigEngine` 新增 `this._cache = null`（实例级内存缓存）。
+-    - `read()` 已改为缓存优先，写回时同步更新 `this._cache`。
+-    - 新增 `readCached()`：优先返回缓存深拷贝，缓存不存在时自动回退 `read()`。
+-    - 新增 `clearCache()`：手动清除缓存，强制下一次 `read()` 从磁盘重新加载。
 
 ## 待继续任务（按建议顺序）
 
-1. **修复 sync.js 语法错误**：
-   - `packages/core/src/sync.js` 第 292 行附近：
-     - `} catch {` → `} catch (err) {`
-     - `      throw;` → `      throw err;`
-2. **收尾校验**：运行 `node --check` 语法校验并回读关键 diff。
-   - 当前已知通过：`packages/core/src/download/zip.js`
-   - 当前已知修复：`packages/core/src/utils/config.js`、`packages/core/src/settings/io.js`
-   - 当前仍待验证：`packages/core/src/sync.js`
-3. **#8 错误日志保留堆栈**：
-   - 在关键 `catch` 块中传递 `err.stack`，使用 `Logger.log('ERROR', ..., { error: err.stack })`。
-   - 关注文件：`install.js`、`orchestrator.js`、`cmd.js`、`files.js`。
-4. **#1 ConfigEngine I/O 缓存 + 原子写入**：
-   - `ConfigEngine` 增加内存缓存 + `readCached()`。
-   - 写入改为原子操作（已完成基础原子写入，缓存为后续增量）。
-5. **低优先级按需推进**：
+1. **低优先级按需推进**：
    - **#10 异步 I/O 改造**
    - **#11 SkillStore 查找索引优化**
    - **#12 下载并发控制库替换**

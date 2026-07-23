@@ -6,6 +6,7 @@
 import { existsSync, readFileSync, writeFileSync, unlinkSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { ok, fail, failMsg, okMsg } from '../utils/result.js';
+import { writeSkillLog } from '../download/index.js';
 
 /**
  * 获取 skill 文件列表
@@ -62,7 +63,9 @@ export function readSkillFile(store, { skillId, path: filePath, level, projectId
     const content = readFileSync(fullPath, 'utf-8');
     return ok(content);
   } catch (err) {
-    return fail('Failed to read file: ' + err.message);
+    const failMessage = 'Failed to read file: ' + err.message;
+    writeSkillLog('ERROR', 'skillFileReadFailed', { message: failMessage }, { error: err.stack });
+    return fail(failMessage);
   }
 }
 

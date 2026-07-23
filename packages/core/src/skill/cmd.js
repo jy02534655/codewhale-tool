@@ -3,39 +3,15 @@
  * 提供 update / remove / copyToProject 等变更操作
  */
 
-/**
- * 判断是否为空值
- * @param {*} v - 任意值
- * @returns {boolean} 是否为空
- */
-function isEmpty(v) {
-  if (v === null || v === undefined) return true;
-  if (typeof v === 'string' && v === '') return true;
-  if (Array.isArray(v) && v.length === 0) return true;
-  if (typeof v === 'object' && Object.keys(v).length === 0) return true;
-  return false;
-}
 
-/**
- * 清除对象中的空值字段
- * @param {Object} o - 源对象
- * @returns {Object} 过滤后的对象
- */
-function clearObject(o) {
-  const result = {};
-  for (const [key, value] of Object.entries(o)) {
-    if (!isEmpty(value)) {
-      result[key] = value;
-    }
-  }
-  return result;
-}
 
 import { existsSync, rmSync } from 'node:fs';
 import { join } from 'node:path';
 import { randomUUID } from 'node:crypto';
 import { getServerMessage } from '../utils/i18n.js';
 import { okMsg, failMsg, fail } from '../utils/result.js';
+import { writeSkillLog } from '../download/index.js';
+import { clearObject } from '../utils/index.js';
 
 /**
  * 批量更新 skill 元数据
@@ -150,6 +126,8 @@ export function copyToProject(store, { skillId, projectId }) {
   } catch (err) {
     // 复制失败，清理可能已创建的目标目录
     try { if (existsSync(targetDir)) rmSync(targetDir, { recursive: true, force: true }); } catch { /* ignore */ }
-    return fail(getServerMessage('skillInstallFailed') + ': ' + err.message);
+    const failMessage = getServerMessage('skillInstallFailed') + ': ' + err.message;
+    writeSkillLog('ERROR', 'skillInstallFailed', { message: failMessage }, { error: err.stack });
+    return fail(failMessage);
   }
 }

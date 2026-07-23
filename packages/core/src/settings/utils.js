@@ -1,7 +1,8 @@
 // 通用嵌套操作工具 + 基于 lodash 的清理/比较工具
 // lodash 作为 CommonJS 模块，在 ESM 中需通过默认导入解构，避免个别 named export 缺失报错
 import pkg from 'lodash';
-const { isEqual, pickBy, isNumber, isEmpty: lodashIsEmpty, isBoolean, isDate, isFunction } = pkg;
+const { isEqual } = pkg;
+import { clearObject } from '../utils/index.js';
 
 // ---------- 嵌套读写删 ----------
 
@@ -57,37 +58,6 @@ export function deleteNested(obj, path) {
     current = current[part];
   }
   delete current[parts[parts.length - 1]];
-}
-
-// ---------- clearObject（对齐 web 端语义） ----------
-
-/**
- * 判断是否为空对象、空字符串、null
- * {}、[]、''、null 会返回 true
- * 数字、布尔、时间、方法不算空
- *
- * @param {*} v 要判断的值
- * @returns {boolean}
- */
-export function isEmpty(v) {
-  if (isNumber(v) || isBoolean(v) || isDate(v) || isFunction(v)) {
-    return false;
-  }
-  return lodashIsEmpty(v);
-}
-
-
-/**
- * 清理对象中的"空值"字段，保留有意义的非空值
- * - null / undefined -> 删除
- * - [] -> 删除
- * - {} -> 删除
- * - '' -> 删除（与 web 端 lodash.isEmpty 行为一致）
- * @param {Object} o - 待清理的对象
- * @returns {Object} 清理后的新对象
- */
-export function clearObject(o) {
-  return pickBy(o, (item) => !isEmpty(item));
 }
 
 // ---------- Schema 驱动的读写工具 ----------

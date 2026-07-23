@@ -23,6 +23,7 @@ import { join, dirname } from 'node:path';
 import { randomUUID } from 'node:crypto';
 
 
+
 /**
  * @typedef {import('../types.js').ProviderEntry} ProviderEntry
  * @typedef {import('../types.js').OfficialKeyEntry} OfficialKeyEntry
@@ -47,6 +48,23 @@ const DEFAULT_STORE = {
   },
 };
 
+/**
+ * 原子写入：先写临时文件，再 rename 覆盖目标文件
+ * 避免写入过程中进程崩溃导致文件损坏
+ * @param {string} filePath 目标文件路径
+ * @param {string} content 要写入的内容
+ */
+export function atomicWriteSync(filePath, content) {
+  const tmpPath = filePath + '.tmp-' + randomUUID();
+  try {
+    writeFileSync(tmpPath, content, 'utf-8');
+    renameSync(tmpPath, filePath);
+  } catch (err) {
+    try { unlinkSync(tmpPath); } catch { /* ignore */ }
+    throw err;
+  }
+}
+
 export class ConfigEngine {
   /**
    * 创建配置引擎实例
@@ -55,6 +73,7 @@ export class ConfigEngine {
    */
   constructor(storePath) {
     this._path = storePath || ConfigEngine.detectPath();
+    this._cache = null;
   }
 
   // ─── 路径探测 ──────────────────────────────────────────────
@@ -78,23 +97,6 @@ export class ConfigEngine {
   /** @returns {string} 当前使用的 store.json 路径 */
   get path() { return this._path; }
 
-  /**
-   * 原子写入：先写临时文件，再 rename 覆盖目标文件
-   * 避免写入过程中进程崩溃导致文件损坏
-   * @param {string} filePath 目标文件路径
-   * @param {string} content 要写入的内容
-   */
-  static atomicWriteSync(filePath, content) {
-    const tmpPath = filePath + '.tmp-' + randomUUID();
-    try {
-      writeFileSync(tmpPath, content, 'utf-8');
-      renameSync(tmpPath, filePath);
-    } catch (err) {
-      try { unlinkSync(tmpPath); } catch (err2) { /* ignore */ }
-      throw err;
-    }
-  }
-
   // ─── 读写核心 ──────────────────────────────────────────────
 
   /**
@@ -105,14 +107,23 @@ export class ConfigEngine {
    * @returns {StoreData} 当前存储的全部配置数据
    */
   read() {
+    if (this._cache) {
+      return JSON.parse(JSON.stringify(this._cache));
+    }
     if (!existsSync(this._path)) {
-      return JSON.parse(JSON.stringify(DEFAULT_STORE));
+      const result = JSON.parse(JSON.stringify(DEFAULT_STORE));
+      this._cache = result;
+      return result;
     }
     try {
       const data = JSON.parse(readFileSync(this._path, 'utf-8'));
-      return this._mergeDefaults(data);
+      const result = this._mergeDefaults(data);
+      this._cache = result;
+      return result;
     } catch {
-      return JSON.parse(JSON.stringify(DEFAULT_STORE));
+      const result = JSON.parse(JSON.stringify(DEFAULT_STORE));
+      this._cache = result;
+      return result;
     }
   }
 
@@ -127,7 +138,8 @@ export class ConfigEngine {
     this._backup();
     const dir = dirname(this._path);
     if (!existsSync(dir)) mkdirSync(dir, { recursive: true });
-    ConfigEngine.atomicWriteSync(this._path, JSON.stringify(data, null, 2));
+    atomicWriteSync(this._path, JSON.stringify(data, null, 2));
+    this._cache = JSON.parse(JSON.stringify(data));
   }
 
   /**
@@ -141,6 +153,28 @@ export class ConfigEngine {
   update(updater) {
     const data = this.read();
     this.write(updater(data));
+  }
+
+  /**
+   * 读取缓存数据（如果可用）。
+   *
+   * 优先返回内存中的缓存副本，避免重复磁盘 I/O。
+   * 如果缓存不存在，则回退到 read() 并填充缓存。
+   *
+   * @returns {StoreData} 当前存储的全部配置数据
+   */
+  readCached() {
+    if (!this._cache) {
+      this.read();
+    }
+    return JSON.parse(JSON.stringify(this._cache));
+  }
+
+  /**
+   * 清除内存缓存，强制下一次 read() 从磁盘重新加载。
+   */
+  clearCache() {
+    this._cache = null;
   }
 
   /**

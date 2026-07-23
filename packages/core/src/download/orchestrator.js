@@ -230,7 +230,7 @@ async function _executeTarWithFallback({ owner, repo, branch, tryPrefixes, destD
     } catch (tarErr) {
       // Tar 下载失败，记录错误并清理
       lastTarError = tarErr;
-      span.finish('ERROR', 'skillLogError', { msg: tarErr.message });
+      span.finish('ERROR', 'skillLogError', { msg: tarErr.message }, { error: tarErr.stack });
       emitProgress(onProgress, DOWNLOAD_STAGES.FALLBACK, 50,
         getServerMessage('skillProgressTarFailed', { msg: tarErr.message }));
       _safeRm(destDir);
@@ -292,9 +292,9 @@ async function _executeApiStrategy({ owner, repo, branch, tryPrefixes, destDir, 
         getServerMessage('skillProgressExtractNoReadme', { n: files.length }));
       _safeRm(destDir);
     } catch (err) {
-      span.finish('ERROR', 'skillLogError', { msg: err.message });
+      span.finish('ERROR', 'skillLogError', { msg: err.message }, { error: err.stack });
       if (prefix !== tryPrefixes[tryPrefixes.length - 1]) continue;
-      logger.log('ERROR', 'skillLogApiAllFailed', { msg: err.message });
+      logger.log('ERROR', 'skillLogApiAllFailed', { msg: err.message }, { error: err.stack });
       throw new Error(getServerMessage('skillErrorAllStrategiesFailed', { msg: err.message }), { cause: err });
     }
   }

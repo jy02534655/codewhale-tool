@@ -8,7 +8,7 @@ import { tmpdir } from 'node:os';
 import { join, basename } from 'node:path';
 import { randomUUID } from 'node:crypto';
 import AdmZip from 'adm-zip';
-import { downloadSkillFromGitHub, downloadAndExtractZip } from '../download/index.js';
+import { downloadSkillFromGitHub, downloadAndExtractZip, writeSkillLog } from '../download/index.js';
 import { okMsg, failMsg, fail } from '../utils/result.js';
 import { getServerMessage } from '../utils/i18n.js';
 import { emitSkillInstallLog, _extractMeta, _parseGitHubUrl, _parseProxyUrl } from './shared.js';
@@ -201,6 +201,7 @@ export async function _installFromGitHubV2(store, opts, progressCb, logCb) {
     // 安装失败，清理已创建的目录
     try { if (existsSync(finalTargetDir)) rmSync(finalTargetDir, { recursive: true, force: true }); } catch { /* ignore */ }
     const failMessage = getServerMessage('skillInstallFailed') + ': ' + err.message;
+    writeSkillLog('ERROR', 'skillInstallFailed', { message: failMessage }, { error: err.stack });
     return fail(failMessage, 'skillInstallFailed');
   }
 }
@@ -318,6 +319,7 @@ export async function installFromZip(store, zipSource, skillPath, level, proxyCo
     // 安装失败，清理目标目录
     try { if (existsSync(finalTargetDir)) rmSync(finalTargetDir, { recursive: true, force: true }); } catch { /* ignore */ }
     const failMessage = getServerMessage('skillInstallFailed') + ': ' + err.message;
+    writeSkillLog('ERROR', 'skillInstallFailed', { message: failMessage }, { error: err.stack });
     return fail(failMessage, 'skillInstallFailed');
   }
 }
