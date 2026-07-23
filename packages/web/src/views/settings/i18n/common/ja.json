@@ -21,8 +21,6 @@
     "actions_cancel": "キャンセル",
     "actions_restore_defaults": "デフォルトに戻す",
     "reset_confirm_title": "デフォルトに戻す",
-    "reset_confirm_message": "すべての設定をデフォルトに戻しますか？保存されていない変更は失われます。",
-    "reset_success": "デフォルトに戻しました。保存してください",
-    "save_success": "保存しました"
+    "reset_confirm_message": "すべての設定をデフォルトに戻しますか？保存されていない変更は失われます。"
   }
 }

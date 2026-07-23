@@ -21,8 +21,6 @@
     "actions_cancel": "取消",
     "actions_restore_defaults": "恢复默认",
     "reset_confirm_title": "恢复默认配置",
-    "reset_confirm_message": "确定要将所有设置恢复到默认配置吗？当前未保存的更改将丢失。",
-    "reset_success": "已恢复到默认配置，请记得保存",
-    "save_success": "保存成功"
+    "reset_confirm_message": "确定要将所有设置恢复到默认配置吗？当前未保存的更改将丢失。"
   }
 }
