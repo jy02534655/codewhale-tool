@@ -28,7 +28,7 @@
 <script setup>
 import { reactive } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { assign } from 'lodash';
+import { assign } from 'lodash-es';
 import { addOfficialKey, editOfficialKey } from '@/api/officialKey';
 import { useMaskingStore } from '@/stores/masking';
 import { compositionDialogForm } from '@/composition/dialog/Form';

@@ -26,7 +26,7 @@
 
 <script setup>
 import { reactive, computed } from 'vue'
-import { assign } from 'lodash'
+import { assign } from 'lodash-es'
 import { updateMeta } from '@/api/skill/routes'
 import { useMaskingStore } from '@/stores/masking'
 import { compositionDialogForm } from '@/composition/dialog/Form'

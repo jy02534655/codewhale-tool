@@ -43,7 +43,7 @@ import { useI18n } from 'vue-i18n';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import { getSettings, updateSettings, updateInstructions as updateInstructionsApi, postSettingsDefaults } from '@/api/settings';
 import { clearObject } from '@/utils';
-import { assign } from 'lodash';
+import { assign } from 'lodash-es';
 
 import Instructions from './instructions.vue';
 import groupCard from './cards/groupCard.vue';

@@ -1,12 +1,5 @@
-/**
- * 通用工具函数
- *
- * 提供 isEmpty、getValueByData、nameIncreasePrefix 等辅助方法。
- */
-
 // lodash 作为 CommonJS 模块，在 ESM 中需通过默认导入解构，避免个别 named export 缺失报错
-import pkg from 'lodash';
-const { isNumber, isEmpty: lodashIsEmpty, isBoolean, isDate, isFunction, get, pickBy } = pkg;
+import { isNumber, isEmpty as lodashIsEmpty, isBoolean, isDate, isFunction, get, pickBy } from 'lodash-es';
 
 /**
  * 判断是否为空对象、空字符串、null

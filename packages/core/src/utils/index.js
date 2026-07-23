@@ -1,5 +1,4 @@
-import pkg from 'lodash';
-const { pickBy, isNumber, isEmpty: lodashIsEmpty, isBoolean, isDate, isFunction } = pkg;
+import { pickBy, isNumber, isEmpty: lodashIsEmpty, isBoolean, isDate, isFunction } from 'lodash-es';
 
 export function isEmpty(v) {
   if (isNumber(v) || isBoolean(v) || isDate(v) || isFunction(v)) {
