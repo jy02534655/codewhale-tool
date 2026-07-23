@@ -17,9 +17,10 @@
  * @module config
  */
 
-import { readFileSync, writeFileSync, copyFileSync, existsSync, mkdirSync } from 'node:fs';
+import { readFileSync, writeFileSync, copyFileSync, existsSync, mkdirSync, renameSync, unlinkSync } from 'node:fs';
 import { homedir } from 'node:os';
 import { join, dirname } from 'node:path';
+import { randomUUID } from 'node:crypto';
 
 
 /**
@@ -77,6 +78,23 @@ export class ConfigEngine {
   /** @returns {string} 当前使用的 store.json 路径 */
   get path() { return this._path; }
 
+  /**
+   * 原子写入：先写临时文件，再 rename 覆盖目标文件
+   * 避免写入过程中进程崩溃导致文件损坏
+   * @param {string} filePath 目标文件路径
+   * @param {string} content 要写入的内容
+   */
+  static atomicWriteSync(filePath, content) {
+    const tmpPath = filePath + '.tmp-' + randomUUID();
+    try {
+      writeFileSync(tmpPath, content, 'utf-8');
+      renameSync(tmpPath, filePath);
+    } catch (err) {
+      try { unlinkSync(tmpPath); } catch (err2) { /* ignore */ }
+      throw err;
+    }
+  }
+
   // ─── 读写核心 ──────────────────────────────────────────────
 
   /**
@@ -109,7 +127,7 @@ export class ConfigEngine {
     this._backup();
     const dir = dirname(this._path);
     if (!existsSync(dir)) mkdirSync(dir, { recursive: true });
-    writeFileSync(this._path, JSON.stringify(data, null, 2), 'utf-8');
+    ConfigEngine.atomicWriteSync(this._path, JSON.stringify(data, null, 2));
   }
 
   /**

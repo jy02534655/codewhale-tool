@@ -2,7 +2,8 @@
  * FileManager — 文件系统浏览与读取核心逻辑
  *
  * 提供目录列表和文件内容读取能力，供 Server 路由层调用。
- * 所有路径统一使用 path.resolve() 解析，避免目录穿越。
+ * 所有路径统一使用 safeResolve() 解析（path.resolve + fs.realpathSync），
+ * 避免目录穿越和符号链接绕过。
  *
  * 通俗理解：
  * 这个类相当于给后端提供一个“安全文件浏览器”。前端想查看某个目录下
@@ -15,8 +16,9 @@
 
 import fs from 'node:fs';
 import path from 'node:path';
-import { execSync } from 'node:child_process';
+import { execSync, spawnSync } from 'node:child_process';
 import { ok, failMsg } from './utils/result.js';
+import { MAX_FILE_SIZE } from './constants.js';
 
 /**
  * 已知 Windows 系统隐藏文件夹名称
@@ -29,6 +31,25 @@ const HIDDEN_FOLDER_NAMES = new Set([
   '$RECYCLE.BIN',
   'Recovery',
 ]);
+
+/**
+ * 安全解析路径，处理符号链接和路径穿越
+ *
+ * 先使用 path.resolve 规范化路径，再使用 fs.realpathSync 解析符号链接，
+ * 确保获取真实路径，避免通过符号链接绕过目录限制。
+ *
+ * @param {string} userPath - 用户输入的路径
+ * @returns {string} 解析后的真实路径
+ */
+function safeResolve(userPath) {
+  const resolved = path.resolve(userPath);
+  try {
+    return fs.realpathSync(resolved);
+  } catch {
+    // 路径不存在时 realpathSync 会失败，返回已规范化的路径
+    return resolved;
+  }
+}
 
 export class FileManager {
   /**
@@ -52,7 +73,7 @@ export class FileManager {
   list(dirPath, accept, directory) {
     try {
       // 先把用户传入的路径解析成绝对路径，防止 ../ 之类的路径穿越攻击
-      const resolved = path.resolve(dirPath);
+      const resolved = safeResolve(dirPath);
       if (!fs.existsSync(resolved)) {
         return failMsg('fileNotFound');
       }
@@ -126,8 +147,8 @@ export class FileManager {
       return failMsg('filePathRequired');
     }
     try {
-      // 同样先解析成绝对路径，防止路径穿越
-      const resolved = path.resolve(filePath);
+      // 同样先解析成绝对路径，防止路径穿越和符号链接绕过
+      const resolved = safeResolve(filePath);
       if (!fs.existsSync(resolved)) {
         return failMsg('fileNotFound');
       }
@@ -137,8 +158,7 @@ export class FileManager {
         return failMsg('fileIsDirectory');
       }
       // 限制读取大小，防止加载过大的文件（例如 1MB）
-      const MAX_SIZE = 1024 * 1024;
-      if (stat.size > MAX_SIZE) {
+      if (stat.size > MAX_FILE_SIZE) {
         return failMsg('fileTooLarge');
       }
       const content = fs.readFileSync(resolved, 'utf-8');
@@ -191,11 +211,13 @@ function getHiddenFiles(dirPath) {
   // 非 Windows 系统不需要检测隐藏属性
   if (process.platform !== 'win32') return new Set();
   try {
-    // 执行 Windows 的 attrib 命令列出目录下所有文件的属性
-    const output = execSync('attrib "' + dirPath.replace(/"/g, '\\"') + '\\*"', {
+    // 使用 spawnSync 参数数组传递，避免 shell 解析，防止命令注入
+    const result = spawnSync('attrib', [dirPath + '\\*'], {
       encoding: 'utf8',
       stdio: ['pipe', 'pipe', 'pipe'],
     });
+    if (result.error || result.status !== 0) return new Set();
+    const output = result.stdout;
     const hidden = new Set();
     const lines = output.split('\n');
     for (const line of lines) {

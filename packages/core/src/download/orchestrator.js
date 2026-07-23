@@ -17,6 +17,7 @@ import path from 'node:path';
 import fs from 'node:fs';
 import { Logger, formatBytes } from '../utils/logger.js';
 import { getServerMessage } from '../utils/i18n.js';
+import { TARBALL_SIZE_THRESHOLD, TREE_COUNT_THRESHOLD } from '../constants.js';
 import {
   downloadViaTar, downloadViaApi,
   detectTarballSize, detectSkillPrefix,
@@ -154,7 +155,7 @@ function _logParams(logger, { repoUrl, skillName, destDir, proxy, token, renameM
  * @returns {boolean} true 表示使用 API 策略，false 表示使用 Tar 策略
  */
 function _shouldUseApi(tarballSize, treeCount) {
-  return (tarballSize && tarballSize >= 5 * 1024 * 1024) || (!tarballSize && treeCount > 300);
+  return (tarballSize && tarballSize >= TARBALL_SIZE_THRESHOLD) || (!tarballSize && treeCount > TREE_COUNT_THRESHOLD);
 }
 /**
  * 记录策略选择到日志
@@ -165,7 +166,7 @@ function _shouldUseApi(tarballSize, treeCount) {
  */
 function _logStrategy(logger, useApi, tarballSize, treeCount) {
   const reason = useApi
-    ? (tarballSize && tarballSize >= 5 * 1024 * 1024
+    ? (tarballSize && tarballSize >= TARBALL_SIZE_THRESHOLD
         ? `tarball ${formatBytes(tarballSize)} >= 5MB`
         : `tree ${treeCount} entries > 300, use API`)
     : (tarballSize

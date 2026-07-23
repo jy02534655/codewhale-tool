@@ -225,7 +225,8 @@ export function applyRenameMap(filePath, renameMap) {
   for (const [oldName, newName] of Object.entries(renameMap)) {
     if (oldName.endsWith('/')) {
       // 目录映射：将路径前缀替换为新目录名
-      if (result.startsWith(oldName)) {
+      // 加固：确保精确匹配目录前缀，避免 `skills/my-skill-old/` 误匹配 `skills/my-skill/`
+      if (result.startsWith(oldName) && (result.length === oldName.length || result[oldName.length] === '/')) {
         result = newName + result.slice(oldName.length);
       }
     } else if (result === oldName || path.basename(result) === oldName) {

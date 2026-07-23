@@ -1,8 +1,9 @@
 // 统一配置 I/O 抽象：消除所有重复的文件操作代码
 import { homedir } from 'node:os';
 import { join, dirname } from 'node:path';
-import { existsSync, readFileSync, writeFileSync, mkdirSync } from 'node:fs';
+import { existsSync, readFileSync, writeFileSync, mkdirSync, renameSync, unlinkSync } from 'node:fs';
 import { parse, stringify } from 'smol-toml';
+import { randomUUID } from 'node:crypto';
 
 /**
  * 获取 CodeWhale 配置文件路径
@@ -47,5 +48,12 @@ export function writeConfig(config, header = '# CodeWhale Configuration\n# Synce
     ? '# CodeWhale Configuration\n# (All settings are at default values)\n'
     : header + stringify(config);
 
-  writeFileSync(cwPath, content, 'utf-8');
+  const tmpPath = cwPath + '.tmp-' + randomUUID();
+  try {
+    writeFileSync(tmpPath, content, 'utf-8');
+    renameSync(tmpPath, cwPath);
+  } catch (err) {
+    try { unlinkSync(tmpPath); } catch (err2) { /* ignore */ }
+    throw err;
+  }
 }

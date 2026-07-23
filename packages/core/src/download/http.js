@@ -22,6 +22,7 @@ import { PassThrough, Readable } from 'node:stream';
 import * as tar from 'tar';
 import { Octokit } from '@octokit/core';
 import { DOWNLOAD_STAGES, ProgressEmitter, applyRenameMap } from './utils.js';
+import { MAX_RETRIES, CONCURRENCY, HTTP_TIMEOUT_TAR } from '../constants.js';
 // ===================== Tar 流式下载 =====================
 /**
  * 通过 tar.gz 流式下载并按前缀筛选出单个 skill，适合中小仓库直连场景。
@@ -55,7 +56,7 @@ export async function downloadViaTar({ owner, repo, branch, skillPrefix, targetD
   const repoPrefix = `${repo}-${branch}/`;
   // 30s 超时 + 代理修复：使用 dispatcher 而非 agent（fetch API 的代理方式）
   const ctrl = new AbortController();
-  const timer = setTimeout(() => ctrl.abort(), 30000);
+  const timer = setTimeout(() => ctrl.abort(), HTTP_TIMEOUT_TAR);
   let res;
   try {
     // 使用 globalThis.fetch（Node 18+ 内置），通过 dispatcher 注入代理
@@ -130,9 +131,6 @@ export async function downloadViaTar({ owner, repo, branch, skillPrefix, targetD
   });
 }
 // ===================== Octokit API 并发下载 =====================
-// 最大重试次数和并发数
-const MAX_RETRIES = 3;
-const CONCURRENCY = 3;
 /**
  * 通过 Octokit + Git Blob API 下载文件
  *

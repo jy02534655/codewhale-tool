@@ -18,6 +18,7 @@ import { tmpdir } from 'node:os';
 import { randomUUID } from 'node:crypto';
 import { getServerMessage } from '../utils/i18n.js';
 import { DOWNLOAD_STAGES, createAgent } from './utils.js';
+import { HTTP_TIMEOUT_ZIP } from '../constants.js';
 import AdmZip from 'adm-zip';
 /**
  * 使用代理下载 ZIP 压缩包，支持进度回调
@@ -45,7 +46,7 @@ async function downloadZipWithProxy(url, destPath, proxy, onProgress) {
     // 无代理模式：使用 fetch API
     const response = await fetch(url, {
       redirect: 'follow',
-      signal: AbortSignal.timeout(120000),
+      signal: AbortSignal.timeout(HTTP_TIMEOUT_ZIP),
     });
     if (!response.ok) {
       throw new Error(getServerMessage('skillZipDownloadFailed'));
@@ -85,7 +86,7 @@ async function downloadZipWithProxy(url, destPath, proxy, onProgress) {
   const doGet = (targetUrl) => new Promise((resolve, reject) => {
     get(targetUrl, {
       agent,
-      timeout: 120000,
+      timeout: HTTP_TIMEOUT_ZIP,
       headers: {
         'User-Agent': 'CodeWhale/1.0',
         'Accept': 'application/zip, application/octet-stream, */*',

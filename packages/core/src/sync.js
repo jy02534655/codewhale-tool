@@ -26,9 +26,10 @@
  */
 
 import { parse, stringify } from 'smol-toml';
-import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'node:fs';
+import { readFileSync, writeFileSync, existsSync, mkdirSync, renameSync, unlinkSync } from 'node:fs';
 import { homedir } from 'node:os';
 import { join, dirname } from 'node:path';
+import { randomUUID } from 'node:crypto';
 import { getServerMessage } from './utils/i18n.js';
 import { okMsg, failMsg } from './utils/result.js';
 
@@ -283,12 +284,15 @@ export class SyncManager {
     const dir = dirname(cwPath);
     if (!existsSync(dir)) mkdirSync(dir, { recursive: true });
 
-    // 写入文件，顶部加上注释标记
-    writeFileSync(
-      cwPath,
-      '# CodeWhale Configuration\n# Synced by codewhale-tool\n\n' + stringify(cwCfg),
-      'utf-8'
-    );
+    // 原子写入文件，顶部加上注释标记
+    const tmpPath = cwPath + '.tmp-' + randomUUID();
+    try {
+      writeFileSync(tmpPath, '# CodeWhale Configuration\n# Synced by codewhale-tool\n\n' + stringify(cwCfg), 'utf-8');
+      renameSync(tmpPath, cwPath);
+    } catch {
+      try { unlinkSync(tmpPath); } catch { /* ignore */ }
+      throw;
+    }
 
     return okMsg('synced');
   }

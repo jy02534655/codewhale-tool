@@ -26,7 +26,6 @@ export const DEFAULT_SETTINGS = {
   max_history: 1000,
   verbosity: 'normal',
   tui_alternate_screen: 'auto',
-  tui_mouse_capture: true,
   tui_terminal_probe_timeout_ms: 500,
   tui_stream_chunk_timeout_secs: 300,
   tui_osc8_links: true,
