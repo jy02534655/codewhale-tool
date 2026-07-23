@@ -7,8 +7,9 @@
  */
 
 import { SCHEMA } from './schema.js';
-import { applyToTomlBySchema } from './utils.js';
+import { applyToTomlBySchema, isEmpty } from './utils.js';
 import { readConfig, writeConfig } from './io.js';
+import { cloneDeep } from 'lodash';
 
 /**
  * 将通用设置写入 CodeWhale config.toml
@@ -19,7 +20,7 @@ import { readConfig, writeConfig } from './io.js';
 export function writeSettingsToCodeWhale(data) {
   // 读取当前配置（保留所有非通用设置字段）
   const cwCfg = readConfig();
-  const newCfg = JSON.parse(JSON.stringify(cwCfg));
+  const newCfg = cloneDeep(cwCfg);
 
   // 使用 Schema 驱动写入通用设置字段
   applyToTomlBySchema(data, newCfg, SCHEMA);
@@ -31,7 +32,7 @@ export function writeSettingsToCodeWhale(data) {
       delete newCfg[key];
     } else if (Array.isArray(newCfg[key]) && newCfg[key].length === 0) {
       delete newCfg[key];
-    } else if (typeof newCfg[key] === 'object' && !Array.isArray(newCfg[key]) && Object.keys(newCfg[key]).length === 0) {
+    } else if (typeof newCfg[key] === 'object' && !Array.isArray(newCfg[key]) && isEmpty(newCfg[key])) {
       delete newCfg[key];
     }
   }

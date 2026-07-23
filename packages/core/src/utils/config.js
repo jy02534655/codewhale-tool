@@ -21,6 +21,7 @@ import { readFileSync, writeFileSync, copyFileSync, existsSync, mkdirSync, renam
 import { homedir } from 'node:os';
 import { join, dirname } from 'node:path';
 import { randomUUID } from 'node:crypto';
+import { cloneDeep } from 'lodash';
 
 
 
@@ -108,10 +109,10 @@ export class ConfigEngine {
    */
   read() {
     if (this._cache) {
-      return JSON.parse(JSON.stringify(this._cache));
+      return cloneDeep(this._cache);
     }
     if (!existsSync(this._path)) {
-      const result = JSON.parse(JSON.stringify(DEFAULT_STORE));
+      const result = cloneDeep(DEFAULT_STORE);
       this._cache = result;
       return result;
     }
@@ -121,7 +122,7 @@ export class ConfigEngine {
       this._cache = result;
       return result;
     } catch {
-      const result = JSON.parse(JSON.stringify(DEFAULT_STORE));
+      const result = cloneDeep(DEFAULT_STORE);
       this._cache = result;
       return result;
     }
@@ -139,7 +140,7 @@ export class ConfigEngine {
     const dir = dirname(this._path);
     if (!existsSync(dir)) mkdirSync(dir, { recursive: true });
     atomicWriteSync(this._path, JSON.stringify(data, null, 2));
-    this._cache = JSON.parse(JSON.stringify(data));
+    this._cache = cloneDeep(data);
   }
 
   /**
@@ -167,7 +168,7 @@ export class ConfigEngine {
     if (!this._cache) {
       this.read();
     }
-    return JSON.parse(JSON.stringify(this._cache));
+    return cloneDeep(this._cache);
   }
 
   /**
@@ -196,7 +197,7 @@ export class ConfigEngine {
    * @returns {StoreData} 补齐默认值后的完整数据
    */
   _mergeDefaults(data) {
-    const def = JSON.parse(JSON.stringify(DEFAULT_STORE));
+    const def = cloneDeep(DEFAULT_STORE);
     return {
       locale: data.locale || def.locale,
       official_keys: Array.isArray(data.official_keys) ? data.official_keys : def.official_keys,

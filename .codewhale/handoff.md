@@ -51,7 +51,40 @@
 -    - 新增 `readCached()`：优先返回缓存深拷贝，缓存不存在时自动回退 `read()`。
 -    - 新增 `clearCache()`：手动清除缓存，强制下一次 `read()` 从磁盘重新加载。
 
+### ESLint 警告修复（已完成）
+- `packages/core/src/file.js`：移除未使用的 `execSync` 导入
+- `packages/core/src/settings/io.js`：移除未使用的 `err2` catch 绑定
+- `packages/core/src/settings/utils.js`：移除未使用的 `isEmpty` 导入
+- `packages/core/src/skill/cmd.js`：移除未使用的 `isEmpty` 导入
+- `packages/core/src/sync.js`：移除未使用的 `err2` catch 绑定
+- `packages/core/src/utils/config.js`：移除未使用的 `cloneDeep` 导入和 `err2` catch 绑定
+
+### atomicWriteSync 提取重构（已完成）
+- `packages/core/src/utils/config.js`：将 `ConfigEngine.atomicWriteSync` 从静态方法提取为独立导出函数 `export function atomicWriteSync(filePath, content)`，`ConfigEngine.write()` 改为直接调用
+- `packages/core/src/settings/io.js`：`writeConfig` 内联原子写入逻辑替换为 `atomicWriteSync(cwPath, content)`，移除冗余导入 `writeFileSync`、`renameSync`、`unlinkSync`、`randomUUID`
+- `packages/core/src/sync.js`：`syncToCodeWhale` 内联原子写入逻辑替换为 `atomicWriteSync(cwPath, ...)`，移除冗余导入 `writeFileSync`、`renameSync`、`unlinkSync`、`randomUUID`
+
+## 已完成的后续优化
+
+### lodash 化与去重优化（已完成）
+- **cloneDeep 替换 JSON.parse(JSON.stringify(...))**：
+  - `packages/core/src/utils/config.js`：导入 `cloneDeep`，`read()`/`write()`/`readCached()`/`_mergeDefaults()` 中 6 处深拷贝已替换
+  - `packages/core/src/settings/index.js`：导入 `cloneDeep`，`writeInstructionsToConfig()` 中 1 处已替换
+  - `packages/core/src/settings/writer.js`：导入 `cloneDeep`，`writeSettingsToCodeWhale()` 中 1 处已替换
+- **嵌套操作 lodash 化**：
+  - `packages/core/src/settings/utils.js`：`getNested`/`setNested`/`deleteNested` 已改为 lodash `get`/`set`/`unset`，保持兼容导出
+- **空对象判断统一为 isEmpty/clearObject**：
+  - `packages/core/src/settings/io.js`：导入 `isEmpty`，`writeConfig()` 中空配置判断已替换
+  - `packages/core/src/settings/reader.js`：导入 `isEmpty`，`readSettingsFromCodeWhale()` 中空配置判断已替换
+  - `packages/core/src/settings/writer.js`：导入 `isEmpty`，`writeSettingsToCodeWhale()` 中空对象清理判断已替换
+- **验证状态**：对上述 6 个文件运行 `npx eslint`，通过（无错误）
+
 ## 待继续任务（按建议顺序）
+
+### 低优先级（按需推进）
+- **#10 异步 I/O 改造**
+- **#11 SkillStore 查找索引优化**
+- **#12 下载并发控制库替换**
 
 1. **低优先级按需推进**：
    - **#10 异步 I/O 改造**

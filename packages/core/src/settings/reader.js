@@ -10,8 +10,11 @@ import { join, isAbsolute } from 'node:path';
 import { existsSync, readFileSync } from 'node:fs';
 import { DEFAULT_SETTINGS } from './defaults.js';
 import { SCHEMA } from './schema.js';
-import { readFromTomlBySchema, getNested } from './utils.js';
+import { readFromTomlBySchema } from './utils.js';
+import { isEmpty } from '../utils/index.js';
 import { readConfig } from './io.js';
+import pkg from 'lodash';
+const { get } = pkg;
 
 // ---------- instruction 路径与内容解析工具 ----------
 
@@ -67,7 +70,7 @@ export function readSettingsFromCodeWhale() {
   const cwCfg = readConfig();
 
   // 配置为空时返回默认值
-  if (Object.keys(cwCfg).length === 0) {
+  if (isEmpty(cwCfg)) {
     return {
       ...DEFAULT_SETTINGS,
       instructions: [],
@@ -79,7 +82,7 @@ export function readSettingsFromCodeWhale() {
     const result = readFromTomlBySchema(cwCfg, SCHEMA);
 
     // 兼容旧版顶层 locale（写入时已删除顶层 locale，但旧文件可能仍有）
-    if (cwCfg.locale !== undefined && getNested(cwCfg, 'tui.locale') === undefined) {
+    if (cwCfg.locale !== undefined && get(cwCfg, 'tui.locale') === undefined) {
       result.locale = cwCfg.locale;
     }
     // 兼容旧版顶层 default_text_model（部分旧文件可能仍有）

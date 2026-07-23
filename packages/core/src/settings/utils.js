@@ -1,7 +1,7 @@
 // 通用嵌套操作工具 + 基于 lodash 的清理/比较工具
 // lodash 作为 CommonJS 模块，在 ESM 中需通过默认导入解构，避免个别 named export 缺失报错
 import pkg from 'lodash';
-const { isEqual } = pkg;
+const { isEqual, get, set, unset } = pkg;
 import { clearObject } from '../utils/index.js';
 
 // ---------- 嵌套读写删 ----------
@@ -12,53 +12,7 @@ import { clearObject } from '../utils/index.js';
  * @param {string} path - 点分隔的路径，如 'tui.locale'
  * @returns {*} 路径对应的值，不存在时返回 undefined
  */
-export function getNested(obj, path) {
-  const parts = path.split('.');
-  let current = obj;
-  for (const part of parts) {
-    if (current && typeof current === 'object' && part in current) {
-      current = current[part];
-    } else {
-      return undefined;
-    }
-  }
-  return current;
-}
-
-/**
- * 根据点分隔的路径向对象写入嵌套值
- * @param {Object} obj - 目标对象（会被直接修改）
- * @param {string} path - 点分隔的路径
- * @param {*} value - 要写入的值
- */
-export function setNested(obj, path, value) {
-  const parts = path.split('.');
-  let current = obj;
-  for (let i = 0; i < parts.length - 1; i++) {
-    const part = parts[i];
-    if (!current[part] || typeof current[part] !== 'object') {
-      current[part] = {};
-    }
-    current = current[part];
-  }
-  current[parts[parts.length - 1]] = value;
-}
-
-/**
- * 根据点分隔的路径从对象中删除嵌套值
- * @param {Object} obj - 目标对象（会被直接修改）
- * @param {string} path - 点分隔的路径
- */
-export function deleteNested(obj, path) {
-  const parts = path.split('.');
-  let current = obj;
-  for (let i = 0; i < parts.length - 1; i++) {
-    const part = parts[i];
-    if (!current[part] || typeof current[part] !== 'object') return;
-    current = current[part];
-  }
-  delete current[parts[parts.length - 1]];
-}
+// 嵌套操作已统一使用 lodash get/set/unset，删掉冗余包装函数
 
 // ---------- Schema 驱动的读写工具 ----------
 
@@ -71,7 +25,7 @@ export function deleteNested(obj, path) {
 export function readFromTomlBySchema(tomlObj, schema) {
   const result = {};
   for (const field of schema) {
-    const val = getNested(tomlObj, field.path);
+    const val = get(tomlObj, field.path);
     // field.default 为 undefined 时（如字段已从 SCHEMA 移除），保留 undefined
     result[field.key] = val !== undefined ? val : field.default;
   }
@@ -91,9 +45,9 @@ export function applyToTomlBySchema(data, tomlObj, schema) {
     if (value === undefined) continue;
     // 使用 isEqual 深比较是否等于默认值，避免 JSON.stringify 的语义边界问题
     if (isEqual(value, field.default)) {
-      deleteNested(tomlObj, field.path);
+      unset(tomlObj, field.path);
     } else {
-      setNested(tomlObj, field.path, value);
+      set(tomlObj, field.path, value);
     }
   }
   // 清理整个配置的空对象 / 空数组 / null / undefined

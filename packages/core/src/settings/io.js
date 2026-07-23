@@ -4,6 +4,7 @@ import { join, dirname } from 'node:path';
 import { existsSync, readFileSync, mkdirSync } from 'node:fs';
 import { parse, stringify } from 'smol-toml';
 import { atomicWriteSync } from '../utils/config.js';
+import { isEmpty } from '../utils/index.js';
 
 /**
  * 获取 CodeWhale 配置文件路径
@@ -44,7 +45,7 @@ export function writeConfig(config, header = '# CodeWhale Configuration\n# Synce
   }
 
   // 如果配置为空，只写注释，不生成空 TOML
-  const content = Object.keys(config).length === 0
+  const content = isEmpty(config)
     ? '# CodeWhale Configuration\n# (All settings are at default values)\n'
     : header + stringify(config);
  

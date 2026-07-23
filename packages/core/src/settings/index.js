@@ -10,6 +10,7 @@ export { readSettingsFromCodeWhale, codeWhalePath } from './reader.js';
 export { writeSettingsToCodeWhale } from './writer.js';
 
 import { ok, okMsg } from '../utils/result.js';
+import { cloneDeep } from 'lodash';
 import { DEFAULT_SETTINGS as _DEFAULT_SETTINGS } from './defaults.js';
 import { readSettingsFromCodeWhale as _readSettingsFromCodeWhale } from './reader.js';
 import { writeSettingsToCodeWhale as _writeSettingsToCodeWhale } from './writer.js';
@@ -25,7 +26,7 @@ import { readConfig, writeConfig } from './io.js';
  */
 function writeInstructionsToConfig(instructions) {
   const cwCfg = readConfig();
-  const newCfg = JSON.parse(JSON.stringify(cwCfg));
+  const newCfg = cloneDeep(cwCfg);
 
   if (!Array.isArray(instructions) || instructions.length === 0) {
     delete newCfg.instructions;
