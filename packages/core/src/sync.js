@@ -28,7 +28,7 @@
 import { parse } from 'smol-toml';
 import { existsSync, readFileSync } from 'node:fs';
 import { readCodeWhaleConfig, writeCodeWhaleConfig } from './utils/toml.js';
-import { codeWhalePath } from '../utils/index.js';
+import { codeWhalePath } from './utils/index.js';
 import { getServerMessage } from './utils/i18n.js';
 import { okMsg, failMsg } from './utils/result.js';
 

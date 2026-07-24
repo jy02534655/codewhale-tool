@@ -33,6 +33,3 @@ export function readSettingsFromCodeWhale() {
     return { ...DEFAULT_SETTINGS };
   }
 }
-
-// 对外暴露路径（保留兼容）
-export { codeWhalePath } from '../utils/index.js';
