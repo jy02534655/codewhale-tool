@@ -43,10 +43,9 @@ const DEFAULT_STORE = {
     enabled: true,
     installed: [],
     community_cache: [],
-    cached_at: 0,
-  },
+    cached_at: 0
+  }
 };
-
 
 /**
  * 原子写入：先写临时文件，再 rename 覆盖目标文件
@@ -60,7 +59,11 @@ export function atomicWriteSync(filePath, content) {
     writeFileSync(tmpPath, content, 'utf-8');
     renameSync(tmpPath, filePath);
   } catch (err) {
-    try { unlinkSync(tmpPath); } catch { /* ignore */ }
+    try {
+      unlinkSync(tmpPath);
+    } catch {
+      /* ignore */
+    }
     throw err;
   }
 }
@@ -95,7 +98,9 @@ export class ConfigEngine {
   }
 
   /** @returns {string} 当前使用的 store.json 路径 */
-  get path() { return this._path; }
+  get path() {
+    return this._path;
+  }
 
   // ─── 读写核心 ──────────────────────────────────────────────
 
@@ -237,8 +242,4 @@ export class ConfigEngine {
   find(path, predicate) {
     return lodashFind(this.get(path), predicate);
   }
-
-
-
-} 
-
+}
