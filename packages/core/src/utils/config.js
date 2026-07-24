@@ -21,9 +21,7 @@ import { readFileSync, writeFileSync, copyFileSync, existsSync, mkdirSync, renam
 import { homedir } from 'node:os';
 import { join, dirname } from 'node:path';
 import { randomUUID } from 'node:crypto';
-import { cloneDeep } from 'lodash-es';
-
-
+import { cloneDeep, defaultsDeep } from 'lodash-es';
 
 /**
  * @typedef {import('../types.js').ProviderEntry} ProviderEntry
@@ -48,6 +46,7 @@ const DEFAULT_STORE = {
     cached_at: 0,
   },
 };
+
 
 /**
  * 原子写入：先写临时文件，再 rename 覆盖目标文件
@@ -193,28 +192,18 @@ export class ConfigEngine {
    * 如果用户手动编辑 store.json 导致某些字段缺失，这里会把默认值补回去，
    * 防止后续代码访问 undefined 而报错。
    *
+   * 采用 schema-driven 设计：新增字段只需在 STORE_SCHEMA / SKILLS_SCHEMA 中声明，
+   * 无需修改本方法的合并逻辑。
+   *
    * @param {StoreData} data 从文件读取的原始数据
    * @returns {StoreData} 补齐默认值后的完整数据
    */
   _mergeDefaults(data) {
-    const def = cloneDeep(DEFAULT_STORE);
-    return {
-      locale: data.locale || def.locale,
-      official_keys: Array.isArray(data.official_keys) ? data.official_keys : def.official_keys,
-      providers: Array.isArray(data.providers) ? data.providers : def.providers,
-      proxies: Array.isArray(data.proxies) ? data.proxies : def.proxies,
-      tokens: Array.isArray(data.tokens) ? data.tokens : def.tokens,
-      projects: Array.isArray(data.projects) ? data.projects : def.projects,
-      project_skills: data.project_skills && typeof data.project_skills === 'object' ? data.project_skills : def.project_skills,
-      skills: {
-        enabled: data.skills?.enabled ?? def.skills.enabled,
-        installed: Array.isArray(data.skills?.installed) ? data.skills.installed : def.skills.installed,
-        community_cache: Array.isArray(data.skills?.community_cache)
-          ? data.skills.community_cache
-          : def.skills.community_cache,
-        cached_at: data.skills?.cached_at ?? def.skills.cached_at,
-      },
-    };
+    const result = defaultsDeep({}, data, DEFAULT_STORE);
+    if (!result.locale) {
+      result.locale = DEFAULT_STORE.locale;
+    }
+    return result;
   }
 
   // ─── 官方 Key 方法 ─────────────────────────────────────────
@@ -430,4 +419,5 @@ export class ConfigEngine {
   setLocale(locale) {
     this.update((d) => { d.locale = locale; return d; });
   }
-}
+} 
+

@@ -25,10 +25,9 @@
  * @module sync
  */
 
-import { parse, stringify } from 'smol-toml';
-import { readFileSync, existsSync, mkdirSync } from 'node:fs';
-import { join, dirname } from 'node:path';
-import { atomicWriteSync } from './utils/config.js';
+import { parse } from 'smol-toml';
+import { existsSync, readFileSync } from 'node:fs';
+import { readCodeWhaleConfig, writeCodeWhaleConfig } from './utils/toml.js';
 import { codeWhalePath } from '../utils/index.js';
 import { getServerMessage } from './utils/i18n.js';
 import { okMsg, failMsg } from './utils/result.js';
@@ -213,15 +212,8 @@ export class SyncManager {
    * @returns {{success: boolean, data?: any, message?: string, errorCode?: string}}
    */
   syncToCodeWhale() {
-    const cwPath = codeWhalePath();
-
-    // 如果 CodeWhale 配置文件已存在，先读取保留非管理字段
-    let cwCfg = {};
-    if (existsSync(cwPath)) {
-      try {
-        cwCfg = parse(readFileSync(cwPath, 'utf-8'));
-      } catch { /* 如果解析失败，从头开始 */ }
-    }
+    // 读取 CodeWhale 配置，文件不存在或解析失败时从头开始
+    const cwCfg = readCodeWhaleConfig({});
 
     // ── 官方 API key ──
     // 写入当前激活的官方 key，如果没有激活的则为空
@@ -268,12 +260,8 @@ export class SyncManager {
       delete cwCfg.provider;
     }
 
-    // 确保目录存在
-    const dir = dirname(cwPath);
-    if (!existsSync(dir)) mkdirSync(dir, { recursive: true });
-
     // 原子写入文件，顶部加上注释标记
-    atomicWriteSync(cwPath, '# CodeWhale Configuration\n# Synced by codewhale-tool\n\n' + stringify(cwCfg));
+    writeCodeWhaleConfig(cwCfg, '# CodeWhale Configuration\n# Synced by codewhale-tool\n\n');
 
     return okMsg('synced');
   }

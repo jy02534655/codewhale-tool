@@ -1,9 +1,9 @@
-// 统一配置 I/O 抽象：消除所有重复的文件操作代码
-import { dirname } from 'node:path';
-import { existsSync, readFileSync, mkdirSync } from 'node:fs';
-import { parse, stringify } from 'smol-toml';
-import { atomicWriteSync } from '../utils/config.js';
-import { isEmpty, codeWhalePath } from '../utils/index.js';
+/**
+ * 统一配置 I/O 抽象：消除所有重复的文件操作代码
+ */
+import { readCodeWhaleConfig, writeCodeWhaleConfig } from '../utils/toml.js';
+
+const DEFAULT_HEADER = '# CodeWhale Configuration\n# Synced by codewhale-tool\n\n';
 
 /**
  * 读取并解析 CodeWhale 配置
@@ -11,16 +11,7 @@ import { isEmpty, codeWhalePath } from '../utils/index.js';
  * @returns {Object} 解析后的 TOML 配置对象
  */
 export function readConfig() {
-  const cwPath = codeWhalePath();
-  if (!existsSync(cwPath)) {
-    return {};
-  }
-  try {
-    const raw = readFileSync(cwPath, 'utf-8');
-    return parse(raw);
-  } catch {
-    return {};
-  }
+  return readCodeWhaleConfig({});
 }
 
 /**
@@ -28,17 +19,6 @@ export function readConfig() {
  * @param {Object} config - 要写入的配置对象
  * @param {string} [header] - TOML 文件头部注释
  */
-export function writeConfig(config, header = '# CodeWhale Configuration\n# Synced by codewhale-tool\n\n') {
-  const cwPath = codeWhalePath();
-  const dir = dirname(cwPath);
-  if (!existsSync(dir)) {
-    mkdirSync(dir, { recursive: true });
-  }
-
-  // 如果配置为空，只写注释，不生成空 TOML
-  const content = isEmpty(config)
-    ? '# CodeWhale Configuration\n# (All settings are at default values)\n'
-    : header + stringify(config);
- 
-  atomicWriteSync(cwPath, content);
+export function writeConfig(config, header = DEFAULT_HEADER) {
+  writeCodeWhaleConfig(config, header);
 }
