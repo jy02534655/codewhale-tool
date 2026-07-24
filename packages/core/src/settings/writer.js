@@ -16,7 +16,7 @@ import { cloneDeep } from 'lodash-es';
  * 将通用设置写入 CodeWhale config.toml
  * 智能写入策略：值与默认值相等则删除字段，不相等则写入，使配置文件极简
  * 非 SCHEMA 字段（如 api_key、projects、providers.*）原样保留
- * @param {Object} data - 前端提交的平铺设置数据（不含 instructions）
+ * @param {Object} data - 前端提交的平铺设置数据
  */
 export function writeSettingsToCodeWhale(data) {
   // 读取当前配置（保留所有非通用设置字段）

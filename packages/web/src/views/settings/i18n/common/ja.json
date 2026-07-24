@@ -1,17 +1,7 @@
-﻿{
+{
   "settings": {
     "title": "汎用設定",
     "default_model_placeholder": "例: deepseek-v4-pro",
-    "instructions_title": "Instructions",
-    "instructions_add": "指示を追加",
-    "add_instruction_dialog_title": "指示を追加",
-    "edit_instruction_dialog_title": "指示を編集",
-    "instructions_empty": "指示がありません。追加してください。",
-    "instruction_path": "指示パス",
-    "instruction_path_placeholder": "指示ファイルパス、例: ./AGENTS.md",
-    "instruction_content_placeholder": "指示内容、空欄の場合はパスのみ保存",
-    "instruction_read_file": "ファイル内容を読み込む",
-    "instruction_readonly": "グローバル設定（読み取り専用）",
     "loading": "読み込み中...",
     "update_title": "更新確認",
     "placeholder_search_base_url": "https://...",

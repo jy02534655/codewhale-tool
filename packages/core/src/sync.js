@@ -244,7 +244,6 @@ export class SyncManager {
 
     // 确保这些字段存在，避免 CodeWhale 读取时缺字段
     cwCfg.auth_mode = cwCfg.auth_mode || 'api_key';
-    // instructions 由通用设置路由直接读写 config.toml，此处不再覆盖
 
     // ── 第三方 provider ──
     // 从本地读取所有 provider，重建 CodeWhale 的 providers 配置

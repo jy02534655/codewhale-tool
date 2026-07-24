@@ -29,14 +29,5 @@ export function createSettingsRouter(settingsMgr) {
     res.json(guard(() => settingsMgr.update(req.body)));
   });
 
-  // 独立保存 instructions（仅写入 instructions，不触碰其他设置）
-  router.put('/instructions', (req, res) => {
-    res.json(guard(() => {
-      const body = req.body || {};
-      const instructions = Array.isArray(body.instructions) ? body.instructions : [];
-      return settingsMgr.updateInstructions(instructions);
-    }));
-  });
-
   return router;
 }

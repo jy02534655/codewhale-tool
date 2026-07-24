@@ -1,17 +1,7 @@
-﻿{
+{
   "settings": {
     "title": "Configurações Gerais",
     "default_model_placeholder": "ex: deepseek-v4-pro",
-    "instructions_title": "Instructions",
-    "instructions_add": "Adicionar Instruction",
-    "add_instruction_dialog_title": "Adicionar Instruction",
-    "edit_instruction_dialog_title": "Editar Instruction",
-    "instructions_empty": "Nenhuma instruction configurada. Clique para adicionar.",
-    "instruction_path": "Caminho da Instruction",
-    "instruction_path_placeholder": "Caminho do arquivo de instruction, ex: ./AGENTS.md",
-    "instruction_content_placeholder": "Conteúdo da instruction, deixe vazio para salvar apenas o caminho",
-    "instruction_read_file": "Ler Conteúdo do Arquivo",
-    "instruction_readonly": "Configuração global (somente leitura)",
     "loading": "Carregando...",
     "update_title": "Atualizações",
     "placeholder_search_base_url": "https://...",

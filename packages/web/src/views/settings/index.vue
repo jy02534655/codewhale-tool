@@ -20,8 +20,6 @@
         <div class="settings-masonry">
           <groupCard v-for="group in groups" :key="group.titleKey" v-model:formData="formData" :title-key="group.titleKey" :items="group.items" />
         </div>
-
-        <Instructions :instructions="formData.instructions" @update:instructions="formData.instructions = $event" @save="updateInstructions" />
       </el-form>
     </div>
   </div>
@@ -31,11 +29,10 @@
   import { ref, reactive, onMounted } from 'vue';
   import { useI18n } from 'vue-i18n';
   import { ElMessage, ElMessageBox } from 'element-plus';
-  import { getSettings, updateSettings, updateInstructions as updateInstructionsApi, postSettingsDefaults } from '@/api/settings';
+  import { getSettings, updateSettings, postSettingsDefaults } from '@/api/settings';
   import { clearObject } from '@/utils';
   import { assign, cloneDeep } from 'lodash-es';
 
-  import Instructions from './instructions.vue';
   import groupCard from './cards/groupCard.vue';
   import { groups } from './cards/index.js';
 
@@ -70,9 +67,7 @@
         ElMessage.warning('请检查表单填写是否正确');
         return;
       }
-      // instructions 由独立组件管理，不随通用设置一起保存
       const settingsData = clearObject({ ...formData });
-      delete settingsData.instructions;
       updateSettings(settingsData)
         .then(function () {
           // 保存成功后更新原始快照
@@ -112,17 +107,6 @@
       });
   }
 
-  // ========== 独立保存 Instructions ==========
-  function updateInstructions() {
-    updateInstructionsApi(formData.instructions)
-      .then(function () {
-        assign(originalForm, cloneDeep(formData));
-      })
-      .catch(function () {
-        // 失败不更新快照
-      });
-  }
-
   onMounted(fetchSettings);
 </script>
 
@@ -154,11 +138,6 @@
     column-gap: 16px;
   }
 
-  /* Instructions 卡片单独样式 */
-  .instructions-card {
-    margin-top: 20px;
-    border-radius: 4px;
-  }
 
   /* ========== 卡片头部 ========== */
   .card-header {
@@ -213,59 +192,6 @@
     font-weight: 600;
   }
 
-  /* ========== Instructions 列表 ========== */
-  .instruction-list {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-  }
-  .instruction-item {
-    border: 1px solid #e4e7ed;
-    border-radius: 8px;
-    padding: 12px 14px;
-    background: #fafbfc;
-    transition: background 0.2s;
-  }
-  .instruction-item:hover {
-    background: #f5f7fa;
-  }
-  .instruction-main {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 12px;
-    flex-wrap: wrap;
-  }
-  .instruction-path {
-    font-family: 'SF Mono', Monaco, 'Cascadia Code', monospace;
-    font-size: 13px;
-    color: #409eff;
-    word-break: break-all;
-  }
-  .instruction-info {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    flex-wrap: wrap;
-  }
-  .instruction-actions {
-    display: flex;
-    gap: 6px;
-    flex-wrap: wrap;
-  }
-  .instruction-content {
-    margin-top: 8px;
-    font-size: 13px;
-    color: #606266;
-    white-space: pre-wrap;
-    word-break: break-all;
-  }
-  .instructions-empty {
-    color: #909399;
-    font-size: 14px;
-    text-align: center;
-    padding: 20px 0;
-  }
 
   /* ========== 响应式 ========== */
   @media (max-width: 768px) {
@@ -274,14 +200,6 @@
     }
     .settings-grid {
       grid-template-columns: 1fr;
-    }
-    .instruction-main {
-      flex-direction: column;
-      align-items: flex-start;
-    }
-    .instruction-actions {
-      width: 100%;
-      justify-content: flex-end;
     }
     .action-bar {
       flex-direction: column;

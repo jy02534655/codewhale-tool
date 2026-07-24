@@ -5,9 +5,6 @@
  * 使用 Schema 驱动读取，通过 io.js 统一 I/O。
  */
 
-import { homedir } from 'node:os';
-import { join, isAbsolute } from 'node:path';
-import { existsSync, readFileSync } from 'node:fs';
 import { DEFAULT_SETTINGS } from './defaults.js';
 import { SCHEMA } from './schema.js';
 import { readFromTomlBySchema } from './utils.js';
@@ -15,65 +12,17 @@ import { isEmpty } from '../utils/index.js';
 import { readConfig } from './io.js';
 import { get } from 'lodash-es';
 
-// ---------- instruction 路径与内容解析工具 ----------
-
-/**
- * 将 instruction path 解析为绝对路径
- * @param {string} path
- * @returns {string}
- */
-function resolveInstructionPath(path) {
-  if (path.startsWith('~/')) {
-    return join(homedir(), path.slice(2));
-  }
-  if (isAbsolute(path)) {
-    return path;
-  }
-  return join(process.cwd(), path);
-}
-
-/**
- * 判断是否为全局配置路径（如 ~/.codewhale/global.md）
- * @param {string} path
- * @returns {boolean}
- */
-function isGlobalInstructionPath(path) {
-  const resolved = resolveInstructionPath(path);
-  const globalPath = join(homedir(), '.codewhale', 'global.md');
-  return resolved === globalPath;
-}
-
-/**
- * 读取 instruction 文件内容
- * @param {string} path
- * @returns {string}
- */
-function readInstructionContent(path) {
-  const resolvedPath = resolveInstructionPath(path);
-  if (existsSync(resolvedPath)) {
-    try {
-      return readFileSync(resolvedPath, 'utf-8');
-    } catch {
-      return '';
-    }
-  }
-  return '';
-}
-
 /**
  * 从 CodeWhale config.toml 读取通用设置，映射为前端平铺结构
- * 使用 Schema 驱动读取通用设置字段，同时保留 instruction 内容解析
- * @returns {Object} 包含 instructions 的完整设置对象
+ * 使用 Schema 驱动读取通用设置字段
+ * @returns {Object} 设置对象
  */
 export function readSettingsFromCodeWhale() {
   const cwCfg = readConfig();
 
   // 配置为空时返回默认值
   if (isEmpty(cwCfg)) {
-    return {
-      ...DEFAULT_SETTINGS,
-      instructions: [],
-    };
+    return { ...DEFAULT_SETTINGS };
   }
 
   try {
@@ -89,43 +38,9 @@ export function readSettingsFromCodeWhale() {
       result.default_text_model = cwCfg.default_text_model;
     }
 
-    // 读取并解析 instructions（保持向后兼容，前端 Instructions 组件依赖 content 字段）
-    const rawInstructions = cwCfg.instructions || [];
-    const instructions = rawInstructions
-      .map((item) => {
-        let path, content, readonly;
-        if (typeof item === 'string') {
-          path = item;
-          content = '';
-          readonly = false;
-        } else if (item && typeof item === 'object' && item.path) {
-          path = item.path;
-          content = item.content || '';
-          readonly = !!item.readonly;
-        } else {
-          return null;
-        }
-
-        // 判断是否为全局配置路径
-        if (isGlobalInstructionPath(path)) {
-          readonly = true;
-        }
-
-        // 如果不是只读，尝试读取文件内容
-        if (!readonly) {
-          content = readInstructionContent(path);
-        }
-
-        return { path, content, readonly };
-      })
-      .filter(Boolean);
-
-    return { ...result, instructions };
+    return result;
   } catch {
-    return {
-      ...DEFAULT_SETTINGS,
-      instructions: [],
-    };
+    return { ...DEFAULT_SETTINGS };
   }
 }
 
