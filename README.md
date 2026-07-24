@@ -87,6 +87,7 @@ codewhale-tool/
 | 代理管理 | `/views/proxy/` | HTTP / SOCKS5 代理新增、编辑、设为默认 |
 | Skill 管理 | `/views/skill/` | 安装/搜索/启用/禁用、SSE 进度、SKILL.md 编辑 |
 | Token 管理 | `/views/token/` | GitHub Token 增删改、安全掩码显示 |
+| 项目管理 | `/views/project/` | 项目增删改查、设为默认 |
 | 通用设置 | `/settings` | CodeWhale config.toml 通用配置读写、恢复默认 |
 
 ---

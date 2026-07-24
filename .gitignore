@@ -1,15 +1,10 @@
 node_modules/
 dist/
-*.toml.bak
 .env
 .vite/
 package-lock.json
 pnpm-workspace.yaml
-/data/store.json
-/data/store.json.bak
+/data/
 /.deepseek/
-/data/download-skill.log
 /.codewhale/
-/data/skills.json
-/data/skills.json.bak
 /skills/ui-ux-pro-max/scripts/__pycache__

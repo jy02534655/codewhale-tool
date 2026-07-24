@@ -20,6 +20,8 @@
 - `utils/logger.js` — 统一日志（文件 + SSE 回调）✅
 - `utils/result.js` — `ok/okMsg/fail/failMsg` 标准返回 ✅
 - `provider.js` — ProviderManager + OfficialKeyManager ✅
+- `file.js` — FileManager（文件浏览与读取） ✅
+- `project.js` — ProjectManager（项目管理） ✅
 - `proxy.js` — ProxyManager ✅
 - `token.js` — TokenManager ✅
 - `sync.js` — SyncManager（store.json ↔ config.toml 双向同步）✅
@@ -39,6 +41,8 @@
 - `routes/skill.js` — /api/skill/* + SSE 流式安装 ✅
 - `routes/sync.js` — /api/sync, /api/init-sync ✅
 - `routes/settings.js` — /api/settings REST API ✅
+- `routes/file.js` — /api/file/*（文件浏览与读取） ✅
+- `routes/project.js` — /api/project/*（项目管理 CRUD） ✅
 
 ### Web 层 (`packages/web/src/`)
 
@@ -48,6 +52,7 @@
 - `views/proxy/` — 代理管理页 ✅
 - `views/skill/` — Skill 管理页（列表 + 安装弹窗 + SSE 进度 + SKILL.md 编辑器）✅
 - `views/token/` — Token 管理页 ✅
+- `views/project/` — 项目管理页（卡片布局） ✅
 - `views/settings/` — 通用设置页（分组卡片 + 瀑布流） ✅
 - `composition/dialog/` — Base/Form/Container 三层弹窗组合函数 ✅
 - `stores/masking.js` — 全局加载状态 ✅

@@ -21,8 +21,10 @@ Do conceito inicial ao design de arquitetura, da codificação à tradução mul
 - **Gerenciamento de Modelos**: Múltiplos modelos por provider, ativação com um clique
 - **Gerenciamento de Proxy**: Configuração HTTP / SOCKS5 para downloads de Skills
 - **Gerenciamento de Tokens**: Tokens GitHub e outros tokens de acesso
+- **Gerenciamento de Projetos**: CRUD de projetos, definir como padrão
 - **Gerenciamento de Skills**: Instalar/ativar/desativar/atualizar Skills da comunidade, progresso via SSE
 - **Sincronização em Tempo Real**: Alterações salvas automaticamente na config do CodeWhale
+- **Configurações Gerais**: Leitura/escrita de configurações gerais baseada em schema, gerencia o config.toml do CodeWhale
 - **Multilíngue**: 简体中文, English, 日本語, Português (BR)
 
 ---
@@ -80,6 +82,8 @@ Três camadas, dependência unidirecional:
 | Gerenciador de Proxy | `/views/proxy/` | Adicionar, editar, definir proxy HTTP / SOCKS5 padrão |
 | Gerenciador de Skills | `/views/skill/` | Instalar/buscar/ativar/desativar, progresso SSE, editor SKILL.md |
 | Gerenciador de Tokens | `/views/token/` | CRUD de tokens GitHub, exibição segura com máscara |
+| Gerenciador de Projetos | `/views/project/` | CRUD de projetos, definir como padrão |
+| Configurações Gerais | `/settings` | Leitura/escrita do config.toml geral, restaurar padrões |
 
 ---
 

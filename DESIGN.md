@@ -10,13 +10,13 @@ codewhale-tool 是一个 CodeWhale 运行时配置的可视化管理工具。Cod
 ┌─────────────────────────────────────────────┐
 │                   Web UI                     │
 │          Vue 3 + Element Plus + i18n        │
-│          views/{provider,proxy,skill,token}/ │
+│          views/{provider,proxy,skill,token,project,settings}/ │
 ├─────────────────────────────────────────────┤
 │              @codewhale/server               │
 │  Express API 服务 — 纯中转层                  │
 │  src/utils/guard.js  (guard/guardAsync/withSync/ok) │
 │  src/routes/{lang,officialKey,provider,       │
-│              proxy,token,skill,sync}.js       │
+│              proxy,token,skill,sync,file,project,settings}.js │
 ├─────────────────────────────────────────────┤
 │              @codewhale/core                  │
 │  ┌──────────────────┬──────────────────────┐ │
@@ -25,6 +25,9 @@ codewhale-tool 是一个 CodeWhale 运行时配置的可视化管理工具。Cod
 │  │  i18n.js         │  proxy.js             │ │
 │  │  logger.js       │  token.js             │ │
 │  │  result.js       │  sync.js              │ │
+│  │                  │  file.js              │ │
+│  │                  │  project.js           │ │
+│  │                  │  settings/            │ │
 │  │                  │  download/            │ │
 │  │                  │  skill/               │ │
 │  └──────────────────┴──────────────────────┘ │
@@ -176,7 +179,8 @@ failMsg('KEY_NOT_FOUND') // 自动翻译 → { success: false, message: '...', e
 
 | 版本 | 日期 | 变更 |
 |------|------|------|
-| 0.3.1 | 2026-06 | ESLint 警告修复、多语言 JSON 结构修复、文档全面更新 |
-| 0.3.0 | 2026-06 | 架构重组：core/utils/ + server/utils/guard.js + 三层职责分离 |
+| 0.3.2 | 2026-07-24 | ConfigEngine 重构、Settings 通用设置模块、项目管理功能、文档全面更新 |
+| 0.3.1 | 2026-06-29 | 文档重构：README 精简去重、Screen-based 页面索引、多语言 README 结构统一、PROGRESS.md 补全 |
+| 0.3.0 | 2026-06-28 | 架构重组：core/utils/ + server/utils/guard.js + 三层职责分离 |
 | 0.2.0 | 2026-06 | JSON 存储、多供应商、模型管理、多语言、一体化启动 |
 | 0.1.0 | 初始 | TOML 存储、基本 CRUD |

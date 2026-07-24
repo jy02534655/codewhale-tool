@@ -81,6 +81,7 @@ Three layers, one-way dependency:
 | Proxy Manager | `/views/proxy/` | HTTP / SOCKS5 proxy add, edit, set default |
 | Skill Manager | `/views/skill/` | Install/search/enable/disable, SSE progress, SKILL.md editor |
 | Token Manager | `/views/token/` | GitHub token CRUD, safe masked display |
+| Project Manager | `/views/project/` | Project CRUD, set default |
 | Settings Manager | `/settings` | CodeWhale config.toml general config read/write, restore defaults |
 
 ---

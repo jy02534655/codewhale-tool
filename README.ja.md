@@ -21,8 +21,10 @@ CodeWhale 構成管理ツールキット — 多言語、ビジュアル、プ�
 - **モデル管理**: プロバイダーごとに複数モデル、ワンクリック有効化
 - **プロキシ管理**: HTTP / SOCKS5 プロキシ設定（Skill ダウンロード用）
 - **トークン管理**: GitHub トークン等のアクセストークン管理
+- **プロジェクト管理**: プロジェクトの CRUD、デフォルト設定
 - **Skill 管理**: コミュニティ Skill のインストール/有効/無効/更新、SSE ストリーミング進捗
 - **リアルタイム同期**: すべての変更は自動的に CodeWhale ランタイム設定に反映
+- **一般設定**: Schema 駆動の一般設定読み書き、CodeWhale config.toml を管理
 - **多言語**: 简体中文、English、日本語、Português (BR)
 
 ---
@@ -80,6 +82,8 @@ codewhale-tool/
 | プロキシ管理 | `/views/proxy/` | HTTP / SOCKS5 プロキシ追加、編集、デフォルト設定 |
 | Skill 管理 | `/views/skill/` | インストール/検索/有効/無効、SSE 進捗、SKILL.md 編集 |
 | Token 管理 | `/views/token/` | GitHub Token CRUD、安全なマスク表示 |
+| プロジェクト管理 | `/views/project/` | プロジェクト CRUD、デフォルト設定 |
+| 一般設定 | `/settings` | CodeWhale config.toml 一般設定読み書き、デフォルト復元 |
 
 ---
 
