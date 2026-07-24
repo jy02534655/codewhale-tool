@@ -5,14 +5,10 @@
  * 通过 io.js 统一 I/O，消除文件操作重复。
  */
 
-export { DEFAULT_SETTINGS } from './defaults.js';
-export { readSettingsFromCodeWhale, codeWhalePath } from './reader.js';
-export { writeSettingsToCodeWhale } from './writer.js';
-
 import { ok, okMsg } from '../utils/result.js';
-import { DEFAULT_SETTINGS as _DEFAULT_SETTINGS } from './defaults.js';
-import { readSettingsFromCodeWhale as _readSettingsFromCodeWhale } from './reader.js';
-import { writeSettingsToCodeWhale as _writeSettingsToCodeWhale } from './writer.js';
+import { DEFAULT_SETTINGS } from './defaults.js';
+import { readSettingsFromCodeWhale } from './reader.js';
+import { writeSettingsToCodeWhale } from './writer.js';
 
 // ---------- 导出 ----------
 
@@ -28,7 +24,7 @@ export class SettingsManager {
    * @returns {{ success: true, data: Object, message?: string }}
    */
   list() {
-    return ok(_readSettingsFromCodeWhale());
+    return ok(readSettingsFromCodeWhale());
   }
 
   /**
@@ -36,7 +32,7 @@ export class SettingsManager {
    * @returns {{ success: true, data: Object, message?: string }}
    */
   getDefaults() {
-    return ok({ ..._DEFAULT_SETTINGS });
+    return ok({ ...DEFAULT_SETTINGS });
   }
 
   /**
@@ -44,9 +40,9 @@ export class SettingsManager {
    * @returns {{ success: true, data: Object, message: string }}
    */
   restoreDefaults() {
-    const defaults = { ..._DEFAULT_SETTINGS };
-    _writeSettingsToCodeWhale(defaults);
-    return okMsg('updated', _readSettingsFromCodeWhale());
+    const defaults = { ...DEFAULT_SETTINGS };
+    writeSettingsToCodeWhale(defaults);
+    return okMsg('updated', readSettingsFromCodeWhale());
   }
 
   /**
@@ -56,7 +52,7 @@ export class SettingsManager {
    */
   update(data) {
     const settingsData = { ...(data || {}) };
-    _writeSettingsToCodeWhale(settingsData);
-    return okMsg('updated', _readSettingsFromCodeWhale());
+    writeSettingsToCodeWhale(settingsData);
+    return okMsg('updated', readSettingsFromCodeWhale());
   }
 }

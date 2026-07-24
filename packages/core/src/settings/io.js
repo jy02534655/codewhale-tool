@@ -1,18 +1,9 @@
 // 统一配置 I/O 抽象：消除所有重复的文件操作代码
-import { homedir } from 'node:os';
-import { join, dirname } from 'node:path';
+import { dirname } from 'node:path';
 import { existsSync, readFileSync, mkdirSync } from 'node:fs';
 import { parse, stringify } from 'smol-toml';
 import { atomicWriteSync } from '../utils/config.js';
-import { isEmpty } from '../utils/index.js';
-
-/**
- * 获取 CodeWhale 配置文件路径
- * @returns {string} ~/.codewhale/config.toml 的绝对路径
- */
-export function codeWhalePath() {
-  return join(homedir(), '.codewhale', 'config.toml');
-}
+import { isEmpty, codeWhalePath } from '../utils/index.js';
 
 /**
  * 读取并解析 CodeWhale 配置

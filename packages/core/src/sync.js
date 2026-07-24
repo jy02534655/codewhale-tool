@@ -27,22 +27,11 @@
 
 import { parse, stringify } from 'smol-toml';
 import { readFileSync, existsSync, mkdirSync } from 'node:fs';
-import { homedir } from 'node:os';
 import { join, dirname } from 'node:path';
 import { atomicWriteSync } from './utils/config.js';
+import { codeWhalePath } from '../utils/index.js';
 import { getServerMessage } from './utils/i18n.js';
 import { okMsg, failMsg } from './utils/result.js';
-
-/**
- * 获取 CodeWhale 配置文件的路径
- *
- * CodeWhale 的配置文件固定存放在用户主目录下的 .codewhale/config.toml
- *
- * @returns {string} config.toml 的完整路径
- */
-function codeWhalePath() {
-  return join(homedir(), '.codewhale', 'config.toml');
-}
 
 export class SyncManager {
   /**

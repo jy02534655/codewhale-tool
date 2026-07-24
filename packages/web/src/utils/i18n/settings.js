@@ -67,10 +67,10 @@ const SETTINGS_OPTIONS = {
     'pt-BR': { beep: 'Bip', off: 'Desligado', bell: 'Sino', file: 'Arquivo customizado' }
   },
   locale: {
-    'zh-Hans': { 'zh-Hans': '简体中文', en: 'English', ja: '日本語', 'pt-BR': 'Português (BR)' },
-    en: { 'zh-Hans': 'Simplified Chinese', en: 'English', ja: '日本語', 'pt-BR': 'Português (BR)' },
-    ja: { 'zh-Hans': '簡体中文', en: 'English', ja: '日本語', 'pt-BR': 'Português (BR)' },
-    'pt-BR': { 'zh-Hans': 'Chinês Simplificado', en: 'English', ja: '日本語', 'pt-BR': 'Português (BR)' }
+    'zh-Hans': { auto: '自动', 'zh-Hans': '简体中文', en: 'English', ja: '日本語', 'pt-BR': 'Português (BR)' },
+    en: { auto: 'Auto', 'zh-Hans': 'Simplified Chinese', en: 'English', ja: '日本語', 'pt-BR': 'Português (BR)' },
+    ja: { auto: '自動', 'zh-Hans': '簡体中文', en: 'English', ja: '日本語', 'pt-BR': 'Português (BR)' },
+    'pt-BR': { auto: 'Auto', 'zh-Hans': 'Chinês Simplificado', en: 'English', ja: '日本語', 'pt-BR': 'Português (BR)' }
   },
   reasoning_effort: {
     'zh-Hans': { off: '关闭', low: '低', medium: '中', high: '高', max: '最大', xhigh: '超高', ultracode: '极限' },

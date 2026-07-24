@@ -1,19 +1,8 @@
 // 通用嵌套操作工具 + 基于 lodash 的清理/比较工具
 // lodash 作为 CommonJS 模块，在 ESM 中需通过默认导入解构，避免个别 named export 缺失报错
 import { isEqual, get, set, unset } from 'lodash-es';
-import { clearObject } from '../utils/index.js';
 
 // ---------- 嵌套读写删 ----------
-
-/**
- * 根据点分隔的路径从对象中读取嵌套值
- * @param {Object} obj - 源对象
- * @param {string} path - 点分隔的路径，如 'tui.locale'
- * @returns {*} 路径对应的值，不存在时返回 undefined
- */
-// 嵌套操作已统一使用 lodash get/set/unset，删掉冗余包装函数
-
-// ---------- Schema 驱动的读写工具 ----------
 
 /**
  * 根据 SCHEMA 从 TOML 对象中读取通用设置
@@ -49,6 +38,4 @@ export function applyToTomlBySchema(data, tomlObj, schema) {
       set(tomlObj, field.path, value);
     }
   }
-  // 清理整个配置的空对象 / 空数组 / null / undefined
-  clearObject(tomlObj);
 }

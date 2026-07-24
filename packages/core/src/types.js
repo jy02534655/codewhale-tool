@@ -107,7 +107,5 @@
  * @property {Object<string, ProjectSkillsConfig>} [project_skills] - 项目级 Skill 配置，key 为项目 id
  * @property {SkillsConfig}      skills        - Skill 配置
  * @property {string}            [locale]      - 语言偏好，如 'zh-Hans'
- * @property {string}            [default_text_model] - 全局默认文本模型
- * @property {Array<{path: string, content?: string}>} [instructions] - 指令文件配置列表
  */
 export {};
