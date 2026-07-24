@@ -368,7 +368,7 @@ graph TD
 ## 15. 对照代码阅读建议
 
 1. **先看 orchestrator 主入口**：`downloadSkillFromGitHub()` 函数（第 54-124 行）
-2. **再看策略路由逻辑**：`_shouldUseApi()` 和 `_executeTarWithFallback()`（第 156-200 行）
+2. **再看策略路由逻辑**：`_shouldUseApi()` 和 `_executeTarWithFallback()`（第 157-249 行）
 3. **然后看 Tar 下载**：`downloadViaTar()` 函数（http.js 第 51-131 行）
 4. **再看 API 下载**：`downloadViaApi()` 函数（http.js 第 166-250 行）
 5. **然后看 ZIP 下载**：`downloadAndExtractZip()` 函数（zip.js）

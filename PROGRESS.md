@@ -4,6 +4,7 @@
 
 | 版本 | 日期 | 变更 |
 |------|------|------|
+| 0.3.2 | 2026-07-24 | ConfigEngine 重构：删除业务专用方法（`getOfficialKeys`/`setProviders`/`findProxy` 等），统一为通用 `get`/`set`/`find`；`sync.md`/`download/index.md` 文档行号修正；新增 `settings/index.md` 模块文档 |
 | 0.3.1 | 2026-06-29 | 文档重构：README 精简去重、Screen-based 页面索引、多语言 README 结构统一、PROGRESS.md 补全；pnpm→npm 命令修正；ESLint 警告修复；多语言 JSON 结构统一 |
 | 0.3.0 | 2026-06-28 | 架构重组：`core/utils/` 基础设施分离、`server/utils/guard.js` 中转层规范、三层职责严格分离 |
 | 0.2.0 | 2026-06 | JSON 存储引入（store.json）、多供应商管理、模型激活切换、4 语言支持、一体化开发启动脚本 |
@@ -13,7 +14,8 @@
 
 ### Core 层 (`packages/core/src/`)
 
-- `utils/config.js` — ConfigEngine JSON 存储引擎 ✅
+- `utils/config.js` — ConfigEngine 通用配置引擎（`get`/`set`/`find`，无业务专用方法）✅
+- `settings/` — SettingsManager + Schema 驱动 config.toml 读写 ✅
 - `utils/i18n.js` — 多语言消息映射（4 语言）✅
 - `utils/logger.js` — 统一日志（文件 + SSE 回调）✅
 - `utils/result.js` — `ok/okMsg/fail/failMsg` 标准返回 ✅
@@ -36,15 +38,17 @@
 - `routes/token.js` — /api/token/* ✅
 - `routes/skill.js` — /api/skill/* + SSE 流式安装 ✅
 - `routes/sync.js` — /api/sync, /api/init-sync ✅
+- `routes/settings.js` — /api/settings REST API ✅
 
 ### Web 层 (`packages/web/src/`)
 
 - `main.js` / `App.vue` — Vue 3 入口 + 语言切换 + 皮肤 ✅
-- `api/` — 6 个 API 模块（provider/officialKey/proxy/token/skill/lang）✅
+- `api/` — 7 个 API 模块（provider/officialKey/proxy/token/skill/lang/settings）✅
 - `views/provider/` — 供应商 & 模型管理页（列表 + 弹窗 CRUD）✅
 - `views/proxy/` — 代理管理页 ✅
 - `views/skill/` — Skill 管理页（列表 + 安装弹窗 + SSE 进度 + SKILL.md 编辑器）✅
 - `views/token/` — Token 管理页 ✅
+- `views/settings/` — 通用设置页（分组卡片 + 瀑布流） ✅
 - `composition/dialog/` — Base/Form/Container 三层弹窗组合函数 ✅
 - `stores/masking.js` — 全局加载状态 ✅
 - `locales/` — 4 语言包（zh-Hans/en/ja/pt-BR）✅

@@ -64,7 +64,6 @@
   function onSave() {
     settingsFormRef.value.validate(function (valid) {
       if (!valid) {
-        ElMessage.warning('请检查表单填写是否正确');
         return;
       }
       const settingsData = clearObject({ ...formData });
@@ -138,7 +137,6 @@
     column-gap: 16px;
   }
 
-
   /* ========== 卡片头部 ========== */
   .card-header {
     display: flex;
@@ -191,7 +189,6 @@
     font-size: 18px;
     font-weight: 600;
   }
-
 
   /* ========== 响应式 ========== */
   @media (max-width: 768px) {

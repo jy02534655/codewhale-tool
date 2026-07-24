@@ -8,7 +8,7 @@ CodeWhale Configuration Toolkit — visual, multi-language, real-time provider &
 
 ## About
 
-This project explores the boundaries of AI-assisted development. **The author is a programmer, but every line of code was written through CodeWhale with zero manual edits.**
+This project explores the boundaries of AI-assisted development. **The author is a programmer, but the project was developed entirely through CodeWhale with only minor adjustments. Models are primarily from DeepSeek and StepFun, whichever is cheaper.**
 
 From initial concept to architecture design, from code to multilingual translation, from bug fixes to documentation — all done by AI in conversation.
 
@@ -23,6 +23,7 @@ From initial concept to architecture design, from code to multilingual translati
 - **Token Management**: GitHub tokens and other access tokens
 - **Skill Management**: Community Skill install/enable/disable/update, SSE streaming progress
 - **Real-time Sync**: All changes auto-written to CodeWhale runtime config
+- **General Settings**: Schema-driven general config read/write, manages CodeWhale config.toml
 - **Multi-language**: 简体中文, English, 日本語, Português (BR)
 
 ---
@@ -80,6 +81,7 @@ Three layers, one-way dependency:
 | Proxy Manager | `/views/proxy/` | HTTP / SOCKS5 proxy add, edit, set default |
 | Skill Manager | `/views/skill/` | Install/search/enable/disable, SSE progress, SKILL.md editor |
 | Token Manager | `/views/token/` | GitHub token CRUD, safe masked display |
+| Settings Manager | `/settings` | CodeWhale config.toml general config read/write, restore defaults |
 
 ---
 

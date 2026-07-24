@@ -8,7 +8,7 @@ Kit de Configuração do CodeWhale — visual, multilíngue, sincronização em 
 
 ## Sobre
 
-Este projeto explora os limites do desenvolvimento assistido por IA. **O autor é programador, mas todas as linhas de código foram escritas através do CodeWhale, sem edições manuais.**
+Este projeto explora os limites do desenvolvimento assistido por IA. **O autor é programador, mas desenvolveu o projeto inteiramente através do CodeWhale, fazendo apenas alguns pequenos ajustes. Os modelos usados são principalmente DeepSeek e StepFun, usando o que for mais barato.**
 
 Do conceito inicial ao design de arquitetura, da codificação à tradução multilíngue, das correções de bugs à documentação — todo o trabalho foi feito por IA em conversação.
 

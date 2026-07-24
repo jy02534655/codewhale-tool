@@ -8,7 +8,7 @@ CodeWhale AI 配置管理工具 — 多语言、可视化、供应商与模型�
 
 ## 🐋 关于本项目
 
-本项目旨在探索 AI 辅助开发的边界。**作者虽然是程序员，但全程使用 CodeWhale 开发，截至目前没有手动调整过一行代码。**
+本项目旨在探索 AI 辅助开发的边界。**作者虽然是程序员，但全程使用 CodeWhale 开发，仅做了少量调整。模型主要使用 DeepSeek 和阶跃星辰，哪个便宜用哪个。**
 
 从初始想法到架构设计，从代码编写到多语言翻译，从 bug 修复到文档撰写——所有工作都由 AI 在对话中完成。
 
@@ -22,6 +22,7 @@ CodeWhale AI 配置管理工具 — 多语言、可视化、供应商与模型�
 - **代理管理**：HTTP / SOCKS5 代理配置，供 Skill 下载等场景使用
 - **Token 管理**：GitHub Token 等访问令牌管理
 - **Skill 管理**：社区 Skill 安装/启用/禁用/更新，SSE 流式安装进度
+- **通用设置**：Schema 驱动通用配置管理，读写 CodeWhale config.toml
 - **实时同步**：所有变更自动写回 CodeWhale 运行时配置文件
 - **多语言**：简体中文、English、日本語、Português (BR)
 
@@ -47,6 +48,12 @@ npm run dev
 codewhale-tool/
 ├── packages/
 │   ├── core/          # @codewhale/core — 业务逻辑、存储、同步
+│   │   └── src/
+│   │       ├── settings/     # 通用设置模块（Schema 驱动 config.toml 读写）
+│   │       ├── download/     # GitHub Skill 下载引擎
+│   │       ├── skill/        # Skill 管理
+│   │       ├── provider/     # 供应商管理
+│   │       └── ...
 │   ├── server/        # Express API 中转层
 │   └── web/           # @codewhale/web — Vue 3 + Element Plus
 ├── skills/            # 项目级开发 Skill（架构、代理、UI 模式等）
@@ -80,6 +87,7 @@ codewhale-tool/
 | 代理管理 | `/views/proxy/` | HTTP / SOCKS5 代理新增、编辑、设为默认 |
 | Skill 管理 | `/views/skill/` | 安装/搜索/启用/禁用、SSE 进度、SKILL.md 编辑 |
 | Token 管理 | `/views/token/` | GitHub Token 增删改、安全掩码显示 |
+| 通用设置 | `/settings` | CodeWhale config.toml 通用配置读写、恢复默认 |
 
 ---
 
@@ -106,6 +114,7 @@ codewhale-tool/
 | [skills/proxy-manager/SKILL.md](./skills/proxy-manager/SKILL.md) | 代理 & Token 模块开发指南 |
 | [skills/skill-manager/SKILL.md](./skills/skill-manager/SKILL.md) | Skill 模块开发指南 |
 | [skills/ui-patterns/SKILL.md](./skills/ui-patterns/SKILL.md) | UI 交互模式（弹窗/表单/表格/i18n） |
+| [packages/core/src/settings/index.md](./packages/core/src/settings/index.md) | Settings 通用设置模块文档（Schema 驱动、config.toml 读写） |
 | [.codewhale/handoff.md](./.codewhale/handoff.md) | 最近一次会话的移交记录（临时性） |
 
 ---
