@@ -11,6 +11,8 @@ import { dirname } from 'node:path';
 import { atomicWriteSync } from './config.js';
 import { isEmpty, codeWhalePath } from './index.js';
 
+const DEFAULT_HEADER = '# CodeWhale Configuration\n# Synced by codewhale-tool\n\n';
+
 /**
  * 读取 CodeWhale 配置
  * @param {Object} [fallback={}] - 文件不存在或解析失败时的返回值
@@ -32,9 +34,8 @@ export function readCodeWhaleConfig(fallback = {}) {
 /**
  * 写入 CodeWhale 配置（原子写入，自动创建目录）
  * @param {Object} data - 要写入的配置对象
- * @param {string} [header] - TOML 文件头部注释
  */
-export function writeCodeWhaleConfig(data, header) {
+export function writeCodeWhaleConfig(data) {
   const filePath = codeWhalePath();
   const dir = dirname(filePath);
   if (!existsSync(dir)) {
@@ -43,7 +44,7 @@ export function writeCodeWhaleConfig(data, header) {
 
   const content = isEmpty(data)
     ? '# CodeWhale Configuration\n# (All settings are at default values)\n'
-    : header + stringify(data);
+    : DEFAULT_HEADER + stringify(data);
 
   atomicWriteSync(filePath, content);
 }

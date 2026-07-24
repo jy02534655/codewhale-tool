@@ -9,7 +9,7 @@
 import { SCHEMA } from './schema.js';
 import { applyToTomlBySchema } from './utils.js';
 import { clearObject } from '../utils/index.js';
-import { readConfig, writeConfig } from './io.js';
+import { readCodeWhaleConfig, writeCodeWhaleConfig } from '../utils/toml.js';
 import { cloneDeep } from 'lodash-es';
 
 /**
@@ -20,7 +20,7 @@ import { cloneDeep } from 'lodash-es';
  */
 export function writeSettingsToCodeWhale(data) {
   // 读取当前配置（保留所有非通用设置字段）
-  const cwCfg = readConfig();
+  const cwCfg = readCodeWhaleConfig({});
   const newCfg = cloneDeep(cwCfg);
 
   // 使用 Schema 驱动写入通用设置字段
@@ -30,5 +30,5 @@ export function writeSettingsToCodeWhale(data) {
   clearObject(newCfg);
 
   // 写回配置
-  writeConfig(newCfg);
+  writeCodeWhaleConfig(newCfg);
 }

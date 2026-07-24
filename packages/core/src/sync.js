@@ -261,7 +261,7 @@ export class SyncManager {
     }
 
     // 原子写入文件，顶部加上注释标记
-    writeCodeWhaleConfig(cwCfg, '# CodeWhale Configuration\n# Synced by codewhale-tool\n\n');
+    writeCodeWhaleConfig(cwCfg);
 
     return okMsg('synced');
   }
