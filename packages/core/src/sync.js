@@ -102,7 +102,7 @@ export class SyncManager {
       // ── 官方 API key ──
       // CodeWhale 的 api_key 字段存储的是当前激活的官方 key
       if (cwCfg.api_key && this._officialKeyMgr) {
-        const existingKeys = this._engine.getOfficialKeys();
+        const existingKeys = this._engine.get('official_keys');
         // 检查这个 key 是否已经存在于本地
         const alreadyExists = existingKeys.some((k) => k.api_key === cwCfg.api_key);
         if (!alreadyExists) {
@@ -114,12 +114,12 @@ export class SyncManager {
             api_key: cwCfg.api_key,
             active: true,
           });
-          this._engine.setOfficialKeys(existingKeys);
+          this._engine.set('official_keys', existingKeys);
           mergedCount++;
         } else {
           // 本地已存在，只更新激活状态
           existingKeys.forEach((k) => (k.active = k.api_key === cwCfg.api_key));
-          this._engine.setOfficialKeys(existingKeys);
+          this._engine.set('official_keys', existingKeys);
         }
       }
 
@@ -135,7 +135,7 @@ export class SyncManager {
         }
       }
 
-      const localProviders = this._engine.getProviders();
+      const localProviders = this._engine.get('providers');
       // 建立本地 provider 的 api_key 索引，方便快速查找
       const localByApiKey = new Map();
       localProviders.forEach((p) => localByApiKey.set(p.api_key, p));
@@ -187,7 +187,7 @@ export class SyncManager {
       }
 
       // 写回本地存储
-      this._engine.setProviders(localProviders);
+      this._engine.set('providers', localProviders);
 
       return okMsg('syncMerged', { merged: mergedCount }, { count: mergedCount });
     } catch {
@@ -228,7 +228,7 @@ export class SyncManager {
 
     // ── 第三方 provider ──
     // 从本地读取所有 provider，重建 CodeWhale 的 providers 配置
-    const providers = this._engine.getProviders();
+    const providers = this._engine.get('providers');
     const activeProvider = providers.find((p) => p.active);
 
     // 清空 CodeWhale 的 providers，准备重建

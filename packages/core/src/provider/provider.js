@@ -70,7 +70,7 @@ export class ProviderManager {
   /**
    * 创建 provider 管理器实例
    *
-   * @param {import('../utils/config.js').ConfigEngine} engine - 配置引擎，提供 getProviders/setProviders/findProvider 访问
+   * @param {import('../utils/config.js').ConfigEngine} engine - 配置引擎，提供通用 get/set/find 访问
    */
   constructor(engine) {
     this._engine = engine;
@@ -99,11 +99,11 @@ export class ProviderManager {
    * @returns {{success: boolean, data?: any, message?: string, errorCode?: string}}
    */
   _mutate(id, fn) {
-    const all = this._engine.getProviders();
+    const all = this._engine.get('providers');
     const idx = all.findIndex((p) => p.id === id);
     if (idx === -1) return failMsg('providerNotFound');
     const result = fn(all, idx, all[idx]);
-    this._engine.setProviders(all);
+    this._engine.set('providers', all);
     return result;
   }
   // ─── Provider 列表查询 ─────────────────────────────────────
@@ -115,10 +115,10 @@ export class ProviderManager {
    *
    * @returns {{success: boolean, data: Array, message: string}}
    */
-  listProviders() {
-    return ok(this._engine.getProviders().map((p) => ({
-      id: p.id,
-      provider: p.provider,
+   listProviders() {
+     return ok(this._engine.get('providers').map((p) => ({
+       id: p.id,
+       provider: p.provider,
       label: p.label || getProviderI18nLabel(p.provider, getLocale()),
       api_key_preview: maskKey(p.api_key),
       base_url: p.base_url || '',
@@ -133,7 +133,7 @@ export class ProviderManager {
    * @returns {{success: boolean, data: object|null, message: string}}
    */
   getProvider(id) {
-    return ok(this._engine.findProvider(id) || null);
+    return ok(this._engine.find('providers', p => p.id === id) || null);
   }
   /**
    * 获取当前激活的第三方 provider
@@ -143,7 +143,7 @@ export class ProviderManager {
    * @returns {{success: boolean, data: import('../types.js').ProviderEntry|null, message: string}}
    */
   getActiveProvider() {
-    return ok(this._engine.getProviders().find((p) => p.active) || null);
+    return ok(this._engine.get('providers').find((p) => p.active) || null);
   }
   /**
    * 获取当前激活的模型（跨供应商）
@@ -169,7 +169,7 @@ export class ProviderManager {
    * @returns {{success: boolean, data: {active: object|null, active_model: {provider_id:string, model_name:string}|null}, message: string}}
    */
   getActiveInfo() {
-    const active = this._engine.getProviders().find((p) => p.active) || null;
+    const active = this._engine.get('providers').find((p) => p.active) || null;
     if (!active) return ok({ active: null, active_model: null });
     const model = active.models?.find((x) => x.active);
     return ok({
@@ -206,7 +206,7 @@ export class ProviderManager {
     if (!api_key) return failMsg('keyRequired');
     if (base_url && !isValidUrl(base_url)) return failMsg('invalidBaseUrl');
     const id = `${provider}:${api_key}`;
-    if (this._engine.findProvider(id)) {
+    if (this._engine.find('providers', p => p.id === id)) {
       return failMsg('providerDuplicate');
     }
     const modelsArr = typeof models === 'string'
@@ -215,8 +215,8 @@ export class ProviderManager {
     const modelList = (modelsArr && modelsArr.length > 0 ? modelsArr : ['deepseek-ai/DeepSeek-V4-Pro']).map((name, i) => ({
       name, active: i === 0,
     }));
-    this._engine.setProviders([
-      ...this._engine.getProviders(),
+    this._engine.set('providers', [
+      ...this._engine.get('providers'),
       { id, provider, label: label || getProviderI18nLabel(provider, getLocale()), api_key, base_url: base_url || getDefaultBaseUrl(provider), models: modelList, active: false },
     ]);
     return okMsg('added', { id });
@@ -373,9 +373,9 @@ export class ProviderManager {
    * @returns {{success:boolean, data:null, message:string}}
    */
   deactivateThirdParty() {
-    const all = this._engine.getProviders();
+    const all = this._engine.get('providers');
     all.forEach((p) => (p.active = false));
-    this._engine.setProviders(all);
+    this._engine.set('providers', all);
     return ok(null);
   }
   /**
@@ -387,12 +387,12 @@ export class ProviderManager {
    * @param {Array<{id:string,active:boolean}>} states - 状态列表
    */
   batchSetActive(states) {
-    const all = this._engine.getProviders();
+    const all = this._engine.get('providers');
     for (const s of states) {
       const p = all.find((x) => x.id === s.id);
       if (p) p.active = s.active;
     }
-    this._engine.setProviders(all);
+    this._engine.set('providers', all);
   }
   /**
    * 完全替换所有 providers
@@ -403,6 +403,6 @@ export class ProviderManager {
    * @param {import('../types.js').ProviderEntry[]} providers - 新的 providers 列表
    */
   replaceAll(providers) {
-    this._engine.setProviders(providers);
+    this._engine.set('providers', providers);
   }
 }

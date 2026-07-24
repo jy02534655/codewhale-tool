@@ -21,7 +21,7 @@ export class TokenManager extends Store {
    * @param {import('./utils/config.js').ConfigEngine} engine
    */
   constructor(engine) {
-    super(engine, engine.getTokens.bind(engine), engine.setTokens.bind(engine), 'token:');
+    super(engine, () => engine.get('tokens'), (items) => engine.set('tokens', items), 'token:');
   }
 
   /**
@@ -77,7 +77,7 @@ export class TokenManager extends Store {
    * @returns {TokenEntry|undefined}
    */
   find(id) {
-    return this._engine.findToken(id);
+    return this._engine.find('tokens', t => t.id === id);
   }
 
   /**
@@ -94,7 +94,7 @@ export class TokenManager extends Store {
    * @returns {TokenEntry|undefined}
    */
   getDefault() {
-    return this._engine.getTokens().find((t) => t.default);
+    return this._engine.get('tokens').find((t) => t.default);
   }
 }
 

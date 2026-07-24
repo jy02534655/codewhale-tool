@@ -21,7 +21,7 @@ import { readFileSync, writeFileSync, copyFileSync, existsSync, mkdirSync, renam
 import { homedir } from 'node:os';
 import { join, dirname } from 'node:path';
 import { randomUUID } from 'node:crypto';
-import { cloneDeep, defaultsDeep } from 'lodash-es';
+import { cloneDeep, defaultsDeep, get as lodashGet, set as lodashSet, find as lodashFind } from 'lodash-es';
 
 /**
  * @typedef {import('../types.js').ProviderEntry} ProviderEntry
@@ -205,219 +205,40 @@ export class ConfigEngine {
     }
     return result;
   }
-
-  // ─── 官方 Key 方法 ─────────────────────────────────────────
-
-  /**
-   * 获取所有官方 API Key 条目。
-   *
-   * @returns {OfficialKeyEntry[]}
-   */
-  getOfficialKeys() { return this.read().official_keys; }
+  // ─── 通用属性访问 ──────────────────────────────────────────────
 
   /**
-   * 整体替换官方 API Key 列表。
-   *
-   * @param {OfficialKeyEntry[]} keys 新的官方 Key 数组
+   * 使用 lodash get 读取嵌套属性，避免重复 this.read() 调用。
+   * @param {string} path - lodash 属性路径，如 'providers' 或 'project_skills.xxx'
+   * @returns {*} 属性值
    */
-  setOfficialKeys(keys) {
-    this.update((d) => { d.official_keys = keys; return d; });
+  get(path) {
+    return lodashGet(this.read(), path);
   }
 
   /**
-   * 根据 id 查找单个官方 Key。
-   *
-   * @param {string} id 要查找的官方 Key 唯一标识
-   * @returns {OfficialKeyEntry | undefined}
+   * 使用 lodash set 写入嵌套属性，通过 update 保证原子性。
+   * @param {string} path - lodash 属性路径
+   * @param {*} value - 要设置的值
    */
-  findOfficialKey(id) {
-    return this.read().official_keys.find((k) => k.id === id);
-  }
-
-  // ─── Provider 方法 ─────────────────────────────────────────
-
-  /**
-   * 获取所有供应商条目。
-   *
-   * @returns {ProviderEntry[]}
-   */
-  getProviders() { return this.read().providers; }
-
-  /**
-   * 整体替换供应商列表。
-   *
-   * @param {ProviderEntry[]} providers 新的供应商数组
-   */
-  setProviders(providers) {
-    this.update((d) => { d.providers = providers; return d; });
-  }
-
-  /**
-   * 根据 id 查找单个供应商。
-   *
-   * @param {string} id 要查找的供应商唯一标识
-   * @returns {ProviderEntry | undefined}
-   */
-  findProvider(id) {
-    return this.read().providers.find((p) => p.id === id);
-  }
-
-  /**
-   * 按供应商类型查找所有匹配的供应商。
-   *
-   * @param {string} providerType 供应商类型，如 'deepseek'、'openai' 等
-   * @returns {ProviderEntry[]}
-   */
-  findProvidersByType(providerType) {
-    return this.read().providers.filter((p) => p.provider === providerType);
-  }
-
-  // ─── Proxy 方法 ────────────────────────────────────────────
-
-  /**
-   * 获取所有代理配置条目。
-   *
-   * @returns {import('../types.js').ProxyEntry[]}
-   */
-  getProxies() { return this.read().proxies; }
-
-  /**
-   * 整体替换代理列表。
-   *
-   * @param {import('../types.js').ProxyEntry[]} proxies 新的代理数组
-   */
-  setProxies(proxies) {
-    this.update((d) => { d.proxies = proxies; return d; });
-  }
-
-  /**
-   * 根据 id 查找单个代理配置。
-   *
-   * @param {string} id 要查找的代理唯一标识
-   * @returns {import('../types.js').ProxyEntry | undefined}
-   */
-  findProxy(id) {
-    return this.read().proxies.find((p) => p.id === id);
-  }
-
-  // ─── Token 方法 ────────────────────────────────────────────
-
-  /**
-   * 获取所有 Token 条目。
-   *
-   * @returns {import('../types.js').TokenEntry[]}
-   */
-  getTokens() { return this.read().tokens; }
-
-  /**
-   * 整体替换 Token 列表。
-   *
-   * @param {import('../types.js').TokenEntry[]} tokens 新的 Token 数组
-   */
-  setTokens(tokens) {
-    this.update((d) => { d.tokens = tokens; return d; });
-  }
-
-  /**
-   * 根据 id 查找单个 Token。
-   *
-   * @param {string} id 要查找的 Token 唯一标识
-   * @returns {import('../types.js').TokenEntry | undefined}
-   */
-  findToken(id) {
-    return this.read().tokens.find((t) => t.id === id);
-  }
-
-  // ─── Project 方法 ────────────────────────────────────────────
-
-  /**
-   * 获取所有项目条目。
-   *
-   * @returns {import('../types.js').ProjectEntry[]}
-   */
-  getProjects() { return this.read().projects; }
-
-  /**
-   * 整体替换项目列表。
-   *
-   * @param {import('../types.js').ProjectEntry[]} projects 新的项目数组
-   */
-  setProjects(projects) {
-    this.update((d) => { d.projects = projects; return d; });
-  }
-
-  /**
-   * 根据 id 查找单个项目。
-   *
-   * @param {string} id 要查找的项目唯一标识
-   * @returns {import('../types.js').ProjectEntry | undefined}
-   */
-  findProject(id) {
-    return this.read().projects.find((p) => p.id === id);
-  }
-
-  /**
-   * 获取指定项目的 Skill 配置。
-   *
-   * @param {string} projectId 项目唯一标识
-   * @returns {Object} 该项目的 Skill 配置，若不存在则返回默认结构
-   */
-  getProjectSkills(projectId) {
-    return this.read().project_skills?.[projectId] || { enabled: true, installed: [] };
-  }
-
-  /**
-   * 设置指定项目的 Skill 配置。
-   *
-   * @param {string} projectId 项目唯一标识
-   * @param {Object} config 要保存的 Skill 配置对象
-   */
-  setProjectSkills(projectId, config) {
+  set(path, value) {
     this.update((d) => {
-      d.project_skills = d.project_skills || {};
-      d.project_skills[projectId] = config;
+      lodashSet(d, path, value);
       return d;
     });
   }
 
-  // ─── Skill 方法 ────────────────────────────────────────────
-
   /**
-   * 获取全局 Skill 配置。
-   *
-   * @returns {SkillsConfig}
+   * 使用 lodash find 在集合中查找第一个匹配项。
+   * @param {string} path - 集合属性路径
+   * @param {Function} predicate - 判断函数
+   * @returns {*|undefined}
    */
-  getSkills() { return this.read().skills; }
-
-  /**
-   * 整体替换全局 Skill 配置。
-   *
-   * @param {SkillsConfig} skills 新的 Skill 配置对象
-   */
-  setSkills(skills) {
-    this.update((d) => { d.skills = skills; return d; });
+  find(path, predicate) {
+    return lodashFind(this.get(path), predicate);
   }
 
 
 
-  // ─── Locale 方法 ────────────────────────────────────────────
-
-  /**
-   * 获取持久化的语言偏好。
-   *
-   * @returns {string} 语言代码，如 'zh-Hans'、'en' 等
-   */
-  getLocale() {
-    return this.read().locale || 'zh-Hans';
-  }
-
-  /**
-   * 持久化语言偏好。
-   *
-   * @param {string} locale 语言代码，如 'zh-Hans'、'en' 等
-   */
-  setLocale(locale) {
-    this.update((d) => { d.locale = locale; return d; });
-  }
 } 
 

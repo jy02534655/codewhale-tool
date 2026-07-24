@@ -59,7 +59,7 @@ export class SkillStore {
   getProjectInstalled(projectId) {
     const targetProjectId = projectId || this.getCurrentProjectId();
     if (!targetProjectId) return [];
-    return (this.engine.getProjectSkills(targetProjectId).installed || []).slice();
+    return (this.engine.get('project_skills.' + targetProjectId).installed || []).slice();
   }
 
   /**
@@ -67,7 +67,7 @@ export class SkillStore {
    * @returns {Object[]} 全局已安装 skill 条目数组
    */
   getGlobalInstalled() {
-    return (this.engine.getSkills().installed || []).slice();
+    return (this.engine.get('skills').installed || []).slice();
   }
 
   /**
@@ -148,7 +148,7 @@ export class SkillStore {
       // 项目本地 skill：放在项目目录的 skills/ 子目录下
       let projectPath = null;
       if (projectId && this.engine.projectManager) {
-        const projects = this.engine.getProjects();
+        const projects = this.engine.get('projects');
         const project = projects.find(function (p) { return p.id === projectId; });
         if (project) projectPath = project.path;
       }
@@ -214,12 +214,12 @@ export class SkillStore {
     if (level === 'project') {
       const targetProjectId = projectId || this.getCurrentProjectId();
       if (!targetProjectId) return;
-      const current = this.engine.getProjectSkills(targetProjectId);
-      this.engine.setProjectSkills(targetProjectId, { ...current, installed: entries });
+      const current = this.engine.get('project_skills.' + targetProjectId) || {};
+      this.engine.set('project_skills.' + targetProjectId, { ...current, installed: entries });
     } else {
-      const skillsCfg = this.engine.getSkills();
+      const skillsCfg = this.engine.get('skills');
       skillsCfg.installed = entries;
-      this.engine.setSkills(skillsCfg);
+      this.engine.set('skills', skillsCfg);
     }
   }
 
@@ -233,16 +233,16 @@ export class SkillStore {
     if (level === 'project') {
       const targetProjectId = projectId || this.getCurrentProjectId();
       if (!targetProjectId) return;
-      const current = this.engine.getProjectSkills(targetProjectId);
+      const current = this.engine.get('project_skills.' + targetProjectId) || {};
       const installed = (current.installed || []).slice();
       installed.push(entry);
-      this.engine.setProjectSkills(targetProjectId, { ...current, installed });
+      this.engine.set('project_skills.' + targetProjectId, { ...current, installed });
     } else {
-      const skillsCfg = this.engine.getSkills();
+      const skillsCfg = this.engine.get('skills');
       const installed = skillsCfg.installed || [];
       installed.push(entry);
       skillsCfg.installed = installed;
-      this.engine.setSkills(skillsCfg);
+      this.engine.set('skills', skillsCfg);
     }
   }
 

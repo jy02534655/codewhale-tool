@@ -20,7 +20,7 @@ export class ProxyManager extends Store {
    * @param {import('./utils/config.js').ConfigEngine} engine
    */
   constructor(engine) {
-    super(engine, engine.getProxies.bind(engine), engine.setProxies.bind(engine), 'proxy:');
+    super(engine, () => engine.get('proxies'), (items) => engine.set('proxies', items), 'proxy:');
   }
 
   /**

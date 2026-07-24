@@ -32,7 +32,7 @@ export class ProjectManager extends Store {
    * @param {import('./utils/config.js').ConfigEngine} engine
    */
   constructor(engine) {
-    super(engine, engine.getProjects.bind(engine), engine.setProjects.bind(engine), 'project:');
+    super(engine, () => engine.get('projects'), (items) => engine.set('projects', items), 'project:');
   }
 
   /**

@@ -61,8 +61,8 @@ export class OfficialKeyManager {
     // 不继承 Store 的原因：activate/remove 需要特殊的 active 状态管理
     this._store = new Store(
       engine,
-      () => this._engine.getOfficialKeys(),
-      (keys) => this._engine.setOfficialKeys(keys),
+      () => this._engine.get('official_keys'),
+      (keys) => this._engine.set('official_keys', keys),
       'official:'
     );
   }
@@ -75,7 +75,7 @@ export class OfficialKeyManager {
    * @returns {{success: boolean, data: import('../types.js').OfficialKeyEntry[], message: string}}
    */
   list() {
-    return ok(this._engine.getOfficialKeys().map((k) => ({
+    return ok(this._engine.get('official_keys').map((k) => ({
       ...k,
       api_key_preview: maskKey(k.api_key),
     })));
@@ -88,7 +88,7 @@ export class OfficialKeyManager {
    * @returns {{success: boolean, data: import('../types.js').OfficialKeyEntry|null, message: string}}
    */
   getActive() {
-    return ok(this._engine.getOfficialKeys().find((k) => k.active) || null);
+    return ok(this._engine.get('official_keys').find((k) => k.active) || null);
   }
   /**
    * 内部方法：查找 key 并执行修改回调，自动处理查找失败和持久化。
@@ -108,11 +108,11 @@ export class OfficialKeyManager {
    * @returns {{success: boolean, data?: any, message?: string, errorCode?: string}}
    */
   _mutateKey(id, fn) {
-    const keys = this._engine.getOfficialKeys();
+    const keys = this._engine.get('official_keys');
     const idx = keys.findIndex((k) => k.id === id);
     if (idx === -1) return failMsg('keyNotFound');
     const result = fn(keys, idx, keys[idx]);
-    this._engine.setOfficialKeys(keys);
+    this._engine.set('official_keys', keys);
     return result;
   }
   /**
@@ -138,7 +138,7 @@ export class OfficialKeyManager {
       {
         validate: (input) => {
           if (!input.api_key) return failMsg('keyRequired');
-          const keys = this._engine.getOfficialKeys();
+          const keys = this._engine.get('official_keys');
           if (keys.some((k) => k.id === 'official:' + input.api_key)) {
             return failMsg('keyDuplicate');
           }

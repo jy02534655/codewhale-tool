@@ -149,7 +149,7 @@ export async function _installFromGitHubV2(store, opts, progressCb, logCb) {
       opts.proxyConfig = _parseProxyUrl(opts.proxyUrl);
     }
     if (!opts.proxyConfig && opts.proxyId) {
-      const proxyEntry = store.engine.findProxy(opts.proxyId);
+      const proxyEntry = store.engine.find('proxies', p => p.id === opts.proxyId);
       if (proxyEntry) {
         opts.proxyConfig = {
           type: proxyEntry.type,
@@ -165,7 +165,7 @@ export async function _installFromGitHubV2(store, opts, progressCb, logCb) {
     // 解析 Token：通过 tokenId 查找存储的 GitHub Token
     let token;
     if (opts.tokenId) {
-      const tokenEntry = store.engine.findToken(opts.tokenId);
+      const tokenEntry = store.engine.find('tokens', t => t.id === opts.tokenId);
       if (tokenEntry) token = tokenEntry.token;
     }
 
@@ -345,7 +345,7 @@ export async function installFromZipStream(store, zipPath, skillName, level, pro
   let proxyConfig;
   if (proxyId) {
     // 通过 proxyId 查找代理配置
-    const proxyEntry = store.engine.findProxy(proxyId);
+    const proxyEntry = store.engine.find('proxies', p => p.id === proxyId);
     if (proxyEntry) {
       proxyConfig = {
         type: proxyEntry.type,

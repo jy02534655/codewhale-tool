@@ -20,7 +20,7 @@ export function createLangRouter(engine) {
     res.json(guard(() => {
       const { locale } = req.body;
       if (!locale) throw new Error('locale is required');
-      engine.setLocale(locale);
+      engine.set('locale', locale);
       setLocale(locale);
       return ok(null);
     }));

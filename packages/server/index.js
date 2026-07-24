@@ -56,7 +56,7 @@ const settingsMgr = new SettingsManager();
 engine.projectManager = projectMgr;
 
 // 从本地 store.json 恢复项目语言偏好（codewhale-tool 自身语言）
-const savedLocale = engine.getLocale();
+const savedLocale = engine.get('locale') || 'zh-Hans';
 if (savedLocale) setLocale(savedLocale);
 
 // 启动时从 CodeWhale 配置同步供应商等到 store.json
