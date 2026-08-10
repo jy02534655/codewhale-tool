@@ -76,21 +76,21 @@ const dialogCtrl = compositionDialogContainer();
 const officialKeys = ref([]);
 
 // 加载官方 API Key 列表
-function loadConfig() {
+const loadConfig = () => {
   getOfficialKeyList()
-    .then(function (keys) { officialKeys.value = keys || []; });
+    .then((keys) => { officialKeys.value = keys || []; });
 }
 
 // 激活指定官方 API Key
-function activateOfficial(id) {
-  activateOfficialKey({ id }).then(function () { loadConfig(); });
+const activateOfficial = (id) => {
+  activateOfficialKey({ id }).then(() => { loadConfig(); });
 }
 
 // 删除官方 API Key（带确认）
-function removeOfficial(id) {
+const removeOfficial = (id) => {
   ElMessageBox.confirm(t('common.confirm_delete'), t('common.confirm'), { type: 'warning' })
-    .then(function () { return removeOfficialKey({ id }); })
-    .then(function () { loadConfig(); });
+    .then(() => { return removeOfficialKey({ id }); })
+    .then(() => { loadConfig(); });
 }
 
 // 组件挂载时加载数据

@@ -48,7 +48,7 @@ const formData = reactive({
   projectId: ''
 })
 
-const dialogTitle = computed(function () {
+const dialogTitle = computed(() => {
   if (formData.path === 'SKILL.md') return t('skill.editReadme')
   return t('skill.editingFile') + '：' + formData.path
 })
@@ -56,7 +56,7 @@ const dialogTitle = computed(function () {
 const { isShow, showDialog, hideDialog, showDialogByData, submitDialogForm, resetForm } =
   compositionDialogForm({
     editFun: saveSkillFile,
-    initfun: function ({ data }) {
+    initfun: ({ data }) => {
       if (!data) return
       assign(formData, data)
       readSkillFile(formData).then((res) => {
@@ -65,7 +65,7 @@ const { isShow, showDialog, hideDialog, showDialogByData, submitDialogForm, rese
     },
   })
 
-function onSubmit() {
+const onSubmit = () => {
   submitDialogForm(formData)
 }
 

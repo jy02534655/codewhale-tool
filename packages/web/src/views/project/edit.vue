@@ -53,7 +53,7 @@
     }
   });
 
-  function onSubmit() {
+  const onSubmit = () => {
     submitDialogForm(formData);
   }
 

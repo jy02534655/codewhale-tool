@@ -43,7 +43,7 @@ const { isShow, showDialog, hideDialog, resetForm, showDialogByData, submitDialo
   },
 });
 
-function onSubmit() {
+const onSubmit = () => {
   submitDialogForm(formData);
 }
 

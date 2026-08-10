@@ -86,7 +86,7 @@ const logRef = ref(null)
 let es = null
 
 // ─── 格式化工具 ────────────────────────────────────────────
-function formatBytes(bytes) {
+const formatBytes = (bytes) => {
   if (!bytes || bytes === 0) return '0 B'
   const units = ['B', 'KB', 'MB', 'GB']
   const i = Math.floor(Math.log(bytes) / Math.log(1024))
@@ -94,7 +94,7 @@ function formatBytes(bytes) {
 }
 
 // ─── 启动 ──────────────────────────────────────────────────
-function start(url) {
+const start = (url) => {
   logEntries.value = []
   activeStepLabel.value = t('skill.preparing')
   stepDetail.value = ''
@@ -107,7 +107,7 @@ function start(url) {
   es = new EventSource(url)
 
   // ── progress 事件：步骤 + 进度 + 字节数 ──
-  es.addEventListener('progress', function (e) {
+  es.addEventListener('progress', (e) => {
     let data
     try { data = JSON.parse(e.data) } catch { return }
     if (data.stage) {
@@ -128,41 +128,41 @@ function start(url) {
   })
 
   // ── complete ──
-  es.addEventListener('complete', function () {
+  es.addEventListener('complete', () => {
     es.close()
     activeStepLabel.value = t('skill.stageDone')
     stepDetail.value = ''; totalPercent.value = 100
     downloadPercent.value = 100; running.value = false
     showSubProgress.value = false
-    nextTick(function () { scrollLog() })
+    nextTick(() => { scrollLog() })
     emit('complete', true)
   })
 
   // ── error ──
-  es.addEventListener('error', function () {
+  es.addEventListener('error', () => {
     es.close(); running.value = false
     showSubProgress.value = false
-    nextTick(function () { scrollLog() })
+    nextTick(() => { scrollLog() })
     emit('complete', false)
   })
 
   // ── log：download.js 的 _log() 回调，已格式化为 [时间戳] [LEVEL] message ──
-  es.addEventListener('log', function (e) {
+  es.addEventListener('log', (e) => {
     let data
     try { data = JSON.parse(e.data) } catch { return }
     logEntries.value.push({ level: data.level || 'info', message: data.message })
-    nextTick(function () { scrollLog() })
+    nextTick(() => { scrollLog() })
   })
 }
 
 // ─── 自动滚底 ──────────────────────────────────────────────
-function scrollLog() {
+const scrollLog = () => {
   if (logRef.value) logRef.value.scrollTop = logRef.value.scrollHeight
 }
 
 // ─── 关闭 ──────────────────────────────────────────────────
-function closeDialog() { if (es) { es.close(); es = null }; hideDialog() }
-function close() { closeDialog() }
+const closeDialog = () => { if (es) { es.close(); es = null }; hideDialog() }
+const close = () => { closeDialog() }
 
 defineExpose({ start, close })
 </script>

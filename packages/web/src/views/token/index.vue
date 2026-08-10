@@ -69,24 +69,24 @@ const dialogCtrl = compositionDialogContainer();
 
 const list = ref([]);
 
-function loadList(isReLoad) {
-  shareStore.getTokenList(isReLoad).then(function (result) {
+const loadList = (isReLoad) => {
+  shareStore.getTokenList(isReLoad).then((result) => {
     list.value = result.data || [];
   });
 }
 
-function onRemove(row) {
+const onRemove = (row) => {
   ElMessageBox.confirm(
     t('common.confirm_delete') + ' "' + row.alias + '"?',
     t('common.confirm'),
     { type: 'warning' }
-  ).then(function () {
-    removeToken(row).then(function () { loadList(true); });
+  ).then(() => {
+    removeToken(row).then(() => { loadList(true); });
   });
 }
 
-function onSetDefault(row) {
-  setDefaultToken(row).then(function () { loadList(true); });
+const onSetDefault = (row) => {
+  setDefaultToken(row).then(() => { loadList(true); });
 }
 
 onMounted(loadList);

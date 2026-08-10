@@ -155,13 +155,13 @@ const treeProps = {
 const dialogCtrl = compositionDialogContainer()
 
 // 组合详情页标题，优先展示 alias。
-const displayTitle = computed(function () {
+const displayTitle = computed(() => {
   if (!props.skill) return ''
   return props.skill.alias || props.skill.name || props.skill.slug || '-'
 })
 
 // 将来源字段翻译成当前语言的文案。
-const sourceLabel = computed(function () {
+const sourceLabel = computed(() => {
   if (!props.skill) return '-'
   const source = props.skill.source || 'local'
   const key = 'skill.source.' + source
@@ -169,7 +169,7 @@ const sourceLabel = computed(function () {
 })
 
 // 将作用域字段翻译成当前语言的文案；项目级显示项目别名。
-const scopeLabel = computed(function () {
+const scopeLabel = computed(() => {
   if (!props.skill) return '-'
   if (props.skill.level === 'project') {
     return props.skill.project || t('skill.project') || 'project'
@@ -179,24 +179,24 @@ const scopeLabel = computed(function () {
 })
 
 // 推导当前文件预览标签。
-const previewModeLabel = computed(function () {
+const previewModeLabel = computed(() => {
   return getPreviewModeLabel(activeFile.value)
 })
 
 // 判断当前文件是否可编辑。
-const editableFile = computed(function () {
+const editableFile = computed(() => {
   return isEditableTextFile(activeFile.value)
 })
 
 // 排序值展示文案。
-const sortOrderDisplay = computed(function () {
+const sortOrderDisplay = computed(() => {
   if (!props.skill) return '-'
   const v = typeof props.skill.sort_order === 'number' ? props.skill.sort_order : 0
   return v === 0 ? t('skill.sortOrderDefault') : t('skill.sortOrder', { value: v })
 })
 
 // 将平铺文件列表转换为树结构。
-const treeData = computed(function () {
+const treeData = computed(() => {
   // 建立根节点容器，统一挂载目录树。
   const root = []
 
@@ -204,16 +204,16 @@ const treeData = computed(function () {
   const dirMap = new Map()
 
   // 逐个处理文件项并构造层级结构。
-  fileList.value.forEach(function (item) {
+  fileList.value.forEach((item) => {
     const path = typeof item === 'string' ? item : (item.path || '')
     const segments = path.split('/').filter(Boolean)
     let currentChildren = root
     let currentPath = ''
 
-    segments.forEach(function (segment, index) {
+    segments.forEach((segment, index) => {
       currentPath = currentPath ? currentPath + '/' + segment : segment
       const isDir = index < segments.length - 1
-      let node = currentChildren.find(function (entry) {
+      let node = currentChildren.find((entry) => {
         return entry.path === currentPath
       })
 
@@ -235,12 +235,12 @@ const treeData = computed(function () {
   })
 
   // 按目录优先、名称次序排序，提升浏览体验。
-  function sortNodes(nodes) {
-    nodes.sort(function (a, b) {
+  const sortNodes = (nodes) => {
+    nodes.sort((a, b) => {
       if (a.isDir !== b.isDir) return a.isDir ? -1 : 1
       return a.label.localeCompare(b.label)
     })
-    nodes.forEach(function (node) {
+    nodes.forEach((node) => {
       if (node.children && node.children.length) sortNodes(node.children)
     })
   }
@@ -250,9 +250,9 @@ const treeData = computed(function () {
 })
 
 // 监听 Skill 变更，自动刷新文件树与预览区。
-watch(function () {
+watch(() => {
   return props.skill && props.skill.id
-}, function (skillId) {
+}, (skillId) => {
   if (!skillId) {
     fileList.value = []
     activeFile.value = ''
@@ -267,60 +267,60 @@ watch(function () {
 }, { immediate: true })
 
 // 加载当前 Skill 下的文件列表。
-function loadFiles() {
+const loadFiles = () => {
   if (!props.skill) return
   fileListLoading.value = true
-  getSkillFiles({ id: props.skill.id, level: props.skill.level, projectId: props.skill.projectId }).then(function (res) {
+  getSkillFiles({ id: props.skill.id, level: props.skill.level, projectId: props.skill.projectId }).then((res) => {
     fileList.value = Array.isArray(res) ? res : []
     // 仅有一个文件时默认折叠文件浏览器
     fileBrowserExpanded.value = fileList.value.length > 1
     // 如果当前没有选中文件，默认选中 SKILL.md
     if (!activeFile.value) {
-      const skillMd = fileList.value.find(function (item) {
+      const skillMd = fileList.value.find((item) => {
         const name = typeof item === 'string' ? item : (item.path || '')
         return name === 'SKILL.md'
       })
       if (skillMd) {
         const path = typeof skillMd === 'string' ? skillMd : (skillMd.path || '')
-        nextTick(function () {
+        nextTick(() => {
           loadFileContent(path)
         })
       }
     }
-  }).catch(function () {
+  }).catch(() => {
     ElMessage.error(t('message.networkError') || 'Failed to load files')
-  }).finally(function () {
+  }).finally(() => {
     fileListLoading.value = false
   })
 }
 
 // 加载指定文件内容。
-function loadFileContent(path) {
+const loadFileContent = (path) => {
   if (!props.skill || !path) return
   fileContentLoading.value = true
   activeFile.value = path
-  readSkillFile({ id: props.skill.id, path, level: props.skill.level, projectId: props.skill.projectId }).then(function (res) {
+  readSkillFile({ id: props.skill.id, path, level: props.skill.level, projectId: props.skill.projectId }).then((res) => {
     fileContent.value = typeof res === 'string' ? res : (res && res.content || '')
-  }).catch(function () {
+  }).catch(() => {
     ElMessage.error(t('message.networkError') || 'Failed to load file')
-  }).finally(function () {
+  }).finally(() => {
     fileContentLoading.value = false
   })
 }
 
 // 点击树节点时，仅文件节点触发预览加载。
-function handleNodeClick(data) {
+const handleNodeClick = (data) => {
   if (!data || data.isDir) return
   loadFileContent(data.path)
 }
 
 // 切换文件浏览器展开/折叠。
-function toggleFileBrowser() {
+const toggleFileBrowser = () => {
   fileBrowserExpanded.value = !fileBrowserExpanded.value
 }
 
 // 打开 README 或普通文本文件编辑弹窗。
-function openEditor(path) {
+const openEditor = (path) => {
   if (!props.skill || !path || !isEditableTextFile(path)) return
   dialogCtrl.showEditDialog({
     id: props.skill.id,
@@ -331,32 +331,32 @@ function openEditor(path) {
 }
 
 // 删除单个 Skill 文件，并在成功后刷新当前树状态。
-function removeFile(path) {
+const removeFile = (path) => {
   if (!props.skill || !path) return
   ElMessageBox.confirm(t('skill.confirmDeleteFile') + '：' + path, t('skill.confirmDeleteFileTitle'), {
     confirmButtonText: t('common.confirm'),
     cancelButtonText: t('common.cancel'),
     type: 'warning'
-  }).then(function () {
+  }).then(() => {
     return removeSkillFile({ id: props.skill.id, path, level: props.skill.level, projectId: props.skill.projectId })
-  }).then(function () {
+  }).then(() => {
     if (activeFile.value === path) {
       activeFile.value = ''
       fileContent.value = ''
     }
     loadFiles()
-  }).catch(function () {
+  }).catch(() => {
     // 用户取消或请求失败，不做额外处理
   })
 }
 
 // 打开 Skill 信息编辑弹窗，由父层 infoDialog 承载。
-function openEditDialog() {
+const openEditDialog = () => {
   emit('openEdit')
 }
 
 // 文件保存后刷新预览与文件树，保持界面一致。
-function handleFileSaved() {
+const handleFileSaved = () => {
   loadFiles()
   if (activeFile.value) {
     loadFileContent(activeFile.value)
@@ -365,7 +365,7 @@ function handleFileSaved() {
 }
 
 // 更新当前 Skill 并通知外层刷新。
-function updateCurrentSkill() {
+const updateCurrentSkill = () => {
   if (!props.skill) return
   const installParams = props.skill.installParams || null
   emit('openUpdate', {
@@ -377,36 +377,36 @@ function updateCurrentSkill() {
 }
 
 // 删除整个 Skill 前先做二次确认。
-function removeCurrentSkill() {
+const removeCurrentSkill = () => {
   if (!props.skill) return
   ElMessageBox.confirm(t('common.confirm_delete') + '：' + displayTitle.value, t('common.delete'), {
     confirmButtonText: t('common.confirm'),
     cancelButtonText: t('common.cancel'),
     type: 'warning'
-  }).then(function () {
+  }).then(() => {
     return removeSkill({ id: props.skill.id, level: props.skill.level, projectId: props.skill.projectId })
-  }).then(function () {
+  }).then(() => {
     emit('refresh')
-  }).catch(function () {
+  }).catch(() => {
     // 用户取消或请求失败，不做额外处理
   })
 }
 
-function copyCurrentSkill() { if (!props.skill) return; dialogCtrl.showEditDialog(props.skill, 'projectSelectDialog') }
+const copyCurrentSkill = () => { if (!props.skill) return; dialogCtrl.showEditDialog(props.skill, 'projectSelectDialog') }
 
 // 打开排序值编辑弹窗。
-function openSortDialog() {
+const openSortDialog = () => {
   if (!props.skill) return
   dialogCtrl.showEditDialog(props.skill, 'sortOrderDialog')
 }
 
 // 排序值保存成功后刷新列表。
-function handleSortSaved() {
+const handleSortSaved = () => {
   emit('refresh')
 }
 
 // 项目复制成功后刷新列表。
-function handleProjectCopied() {
+const handleProjectCopied = () => {
   emit('refresh')
 }
 </script>

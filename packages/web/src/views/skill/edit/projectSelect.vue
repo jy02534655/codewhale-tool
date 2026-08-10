@@ -52,7 +52,7 @@ const projectList = ref([])
 const { isShow, showDialog, hideDialog, showDialogByData, submitDialogForm, resetForm } =
   compositionDialogForm({
     editFun: copySkillToProject,
-    initfun: function ({ data }) {
+    initfun: ({ data }) => {
       if (data) {
         assign(formData, data)
       }
@@ -60,19 +60,19 @@ const { isShow, showDialog, hideDialog, showDialogByData, submitDialogForm, rese
     },
   })
 
-function _loadProjects() {
-  shareStore.getProjectList().then(function (result) {
+const _loadProjects = () => {
+  shareStore.getProjectList().then((result) => {
     projectList.value = result.data || []
-    const defaultProject = (result.data || []).find(function (p) { return p.default }) || (result.data || [])[0]
+    const defaultProject = (result.data || []).find((p) => { return p.default }) || (result.data || [])[0]
     if (defaultProject) {
       formData.projectId = defaultProject.id || ''
     }
-  }).catch(function () {
+  }).catch(() => {
     projectList.value = []
   })
 }
 
-function onSubmit() {
+const onSubmit = () => {
   submitDialogForm(formData)
 }
 

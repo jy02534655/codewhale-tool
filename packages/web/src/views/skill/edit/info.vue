@@ -45,18 +45,18 @@ const formData = reactive({
 })
 
 // 标签列表（computed 从 formData.tags 派生）
-const tagsList = computed(function () {
+const tagsList = computed(() => {
   return formData.tags || []
 })
 
 // 移除单个标签
-function removeTag(tag) {
-  formData.tags = formData.tags.filter(function (t) { return t !== tag })
+const removeTag = (tag) => {
+  formData.tags = formData.tags.filter((t) => { return t !== tag })
   formData.tagsInput = formData.tags.join(', ')
 }
 
 // 提交函数（供 compositionDialogForm 调用）
-function doUpdate(params) {
+const doUpdate = (params) => {
   return updateMeta({
     id: currentId,
     alias: params.alias,
@@ -71,7 +71,7 @@ function doUpdate(params) {
 const { isShow, showDialog, hideDialog, resetForm, showDialogByData, submitDialogForm } = compositionDialogForm({
   addFun: doUpdate,
   editFun: doUpdate,
-  initfun: function ({ data }) {
+  initfun: ({ data }) => {
     if (data) {
       currentId = data.id
       currentLevel = data.level || ''
@@ -87,8 +87,8 @@ const { isShow, showDialog, hideDialog, resetForm, showDialogByData, submitDialo
 })
 
 // 提交（先解析标签，再调用 submitDialogForm）
-function onSubmit() {
-  formData.tags = formData.tagsInput.split(',').map(function (s) { return s.trim() }).filter(Boolean)
+const onSubmit = () => {
+  formData.tags = formData.tagsInput.split(',').map((s) => { return s.trim() }).filter(Boolean)
   submitDialogForm(formData)
 }
 

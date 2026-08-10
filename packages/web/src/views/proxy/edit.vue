@@ -61,13 +61,13 @@ const formData = reactive({
 });
 
 /** 校验 host：必填，合法格式 = IPv4 / IPv6 / hostname */
-function validateHost(rule, value, callback) {
+const validateHost = (rule, value, callback) => {
   if (!value) return callback(new Error(t('common.required')));
   // IPv4
   const ipv4 = /^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/;
   if (ipv4.test(value)) {
     const parts = value.split('.').map(Number);
-    if (parts.every(function (n) { return n >= 0 && n <= 255; })) return callback();
+    if (parts.every((n) => { return n >= 0 && n <= 255; })) return callback();
     return callback(new Error(t('message.invalidHost')));
   }
   // IPv6 (包含冒号，且只有 hex 字符、冒号和点号)
@@ -111,7 +111,7 @@ const { isEdit, isShow, showDialog, hideDialog, resetForm, showDialogByData, sub
     },
   });
 
-function onSubmit() {
+const onSubmit = () => {
   // 将表单数据转换为 API 格式（username/password → auth）
   const payload = {
     alias: formData.alias,

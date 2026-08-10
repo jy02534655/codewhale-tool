@@ -48,8 +48,8 @@ import { getVendorLabel, getVendorOptions } from '@/utils/i18n/provider';
 const maskingStore = useMaskingStore();
 const { t, locale } = useI18n({ useScope: 'global' });
 
-const vendorOptions = computed(function () { return getVendorOptions(locale.value); });
-const vendorLabel = function (id) { return getVendorLabel(id, locale.value); };
+const vendorOptions = computed(() => { return getVendorOptions(locale.value); });
+const vendorLabel = (id) => { return getVendorLabel(id, locale.value); };
 
 const formData = reactive({
   provider: undefined,
@@ -61,7 +61,7 @@ const formData = reactive({
 });
 
 /** 校验 base_url：可选，但填了必须是合法 http/https URL */
-function validateBaseUrl(rule, value, callback) {
+const validateBaseUrl = (rule, value, callback) => {
   if (!value) return callback();
   try {
     const url = new URL(value);
@@ -88,11 +88,11 @@ const { isEdit, isShow, showDialog, hideDialog, resetForm, showDialogByData, sub
   },
 });
 
-function onProviderSelect(val) {
+const onProviderSelect = (val) => {
   if (val) formData.label = vendorLabel(val);
 }
 
-function onSubmit() {
+const onSubmit = () => {
   submitDialogForm(formData);
 }
 

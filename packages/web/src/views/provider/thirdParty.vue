@@ -128,49 +128,49 @@ const dialogCtrl = compositionDialogContainer();
 const providers = ref([]);
 
 // 是否有激活的供应商
-const hasActiveProvider = computed(function () {
-  return providers.value.some(function (p) { return p.active; });
+const hasActiveProvider = computed(() => {
+  return providers.value.some((p) => { return p.active; });
 });
 
 // 当前激活供应商的展示文本
-const activeProviderDisplay = computed(function () {
-  const a = providers.value.find(function (p) { return p.active; });
+const activeProviderDisplay = computed(() => {
+  const a = providers.value.find((p) => { return p.active; });
   return a ? a.label + ' ' + a.provider : '';
 });
 
 // 加载第三方供应商列表
-function loadConfig() {
+const loadConfig = () => {
   getProviderList()
-    .then(function (prov) { providers.value = prov || []; });
+    .then((prov) => { providers.value = prov || []; });
 }
 
 // 激活供应商
-function activateProviderAction(data) {
-  activateProvider(data).then(function () { loadConfig(); });
+const activateProviderAction = (data) => {
+  activateProvider(data).then(() => { loadConfig(); });
 }
 
 // 停用所有供应商
-function deactivateAll() {
-  deactivateProvider().then(function () { loadConfig(); });
+const deactivateAll = () => {
+  deactivateProvider().then(() => { loadConfig(); });
 }
 
 // 删除供应商（带确认）
-function removeProviderSubmit(data) {
+const removeProviderSubmit = (data) => {
   ElMessageBox.confirm(t('common.confirm_delete') + ' "' + data.id + '"?', t('common.confirm_delete'), { type: 'warning' })
-    .then(function () { return removeProvider(data); })
-    .then(function () { loadConfig(); });
+    .then(() => { return removeProvider(data); })
+    .then(() => { loadConfig(); });
 }
 
 // 删除模型（带确认）
-function removeModelSubmit(data) {
+const removeModelSubmit = (data) => {
   ElMessageBox.confirm(t('common.confirm_delete') + ' "' + data.name + '"?', t('common.confirm_delete'), { type: 'warning' })
-    .then(function () { return removeModel(data); })
-    .then(function () { loadConfig(); });
+    .then(() => { return removeModel(data); })
+    .then(() => { loadConfig(); });
 }
 
 // 设置当前激活模型
-function setActiveModelAction(data) {
-  setActiveModel(data).then(function () { loadConfig(); });
+const setActiveModelAction = (data) => {
+  setActiveModel(data).then(() => { loadConfig(); });
 }
 
 // 组件挂载时加载数据

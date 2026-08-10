@@ -51,8 +51,8 @@
   const rules = {};
 
   // ========== 获取设置 ==========
-  function fetchSettings() {
-    getSettings().then(function (data) {
+  const fetchSettings = () => {
+    getSettings().then((data) => {
       if (!data) return;
       assign(formData, clearObject(data));
       // 同步原始快照
@@ -61,25 +61,25 @@
   }
 
   // ========== 保存 ==========
-  function onSave() {
-    settingsFormRef.value.validate(function (valid) {
+  const onSave = () => {
+    settingsFormRef.value.validate((valid) => {
       if (!valid) {
         return;
       }
       const settingsData = clearObject({ ...formData });
       updateSettings(settingsData)
-        .then(function () {
+        .then(() => {
           // 保存成功后更新原始快照
           assign(originalForm, cloneDeep(formData));
         })
-        .catch(function () {
+        .catch(() => {
           // 失败不更新快照，保留上次成功状态
         });
     });
   }
 
   // ========== 取消 ==========
-  function onCancel() {
+  const onCancel = () => {
     // 将 formData 重置为原始快照
     assign(formData, cloneDeep(originalForm));
     // 清除校验状态
@@ -88,20 +88,20 @@
   }
 
   // ========== 恢复默认 ==========
-  function onRestoreDefaults() {
+  const onRestoreDefaults = () => {
     ElMessageBox.confirm(t('settings.reset_confirm_message'), t('settings.reset_confirm_title'), {
       confirmButtonText: t('common.confirm'),
       cancelButtonText: t('common.cancel'),
       type: 'warning'
     })
-      .then(function () {
+      .then(() => {
         return postSettingsDefaults();
       })
-      .then(function () {
+      .then(() => {
         // 恢复成功后重新拉取最新数据
         return fetchSettings();
       })
-      .catch(function () {
+      .catch(() => {
         // 用户取消恢复
       });
   }

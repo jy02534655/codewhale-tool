@@ -78,24 +78,24 @@ const dialogCtrl = compositionDialogContainer();
 
 const list = ref([]);
 
-function fetchList(isReLoad) {
-  shareStore.getProjectList(isReLoad).then(function (result) {
+const fetchList = (isReLoad) => {
+  shareStore.getProjectList(isReLoad).then((result) => {
     list.value = result.data || [];
   });
 }
 
-function onRemove(row) {
+const onRemove = (row) => {
   ElMessageBox.confirm(
     t('common.confirm_delete') + ' "' + row.alias + '"?',
     t('common.confirm'),
     { type: 'warning' }
-  ).then(function () {
-    removeProject({ id: row.id }).then(function () { fetchList(true); });
+  ).then(() => {
+    removeProject({ id: row.id }).then(() => { fetchList(true); });
   });
 }
 
-function onSetDefault(row) {
-  setDefaultProject({ id: row.id }).then(function () { fetchList(true); });
+const onSetDefault = (row) => {
+  setDefaultProject({ id: row.id }).then(() => { fetchList(true); });
 }
 
 onMounted(fetchList);

@@ -44,12 +44,12 @@
   });
 
   // 将字符串 tag 解析为实际组件；未知组件保持原字符串，依赖全局注册
-  function resolveComponent(tag) {
+  const resolveComponent = (tag) => {
     return componentMap[tag] || tag;
   }
 
   // 过滤掉非组件配置项（key / label / tag / value 等元数据），只传递组件真正需要的 props
-  function extraProps(item) {
+  const extraProps = (item) => {
     const { key, label, tag, value, ...rest } = item;
     void key;
     void label;

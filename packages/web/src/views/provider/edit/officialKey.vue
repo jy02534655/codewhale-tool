@@ -52,7 +52,7 @@ const { isEdit, isShow, showDialog, hideDialog, resetForm, showDialogByData, sub
   },
 });
 
-function onSubmit() {
+const onSubmit = () => {
   submitDialogForm(formData);
 }
 

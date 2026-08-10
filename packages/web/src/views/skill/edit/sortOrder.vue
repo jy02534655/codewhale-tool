@@ -44,7 +44,7 @@ const formData = reactive({
 const { isShow, showDialog, hideDialog, showDialogByData, submitDialogForm, resetForm } =
   compositionDialogForm({
     editFun: updateSkillSortOrder,
-    initfun: function ({ data }) {
+    initfun: ({ data }) => {
       if (data) {
         assign(formData, data)
         formData.sortOrder = typeof data.sort_order === 'number' ? data.sort_order : 0
@@ -52,7 +52,7 @@ const { isShow, showDialog, hideDialog, showDialogByData, submitDialogForm, rese
     },
   })
 
-function onSubmit() {
+const onSubmit = () => {
   submitDialogForm(formData)
 }
 

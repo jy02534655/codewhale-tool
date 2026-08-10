@@ -173,15 +173,15 @@ const rules = {
 }
 
 // 新增模式下自动计算排序值：取当前列表最大 sort_order + 1
-function _initSortOrder () {
-  Promise.all([getGlobalSkillList(), getAllProjectSkillList()]).then(function (results) {
+const _initSortOrder = () => {
+  Promise.all([getGlobalSkillList(), getAllProjectSkillList()]).then((results) => {
     const all = (results[0] || []).concat(results[1] || [])
-    const maxSort = all.reduce(function (max, s) {
+    const maxSort = all.reduce((max, s) => {
       const v = typeof s.sort_order === 'number' ? s.sort_order : 0
       return v > max ? v : max
     }, 0)
     formData.sortOrder = maxSort + 1
-  }).catch(function () {
+  }).catch(() => {
     formData.sortOrder = 1
   })
 }
@@ -191,7 +191,7 @@ function _initSortOrder () {
 const { isShow, showDialog, hideDialog, showDialogByData, submitForm, resetForm } = compositionDialogForm({
   addFun: installSkill,
   editFun: updateSkillByOpts,
-  initfun: function (ctx) {
+  initfun: (ctx) => {
     // ctx: { data, state }
     if (ctx && ctx.state === 1) {
       isUpdateMode.value = true
@@ -219,7 +219,7 @@ const { isShow, showDialog, hideDialog, showDialogByData, submitForm, resetForm 
         if (ctx.data && ctx.data.projectId) {
           formData.projectId = ctx.data.projectId
           if (formData.level === 'project') {
-            const project = projectList.value.find(function (p) { return p.id === ctx.data.projectId })
+            const project = projectList.value.find((p) => { return p.id === ctx.data.projectId })
             if (project) formData.projectPath = project.path
           }
         }
@@ -235,15 +235,15 @@ const { isShow, showDialog, hideDialog, showDialogByData, submitForm, resetForm 
     _initDropdowns()
   },
   // 新增模式下自动计算排序值：取当前列表最大 sort_order + 1
-  _initSortOrder: function () {
-    Promise.all([getGlobalSkillList(), getAllProjectSkillList()]).then(function (results) {
+  _initSortOrder: () => {
+    Promise.all([getGlobalSkillList(), getAllProjectSkillList()]).then((results) => {
       const all = (results[0] || []).concat(results[1] || [])
-      const maxSort = all.reduce(function (max, s) {
+      const maxSort = all.reduce((max, s) => {
         const v = typeof s.sort_order === 'number' ? s.sort_order : 0
         return v > max ? v : max
       }, 0)
       formData.sortOrder = maxSort + 1
-    }).catch(function () {
+    }).catch(() => {
       formData.sortOrder = 1
     })
   },
@@ -263,40 +263,40 @@ const isUpdateMode = ref(false)
 const updateSkillId = ref(null)
 
 // ─── 初始化下拉列表数据 ───────────────────────────────────
-function _initDropdowns() {
-  shareStore.getProxyList().then(function (result) {
+const _initDropdowns = () => {
+  shareStore.getProxyList().then((result) => {
     proxyList.value = result.data || []
-    const def = (result.data || []).find(function (p) { return p.default })
+    const def = (result.data || []).find((p) => { return p.default })
     if (def) formData.selectedProxyId = def.id
-  }).catch(function () {
+  }).catch(() => {
     proxyList.value = []
   })
-  shareStore.getTokenList().then(function (result) {
+  shareStore.getTokenList().then((result) => {
     tokenList.value = result.data || []
-    const def = (result.data || []).find(function (t) { return t.default })
+    const def = (result.data || []).find((t) => { return t.default })
     if (def) formData.selectedTokenId = def.id
-  }).catch(function () {
+  }).catch(() => {
     tokenList.value = []
   })
-  shareStore.getProjectList().then(function (result) {
+  shareStore.getProjectList().then((result) => {
     projectList.value = result.data || []
-    const defaultProject = (result.data || []).find(function (p) { return p.default })
+    const defaultProject = (result.data || []).find((p) => { return p.default })
     if (formData.level === 'project') {
       if (formData.projectId) {
-        const project = (result.data || []).find(function (p) { return p.id === formData.projectId })
+        const project = (result.data || []).find((p) => { return p.id === formData.projectId })
         if (project) formData.projectPath = project.path
       } else if (defaultProject) {
         formData.projectId = defaultProject.id
         formData.projectPath = defaultProject.path
       }
     }
-  }).catch(function () {
+  }).catch(() => {
     projectList.value = []
   })
 }
 
 // ─── 智能识别输入 ──────────────────────────────────────────
-function parseSmartInput() {
+const parseSmartInput = () => {
   const text = formData.smartInput.trim()
   if (!text) return
 
@@ -319,7 +319,7 @@ function parseSmartInput() {
 }
 
 // ─── ZIP 文件选择后自动填充 skill 名称 ────────────────────────
-function onSelectZipFile(filePath) {
+const onSelectZipFile = (filePath) => {
   if (!filePath) return
   const base = filePath.replace(/\\/g, '/').split('/').pop() || ''
   const name = base.replace(/\.zip$/i, '')
@@ -329,11 +329,11 @@ function onSelectZipFile(filePath) {
 }
 
 // ─── 安装级别切换 ──────────────────────────────────────────
-function onLevelChange() {
+const onLevelChange = () => {
   if (formData.level === 'project') {
     // 切换到项目级时若未选择项目，自动选默认项目
     if (projectList.value.length > 0 && !formData.projectId) {
-      const defaultProject = projectList.value.find(function (p) { return p.default }) || projectList.value[0]
+      const defaultProject = projectList.value.find((p) => { return p.default }) || projectList.value[0]
       formData.projectId = defaultProject.id || ''
       formData.projectPath = defaultProject.path || ''
     }
@@ -349,9 +349,9 @@ function onLevelChange() {
 
 // ─── 项目选择变更 ──────────────────────────────────────────
 // 监听 el-select 选择事件，同步更新 projectPath
-function onProjectChange(selectedId) {
+const onProjectChange = (selectedId) => {
   if (selectedId) {
-    const project = projectList.value.find(function (p) { return p.id === selectedId })
+    const project = projectList.value.find((p) => { return p.id === selectedId })
     if (project) {
       formData.projectPath = project.path
       return
@@ -361,27 +361,27 @@ function onProjectChange(selectedId) {
 }
 
 // ─── 提交表单 ──────────────────────────────────────────────
-function onSubmit() {
+const onSubmit = () => {
   maskingStore.loading({ view: 'skill-install' })
   // 确保排序值为数字
   formData.sortOrder = typeof formData.sortOrder === 'number' ? formData.sortOrder : 0
   const payload = isUpdateMode.value
     ? { ...formData, skillId: updateSkillId.value }
     : formData
-  submitForm(payload).then(function (res) {
+  submitForm(payload).then((res) => {
     // 提交成功后启动安装进度浮层
     if (res && res.streamId && progressRef.value) {
       // SSE 阶段延续 loading 状态（axios 拦截器会在接口完成后自动释放，
       // 此处手动补一个 loading 计数，确保进度浮层期间按钮仍处于加载态）
       progressRef.value.start('/api/skill/install/sse/' + res.streamId)
     }
-  }).catch(function () {
+  }).catch(() => {
     // axios 拦截器已自动处理接口失败时的遮罩释放
   })
 }
 
 // ─── 安装完成回调 ──────────────────────────────────────────
-function onInstallComplete(success) {
+const onInstallComplete = (success) => {
   maskingStore.clear({ view: 'skill-install' })
   hideDialog()
   if (success) {
@@ -391,7 +391,7 @@ function onInstallComplete(success) {
 
 // 暴露弹窗控制方法给父组件
 // ─── 弹窗关闭回调 ──────────────────────────────────────────
-function onDialogClose() {
+const onDialogClose = () => {
   isUpdateMode.value = false
   updateSkillId.value = null
   formData.sortOrder = 0

@@ -53,7 +53,7 @@ const { isEdit, isShow, showDialog, hideDialog, resetForm, showDialogByData, sub
     },
   });
 
-function onSubmit() {
+const onSubmit = () => {
   // 编辑时：不发送 token，后端只更新 alias
   if (isEdit.value) {
     const payload = { id: formData.id, alias: formData.alias };

@@ -136,42 +136,42 @@ const activeTab = ref('global')
  const selectedId = ref(null)
  const installLogDialog = ref(null)
 
-function displayName(s) {
+const displayName = (s) => {
   return s.alias || s.name || s.slug
 }
 
-function sourceName(source) {
+const sourceName = (source) => {
   const key = 'skill.source.' + (source || 'local')
   return t(key) || source
 }
 
-function selectSkill(s) {
+const selectSkill = (s) => {
   selectedId.value = s.id
 }
 
-function onTabChange() {
+const onTabChange = () => {
   selectedId.value = null
 }
 
-const selectedSkill = computed(function () {
+const selectedSkill = computed(() => {
   if (!selectedId.value) return null
   const all = globalSkills.value.concat(projectSkills.value)
-  return all.find(function (s) { return s.id === selectedId.value }) || null
+  return all.find((s) => { return s.id === selectedId.value }) || null
 })
 
-const filteredGlobal = computed(function () {
+const filteredGlobal = computed(() => {
   const q = search.value.toLowerCase().trim()
   if (!q) return globalSkills.value
-  return globalSkills.value.filter(function (s) {
+  return globalSkills.value.filter((s) => {
     const name = (s.alias || s.name || s.slug).toLowerCase()
     const tags = (s.tags || []).join(' ').toLowerCase()
     return name.indexOf(q) !== -1 || tags.indexOf(q) !== -1
   })
 })
 
-const projectTree = computed(function () {
+const projectTree = computed(() => {
   const map = {}
-  projectSkills.value.forEach(function (s) {
+  projectSkills.value.forEach((s) => {
     const pn = s.project || (s.path && s.path.indexOf('.codewhale') !== -1 ? 'codewhale-tool' : 'unknown')
     if (!map[pn]) map[pn] = { name: pn, alias: pn, skills: [] }
     map[pn].skills.push(s)
@@ -179,29 +179,29 @@ const projectTree = computed(function () {
   return Object.values(map)
 })
 
-const filteredProjectTree = computed(function () {
+const filteredProjectTree = computed(() => {
   const q = search.value.toLowerCase().trim()
   if (!q) return projectTree.value
   return projectTree.value
-    .map(function (node) {
+    .map((node) => {
       return {
         name: node.name,
         alias: node.alias,
-        skills: node.skills.filter(function (s) {
+        skills: node.skills.filter((s) => {
           const name = (s.alias || s.name || s.slug).toLowerCase()
           const tags = (s.tags || []).join(' ').toLowerCase()
           return name.indexOf(q) !== -1 || tags.indexOf(q) !== -1
         })
       }
     })
-    .filter(function (node) { return node.skills.length > 0 })
+    .filter((node) => { return node.skills.length > 0 })
 })
 
-function loadSkills() {
+const loadSkills = () => {
   Promise.all([getGlobalSkillList(), getAllProjectSkillList()])
-    .then(function (results) {
-      globalSkills.value = (results[0] || []).map(function (s) { s.level = 'global'; return s })
-      projectSkills.value = (results[1] || []).map(function (s) { s.level = 'project'; return s })
+    .then((results) => {
+      globalSkills.value = (results[0] || []).map((s) => { s.level = 'global'; return s })
+      projectSkills.value = (results[1] || []).map((s) => { s.level = 'project'; return s })
       // 如果当前 Tab 有数据且未选中任何项，自动选中第一个
       if (!selectedId.value) {
         const list = activeTab.value === 'global' ? globalSkills.value : projectSkills.value
@@ -210,13 +210,13 @@ function loadSkills() {
     })
 }
 
-function onOpenEdit() {
+const onOpenEdit = () => {
   if (selectedSkill.value) {
     dialogCtrl.showEditDialog(selectedSkill.value, 'infoDialog')
   }
 }
 
-function onOpenUpdate(payload) {
+const onOpenUpdate = (payload) => {
   if (!payload) return
   const dialog = installDialog.value
   if (dialog) {
@@ -224,19 +224,19 @@ function onOpenUpdate(payload) {
   }
 }
 
-function doViewLog() {
+const doViewLog = () => {
   const dialog = installLogDialog.value
   if (dialog) {
     dialog.open()
   }
 }
 
-function doClearLog() {
+const doClearLog = () => {
   ElMessageBox.confirm(t('skill.confirmClearLog'), t('skill.confirmClearLogTitle'), {
     confirmButtonText: t('common.confirm'),
     cancelButtonText: t('common.cancel'),
     type: 'warning'
-  }).then(function () {
+  }).then(() => {
     const dialog = installLogDialog.value
     if (dialog) {
       dialog.doClearLog()

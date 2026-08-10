@@ -29,21 +29,21 @@ const logContent = ref('')
 // 使用 Base 弹窗组合式函数管理显示状态
 const { isShow, hideDialog, showDialogByData } = compositionDialogBase({
   // 打开弹窗时自动加载日志
-  initfun: function () {
-    getInstallLog().then(function (res) {
+  initfun: () => {
+    getInstallLog().then((res) => {
       logContent.value = res || ''
     })
   }
 })
 
 // 打开日志弹窗
-function open() {
+const open = () => {
   showDialogByData(0, {})
 }
 
 // 清除日志
-function doClearLog() {
-  clearInstallLog().then(function () {
+const doClearLog = () => {
+  clearInstallLog().then(() => {
     logContent.value = ''
     hideDialog()
   })
