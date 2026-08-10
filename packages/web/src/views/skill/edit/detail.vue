@@ -18,7 +18,7 @@
         <el-button size="small" type="default" :icon="Edit" @click="editReadme">{{ $t('skill.editReadme') }}</el-button>
         <el-button v-if="skill.level === 'global'" size="small" type="info" :icon="DocumentCopy" @click="copyCurrentSkill">{{ $t('skill.copyToProject') }}</el-button>
         <el-button size="small" type="danger" :icon="Delete" @click="removeCurrentSkill">{{ $t('common.delete') }}</el-button>
-        <el-button v-show="skill.source === 'community'" size="small" type="primary" :icon="Refresh" :disabled="skill.source !== 'community'" @click="updateCurrentSkill">{{ $t('skill.update') }}</el-button>
+        <el-button size="small" type="primary" :icon="Refresh" :disabled="skill.source !== 'community'" @click="updateCurrentSkill">{{ $t('skill.update') }}</el-button>
       </div>
       <div class="detail-meta">
         <span>{{ $t('common.alias') }}：{{ skill.alias || '-' }}</span>
