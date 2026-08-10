@@ -118,7 +118,7 @@ export function copyToProject(store, { skillId, projectId }) {
     // 递归复制全局 skill 目录到项目目录
     store.copyDir(entry.path, targetDir);
 
-    // 在项目级配置中注册新 skill
+    // 在项目级配置中注册新 skill，同时保留安装配置以便前端回填
     store.addToConfig({
       id: newId,
       slug: entry.slug,
@@ -133,6 +133,8 @@ export function copyToProject(store, { skillId, projectId }) {
       version: entry.version || 'latest',
       installed_at: Date.now(),
       updated_at: Date.now(),
+      sort_order: typeof entry.sort_order === 'number' ? entry.sort_order : 0,
+      installParams: entry.installParams || {},
     }, 'project', targetProjectId);
 
     return okMsg('synced');

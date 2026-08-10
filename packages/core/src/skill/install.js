@@ -540,7 +540,9 @@ export async function update(store, opts, onProgress, onLog) {
   }, level, projectId);
 
   // 4. 更新原 skill entry：路径 / 更新时间 / 安装参数
-  const params = Object.assign({}, opts);
+  // 保留原始安装配置，仅用新 opts 覆盖变更字段，避免回填时配置丢失
+  const existingParams = (existing && existing.installParams) ? Object.assign({}, existing.installParams) : {};
+  const params = Object.assign({}, existingParams, opts);
   delete params._skillId;
   delete params._targetDir;
   delete params.skillId;
