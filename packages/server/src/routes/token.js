@@ -20,18 +20,18 @@ export function createTokenRouter(tokenMgr) {
   });
 
   // 更新 token
-  router.put('/:id', (req, res) => {
-    res.json(guard(() => tokenMgr.update(req.params.id, req.body)));
+  router.put('/edit', (req, res) => {
+    res.json(guard(() => tokenMgr.update(req.body.id, req.body)));
   });
 
   // 删除 token
-  router.delete('/:id', (req, res) => {
-    res.json(guard(() => tokenMgr.remove(req.params.id)));
+  router.delete('/remove', (req, res) => {
+    res.json(guard(() => tokenMgr.remove(req.body.id)));
   });
 
   // 设为默认 Token
-  router.put('/:id/default', (req, res) => {
-    res.json(guard(() => tokenMgr.setDefault(req.params.id)));
+  router.put('/default', (req, res) => {
+    res.json(guard(() => tokenMgr.setDefault(req.body.id)));
   });
 
   return router;

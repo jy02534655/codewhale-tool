@@ -23,18 +23,18 @@ export function createProjectRouter(projectMgr) {
   });
 
   // 更新项目
-  router.put('/:id', (req, res) => {
-    res.json(guard(() => projectMgr.update(req.params.id, req.body)));
+  router.put('/edit', (req, res) => {
+    res.json(guard(() => projectMgr.update(req.body.id, req.body)));
   });
 
   // 删除项目
-  router.delete('/:id', (req, res) => {
-    res.json(guard(() => projectMgr.remove(req.params.id)));
+  router.delete('/remove', (req, res) => {
+    res.json(guard(() => projectMgr.remove(req.body.id)));
   });
 
   // 设为默认项目
-  router.put('/:id/default', (req, res) => {
-    res.json(guard(() => projectMgr.setDefault(req.params.id)));
+  router.put('/default', (req, res) => {
+    res.json(guard(() => projectMgr.setDefault(req.body.id)));
   });
 
   return router;

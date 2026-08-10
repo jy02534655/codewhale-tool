@@ -8,17 +8,17 @@ import { guard, guardAsync } from '../../utils/guard.js';
 
 export function registerCmdRoutes(router, skillMgr) {
   /** 删除 skill */
-  router.delete('/remove/:id', (req, res) => {
-    res.json(guard(() => skillMgr.remove({ skillId: req.params.id, ...req.body })));
+  router.delete('/remove', (req, res) => {
+    res.json(guard(() => skillMgr.remove({ skillId: req.body.id, ...req.body })));
   });
 
   /** 复制 skill 到项目 */
-  router.post('/copy-to-project/:id', (req, res) => {
-    res.json(guard(() => skillMgr.copyToProject({ skillId: req.params.id, ...req.body })));
+  router.post('/copy-to-project', (req, res) => {
+    res.json(guard(() => skillMgr.copyToProject({ skillId: req.body.id, ...req.body })));
   });
 
   /** 更新 skill */
   router.post('/update/:id', async (req, res) => {
-    res.json(await guardAsync(() => skillMgr.updateByOpts({ skillId: req.params.id })));
+    res.json(await guardAsync(() => skillMgr.updateByOpts({ skillId: req.body.id })));
   });
 }

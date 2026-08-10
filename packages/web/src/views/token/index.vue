@@ -1,7 +1,4 @@
-<!--
-  index.vue — Token 管理页面（卡片布局）
-  侧边栏导航替换了页面标题，内容区用卡片网格展示
---><template>
+<template>
   <div v-loading="maskingStore.isLoading" class="page-view">
     <div class="page-section">
       <div class="section-header">
@@ -84,12 +81,12 @@ function onRemove(row) {
     t('common.confirm'),
     { type: 'warning' }
   ).then(function () {
-    removeToken(row.id).then(function () { loadList(true); });
+    removeToken(row).then(function () { loadList(true); });
   });
 }
 
 function onSetDefault(row) {
-  setDefaultToken(row.id).then(function () { loadList(true); });
+  setDefaultToken(row).then(function () { loadList(true); });
 }
 
 onMounted(loadList);

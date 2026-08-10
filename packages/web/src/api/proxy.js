@@ -17,15 +17,15 @@ export function addProxy(data) {
 
 /** 更新代理 */
 export function editProxy(data) {
-  return ajaxPutBack('/proxy/' + data.id, data, { successMessage: true });
+  return ajaxPutBack('/proxy/edit', data, { successMessage: true });
 }
 
 /** 删除代理 */
-export function removeProxy(id) {
-  return ajaxDeleteBack('/proxy/' + id, {}, { successMessage: true });
+export function removeProxy(data) {
+  return ajaxDeleteBack('/proxy/remove', data, { successMessage: true });
 }
 
 /** 设为默认代理 */
-export function setDefaultProxy(id) {
-  return ajaxPutBack('/proxy/' + id + '/default', {}, { successMessage: true });
+export function setDefaultProxy(data) {
+  return ajaxPutBack('/proxy/default', data, { successMessage: true });
 }

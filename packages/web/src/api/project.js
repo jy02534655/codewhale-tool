@@ -17,15 +17,15 @@ export function addProject(data) {
 
 /** 更新项目 */
 export function editProject(data) {
-  return ajaxPutBack('/project/' + data.id, data, { successMessage: true });
+  return ajaxPutBack('/project/edit', data, { successMessage: true });
 }
 
 /** 删除项目 */
-export function removeProject(id) {
-  return ajaxDeleteBack('/project/' + id, {}, { successMessage: true });
+export function removeProject(data) {
+  return ajaxDeleteBack('/project/remove', data, { successMessage: true });
 }
 
 /** 设为默认项目 */
-export function setDefaultProject(id) {
-  return ajaxPutBack('/project/' + id + '/default', {}, { successMessage: true });
+export function setDefaultProject(data) {
+  return ajaxPutBack('/project/default', data, { successMessage: true });
 }

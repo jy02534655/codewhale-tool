@@ -55,14 +55,11 @@ const dialogTitle = computed(function () {
 
 const { isShow, showDialog, hideDialog, showDialogByData, submitDialogForm, resetForm } =
   compositionDialogForm({
-    addFun: () => Promise.resolve(),
-    editFun: (params) => {
-      return saveSkillFile(params.id, params.path, params.content, params.level, params.projectId)
-    },
+    editFun: saveSkillFile,
     initfun: function ({ data }) {
       if (!data) return
       assign(formData, data)
-      readSkillFile(formData.id, formData.path, formData.level, formData.projectId).then(function (res) {
+      readSkillFile(formData).then((res) => {
         formData.content = typeof res === 'string' ? res : (res && res.content || '')
       })
     },

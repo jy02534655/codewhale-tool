@@ -83,13 +83,13 @@ function loadConfig() {
 
 // 激活指定官方 API Key
 function activateOfficial(id) {
-  activateOfficialKey(id).then(function () { loadConfig(); });
+  activateOfficialKey({ id }).then(function () { loadConfig(); });
 }
 
 // 删除官方 API Key（带确认）
 function removeOfficial(id) {
   ElMessageBox.confirm(t('common.confirm_delete'), t('common.confirm'), { type: 'warning' })
-    .then(function () { return removeOfficialKey(id); })
+    .then(function () { return removeOfficialKey({ id }); })
     .then(function () { loadConfig(); });
 }
 

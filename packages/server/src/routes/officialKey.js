@@ -22,18 +22,18 @@ export function createOfficialKeyRouter(officialKeyMgr, syncMgr) {
   });
 
   /** 更新别名 */
-  router.put('/:id', (req, res) => {
-    res.json(guard(() => officialKeyMgr.updateAlias({ id: req.params.id, alias: req.body.alias })));
+  router.put('/edit', (req, res) => {
+    res.json(guard(() => officialKeyMgr.updateAlias({ id: req.body.id, alias: req.body.alias })));
   });
 
   /** 激活官方 key */
-  router.post('/:id/activate', (req, res) => {
-    res.json(guard(() => syncMgr.activateOfficialAndSync(req.params.id)));
+  router.post('/activate', (req, res) => {
+    res.json(guard(() => syncMgr.activateOfficialAndSync(req.body.id)));
   });
 
   /** 删除官方 key */
-  router.delete('/:id', (req, res) => {
-    res.json(guard(() => withSync(syncMgr, () => officialKeyMgr.remove(req.params.id))));
+  router.delete('/remove', (req, res) => {
+    res.json(guard(() => withSync(syncMgr, () => officialKeyMgr.remove(req.body.id))));
   });
 
   return router;

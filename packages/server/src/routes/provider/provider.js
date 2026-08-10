@@ -28,18 +28,18 @@ export function registerProviderRoutes(router, providerMgr, syncMgr) {
   });
 
   /** 更新供应商 */
-  router.put('/:id', (req, res) => {
-    res.json(guard(() => withSync(syncMgr, () => providerMgr.updateProvider({ id: req.params.id, ...req.body }))));
+  router.put('/edit', (req, res) => {
+    res.json(guard(() => withSync(syncMgr, () => providerMgr.updateProvider({ id: req.body.id, ...req.body }))));
   });
 
   /** 删除供应商 */
-  router.delete('/:id', (req, res) => {
-    res.json(guard(() => withSync(syncMgr, () => providerMgr.removeProvider(req.params.id))));
+  router.delete('/remove', (req, res) => {
+    res.json(guard(() => withSync(syncMgr, () => providerMgr.removeProvider(req.body.id))));
   });
 
   /** 激活供应商 */
-  router.post('/:id/activate', (req, res) => {
-    res.json(guard(() => syncMgr.activateAndSync(req.params.id)));
+  router.post('/activate', (req, res) => {
+    res.json(guard(() => syncMgr.activateAndSync(req.body.id)));
   });
 
   /** 停用第三方 */

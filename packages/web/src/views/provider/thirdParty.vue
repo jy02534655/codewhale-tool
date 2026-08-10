@@ -35,7 +35,7 @@
                 <el-tag v-if="p.active" size="small" type="primary" effect="dark">{{ $t('common.current') }}</el-tag>
               </div>
               <div class="card-actions">
-                <el-button v-show="!p.active" size="small" type="primary" @click="activateProviderAction(p.id)">
+                <el-button v-show="!p.active" size="small" type="primary" @click="activateProviderAction({ id: p.id })">
                   <el-icon><CaretRight /></el-icon>
                   {{ $t('common.activate') }}
                 </el-button>
@@ -43,7 +43,7 @@
                   <el-icon><Edit /></el-icon>
                   {{ $t('common.edit') }}
                 </el-button>
-                <el-button size="small" type="danger" @click="removeProviderSubmit(p.id)">
+                <el-button size="small" type="danger" @click="removeProviderSubmit({ id: p.id })">
                   <el-icon><Delete /></el-icon>
                   {{ $t('common.delete') }}
                 </el-button>
@@ -75,11 +75,11 @@
                   <el-tag v-if="m.active" size="small" type="success" effect="dark">{{ $t('third_party.current_model') }}</el-tag>
                 </div>
                 <div style="display:flex;gap:4px;flex-shrink:0;">
-                  <el-button v-if="!m.active" size="small" type="primary" plain @click="setActiveModelAction(p.id, m.name)">
+                  <el-button v-if="!m.active" size="small" type="primary" plain @click="setActiveModelAction({ id: p.id, name: m.name })">
                     <el-icon><Check /></el-icon>
                     {{ $t('third_party.set_current') }}
                   </el-button>
-                  <el-button size="small" type="danger" :disabled="p.models.length <= 1" @click="removeModelSubmit(p.id, m.name)">
+                  <el-button size="small" type="danger" :disabled="p.models.length <= 1" @click="removeModelSubmit({ id: p.id, name: m.name })">
                     <el-icon><Delete /></el-icon>
                     {{ $t('third_party.delete_model') }}
                   </el-button>
@@ -145,8 +145,8 @@ function loadConfig() {
 }
 
 // 激活供应商
-function activateProviderAction(id) {
-  activateProvider(id).then(function () { loadConfig(); });
+function activateProviderAction(data) {
+  activateProvider(data).then(function () { loadConfig(); });
 }
 
 // 停用所有供应商
@@ -155,22 +155,22 @@ function deactivateAll() {
 }
 
 // 删除供应商（带确认）
-function removeProviderSubmit(id) {
-  ElMessageBox.confirm(t('common.confirm_delete') + ' "' + id + '"?', t('common.confirm_delete'), { type: 'warning' })
-    .then(function () { return removeProvider(id); })
+function removeProviderSubmit(data) {
+  ElMessageBox.confirm(t('common.confirm_delete') + ' "' + data.id + '"?', t('common.confirm_delete'), { type: 'warning' })
+    .then(function () { return removeProvider(data); })
     .then(function () { loadConfig(); });
 }
 
 // 删除模型（带确认）
-function removeModelSubmit(id, name) {
-  ElMessageBox.confirm(t('common.confirm_delete') + ' "' + name + '"?', t('common.confirm_delete'), { type: 'warning' })
-    .then(function () { return removeModel({ id: id, name: name }); })
+function removeModelSubmit(data) {
+  ElMessageBox.confirm(t('common.confirm_delete') + ' "' + data.name + '"?', t('common.confirm_delete'), { type: 'warning' })
+    .then(function () { return removeModel(data); })
     .then(function () { loadConfig(); });
 }
 
 // 设置当前激活模型
-function setActiveModelAction(id, name) {
-  setActiveModel({ id: id, name: name }).then(function () { loadConfig(); });
+function setActiveModelAction(data) {
+  setActiveModel(data).then(function () { loadConfig(); });
 }
 
 // 组件挂载时加载数据

@@ -17,15 +17,15 @@ export function addToken(data) {
 
 /** 更新 Token */
 export function editToken(data) {
-  return ajaxPutBack('/token/' + data.id, data, { successMessage: true });
+  return ajaxPutBack('/token/edit', data, { successMessage: true });
 }
 
 /** 删除 Token */
-export function removeToken(id) {
-  return ajaxDeleteBack('/token/' + id, {}, { successMessage: true });
+export function removeToken(data) {
+  return ajaxDeleteBack('/token/remove', data, { successMessage: true });
 }
 
 /** 设为默认 Token */
-export function setDefaultToken(id) {
-  return ajaxPutBack('/token/' + id + '/default', {}, { successMessage: true });
+export function setDefaultToken(data) {
+  return ajaxPutBack('/token/default', data, { successMessage: true });
 }

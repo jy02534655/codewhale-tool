@@ -90,12 +90,12 @@ function onRemove(row) {
     t('common.confirm'),
     { type: 'warning' }
   ).then(function () {
-    removeProject(row.id).then(function () { fetchList(true); });
+    removeProject({ id: row.id }).then(function () { fetchList(true); });
   });
 }
 
 function onSetDefault(row) {
-  setDefaultProject(row.id).then(function () { fetchList(true); });
+  setDefaultProject({ id: row.id }).then(function () { fetchList(true); });
 }
 
 onMounted(fetchList);

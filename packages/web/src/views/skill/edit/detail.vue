@@ -270,7 +270,7 @@ watch(function () {
 function loadFiles() {
   if (!props.skill) return
   fileListLoading.value = true
-  getSkillFiles(props.skill.id, props.skill.level, props.skill.projectId).then(function (res) {
+  getSkillFiles({ id: props.skill.id, level: props.skill.level, projectId: props.skill.projectId }).then(function (res) {
     fileList.value = Array.isArray(res) ? res : []
     // 仅有一个文件时默认折叠文件浏览器
     fileBrowserExpanded.value = fileList.value.length > 1
@@ -299,7 +299,7 @@ function loadFileContent(path) {
   if (!props.skill || !path) return
   fileContentLoading.value = true
   activeFile.value = path
-  readSkillFile(props.skill.id, path, props.skill.level, props.skill.projectId).then(function (res) {
+  readSkillFile({ id: props.skill.id, path, level: props.skill.level, projectId: props.skill.projectId }).then(function (res) {
     fileContent.value = typeof res === 'string' ? res : (res && res.content || '')
   }).catch(function () {
     ElMessage.error(t('message.networkError') || 'Failed to load file')
@@ -338,7 +338,7 @@ function removeFile(path) {
     cancelButtonText: t('common.cancel'),
     type: 'warning'
   }).then(function () {
-    return removeSkillFile(props.skill.id, path, props.skill.level, props.skill.projectId)
+    return removeSkillFile({ id: props.skill.id, path, level: props.skill.level, projectId: props.skill.projectId })
   }).then(function () {
     if (activeFile.value === path) {
       activeFile.value = ''
@@ -384,7 +384,7 @@ function removeCurrentSkill() {
     cancelButtonText: t('common.cancel'),
     type: 'warning'
   }).then(function () {
-    return removeSkill(props.skill.id, props.skill.level, props.skill.projectId)
+    return removeSkill({ id: props.skill.id, level: props.skill.level, projectId: props.skill.projectId })
   }).then(function () {
     emit('refresh')
   }).catch(function () {

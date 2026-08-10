@@ -57,11 +57,14 @@ function removeTag(tag) {
 
 // 提交函数（供 compositionDialogForm 调用）
 function doUpdate(params) {
-  return updateMeta(currentId, {
+  return updateMeta({
+    id: currentId,
     alias: params.alias,
     remark: params.remark,
-    tags: formData.tags
-  }, currentLevel, currentProjectId)
+    tags: formData.tags,
+    level: currentLevel,
+    projectId: currentProjectId
+  })
 }
 
 // compositionDialogForm：addFun/editFun 同一函数，initfun 中用 assign 填充

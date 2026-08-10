@@ -17,17 +17,17 @@ export function addProvider(data) {
 
 // 更新供应商
 export function editProvider(data) {
-  return ajaxPutBack('/provider/' + data.id, data, { successMessage: true });
+  return ajaxPutBack('/provider/edit', data, { successMessage: true });
 }
 
 // 删除供应商
-export function removeProvider(id) {
-  return ajaxDeleteBack('/provider/' + id, {}, { successMessage: true });
+export function removeProvider(data) {
+  return ajaxDeleteBack('/provider/remove', data, { successMessage: true });
 }
 
 // 激活供应商
-export function activateProvider(id) {
-  return ajaxPostBack('/provider/' + id + '/activate', {}, { successMessage: true });
+export function activateProvider(data) {
+  return ajaxPostBack('/provider/activate', data, { successMessage: true });
 }
 
 // 停用第三方供应商

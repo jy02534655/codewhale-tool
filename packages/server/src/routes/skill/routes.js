@@ -18,13 +18,13 @@ export function registerRoutes(router, skillMgr) {
   });
 
   /** 更新 skill 元数据 */
-  router.put('/meta/:id', (req, res) => {
-    res.json(guard(() => skillMgr.updateMeta({ skillId: req.params.id, ...req.body })));
+  router.put('/meta', (req, res) => {
+    res.json(guard(() => skillMgr.updateMeta({ skillId: req.body.id, ...req.body })));
   });
 
   /** 更新 skill 排序值 */
-  router.put('/sort/:id', (req, res) => {
-    res.json(guard(() => skillMgr.updateSortOrder({ skillId: req.params.id, ...req.body })));
+  router.put('/sort', (req, res) => {
+    res.json(guard(() => skillMgr.updateSortOrder({ skillId: req.body.id, ...req.body })));
   });
 
   /** 读取 skill 的 SKILL.md */
@@ -33,8 +33,8 @@ export function registerRoutes(router, skillMgr) {
   });
 
   /** 保存 skill 的 SKILL.md */
-  router.put('/readme/:id', (req, res) => {
-    res.json(guard(() => skillMgr.saveReadme({ skillId: req.params.id, ...req.body })));
+  router.put('/readme', (req, res) => {
+    res.json(guard(() => skillMgr.saveReadme({ skillId: req.body.id, ...req.body })));
   });
 
   /** GET /api/skill/current-project — 返回当前项目工作目录 */

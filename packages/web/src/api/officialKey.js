@@ -34,23 +34,25 @@ export function addOfficialKey(data) {
  * @description 与 addOfficialKey 参数结构一致，服务端仅使用 alias 字段
  */
 export function editOfficialKey(data) {
-  return ajaxPutBack('/official-key/' + data.id, data, { successMessage: true });
+  return ajaxPutBack('/official-key/edit', data, { successMessage: true });
 }
 
 /**
  * 激活指定的官方 API Key（设为当前使用的 key）
- * @param {string} id - API Key ID
+ * @param {Object} data - API Key 数据
+ * @param {string} data.id - API Key ID
  * @returns {Promise<{success: boolean, message?: string, data?: Object}>} 操作结果 Promise
  */
-export function activateOfficialKey(id) {
-  return ajaxPostBack('/official-key/' + id + '/activate', {}, { successMessage: true });
+export function activateOfficialKey(data) {
+  return ajaxPostBack('/official-key/activate', data, { successMessage: true });
 }
 
 /**
  * 删除指定的官方 API Key
- * @param {string} id - API Key ID
+ * @param {Object} data - API Key 数据
+ * @param {string} data.id - API Key ID
  * @returns {Promise<{success: boolean, message?: string}>} 操作结果 Promise
  */
-export function removeOfficialKey(id) {
-  return ajaxDeleteBack('/official-key/' + id, {}, { successMessage: true });
+export function removeOfficialKey(data) {
+  return ajaxDeleteBack('/official-key/remove', data, { successMessage: true });
 }

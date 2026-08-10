@@ -2,21 +2,21 @@
 import { ajaxPostBack, ajaxPutBack, ajaxDeleteBack } from '@/utils/request';
 
 // 获取 skill 目录下的文件列表
-export function getSkillFiles(id, level, projectId) {
-  return ajaxPostBack('/skill/files/' + id, { level, projectId })
+export function getSkillFiles(data) {
+  return ajaxPostBack('/skill/files', data)
 }
 
 // 读取 skill 目录下的指定文件
-export function readSkillFile(id, filePath, level, projectId) {
-  return ajaxPostBack('/skill/file/' + id, { path: filePath, level, projectId })
+export function readSkillFile(data) {
+  return ajaxPostBack('/skill/file', data)
 }
 
 // 保存 skill 目录下的指定文件
-export function saveSkillFile(id, filePath, content, level, projectId) {
-  return ajaxPutBack('/skill/file/' + id, { path: filePath, content, level, projectId }, { successMessage: true })
+export function saveSkillFile(data) {
+  return ajaxPutBack('/skill/file', data, { successMessage: true })
 }
 
 // 删除 skill 目录下的指定文件
-export function removeSkillFile(id, filePath, level, projectId) {
-  return ajaxDeleteBack('/skill/file/' + id, { path: filePath, level, projectId }, { successMessage: true })
+export function removeSkillFile(data) {
+  return ajaxDeleteBack('/skill/file', data, { successMessage: true })
 }
