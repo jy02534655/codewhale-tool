@@ -100,7 +100,6 @@
           @refresh="loadSkills"
           @openUpdate="onOpenUpdate"
           @openEdit="onOpenEdit"
-          @openReadme="onOpenReadme"
         />
       </template>
     </SplitLayout>
@@ -108,7 +107,6 @@
     <!-- 弹窗 -->
     <install ref="installDialog" @submitSuccess="loadSkills" />
     <info ref="infoDialog" @submitSuccess="loadSkills" />
-    <readme ref="readmeDialog" @submitSuccess="loadSkills" />
     <install-log ref="installLogDialog" />
   </div>
 </template>
@@ -124,7 +122,6 @@
  import install from './edit/install.vue'
  import detail from './edit/detail.vue'
  import info from './edit/info.vue'
- import readme from './edit/readme.vue'
  import installLog from './edit/install-log.vue'
 
 const { t } = useI18n({ useScope: 'global' })
@@ -224,12 +221,6 @@ function onOpenUpdate(payload) {
   const dialog = installDialog.value
   if (dialog) {
     dialog.showDialogByData(1, payload)
-  }
-}
-
-function onOpenReadme() {
-  if (selectedSkill.value) {
-    dialogCtrl.showEditDialog(selectedSkill.value, 'readmeDialog')
   }
 }
 

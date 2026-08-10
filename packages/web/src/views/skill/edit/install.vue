@@ -76,6 +76,17 @@
             <div v-if="!projectList.length" class="project-hint">{{ $t('skill.noProjects') }}</div>
           </el-form-item>
 
+          <el-form-item :label="$t('skill.sortOrder')" prop="sortOrder">
+            <el-input-number
+              v-model="formData.sortOrder"
+              :min="0"
+              :max="99999"
+              :step="1"
+              size="small"
+              style="width: 100%"
+            />
+          </el-form-item>
+
           <el-form-item :label="$t('skill.proxy_select')" prop="selectedProxyId">
             <el-select v-model="formData.selectedProxyId" :placeholder="$t('skill.proxy_select_placeholder')" clearable style="width:100%">
               <el-option v-for="p in proxyList" :key="p.id" :label="p.alias + ' (' + p.type + '://' + p.host + ':' + p.port + ')'" :value="p.id" />
@@ -113,8 +124,10 @@ import { useI18n } from 'vue-i18n'
 // 引入后端 API 方法
 import { useShareStore } from '@/stores/share'
 import { installSkill, updateSkillByOpts } from '@/api/skill/install'
+import { getGlobalSkillList, getAllProjectSkillList } from '@/api/skill/routes'
 // 引入弹窗表单组合式函数
 import { compositionDialogForm } from '@/composition/dialog/Form'
+
 // 引入全局遮罩状态管理
 import { useMaskingStore } from '@/stores/masking'
 // 引入自定义组件
@@ -139,6 +152,7 @@ const formData = reactive({
   selectedFilePath: '',
   zipSkillName: '',
   githubTreeUrl: '',
+  sortOrder: 0,
   level: 'global',
   projectId: '',
   projectPath: '',
@@ -156,6 +170,20 @@ const rules = {
   githubTreeUrl: [{ required: true, message: () => t('common.required'), trigger: 'blur' }],
   level: [{ required: true, message: () => t('common.required'), trigger: 'change' }],
   projectPath: [{ required: true, message: () => t('common.required'), trigger: 'change' }],
+}
+
+// 新增模式下自动计算排序值：取当前列表最大 sort_order + 1
+function _initSortOrder () {
+  Promise.all([getGlobalSkillList(), getAllProjectSkillList()]).then(function (results) {
+    const all = (results[0] || []).concat(results[1] || [])
+    const maxSort = all.reduce(function (max, s) {
+      const v = typeof s.sort_order === 'number' ? s.sort_order : 0
+      return v > max ? v : max
+    }, 0)
+    formData.sortOrder = maxSort + 1
+  }).catch(function () {
+    formData.sortOrder = 1
+  })
 }
 
 // ─── 弹窗生命周期（compositionDialogForm）───────────────────
@@ -200,8 +228,24 @@ const { isShow, showDialog, hideDialog, showDialogByData, submitForm, resetForm 
       isUpdateMode.value = false
       updateSkillId.value = null
       resetForm()
+      // 新增模式默认排序值
+      formData.sortOrder = 0
+      _initSortOrder()
     }
     _initDropdowns()
+  },
+  // 新增模式下自动计算排序值：取当前列表最大 sort_order + 1
+  _initSortOrder: function () {
+    Promise.all([getGlobalSkillList(), getAllProjectSkillList()]).then(function (results) {
+      const all = (results[0] || []).concat(results[1] || [])
+      const maxSort = all.reduce(function (max, s) {
+        const v = typeof s.sort_order === 'number' ? s.sort_order : 0
+        return v > max ? v : max
+      }, 0)
+      formData.sortOrder = maxSort + 1
+    }).catch(function () {
+      formData.sortOrder = 1
+    })
   },
 })
 
@@ -287,6 +331,12 @@ function onSelectZipFile(filePath) {
 // ─── 安装级别切换 ──────────────────────────────────────────
 function onLevelChange() {
   if (formData.level === 'project') {
+    // 切换到项目级时若未选择项目，自动选默认项目
+    if (projectList.value.length > 0 && !formData.projectId) {
+      const defaultProject = projectList.value.find(function (p) { return p.default }) || projectList.value[0]
+      formData.projectId = defaultProject.id || ''
+      formData.projectPath = defaultProject.path || ''
+    }
     if (projectList.value.length > 0 && !formData.projectPath) {
       formData.projectId = projectList.value[0].id
       formData.projectPath = projectList.value[0].path
@@ -313,6 +363,8 @@ function onProjectChange(selectedId) {
 // ─── 提交表单 ──────────────────────────────────────────────
 function onSubmit() {
   maskingStore.loading({ view: 'skill-install' })
+  // 确保排序值为数字
+  formData.sortOrder = typeof formData.sortOrder === 'number' ? formData.sortOrder : 0
   const payload = isUpdateMode.value
     ? { ...formData, skillId: updateSkillId.value }
     : formData
@@ -342,6 +394,7 @@ function onInstallComplete(success) {
 function onDialogClose() {
   isUpdateMode.value = false
   updateSkillId.value = null
+  formData.sortOrder = 0
 }
 
 defineExpose({ showDialog, hideDialog, showDialogByData })

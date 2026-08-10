@@ -83,6 +83,7 @@
     "editSortOrder": "编辑排序值",
     "sortOrderDefault": "排序：默认",
     "sortOrder": "排序：{value}",
+    "sortOrderField": "排序值",
     "saveSortOrderFailed": "保存排序值失败",
     "selectHint": "选择左侧 Skill 查看详情",
     "noSkill": "没有安装任何 Skill",

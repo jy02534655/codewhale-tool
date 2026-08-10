@@ -15,7 +15,6 @@
       <div class="detail-actions">
         <el-button size="small" type="success" :icon="Setting" @click="openEditDialog">{{ $t('skill.editInfo') }}</el-button>
         <el-button size="small" :icon="Sort" @click="openSortDialog">{{ sortOrderDisplay }}</el-button>
-        <el-button size="small" type="default" :icon="Edit" @click="editReadme">{{ $t('skill.editReadme') }}</el-button>
         <el-button v-if="skill.level === 'global'" size="small" type="info" :icon="DocumentCopy" @click="copyCurrentSkill">{{ $t('skill.copyToProject') }}</el-button>
         <el-button size="small" type="danger" :icon="Delete" @click="removeCurrentSkill">{{ $t('common.delete') }}</el-button>
         <el-button size="small" type="primary" :icon="Refresh" :disabled="skill.source !== 'community'" @click="updateCurrentSkill">{{ $t('skill.update') }}</el-button>
@@ -78,35 +77,10 @@
           </div>
         </div>
       </div>
-      <ReadmeDialog ref="readmeDialogRef" @submit-success="handleFileSaved" />
+      <ReadmeDialog ref="readmeDialog" @submitSuccess="handleFileSaved" />
+      <SortOrderDialog ref="sortOrderDialog" @submitSuccess="handleSortSaved" />
+      <ProjectSelectDialog ref="projectSelectDialog" @submitSuccess="handleProjectCopied" />
     </template>
-
-    <!-- 项目选择弹窗 -->
-    <el-dialog v-model="showProjectSelectDialog" :title="$t('skill.selectProject')" width="420px">
-      <el-select v-model="selectedProjectId" :placeholder="$t('skill.selectProjectPlaceholder')" style="width: 100%" filterable :disabled="copying">
-        <el-option v-for="p in projectList" :key="p.id || p.path" :label="p.alias || p.path" :value="p.id" />
-      </el-select>
-      <template #footer>
-        <el-button :disabled="copying" @click="showProjectSelectDialog = false">{{ $t('common.cancel') }}</el-button>
-        <el-button type="primary" :loading="copying" @click="confirmCopyToProject">{{ $t('common.confirm') }}</el-button>
-      </template>
-    </el-dialog>
-
-    <!-- 排序值编辑弹窗 -->
-    <el-dialog v-model="showSortDialog" :title="$t('skill.editSortOrder') || '编辑排序值'" width="360px">
-      <el-input-number
-        v-model="sortOrderValue"
-        :min="0"
-        :max="99999"
-        :step="1"
-        size="small"
-        style="width: 100%"
-      />
-      <template #footer>
-        <el-button @click="showSortDialog = false">{{ $t('common.cancel') }}</el-button>
-        <el-button type="primary" :loading="savingSort" @click="saveSortOrder">{{ $t('common.confirm') }}</el-button>
-      </template>
-    </el-dialog>
   </div>
 </template>
 
@@ -118,21 +92,24 @@ import { ref, computed, watch, nextTick } from 'vue'
 import { ElMessageBox, ElMessage } from 'element-plus'
 
 // 引入详情页用到的图标。
-import { ArrowDown, ArrowRight, DocumentCopy, Delete, Edit, EditPen, Refresh, Setting, Sort } from '@element-plus/icons-vue'
+import { ArrowDown, ArrowRight, DocumentCopy, Delete, EditPen, Refresh, Setting, Sort } from '@element-plus/icons-vue'
 
 // 引入国际化函数，生成按钮与提示文案。
 import { useI18n } from 'vue-i18n'
 
 // 引入 Skill 相关接口。
-import { removeSkill, copySkillToProject } from '@/api/skill/cmd'
+import { removeSkill } from '@/api/skill/cmd'
 import { getSkillFiles, readSkillFile, removeSkillFile } from '@/api/skill/files'
-import { getProjectList } from '@/api/project'
-import { updateSkillSortOrder } from '@/api/skill/routes'
 
 // 引入复用文件预览组件。
 import FilePreview from '@/components/file/preview.vue'
 
-// 引入 README/文件编辑弹窗（PascalCase 确保模板正确解析）。
+// 引入弹窗容器，统一管理详情页弹窗。
+import { compositionDialogContainer } from '@/composition/dialog/Container'
+
+// 引入排序值、项目选择、README 编辑弹窗。
+import SortOrderDialog from './sortOrder.vue'
+import ProjectSelectDialog from './projectSelect.vue'
 import ReadmeDialog from './readme.vue'
 
 // 引入文件预览辅助，统一模式判断与可编辑判断。
@@ -162,9 +139,6 @@ const fileListLoading = ref(false)
 // 记录文件内容加载状态。
 const fileContentLoading = ref(false)
 
-// 保存弹窗实例引用，便于从详情页打开编辑器。
-const readmeDialogRef = ref(null)
-
 // el-tree 实例引用，用于选中 SKILL.md 节点。
 const treeRef = ref(null)
 
@@ -177,16 +151,8 @@ const treeProps = {
   label: 'label',
 }
 
-// 项目选择弹窗相关状态。
-const showProjectSelectDialog = ref(false)
-const selectedProjectId = ref('')
-const projectList = ref([])
-const copying = ref(false)
-
-// 排序值编辑相关状态。
-const showSortDialog = ref(false)
-const sortOrderValue = ref(0)
-const savingSort = ref(false)
+// 弹窗容器，统一管理详情页内的排序值、项目选择、README 编辑弹窗。
+const dialogCtrl = compositionDialogContainer()
 
 // 组合详情页标题，优先展示 alias。
 const displayTitle = computed(function () {
@@ -355,13 +321,13 @@ function toggleFileBrowser() {
 
 // 打开 README 或普通文本文件编辑弹窗。
 function openEditor(path) {
-  if (!props.skill || !path || !isEditableTextFile(path) || !readmeDialogRef.value) return
-  readmeDialogRef.value.showDialogByData(1, {
+  if (!props.skill || !path || !isEditableTextFile(path)) return
+  dialogCtrl.showEditDialog({
     id: props.skill.id,
-    path,
+    path: path,
     level: props.skill.level,
     projectId: props.skill.projectId
-  })
+  }, 'readmeDialog')
 }
 
 // 删除单个 Skill 文件，并在成功后刷新当前树状态。
@@ -382,11 +348,6 @@ function removeFile(path) {
   }).catch(function () {
     // 用户取消或请求失败，不做额外处理
   })
-}
-
-// 编辑 README 本质上就是编辑 SKILL.md。
-function editReadme() {
-  openEditor('SKILL.md')
 }
 
 // 打开 Skill 信息编辑弹窗，由父层 infoDialog 承载。
@@ -431,64 +392,22 @@ function removeCurrentSkill() {
   })
 }
 
-function copyCurrentSkill() {
-  if (!props.skill) return
-  getProjectList().then(function (result) {
-    projectList.value = Array.isArray(result) ? result : (result.data || [])
-    if (!projectList.value.length) {
-      ElMessage.warning(t('skill.noProjects'))
-      return
-    }
-    // 优先默认项目，否则选第一个
-    const defaultProject = projectList.value.find(function (p) { return p.default }) || projectList.value[0]
-    selectedProjectId.value = defaultProject.id || ''
-    showProjectSelectDialog.value = true
-  }).catch(function () {
-    ElMessage.error(t('message.networkError') || 'Failed to load projects')
-  })
-}
-
-function confirmCopyToProject() {
-  if (!selectedProjectId.value) {
-    ElMessage.warning(t('skill.selectProjectPlaceholder'))
-    return
-  }
-  copying.value = true
-  copySkillToProject(props.skill.id, selectedProjectId.value).then(function () {
-    showProjectSelectDialog.value = false
-    emit('refresh')
-  }).catch(function (err) {
-    const message = (err && err.message) || ''
-    if (message === 'skillAlreadyInstalled') {
-      ElMessage.warning(t('skill.alreadyCopied') || '该 skill 已复制到所选项目')
-    }
-  }).finally(function () {
-    copying.value = false
-  })
-}
+function copyCurrentSkill() { if (!props.skill) return; dialogCtrl.showEditDialog(props.skill, 'projectSelectDialog') }
 
 // 打开排序值编辑弹窗。
 function openSortDialog() {
   if (!props.skill) return
-  sortOrderValue.value = typeof props.skill.sort_order === 'number' ? props.skill.sort_order : 0
-  showSortDialog.value = true
+  dialogCtrl.showEditDialog(props.skill, 'sortOrderDialog')
 }
 
-// 保存排序值。
-function saveSortOrder() {
-  if (!props.skill) return
-  savingSort.value = true
-  updateSkillSortOrder(props.skill.id, sortOrderValue.value, props.skill.level, props.skill.projectId)
-    .then(function () {
-      showSortDialog.value = false
-      emit('refresh')
-    })
-    .catch(function () {
-      ElMessage.error(t('skill.saveSortOrderFailed') || 'Failed to save sort order')
-    })
-    .finally(function () {
-      savingSort.value = false
-    })
+// 排序值保存成功后刷新列表。
+function handleSortSaved() {
+  emit('refresh')
+}
+
+// 项目复制成功后刷新列表。
+function handleProjectCopied() {
+  emit('refresh')
 }
 </script>
 

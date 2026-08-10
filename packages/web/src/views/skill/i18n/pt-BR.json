@@ -83,6 +83,7 @@
     "editSortOrder": "Editar Ordenação",
     "sortOrderDefault": "Ordenação: Padrão",
     "sortOrder": "Ordenação: {value}",
+    "sortOrderField": "Ordenação",
     "saveSortOrderFailed": "Falha ao salvar ordenação",
     "selectHint": "Selecione uma skill para ver detalhes",
     "noSkill": "Nenhuma skill instalada",

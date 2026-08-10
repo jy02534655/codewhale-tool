@@ -83,6 +83,7 @@
     "editSortOrder": "ソート順を編集",
     "sortOrderDefault": "ソート順：デフォルト",
     "sortOrder": "ソート順：{value}",
+    "sortOrderField": "ソート順",
     "saveSortOrderFailed": "ソート順の保存に失敗しました",
     "selectHint": "左側のスキルを選択",
     "noSkill": "インストールされたスキルはありません",
