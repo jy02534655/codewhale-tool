@@ -38,6 +38,7 @@ export class SkillManager {
 
   // 变更类操作：委托给 cmd.js
   updateMeta(opts) { return Cmd.updateMeta(this._store, opts); }
+  updateSortOrder(opts) { return Cmd.updateSortOrder(this._store, opts); }
   remove(opts) { return Cmd.remove(this._store, opts); }
   updateByOpts(opts, onProgress, onLog) { return Install.update(this._store, opts, onProgress, onLog); }
   copyToProject(opts) { return Cmd.copyToProject(this._store, opts); }

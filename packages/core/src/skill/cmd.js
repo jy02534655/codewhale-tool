@@ -34,6 +34,19 @@ export function updateMeta(store, { skillId, level, projectId, ...meta }) {
 }
 
 /**
+ * 更新 skill 排序值
+ * @param {SkillStore} store - 数据存储层
+ * @param {Object} opts - 操作选项
+ * @param {string} opts.skillId - skill 唯一标识
+ * @param {number} opts.sortOrder - 排序值
+ * @param {string} [opts.level] - 'global' 或 'project'
+ * @param {string} [opts.projectId] - 项目 ID
+ */
+export function updateSortOrder(store, { skillId, sortOrder, level, projectId }) {
+  return store.updateSortOrder(skillId, sortOrder, level, projectId);
+}
+
+/**
  * 彻底删除 skill（移除配置 + 删除文件）
  * @param {SkillStore} store - 数据存储层
  * @param {Object} opts - 操作选项

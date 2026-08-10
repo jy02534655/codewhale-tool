@@ -22,6 +22,11 @@ export function registerRoutes(router, skillMgr) {
     res.json(guard(() => skillMgr.updateMeta({ skillId: req.params.id, ...req.body })));
   });
 
+  /** 更新 skill 排序值 */
+  router.put('/sort/:id', (req, res) => {
+    res.json(guard(() => skillMgr.updateSortOrder({ skillId: req.params.id, ...req.body })));
+  });
+
   /** 读取 skill 的 SKILL.md */
   router.get('/readme/:id', (req, res) => {
     res.json(guard(() => skillMgr.getReadme({ skillId: req.params.id })));

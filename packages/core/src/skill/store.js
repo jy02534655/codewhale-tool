@@ -9,7 +9,8 @@ import { existsSync, mkdirSync, readdirSync, copyFileSync } from 'node:fs';
 import { homedir } from 'node:os';
 import { join } from 'node:path';
 import { randomUUID } from 'node:crypto';
-import { failMsg } from '../utils/result.js';
+import { sortBy } from 'lodash-es';
+import { okMsg, failMsg } from '../utils/result.js';
 import { _extractMeta } from './shared.js';
 
 export class SkillStore {
@@ -59,7 +60,8 @@ export class SkillStore {
   getProjectInstalled(projectId) {
     const targetProjectId = projectId || this.getCurrentProjectId();
     if (!targetProjectId) return [];
-    return (this.engine.get('project_skills.' + targetProjectId).installed || []).slice();
+    const entries = ((this.engine.get('project_skills.' + targetProjectId) || {}).installed || []).slice();
+    return sortBy(entries, [s => (typeof s.sort_order === 'number' ? s.sort_order : 0)]);
   }
 
   /**
@@ -67,7 +69,8 @@ export class SkillStore {
    * @returns {Object[]} 全局已安装 skill 条目数组
    */
   getGlobalInstalled() {
-    return (this.engine.get('skills').installed || []).slice();
+    const entries = ((this.engine.get('skills') || {}).installed || []).slice();
+    return sortBy(entries, [s => (typeof s.sort_order === 'number' ? s.sort_order : 0)]);
   }
 
   /**
@@ -217,7 +220,7 @@ export class SkillStore {
       const current = this.engine.get('project_skills.' + targetProjectId) || {};
       this.engine.set('project_skills.' + targetProjectId, { ...current, installed: entries });
     } else {
-      const skillsCfg = this.engine.get('skills');
+      const skillsCfg = this.engine.get('skills') || {};
       skillsCfg.installed = entries;
       this.engine.set('skills', skillsCfg);
     }
@@ -238,7 +241,7 @@ export class SkillStore {
       installed.push(entry);
       this.engine.set('project_skills.' + targetProjectId, { ...current, installed });
     } else {
-      const skillsCfg = this.engine.get('skills');
+      const skillsCfg = this.engine.get('skills') || {};
       const installed = skillsCfg.installed || [];
       installed.push(entry);
       skillsCfg.installed = installed;
@@ -286,6 +289,22 @@ export class SkillStore {
       return result;
     }
     return failMsg('skillNotFound');
+  }
+
+  /**
+   * 更新 skill 排序值
+   * @param {string} skillId - skill 唯一标识
+   * @param {number} sortOrder - 排序值，数字越小越靠前
+   * @param {string} [level] - 'global' 或 'project'
+   * @param {string} [projectId] - 项目 ID
+   * @returns {Object} 变更结果对象
+   */
+  updateSortOrder(skillId, sortOrder, level, projectId) {
+    return this.mutate(skillId, function (entries, idx) {
+      entries[idx].sort_order = sortOrder;
+      entries[idx].updated_at = Date.now();
+      return okMsg('updated');
+    }, level, projectId);
   }
 
   // ------------------------------------------------------------------ //

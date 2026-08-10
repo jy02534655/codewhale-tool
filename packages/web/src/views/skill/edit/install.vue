@@ -184,6 +184,17 @@ const { isShow, showDialog, hideDialog, showDialogByData, submitForm, resetForm 
         formData.selectedTokenId = params.selectedTokenId || ''
       } else {
         resetForm()
+        // 回填 skill 当前级别与项目，防止更新时因 resetForm 丢失 project 信息
+        if (ctx.data && ctx.data.level) {
+          formData.level = ctx.data.level
+        }
+        if (ctx.data && ctx.data.projectId) {
+          formData.projectId = ctx.data.projectId
+          if (formData.level === 'project') {
+            const project = projectList.value.find(function (p) { return p.id === ctx.data.projectId })
+            if (project) formData.projectPath = project.path
+          }
+        }
       }
     } else {
       isUpdateMode.value = false
@@ -226,9 +237,14 @@ function _initDropdowns() {
   shareStore.getProjectList().then(function (result) {
     projectList.value = result.data || []
     const defaultProject = (result.data || []).find(function (p) { return p.default })
-    if (defaultProject && formData.level === 'project') {
-      formData.projectId = defaultProject.id
-      formData.projectPath = defaultProject.path
+    if (formData.level === 'project') {
+      if (formData.projectId) {
+        const project = (result.data || []).find(function (p) { return p.id === formData.projectId })
+        if (project) formData.projectPath = project.path
+      } else if (defaultProject) {
+        formData.projectId = defaultProject.id
+        formData.projectPath = defaultProject.path
+      }
     }
   }).catch(function () {
     projectList.value = []

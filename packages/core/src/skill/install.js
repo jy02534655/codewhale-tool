@@ -46,6 +46,7 @@ function _finalizeInstall(store, skillId, level, meta, targetDir, rawOpts, proje
     version: 'latest',
     installed_at: Date.now(),
     updated_at: Date.now(),
+    sort_order: 0,
   }, level, projectId);
 
   // 将原始安装参数浅拷贝后存入 installParams，供前端回填表单使用
@@ -490,9 +491,10 @@ export async function update(store, opts, onProgress, onLog) {
   }
 
   const level = opts.level || existing.level || 'global';
-  const baseTargetDir = (level === 'project'
-    ? join(_getProjectBaseDir(level, opts.projectPath), store.projectSkillsDir, existing.slug)
-    : join(_getProjectBaseDir(level, opts.projectPath), store.skillsDir, existing.slug));
+  const baseTargetDir = existing.path ||
+    (level === 'project'
+      ? join(_getProjectBaseDir(level, opts.projectPath), store.projectSkillsDir, existing.slug)
+      : join(_getProjectBaseDir(level, opts.projectPath), store.skillsDir, existing.slug));
 
   const projectId = _resolveProjectId(level, opts.projectId, opts.projectPath, store);
 

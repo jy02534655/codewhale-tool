@@ -221,12 +221,9 @@ function onOpenEdit() {
 
 function onOpenUpdate(payload) {
   if (!payload) return
-  const { skillId, installParams } = payload
-  // 使用更新模式（state=1）打开安装弹窗
-  // 如果有 installParams 则回填，没有则让用户手动填写
   const dialog = installDialog.value
   if (dialog) {
-    dialog.showDialogByData(1, { skillId, installParams })
+    dialog.showDialogByData(1, payload)
   }
 }
 

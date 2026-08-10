@@ -34,11 +34,23 @@ CodeWhale AI 配置管理工具 — 多语言、可视化、供应商与模型�
 # 安装依赖
 npm install
 
-# 一键启动（后端 localhost:7000 + 前端 localhost:7200）
+# 开发模式（后端 localhost:7000 + 前端 localhost:7200，支持 HMR）
 npm run dev
 ```
 
 访问 `http://localhost:7200` 使用 Web UI。
+
+### 生产部署
+
+```bash
+# 构建前端产物
+npm run build
+
+# 一键启动（后端 API + 前端静态资源，统一端口 7000）
+npm start
+```
+
+生产环境下，Express 会同时托管 `/api` 接口与 `dist/` 静态文件，访问 `http://localhost:7000` 即可使用。
 
 ---
 

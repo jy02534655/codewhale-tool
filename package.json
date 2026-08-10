@@ -11,8 +11,9 @@
   ],
   "scripts": {
     "dev": "node scripts/dev.mjs",
-    "server": "node packages/server/server.js",
+    "server": "node packages/server/index.js",
     "build": "npm run --workspace=@codewhale/web build",
+    "start": "node packages/server/index.js",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix"
   },

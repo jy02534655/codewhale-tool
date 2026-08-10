@@ -8,6 +8,8 @@
  */
 
 import express from 'express';
+import { fileURLToPath } from 'node:url';
+import { dirname, join } from 'node:path';
 import {
   ConfigEngine,
   ProviderManager,
@@ -31,6 +33,9 @@ import { createSyncRouter } from './src/routes/sync.js';
 import { createProjectRouter } from './src/routes/project.js';
 import { createFileRouter } from './src/routes/file.js';
 import { createSettingsRouter } from './src/routes/settings.js';
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const root = join(__dirname, '..');
 
 /**
  * 全局禁用 API 缓存中间件
@@ -74,6 +79,8 @@ app.use('/api', noCache);
 
 // ─── 挂载路由模块 ──────────────────────────────────────────────
 
+app.use(express.static(join(root, 'web', 'dist')));
+
 app.use('/api', createLangRouter(engine));
 app.use('/api/official-key', createOfficialKeyRouter(officialKeyMgr, syncMgr));
 app.use('/api/provider', createProviderRouter(providerMgr, syncMgr));
@@ -84,6 +91,13 @@ app.use('/api/files', createFileRouter(fileMgr));
 app.use('/api/skill', createSkillRouter(skillMgr));
 app.use('/api', createSyncRouter(syncMgr));
 app.use('/api/settings', createSettingsRouter(settingsMgr));
+
+// ─── SPA fallback：非 /api 请求都返回 index.html ───────────────
+
+app.use((req, res, next) => {
+  if (req.path.startsWith('/api')) return next();
+  res.sendFile(join(root, 'web', 'dist', 'index.html'));
+});
 
 // ─── 启动服务 ──────────────────────────────────────────────────
 

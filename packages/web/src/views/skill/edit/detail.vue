@@ -13,11 +13,12 @@
         <p v-else class="detail-remark--empty">{{ $t('skill.noRemark') }}</p>
       </div>
       <div class="detail-actions">
-        <el-button v-if="skill.source === 'community'" size="small" type="primary" :icon="Refresh" @click="updateCurrentSkill">{{ $t('skill.update') }}</el-button>
         <el-button size="small" type="success" :icon="Setting" @click="openEditDialog">{{ $t('skill.editInfo') }}</el-button>
+        <el-button size="small" :icon="Sort" @click="openSortDialog">{{ sortOrderDisplay }}</el-button>
         <el-button size="small" type="default" :icon="Edit" @click="editReadme">{{ $t('skill.editReadme') }}</el-button>
         <el-button v-if="skill.level === 'global'" size="small" type="info" :icon="DocumentCopy" @click="copyCurrentSkill">{{ $t('skill.copyToProject') }}</el-button>
         <el-button size="small" type="danger" :icon="Delete" @click="removeCurrentSkill">{{ $t('common.delete') }}</el-button>
+        <el-button v-show="skill.source === 'community'" size="small" type="primary" :icon="Refresh" :disabled="skill.source !== 'community'" @click="updateCurrentSkill">{{ $t('skill.update') }}</el-button>
       </div>
       <div class="detail-meta">
         <span>{{ $t('common.alias') }}：{{ skill.alias || '-' }}</span>
@@ -90,6 +91,22 @@
         <el-button type="primary" :loading="copying" @click="confirmCopyToProject">{{ $t('common.confirm') }}</el-button>
       </template>
     </el-dialog>
+
+    <!-- 排序值编辑弹窗 -->
+    <el-dialog v-model="showSortDialog" :title="$t('skill.editSortOrder') || '编辑排序值'" width="360px">
+      <el-input-number
+        v-model="sortOrderValue"
+        :min="0"
+        :max="99999"
+        :step="1"
+        size="small"
+        style="width: 100%"
+      />
+      <template #footer>
+        <el-button @click="showSortDialog = false">{{ $t('common.cancel') }}</el-button>
+        <el-button type="primary" :loading="savingSort" @click="saveSortOrder">{{ $t('common.confirm') }}</el-button>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
@@ -101,7 +118,7 @@ import { ref, computed, watch, nextTick } from 'vue'
 import { ElMessageBox, ElMessage } from 'element-plus'
 
 // 引入详情页用到的图标。
-import { ArrowDown, ArrowRight, DocumentCopy, Delete, Edit, EditPen, Refresh, Setting } from '@element-plus/icons-vue'
+import { ArrowDown, ArrowRight, DocumentCopy, Delete, Edit, EditPen, Refresh, Setting, Sort } from '@element-plus/icons-vue'
 
 // 引入国际化函数，生成按钮与提示文案。
 import { useI18n } from 'vue-i18n'
@@ -110,6 +127,7 @@ import { useI18n } from 'vue-i18n'
 import { removeSkill, copySkillToProject } from '@/api/skill/cmd'
 import { getSkillFiles, readSkillFile, removeSkillFile } from '@/api/skill/files'
 import { getProjectList } from '@/api/project'
+import { updateSkillSortOrder } from '@/api/skill/routes'
 
 // 引入复用文件预览组件。
 import FilePreview from '@/components/file/preview.vue'
@@ -165,6 +183,11 @@ const selectedProjectId = ref('')
 const projectList = ref([])
 const copying = ref(false)
 
+// 排序值编辑相关状态。
+const showSortDialog = ref(false)
+const sortOrderValue = ref(0)
+const savingSort = ref(false)
+
 // 组合详情页标题，优先展示 alias。
 const displayTitle = computed(function () {
   if (!props.skill) return ''
@@ -197,6 +220,13 @@ const previewModeLabel = computed(function () {
 // 判断当前文件是否可编辑。
 const editableFile = computed(function () {
   return isEditableTextFile(activeFile.value)
+})
+
+// 排序值展示文案。
+const sortOrderDisplay = computed(function () {
+  if (!props.skill) return '-'
+  const v = typeof props.skill.sort_order === 'number' ? props.skill.sort_order : 0
+  return v === 0 ? t('skill.sortOrderDefault') : t('skill.sortOrder', { value: v })
 })
 
 // 将平铺文件列表转换为树结构。
@@ -377,7 +407,12 @@ function handleFileSaved() {
 function updateCurrentSkill() {
   if (!props.skill) return
   const installParams = props.skill.installParams || null
-  emit('openUpdate', { skillId: props.skill.id, installParams })
+  emit('openUpdate', {
+    skillId: props.skill.id,
+    installParams,
+    level: props.skill.level,
+    projectId: props.skill.projectId
+  })
 }
 
 // 删除整个 Skill 前先做二次确认。
@@ -430,6 +465,30 @@ function confirmCopyToProject() {
   }).finally(function () {
     copying.value = false
   })
+}
+
+// 打开排序值编辑弹窗。
+function openSortDialog() {
+  if (!props.skill) return
+  sortOrderValue.value = typeof props.skill.sort_order === 'number' ? props.skill.sort_order : 0
+  showSortDialog.value = true
+}
+
+// 保存排序值。
+function saveSortOrder() {
+  if (!props.skill) return
+  savingSort.value = true
+  updateSkillSortOrder(props.skill.id, sortOrderValue.value, props.skill.level, props.skill.projectId)
+    .then(function () {
+      showSortDialog.value = false
+      emit('refresh')
+    })
+    .catch(function () {
+      ElMessage.error(t('skill.saveSortOrderFailed') || 'Failed to save sort order')
+    })
+    .finally(function () {
+      savingSort.value = false
+    })
 }
 </script>
 
