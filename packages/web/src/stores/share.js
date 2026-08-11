@@ -7,9 +7,9 @@
 
 import { defineStore } from 'pinia';
 import store from '@/utils/store/cache';
-import { getProxyList as getProxyListApi } from '@/api/proxy';
-import { getTokenList as getTokenListApi } from '@/api/token';
-import { getProjectList as getProjectListApi } from '@/api/project';
+import { getProxyList } from '@/api/proxy';
+import { getTokenList } from '@/api/token';
+import { getProjectList } from '@/api/project';
 
 export const useShareStore = defineStore('share', {
   state: () => ({
@@ -19,17 +19,17 @@ export const useShareStore = defineStore('share', {
   }),
   actions: {
     getProxyList(isReLoad = false) {
-      return store.loadCacheDataByFun(this, 'proxyData', getProxyListApi, null, {
+      return store.loadCacheDataByFun(this, 'proxyData', getProxyList, null, {
         isReLoad
       });
     },
     getTokenList(isReLoad = false) {
-      return store.loadCacheDataByFun(this, 'tokenData', getTokenListApi, null, {
+      return store.loadCacheDataByFun(this, 'tokenData', getTokenList, null, {
         isReLoad
       });
     },
     getProjectList(isReLoad = false) {
-      return store.loadCacheDataByFun(this, 'projectData', getProjectListApi, null, {
+      return store.loadCacheDataByFun(this, 'projectData', getProjectList, null, {
         isReLoad
       });
     }
