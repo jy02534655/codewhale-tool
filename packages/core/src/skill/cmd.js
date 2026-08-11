@@ -24,7 +24,7 @@ import { clearObject } from '../utils/index.js';
  * @param {string} [opts.projectId] - 项目 ID
  */
 export function updateMeta(store, { skillId, level, projectId, ...meta }) {
-  return store.mutate(skillId, function (entries, idx) {
+  return store.mutate(skillId, (entries, idx) => {
     // 只更新传入的非空字段，未传入字段保持不变
     Object.assign(entries[idx], clearObject(meta));
     // 更新修改时间
@@ -71,7 +71,7 @@ export function remove(store, { skillId, level, projectId }) {
   }
 
   // 已注册到 store 的 skill：先删除文件，再从配置中移除
-  return store.mutate(skillId, function (entries, idx, entry) {
+  return store.mutate(skillId, (entries, idx, entry) => {
     try {
       // 删除 skill 目录
       if (existsSync(entry.path)) {
@@ -96,7 +96,7 @@ export function remove(store, { skillId, level, projectId }) {
  */
 export function copyToProject(store, { skillId, projectId }) {
   // 必须在全局已安装列表中找到该 skill
-  const entry = store.getGlobalInstalled().find(function (s) { return s.id === skillId; });
+  const entry = store.getGlobalInstalled().find((s) => s.id === skillId);
   if (!entry) return failMsg('skillNotFound');
 
   const targetProjectId = projectId || store.getCurrentProjectId();
@@ -104,7 +104,7 @@ export function copyToProject(store, { skillId, projectId }) {
 
   const projectInstalled = store.getProjectInstalled(targetProjectId);
   // 检查项目是否已安装同名 skill
-  if (projectInstalled.some(function (s) { return s.slug === entry.slug; })) {
+  if (projectInstalled.some((s) => s.slug === entry.slug)) {
     return failMsg('skillAlreadyInstalled');
   }
 

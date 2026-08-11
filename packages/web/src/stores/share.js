@@ -11,23 +11,23 @@ import { getProxyList as getProxyListApi } from '@/api/proxy';
 import { getTokenList as getTokenListApi } from '@/api/token';
 import { getProjectList as getProjectListApi } from '@/api/project';
 
-function fetchProxyList() {
-  return getProxyListApi().then(function (data) {
+const fetchProxyList = () => {
+  return getProxyListApi().then((data) => {
     return { success: true, data: data };
   });
-}
+};
 
-function fetchTokenList() {
-  return getTokenListApi().then(function (data) {
+const fetchTokenList = () => {
+  return getTokenListApi().then((data) => {
     return { success: true, data: data };
   });
-}
+};
 
-function fetchProjectList() {
-  return getProjectListApi().then(function (data) {
+const fetchProjectList = () => {
+  return getProjectListApi().then((data) => {
     return { success: true, data: data };
   });
-}
+};
 
 export const useShareStore = defineStore('share', {
   state: () => ({

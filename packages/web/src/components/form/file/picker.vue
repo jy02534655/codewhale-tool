@@ -146,12 +146,12 @@ const emptyText = computed(() => {
   return loading.value ? '加载中...' : '此目录为空'
 })
 
-function updateDriveFromPath(dirPath) {
+const updateDriveFromPath = (dirPath) => {
   const match = dirPath.match(/^([A-Za-z]:\\|\\\\)/)
   currentDrive.value = match ? match[1].toUpperCase() : ''
-}
+};
 
-function openDialog() {
+const openDialog = () => {
   dialogVisible.value = true
   let startPath = props.modelValue
   if (props.mode === 'file' && startPath) {
@@ -167,13 +167,13 @@ function openDialog() {
   pathInput.value = currentPath.value
   updateDriveFromPath(currentPath.value)
   loadDir(currentPath.value)
-}
+};
 
-function getRowClassName({ row }) {
+const getRowClassName = ({ row }) => {
   return row.isDirectory ? 'folder-row' : 'file-row'
-}
+};
 
-async function loadDir(dirPath) {
+const loadDir = async (dirPath) => {
   loading.value = true
   selectedPath.value = ''
   try {
@@ -187,9 +187,9 @@ async function loadDir(dirPath) {
   } finally {
     loading.value = false
   }
-}
+};
 
-async function loadDrives() {
+const loadDrives = async () => {
   try {
     const res = await getDrives()
     if (Array.isArray(res)) {
@@ -200,63 +200,63 @@ async function loadDrives() {
   } catch {
     drives.value = []
   }
-}
+};
 
-function handleDriveChange(drive) {
+const handleDriveChange = (drive) => {
   if (drive) {
     loadDir(drive)
   }
-}
+};
 
-function handlePathJump() {
+const handlePathJump = () => {
   const target = pathInput.value.trim()
   if (!target) return
   loadDir(target)
-}
+};
 
-function updateBreadcrumbs(dirPath) {
+const updateBreadcrumbs = (dirPath) => {
   const parts = dirPath.split(/[\\/]/).filter(Boolean)
   const crumbs = []
   for (const part of parts) {
     crumbs.push(part)
   }
   breadcrumbs.value = crumbs
-}
+};
 
-function navigateTo(index) {
+const navigateTo = (index) => {
   const parts = currentPath.value.split(/[\\/]/).filter(Boolean)
   let target = ''
   for (let i = 0; i <= index; i++) {
     target += parts[i] + '\\'
   }
   loadDir(target)
-}
+};
 
-function handleRowClick(row) {
+const handleRowClick = (row) => {
   if (row.isDirectory) {
     loadDir(row.path)
   } else if (props.mode === 'file') {
     selectedPath.value = row.path
   }
-}
+};
 
-function handleRowDblClick(row) {
+const handleRowDblClick = (row) => {
   if (!row.isDirectory && props.mode === 'file') {
     selectedPath.value = row.path
     emit('update:modelValue', selectedPath.value)
     emit('select', selectedPath.value)
     dialogVisible.value = false
   }
-}
+};
 
-function matchAccept(fileName) {
+const matchAccept = (fileName) => {
   if (!props.accept) return true
   const exts = props.accept.split(',').map(s => s.trim().toLowerCase())
   const ext = '.' + fileName.split('.').pop().toLowerCase()
   return exts.includes(ext)
-}
+};
 
-function handleConfirm() {
+const handleConfirm = () => {
   if (props.mode === 'dir') {
     selectedPath.value = currentPath.value
   }
@@ -275,7 +275,7 @@ function handleConfirm() {
   emit('select', selectedPath.value)
   lastPath.value = currentPath.value
   dialogVisible.value = false
-}
+};
 
 watch(() => props.modelValue, (newVal) => {
   if (newVal && newVal !== currentPath.value) {

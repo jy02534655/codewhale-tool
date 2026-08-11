@@ -23,7 +23,7 @@ export function getSkillFiles(store, { skillId, level, projectId }) {
 
   const files = [];
   // 递归遍历 skill 目录
-  const _walk = function (dir, prefix) {
+  const _walk = (dir, prefix) => {
     const items = readdirSync(dir, { withFileTypes: true });
     for (const e of items) {
       // 跳过隐藏文件和 node_modules 目录
@@ -81,7 +81,7 @@ export function readSkillFile(store, { skillId, path: filePath, level, projectId
  * @param {string} [opts.projectId] - 项目 ID
  */
 export function saveSkillFile(store, { skillId, path: filePath, content, level, projectId }) {
-  return store.mutate(skillId, function (entries, idx, entry) {
+  return store.mutate(skillId, (entries, idx, entry) => {
     const fullPath = join(entry.path, filePath);
     // 文件不存在时拒绝保存，避免意外创建新文件
     if (!existsSync(fullPath)) return failMsg('skillFileNotFound');
@@ -104,7 +104,7 @@ export function saveSkillFile(store, { skillId, path: filePath, content, level, 
  * @param {string} [opts.projectId] - 项目 ID
  */
 export function removeSkillFile(store, { skillId, path: filePath, level, projectId }) {
-  return store.mutate(skillId, function (entries, idx, entry) {
+  return store.mutate(skillId, (entries, idx, entry) => {
     const fullPath = join(entry.path, filePath);
     if (!existsSync(fullPath)) return failMsg('skillFileNotFound');
     unlinkSync(fullPath);

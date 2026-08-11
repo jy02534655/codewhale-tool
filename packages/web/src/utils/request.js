@@ -35,7 +35,7 @@ service.interceptors.request.use((config) => {
 /**
  * 处理接口返回的提示消息
  */
-function processMessage(data, success, { messageProperty, successMessage, errorMessage, errorProperty }) {
+const processMessage = (data, success, { messageProperty, successMessage, errorMessage, errorProperty }) => {
   let mes = get(data, messageProperty);
   if (successMessage && success) {
     mes = isString(successMessage) ? t('message.' + successMessage) : mes;
@@ -54,7 +54,7 @@ function processMessage(data, success, { messageProperty, successMessage, errorM
       message: mes,
     });
   }
-}
+};
 
 const DEFAULT_VIEW = 'provider';
 
@@ -71,7 +71,7 @@ const DEFAULT_VIEW = 'provider';
  * @param {string} [opts.loadingText='加载中...'] loading 提示文字
  * @returns {Promise}
  */
-function axiosRequest(
+const axiosRequest = (
   config,
   {
     rootProperty = 'data',
@@ -84,7 +84,7 @@ function axiosRequest(
     loading = true,
     loadingText = '加载中...',
   } = {}
-) {
+) => {
   let loadingData;
   if (loading) {
     let nextTime = 100;
@@ -124,7 +124,7 @@ function axiosRequest(
         masking.clear(loadingData);
       }
     });
-}
+};
 
 /**
  * GET 方式提交数据（带错误处理）

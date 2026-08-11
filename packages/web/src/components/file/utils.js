@@ -23,11 +23,11 @@ marked.setOptions({
 })
 
 // 获取文件名。
-function getFilename(filePath) {
+const getFilename = (filePath) => {
   // 拆分路径并返回最后一段文件名。
   const segments = String(filePath || '').split('/')
   return segments[segments.length - 1] || ''
-}
+};
 
 // 提取扩展名。
 export function getFileExtension(filePath) {
@@ -110,11 +110,11 @@ export function renderCodeAsHtml(content, filePath) {
 }
 
 // 判断是否适合做基础语法检查。
-function canValidateSyntax(filePath) {
+const canValidateSyntax = (filePath) => {
   // 当前仅对结构化文本做轻量检查。
   const ext = getFileExtension(filePath)
   return ['json', 'yml', 'yaml'].indexOf(ext) !== -1
-}
+};
 
 // 对常见文本做轻量语法提示。
 export function validateFileContent(filePath, content) {
@@ -145,7 +145,7 @@ export function validateFileContent(filePath, content) {
     const lines = text.split('\n')
 
     // 找出最早疑似缺少冒号的行。
-    const invalidLine = lines.findIndex(function (line) {
+    const invalidLine = lines.findIndex((line) => {
       // 去掉两端空白后再判断有效性。
       const trimmed = line.trim()
 
@@ -172,37 +172,37 @@ export function validateFileContent(filePath, content) {
 // 统一提供预览与提示相关响应式数据。
 export function useFilePresentation(pathRef, contentRef, t) {
   // 计算当前文件预览模式。
-  const previewMode = computed(function () {
+  const previewMode = computed(() => {
     return getPreviewMode(pathRef.value)
   })
 
   // 计算当前文件展示标签。
-  const previewModeLabel = computed(function () {
+  const previewModeLabel = computed(() => {
     return getPreviewModeLabel(pathRef.value)
   })
 
   // Markdown 模式输出渲染后的 HTML。
-  const previewHtml = computed(function () {
+  const previewHtml = computed(() => {
     return renderMarkdown(contentRef.value)
   })
 
   // 代码模式输出高亮后的 HTML。
-  const previewCodeHtml = computed(function () {
+  const previewCodeHtml = computed(() => {
     return renderCodeAsHtml(contentRef.value, pathRef.value)
   })
 
   // 生成当前内容的基础语法状态。
-  const syntaxState = computed(function () {
+  const syntaxState = computed(() => {
     return validateFileContent(pathRef.value, contentRef.value)
   })
 
   // 将语法状态映射为 Element Plus 提示类型。
-  const syntaxType = computed(function () {
+  const syntaxType = computed(() => {
     return syntaxState.value.ok ? 'success' : 'warning'
   })
 
   // 生成展示给用户的语法提示文案。
-  const syntaxMessage = computed(function () {
+  const syntaxMessage = computed(() => {
     // 没有路径时不显示任何提示。
     if (!pathRef.value) return ''
 

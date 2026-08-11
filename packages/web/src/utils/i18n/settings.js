@@ -96,7 +96,7 @@ export function getSettingsOptions(key, loc) {
   const map = SETTINGS_OPTIONS[key];
   if (!map) return [];
   const langMap = map[loc] || map['zh-Hans'] || {};
-  return Object.entries(langMap).map(function ([value, label]) {
+  return Object.entries(langMap).map(([value, label]) => {
     return { value: value, label: label };
   });
 }

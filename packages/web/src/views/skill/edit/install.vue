@@ -1,4 +1,4 @@
-<!--
+﻿<!--
   install.vue — Skill 安装弹窗（左右布局）
   左侧：三种安装方式切换（GitHub 仓库 / 上传 ZIP / GitHub Tree 路径）
   右侧：安装级别 + 项目目录 + 代理 + Token
@@ -209,9 +209,9 @@ const { isShow, showDialog, hideDialog, showDialogByData, submitForm, resetForm 
         formData.projectId = params.projectId || ''
         formData.projectPath = params.projectPath || ''
         formData.selectedProxyId = params.selectedProxyId || ''
-        formData.selectedTokenId= [redacted]
-        if (ctx.data && typeof ctx.data.sortOrder === 'number') {
-          formData.sortOrder = ctx.data.sortOrder
+        formData.selectedTokenId = params.selectedTokenId || ''
+        if (ctx.data && ctx.data.sortOrder != null) {
+          formData.sortOrder = Number(ctx.data.sortOrder)
         }
         formData.selectedTokenId = params.selectedTokenId || ''
       } else {
@@ -227,8 +227,8 @@ const { isShow, showDialog, hideDialog, showDialogByData, submitForm, resetForm 
             if (project) formData.projectPath = project.path
           }
         }
-        if (ctx.data && typeof ctx.data.sortOrder === 'number') {
-          formData.sortOrder = ctx.data.sortOrder
+        if (ctx.data && ctx.data.sortOrder != null) {
+          formData.sortOrder = Number(ctx.data.sortOrder)
         }
       }
     } else {

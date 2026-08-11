@@ -8,7 +8,7 @@ const moduleLocales = import.meta.glob('./views/*/i18n/**/*.json', { eager: true
 const savedLocale = localStorage.getItem('codewhale-locale') || 'zh-Hans';
 
 // 深层合并对象，用于合并拆分后的 i18n 文件
-function deepMerge(target, source) {
+const deepMerge = (target, source) => {
   if (!source || typeof source !== 'object') return target;
   if (!target || typeof target !== 'object') target = {};
 
@@ -26,9 +26,9 @@ function deepMerge(target, source) {
   }
 
   return target;
-}
+};
 
-function buildMessages() {
+const buildMessages = () => {
   const messages = {};
 
   for (const [path, mod] of Object.entries(commonLocales)) {
@@ -46,7 +46,7 @@ function buildMessages() {
   }
 
   return messages;
-}
+};
 
 export const i18n = createI18n({
   legacy: false,

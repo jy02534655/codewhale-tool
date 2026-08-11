@@ -10,17 +10,17 @@ const STORAGE_KEY = 'codewhale-session';
  * 获取当前存储对象
  * @returns {object}
  */
-function _getStore() {
+const _getStore = () => {
   try {
     return JSON.parse(sessionStorage.getItem(STORAGE_KEY)) || {};
   } catch {
     return {};
   }
-}
+};
 
-function _setStore(data) {
+const _setStore = (data) => {
   sessionStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-}
+};
 
 export default {
   /**

@@ -97,15 +97,15 @@ const themeOptions = [
 
 const theme = ref('light');
 
-function applyTheme(val) {
+const applyTheme = (val) => {
   const html = document.documentElement;
   html.setAttribute('data-theme', val);
   localStorage.setItem('codewhale-theme', val);
-}
+};
 
-function onThemeChange(val) {
+const onThemeChange = (val) => {
   applyTheme(val);
-}
+};
 
 /** 导航项定义 */
 const navItems = [
@@ -117,17 +117,17 @@ const navItems = [
   { route: 'settings', icon: Setting, i18nKey: 'settings.title' },
 ];
 
-function onLocaleChange(val) {
+const onLocaleChange = (val) => {
   localStorage.setItem('codewhale-locale', val);
   setLang(val);
-}
+};
 
 /** 侧边栏折叠状态 */
 const sidebarCollapsed = ref(false);
 
-function toggleSidebar() {
+const toggleSidebar = () => {
   sidebarCollapsed.value = !sidebarCollapsed.value;
-}
+};
 
 onMounted(() => {
   const saved = localStorage.getItem('codewhale-theme') || 'light';

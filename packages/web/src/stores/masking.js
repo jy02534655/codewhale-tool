@@ -22,7 +22,7 @@ export const useMaskingStore = defineStore('masking', {
     isLoading: ({ views, activateView }) => {
       const viewList = [activateView];
       // 查找视图集合中是否存在当前激活视图
-      const item = find(views, function (item) {
+      const item = find(views, (item) => {
         return viewList.includes(item.view) && item.loadingCount > 0;
       });
       return !!item;

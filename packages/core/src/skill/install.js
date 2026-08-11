@@ -55,9 +55,9 @@ function _finalizeInstall(store, skillId, level, meta, targetDir, rawOpts, proje
     const params = Object.assign({}, rawOpts);
     delete params._skillId;
     delete params._targetDir;
-    store.mutate(finalId, function (entries, idx) {
-      if (idx >= 0) entries[idx].installParams = params;
-    }, level, projectId);
+      store.mutate(finalId, (entries, idx) => {
+        if (idx >= 0) entries[idx].installParams = params;
+      }, level, projectId);
   }
 }
 
@@ -135,7 +135,7 @@ export async function _installFromGitHubV2(store, opts, progressCb, logCb) {
 
   // 检查是否已安装同名 skill
   const installed = store.getLevelInstalled(targetLevel);
-  if (installed.some(function (s) { return s.slug === finalSkillId; })) {
+  if (installed.some((s) => s.slug === finalSkillId)) {
     return failMsg('skillAlreadyInstalled');
   }
 
@@ -245,7 +245,7 @@ export async function installFromZip(store, zipSource, skillPath, level, proxyCo
 
   // 检查是否已安装
   const installed = store.getLevelInstalled(targetLevel);
-  if (installed.some(function (s) { return s.slug === finalSkillId; })) {
+  if (installed.some((s) => s.slug === finalSkillId)) {
     return failMsg('skillAlreadyInstalled');
   }
 
@@ -535,7 +535,7 @@ export async function update(store, opts, onProgress, onLog) {
   }
 
   // 3. 清理 store 中临时 entry（刚才是用 tempSkillId 安装的）
-  store.mutate(tempSkillId, function (entries, idx) {
+  store.mutate(tempSkillId, (entries, idx) => {
     if (idx >= 0) entries.splice(idx, 1);
   }, level, projectId);
 
@@ -546,7 +546,7 @@ export async function update(store, opts, onProgress, onLog) {
   delete params._skillId;
   delete params._targetDir;
   delete params.skillId;
-  store.mutate(skillId, function (entries, idx) {
+  store.mutate(skillId, (entries, idx) => {
     if (idx >= 0) {
       entries[idx].path = baseTargetDir;
       entries[idx].updated_at = Date.now();

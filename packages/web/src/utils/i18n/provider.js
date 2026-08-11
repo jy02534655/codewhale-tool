@@ -35,7 +35,7 @@ export function getVendorLabel(id, loc) {
 }
 
 export function getVendorOptions(loc) {
-  return Object.entries(PROVIDER_I18N).map(function ([id, labels]) {
+  return Object.entries(PROVIDER_I18N).map(([id, labels]) => {
     return { id: id, label: labels[loc] || labels['zh-Hans'] || id };
   });
 }

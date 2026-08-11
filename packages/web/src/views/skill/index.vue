@@ -118,7 +118,7 @@
   import { getGlobalSkillList, getAllProjectSkillList } from '@/api/skill/routes'
  import { useMaskingStore } from '@/stores/masking'
  import { compositionDialogContainer } from '@/composition/dialog/Container'
- import SplitLayout from '@/composition/layout/SplitLayout.vue'
+ import SplitLayout from '@/components/layout/SplitLayout.vue'
  import install from './edit/install.vue'
  import detail from './edit/detail.vue'
  import info from './edit/info.vue'

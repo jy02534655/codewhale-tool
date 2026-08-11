@@ -42,7 +42,7 @@ const { t } = useI18n({ useScope: 'global' })
 const pathRef = toRef(props, 'path')
 
 // 用 computed 包装内容，保持与预览逻辑一致。
-const contentRef = computed(function () {
+const contentRef = computed(() => {
   return props.modelValue
 })
 
@@ -50,9 +50,9 @@ const contentRef = computed(function () {
 const { previewModeLabel, syntaxType, syntaxMessage } = useFilePresentation(pathRef, contentRef, t)
 
 // 处理文本输入并向父组件同步。
-function onInput(event) {
+const onInput = (event) => {
   emit('update:modelValue', event.target.value)
-}
+};
 </script>
 
 <style scoped>

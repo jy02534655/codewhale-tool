@@ -10,26 +10,26 @@ import { ref } from 'vue';
 export function compositionDialogBase({ state, initfun } = {}) {
   const isShow = ref(false);
 
-  function showDialog() {
+  const showDialog = () => {
     isShow.value = true;
-  }
+  };
 
-  function hideDialog() {
+  const hideDialog = () => {
     isShow.value = false;
-  }
+  };
 
   /**
    * 显示弹窗并设置状态和数据
    * @param {number} v 0 新增 / 1 编辑
    * @param {*} data 初始化数据
    */
-  function showDialogByData(v, data) {
+  const showDialogByData = (v, data) => {
     showDialog();
     if (state) state.value = v;
     setTimeout(() => {
       initfun && initfun({ data, state: v });
     });
-  }
+  };
 
   return { isShow, showDialog, hideDialog, showDialogByData };
 }

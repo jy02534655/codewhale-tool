@@ -7,9 +7,9 @@
 
 import { useMaskingStore } from '@/stores/masking';
 
-function getStore() {
+const getStore = () => {
   return useMaskingStore();
-}
+};
 
 export default {
   /**

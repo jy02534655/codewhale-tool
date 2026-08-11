@@ -28,6 +28,7 @@
 <script setup>
 import { reactive } from 'vue'
 import { assign } from 'lodash-es'
+import { isEmpty } from '@/utils'
 import { useMaskingStore } from '@/stores/masking'
 import { updateSkillSortOrder } from '@/api/skill/routes'
 import { compositionDialogForm } from '@/composition/dialog/Form'
@@ -47,7 +48,9 @@ const { isShow, showDialog, hideDialog, showDialogByData, submitDialogForm, rese
     initfun: ({ data }) => {
       if (data) {
         assign(formData, data)
-        formData.sortOrder = typeof data.sort_order === 'number' ? data.sort_order : 0
+        if (!isEmpty(data.sort_order)) {
+          formData.sortOrder = Number(data.sort_order)
+        }
       }
     },
   })
