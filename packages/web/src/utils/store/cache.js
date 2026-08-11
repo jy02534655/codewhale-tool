@@ -1,4 +1,4 @@
-import { isEmpty } from '@/utils';
+import { isEmpty, getValueByData } from '@/utils';
 import { set, get, isFunction } from 'lodash-es';
 export default {
   /**
@@ -33,13 +33,26 @@ export default {
               // 用于判断请求是否成功的节点名称
               successProperty,
               // 请求成功状态码
-              successCode
+              successCode,
+              strictSuccessCode
             } = reader;
             // 获取请求数据结果状态
-            const code = get(res, successProperty);
-            if (code == successCode) {
+            const code = getValueByData(res, successProperty);
+            // eslint-disable-next-line no-useless-assignment
+            let success = false;
+            if (strictSuccessCode) {
+              success = code === successCode;
+            } else if (isEmpty(successCode)) {
+              success = !isEmpty(code);
+            } else {
+              success = code === successCode;
+              if (!success && !isEmpty(code)) {
+                success = code.toString() == successCode.toString();
+              }
+            }
+            if (success) {
               // 获取数据
-              const data = get(res, rootProperty);
+              const data = getValueByData(res, rootProperty);
               // 成功回调
               resolve(data);
             } else {
@@ -76,9 +89,10 @@ export default {
     params,
     {
       isReLoad = false, // 是否强制重载数据，默认为false
-      rootProperty = 'data', // 数据根节点名称，默认为'data'
-      successProperty = 'success', // 状态码字段名称，默认为'success'
-      successCode = true, // 请求成功状态码，默认为true
+      rootProperty, // 数据根节点名称
+      successProperty, // 状态码字段名称
+      successCode,
+      strictSuccessCode = false,
       asyncTransformData = false,
       transformData, // 数据转换函数
       defaultData = []
@@ -98,7 +112,8 @@ export default {
           reader: {
             rootProperty,
             successProperty,
-            successCode
+            successCode,
+            strictSuccessCode
           }
         })
           .then((data) => {

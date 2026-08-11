@@ -8,7 +8,7 @@
 
 import axios from 'axios';
 import { ElMessage } from 'element-plus';
-import { isString, isNumber, get } from 'lodash-es';
+import { isString, isNumber, get, set } from 'lodash-es';
 import masking from '@/utils/Masking';
 import { isEmpty, getValueByData } from '@/utils';
 import { t } from '@/i18n';
@@ -18,7 +18,7 @@ import { t } from '@/i18n';
  */
 const service = axios.create({
   baseURL: '/api',
-  timeout: 15000,
+  timeout: 15000
 });
 
 /**
@@ -51,7 +51,7 @@ const processMessage = (data, success, { messageProperty, successMessage, errorM
     const type = success ? 'success' : 'warning';
     ElMessage({
       type,
-      message: mes,
+      message: mes
     });
   }
 };
@@ -71,20 +71,7 @@ const DEFAULT_VIEW = 'provider';
  * @param {string} [opts.loadingText='加载中...'] loading 提示文字
  * @returns {Promise}
  */
-const axiosRequest = (
-  config,
-  {
-    rootProperty = 'data',
-    successProperty = 'success',
-    successCode = true,
-    messageProperty = 'message',
-    successMessage = false,
-    errorMessage = true,
-    errorProperty = 'message',
-    loading = true,
-    loadingText = '加载中...',
-  } = {}
-) => {
+const axiosRequest = (config, { rootProperty = 'data', successProperty = 'success', successCode = true, messageProperty = 'message', successMessage = false, strictSuccessCode = false, errorMessage = true, errorProperty = 'message', loading = true, loadingText = '加载中...' } = {}) => {
   let loadingData;
   if (loading) {
     let nextTime = 100;
@@ -94,7 +81,7 @@ const axiosRequest = (
     loadingData = {
       loadingText,
       nextTime,
-      view: DEFAULT_VIEW,
+      view: DEFAULT_VIEW
     };
     masking.loading(loadingData);
   }
@@ -102,9 +89,17 @@ const axiosRequest = (
     .then((res) => {
       const data = res.data || {};
       const code = getValueByData(data, successProperty);
-      let success = !isEmpty(code);
-      if (success && !isEmpty(successCode)) {
-        success = code.toString() === successCode.toString();
+      // eslint-disable-next-line no-useless-assignment
+      let success = false;
+      if (strictSuccessCode) {
+        success = code === successCode;
+      } else if (isEmpty(successCode)) {
+        success = !isEmpty(code);
+      } else {
+        success = code === successCode;
+        if (!success && !isEmpty(code)) {
+          success = code.toString() == successCode.toString();
+        }
       }
       data.success = success;
       if (success) {

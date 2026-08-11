@@ -11,24 +11,6 @@ import { getProxyList as getProxyListApi } from '@/api/proxy';
 import { getTokenList as getTokenListApi } from '@/api/token';
 import { getProjectList as getProjectListApi } from '@/api/project';
 
-const fetchProxyList = () => {
-  return getProxyListApi().then((data) => {
-    return { success: true, data: data };
-  });
-};
-
-const fetchTokenList = () => {
-  return getTokenListApi().then((data) => {
-    return { success: true, data: data };
-  });
-};
-
-const fetchProjectList = () => {
-  return getProjectListApi().then((data) => {
-    return { success: true, data: data };
-  });
-};
-
 export const useShareStore = defineStore('share', {
   state: () => ({
     proxyData: [],
@@ -37,17 +19,17 @@ export const useShareStore = defineStore('share', {
   }),
   actions: {
     getProxyList(isReLoad = false) {
-      return store.loadCacheDataByFun(this, 'proxyData', fetchProxyList, null, {
+      return store.loadCacheDataByFun(this, 'proxyData', getProxyListApi, null, {
         isReLoad
       });
     },
     getTokenList(isReLoad = false) {
-      return store.loadCacheDataByFun(this, 'tokenData', fetchTokenList, null, {
+      return store.loadCacheDataByFun(this, 'tokenData', getTokenListApi, null, {
         isReLoad
       });
     },
     getProjectList(isReLoad = false) {
-      return store.loadCacheDataByFun(this, 'projectData', fetchProjectList, null, {
+      return store.loadCacheDataByFun(this, 'projectData', getProjectListApi, null, {
         isReLoad
       });
     }
