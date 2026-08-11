@@ -168,11 +168,19 @@ add(data) {
 │   │   └── guard.js      # guard / guardAsync / withSync / ok
 │   └── routes/
 │       ├── lang.js       # /api/lang
-│       ├── officialKey.js
-│       ├── provider.js
+│       ├── officialKey/
+│       │   └── index.js
+│       ├── provider/
+│       │   └── index.js
 │       ├── proxy.js
 │       ├── token.js
-│       ├── skill.js
+│       ├── skill/
+│       │   ├── index.js
+│       │   ├── cmd.js
+│       │   ├── files.js
+│       │   ├── routes.js
+│       │   ├── install.js
+│       │   └── log.js
 │       └── sync.js
 ```
 
@@ -268,9 +276,17 @@ src/
 ### 数据流向
 ```
 Web → API 请求 → Server Route → guard() → Core Manager → ConfigEngine → data/store.json
-                                                                        ↓
-                                                          SyncManager ↔ config.toml
+                                                                         ↓
+                                                           SyncManager ↔ config.toml
 ```
+
+### API 参数传参规则
+
+- **Web API 层只传一个对象**，不拆包、不重组。
+- **Server 路由层从 `req.body` 取参**，只做最小适配后传给 Core Manager。
+- **Core 层方法签名保持兼容**，不强制统一到单对象。
+- **GET 详情类接口保留路径参数**，符合 RESTful 惯例。
+- **避免路由冲突时保留路径参数**，如 skill 的 `POST /update/:id`。
 
 ### 返回格式一致性
 | 层 | 构造方式 | 示例 |

@@ -27,6 +27,11 @@ Vue 3 + Element Plus 前端 UI 交互规范和可复用模式。
 统一请求工具、错误处理、loading 管理。详细实现与用法见：
 `skills/ui-patterns/examples/web-coding-style/02-request-and-promise.md`
 
+**Web API 传参约定**：
+- 每个接口函数接受一个对象参数，直接透传给后端。
+- 只做类型化包装，不进行额外拆包或字段重组。
+- 成功提示通过 `{ successMessage: true }` 自动触发。
+
 ## 掩码显示
 
 敏感字段掩码显示。详细实现与用法见：
@@ -42,15 +47,14 @@ Pinia 全局 loading store 与 masking 工具封装。详细实现与用法见�
 vue-i18n 初始化、语言包结构、组件中使用、语言切换。详细实现与用法见：
 `skills/ui-patterns/examples/web-coding-style/05-router-i18n-and-structure.md`
 
-## 表单模式
+## 表单与表格模式
 
-el-dialog + el-form 表单提交模式。详细示例见：
+`el-dialog` + `el-form` 表单提交与 `el-table` 操作列模式。详细示例见：
 `skills/ui-patterns/examples/web-coding-style/04-view-page.md`
 
-## 表格模式
-
-el-table 表格与操作列模式。详细示例见：
-`skills/ui-patterns/examples/web-coding-style/04-view-page.md`
+**调用一致性**：
+- 页面内按钮调用统一传对象，如 `{ id: row.id }`。
+- 表格操作列复用 `el-button` + `@click`，避免自定义交互歧义。
 
 ## 编码风格
 
