@@ -209,6 +209,10 @@ const { isShow, showDialog, hideDialog, showDialogByData, submitForm, resetForm 
         formData.projectId = params.projectId || ''
         formData.projectPath = params.projectPath || ''
         formData.selectedProxyId = params.selectedProxyId || ''
+        formData.selectedTokenId= [redacted]
+        if (ctx.data && typeof ctx.data.sortOrder === 'number') {
+          formData.sortOrder = ctx.data.sortOrder
+        }
         formData.selectedTokenId = params.selectedTokenId || ''
       } else {
         resetForm()
@@ -222,6 +226,9 @@ const { isShow, showDialog, hideDialog, showDialogByData, submitForm, resetForm 
             const project = projectList.value.find((p) => { return p.id === ctx.data.projectId })
             if (project) formData.projectPath = project.path
           }
+        }
+        if (ctx.data && typeof ctx.data.sortOrder === 'number') {
+          formData.sortOrder = ctx.data.sortOrder
         }
       }
     } else {

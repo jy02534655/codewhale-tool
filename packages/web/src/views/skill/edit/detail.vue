@@ -372,7 +372,8 @@ const updateCurrentSkill = () => {
     skillId: props.skill.id,
     installParams,
     level: props.skill.level,
-    projectId: props.skill.projectId
+    projectId: props.skill.projectId,
+    sortOrder: props.skill.sort_order
   })
 }
 
