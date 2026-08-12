@@ -16,7 +16,7 @@
       },
       "mention_menu_behavior": {
         "label": "Comportamento de Menções",
-        "help": "Comportamento do menu ao @mencionar arquivos. fuzzy para busca fuzzy, browser lista subdiretórios no diretório atual."
+        "help": "Comportamento do menu ao {'@'}mencionar arquivos. fuzzy para busca fuzzy, browser lista subdiretórios no diretório atual."
       },
       "cost_currency": {
         "label": "Moeda de Custo",
@@ -48,11 +48,11 @@
       },
       "mention_menu_limit": {
         "label": "Limite de Menções",
-        "help": "Número máximo de arquivos candidatos a manter no popup @, o excesso é truncado, padrão 128."
+        "help": "Número máximo de arquivos candidatos a manter no popup {'@'}, o excesso é truncado, padrão 128."
       },
       "mention_walk_depth": {
         "label": "Profundidade de Menções",
-        "help": "Profundidade máxima de diretório para o @ percorrer o workspace. 0 significa profundidade ilimitada, padrão 6."
+        "help": "Profundidade máxima de diretório para o {'@'} percorrer o workspace. 0 significa profundidade ilimitada, padrão 6."
       },
       "max_history": {
         "label": "Histórico Máximo",

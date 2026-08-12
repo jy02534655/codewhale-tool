@@ -132,12 +132,12 @@ function onRemove(row) {
     t('common.confirm'),
     { type: 'warning' }
   ).then(function () {
-    removeProxy(row.id).then(function () { loadList(true); });
+    removeProxy({ id: row.id }).then(function () { loadList(true); });
   });
 }
 
 function onSetDefault(row) {
-  setDefaultProxy(row.id).then(function () { loadList(true); });
+  setDefaultProxy({ id: row.id }).then(function () { loadList(true); });
 }
 
 onMounted(loadList);

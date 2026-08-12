@@ -16,7 +16,7 @@
       },
       "mention_menu_behavior": {
         "label": "Mention Menu Behavior",
-        "help": "Menu behavior when @mentioning files. fuzzy for fuzzy search, browser to list subdirectories in the current directory."
+        "help": "Menu behavior when {'@'}mentioning files. fuzzy for fuzzy search, browser to list subdirectories in the current directory."
       },
       "cost_currency": {
         "label": "Cost Currency",
@@ -48,11 +48,11 @@
       },
       "mention_menu_limit": {
         "label": "Mention Menu Limit",
-        "help": "Maximum number of candidate files to keep in the @ popup, excess is truncated, default 128."
+        "help": "Maximum number of candidate files to keep in the {'@'} popup, excess is truncated, default 128."
       },
       "mention_walk_depth": {
         "label": "Mention Walk Depth",
-        "help": "Maximum directory depth for @ completion to traverse the workspace. 0 means unlimited depth, default 6."
+        "help": "Maximum directory depth for {'@'} completion to traverse the workspace. 0 means unlimited depth, default 6."
       },
       "max_history": {
         "label": "Max History",
