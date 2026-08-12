@@ -65,6 +65,46 @@
       "default_model": {
         "label": "デフォルトモデル",
         "help": "現在のプロバイダーのデフォルトモデル選択を上書き。未だ設定不可、今後サポート予定。"
+      },
+      "thinking_default_expanded": {
+        "label": "思考ブロックデフォルト展開",
+        "help": "show_thinking がオンのとき、thinking ブロックをデフォルトで展開するかどうか"
+      },
+      "inline_diffs": {
+        "label": "インライン diff 表示",
+        "help": "完全な赤/緑 diff と意味統計を表示。full：完全 diff；summary：統計のみ；off：静かな結果"
+      },
+      "focus_texture": {
+        "label": "フォーカステクスチャ",
+        "help": "モーダルビュー外の背景テクスチャ。off：テクスチャなし；scrim：マスク"
+      },
+      "work_surface_placement": {
+        "label": "ワークサーフェス位置",
+        "help": "ワークサーフェスを会話履歴の上、左、右、または非表示に配置"
+      },
+      "rail_panel": {
+        "label": "ワークサーフェスデフォルトパネル",
+        "help": "ワークサーフェスにデフォルトで表示するパネル。tasks：タスクリスト；agents：サブエージェント；context：コンテキスト；pinned：目標+ToDo"
+      },
+      "sessions_rail": {
+        "label": "セッション表示",
+        "help": "セッションを表示するかどうか"
+      },
+      "session_auto_resume": {
+        "label": "自動セッション復帰",
+        "help": "前回のセッションを自動的に復帰するかどうか"
+      },
+      "launch_screen": {
+        "label": "起動メニュー",
+        "help": "起動メニューを表示するかどうか"
+      },
+      "work_surface_top_height": {
+        "label": "上部ワークサーフェス高さ上限",
+        "help": "上部ワークサーフェスの最大高さ（2~16）"
+      },
+      "work_surface_side_width": {
+        "label": "側面ワークサーフェス幅上限",
+        "help": "側面ワークサーフェスの最大幅（26~80）"
       }
     }
   }

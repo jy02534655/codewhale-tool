@@ -17,6 +17,10 @@
       "permissions_toml": {
         "label": "権限ルールファイル",
         "help": "TOML 形式の権限ルールファイルパス"
+      },
+      "approval_default_selection": {
+        "label": "承認カードデフォルト選択",
+        "help": "承認カードが最初に表示されたときにハイライトされるデフォルトオプション。deny：拒否をハイライト；allow_once：一度だけ許可をハイライト"
       }
     }
   }

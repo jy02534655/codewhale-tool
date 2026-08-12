@@ -65,6 +65,46 @@
       "default_model": {
         "label": "Default Model Override",
         "help": "Override the default model selection for the current provider. Not yet configurable, support in future versions."
+      },
+      "thinking_default_expanded": {
+        "label": "Thinking Block Default Expanded",
+        "help": "When show_thinking is on, whether to expand thinking blocks by default"
+      },
+      "inline_diffs": {
+        "label": "Inline Diff Display",
+        "help": "Show full red/green diff and semantic stats. full: complete diff; summary: stats only; off: quiet result"
+      },
+      "focus_texture": {
+        "label": "Focus Texture",
+        "help": "Background texture outside modal views. off: no texture; scrim: mask"
+      },
+      "work_surface_placement": {
+        "label": "Work Surface Placement",
+        "help": "Work surface located above conversation history, left, right, or hidden"
+      },
+      "rail_panel": {
+        "label": "Work Surface Default Panel",
+        "help": "Panel displayed by default on the work surface. tasks: task list; agents: subagents; context: context; pinned: goals+todos"
+      },
+      "sessions_rail": {
+        "label": "Sessions Rail",
+        "help": "Whether to display the sessions rail"
+      },
+      "session_auto_resume": {
+        "label": "Auto Resume Session",
+        "help": "Whether to automatically resume the last session"
+      },
+      "launch_screen": {
+        "label": "Launch Screen",
+        "help": "Whether to display the launch screen"
+      },
+      "work_surface_top_height": {
+        "label": "Top Work Surface Height Limit",
+        "help": "Maximum height of the top work surface (2~16)"
+      },
+      "work_surface_side_width": {
+        "label": "Side Work Surface Width Limit",
+        "help": "Maximum width of the side work surface (26~80)"
       }
     }
   }

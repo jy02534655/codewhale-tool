@@ -65,6 +65,46 @@
       "default_model": {
         "label": "Modelo Padrão",
         "help": "Substitui a seleção de modelo padrão para o provedor atual. Ainda não configurável, suporte em versões futuras."
+      },
+      "thinking_default_expanded": {
+        "label": "Expansão Padrão do Bloco de Pensamento",
+        "help": "Quando show_thinking estiver ativado, se o bloco de thinking deve ser expandido por padrão"
+      },
+      "inline_diffs": {
+        "label": "Exibição de Diff Inline",
+        "help": "Exibir diff vermelho/verde completo e estatísticas semânticas. full: diff completo; summary: apenas estatísticas; off: resultado silencioso"
+      },
+      "focus_texture": {
+        "label": "Textura de Foco",
+        "help": "Textura de fundo fora da visualização modal. off: sem textura; scrim: máscara"
+      },
+      "work_surface_placement": {
+        "label": "Posição da Barra de Trabalho",
+        "help": "Barra de trabalho localizada acima do histórico de conversa, à esquerda, à direita ou oculta"
+      },
+      "rail_panel": {
+        "label": "Painel Padrão da Barra de Trabalho",
+        "help": "Painel exibido por padrão na barra de trabalho. tasks: lista de tarefas; agents: subagentes; context: contexto; pinned: objetivo+ToDo"
+      },
+      "sessions_rail": {
+        "label": "Exibição de Sessões",
+        "help": "Se deve exibir a barra de sessões"
+      },
+      "session_auto_resume": {
+        "label": "Retomada Automática de Sessão",
+        "help": "Se deve retomar automaticamente a última sessão"
+      },
+      "launch_screen": {
+        "label": "Tela de Inicialização",
+        "help": "Se deve exibir a tela de inicialização"
+      },
+      "work_surface_top_height": {
+        "label": "Altura Máxima da Barra de Trabalho Superior",
+        "help": "Altura máxima da barra de trabalho superior (2~16)"
+      },
+      "work_surface_side_width": {
+        "label": "Largura Máxima da Barra de Trabalho Lateral",
+        "help": "Largura máxima da barra de trabalho lateral (26~80)"
       }
     }
   }

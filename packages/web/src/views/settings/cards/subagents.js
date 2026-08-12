@@ -5,7 +5,7 @@ export const subagentsGroups = [
     titleKey: 'settings.subagents',
     items: [
       // 最大并发数：同时运行的子代理最大数量
-      { key: 'subagents_max_concurrent', tag: 'el-input-number', attrs: { min: 1, max: 20 } },
+      { key: 'subagents_max_concurrent', tag: 'el-input-number', attrs: { min: 1, max: 128 } },
       // Token 预算：子代理任务的总 Token 预算上限
       { key: 'subagents_token_budget', tag: 'el-input-number', attrs: { min: 0 } },
       // API 超时：子代理 API 请求的超时时间（秒）

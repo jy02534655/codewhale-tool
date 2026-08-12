@@ -4,7 +4,7 @@
       "title": "Subagentes",
       "subagents_max_concurrent": {
         "label": "Máx. Subagentes Simultâneos",
-        "help": "Limite superior de subagentes ativos simultaneamente, padrão 20, faixa 1~20."
+        "help": "Limite superior de subagentes ativos simultaneamente, padrão 64, faixa 1~128."
       },
       "subagents_token_budget": {
         "label": "Orçamento de Tokens",

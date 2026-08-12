@@ -18,9 +18,49 @@
         "label": "摘要を含める",
         "help": "通知メッセージにタスク結果の摘要を含めるかどうか"
       },
+      "notifications_quiet": {
+        "label": "すべての通知をミュート",
+        "help": "すべてのデスクトップ通知とイベント音声を抑制します"
+      },
       "sound_file": {
         "label": "サウンドファイルパス",
         "help": "カスタム通知音ファイルパス"
+      },
+      "notifications_event_turn_complete": {
+        "label": "ターン完了通知",
+        "help": "エージェントターン完了時に通知を送信します"
+      },
+      "notifications_event_subagent_terminal": {
+        "label": "サブエージェント終了通知",
+        "help": "サブエージェントが終了状態に達した時に通知を送信します"
+      },
+      "notifications_event_approval_needed": {
+        "label": "承認必要通知",
+        "help": "ツール呼び出しが承認待ちの時に通知を送信します"
+      },
+      "notifications_event_input_needed": {
+        "label": "入力必要通知",
+        "help": "エージェントが入力を待っている時に通知を送信します"
+      },
+      "notifications_event_elevation_needed": {
+        "label": "昇格必要通知",
+        "help": "サンドボックス拒否が決定を必要とする時に通知を送信します"
+      },
+      "notifications_event_model_notify": {
+        "label": "モデル通知",
+        "help": "モデルが notify ツールを呼び出した時に通知を送信します"
+      },
+      "notifications_event_sound_enabled": {
+        "label": "イベント音声を有効化",
+        "help": "通知イベントのアラート音声を再生します"
+      },
+      "notifications_event_sound_min_interval_ms": {
+        "label": "イベント音声最小間隔",
+        "help": "イベント音声の最小間隔（ミリ秒）"
+      },
+      "notifications_event_sound_quiet": {
+        "label": "イベント音声ミュート",
+        "help": "イベント音声アラートを抑制します"
       }
     }
   }

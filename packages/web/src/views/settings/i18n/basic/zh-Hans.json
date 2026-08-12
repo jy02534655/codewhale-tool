@@ -17,6 +17,10 @@
       "update_check_for_updates": {
         "label": "启动时检查更新",
         "help": "启动时检查更新。true 时后台检查最新稳定版，有新版本且资源完整时显示 toast 提示；false 完全关闭更新检查"
+      },
+      "update_check_interval_hours": {
+        "label": "更新检查间隔",
+        "help": "网络更新检查的缓存间隔（小时）。设为 0 则每次启动都检查网络。失败不缓存"
       }
     }
   }

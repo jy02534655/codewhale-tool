@@ -65,6 +65,46 @@
       "default_model": {
         "label": "默认模型覆盖",
         "help": "覆盖当前提供商的默认模型选择。暂不可配置，后续版本支持。"
+      },
+      "thinking_default_expanded": {
+        "label": "思考块默认展开",
+        "help": "show_thinking 开启时，是否默认展开 thinking 块"
+      },
+      "inline_diffs": {
+        "label": "内联 diff 展示",
+        "help": "显示完整的红/绿 diff 和语义统计。full：完整 diff；summary：仅统计；off：平静结果"
+      },
+      "focus_texture": {
+        "label": "聚焦纹理",
+        "help": "模态视图外背景纹理。off：无纹理；scrim：遮罩"
+      },
+      "work_surface_placement": {
+        "label": "工作栏位置",
+        "help": "工作栏位于对话记录上方、左侧、右侧或隐藏"
+      },
+      "rail_panel": {
+        "label": "工作栏默认面板",
+        "help": "工作栏默认显示的面板。tasks：任务列表；agents：子代理；context：上下文；pinned：目标+待办"
+      },
+      "sessions_rail": {
+        "label": "会话栏显示",
+        "help": "是否显示会话栏"
+      },
+      "session_auto_resume": {
+        "label": "自动恢复会话",
+        "help": "是否自动恢复上次会话"
+      },
+      "launch_screen": {
+        "label": "启动菜单",
+        "help": "是否显示启动菜单"
+      },
+      "work_surface_top_height": {
+        "label": "顶部工作栏高度上限",
+        "help": "顶部工作栏最大高度（2~16）"
+      },
+      "work_surface_side_width": {
+        "label": "侧边工作栏宽度上限",
+        "help": "侧边工作栏最大宽度（26~80）"
       }
     }
   }

@@ -9,26 +9,6 @@
       "context_enabled": {
         "label": "Habilitar Gerenciamento de Caminho Rápido Fin",
         "help": "Precisa ser ativado manualmente. O Fin usa deepseek-v4-flash (pensamento desativado) para executar tarefas de coordenação (roteamento, resumo, manutenção de contexto), reduzindo a carga no modelo principal."
-      },
-      "context_verbatim_window_turns": {
-        "label": "Turnos de Janela Verbatim",
-        "help": "Quantas conversas recentes manter no texto original completo; as conversas mais antigas serão comprimidas ou resumidas."
-      },
-      "context_l1_threshold": {
-        "label": "Limite de Pressão de Contexto L1",
-        "help": "Limite de pressão de contexto de nível 1 (em tokens). Exceder este valor aciona intervenção leve."
-      },
-      "context_l2_threshold": {
-        "label": "Limite de Pressão de Contexto L2",
-        "help": "Limite de nível 2. Estratégias de compressão mais agressivas são aplicadas após exceder este valor."
-      },
-      "context_l3_threshold": {
-        "label": "Limite de Pressão de Contexto L3",
-        "help": "Limite de nível 3. Linha de tratamento de emergência ao se aproximar do limite superior do modelo."
-      },
-      "context_seam_model": {
-        "label": "Modelo de Emenda",
-        "help": "Modelo para executar tarefas de coordenação de contexto. O caminho Flash não tem raciocínio, tornando-o mais rápido."
       }
     }
   }

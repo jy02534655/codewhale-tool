@@ -8,7 +8,7 @@
 
 import axios from 'axios';
 import { ElMessage } from 'element-plus';
-import { isString, isNumber, get, set } from 'lodash-es';
+import { isString, isNumber, get } from 'lodash-es';
 import masking from '@/utils/Masking';
 import { isEmpty, getValueByData } from '@/utils';
 import { t } from '@/i18n';

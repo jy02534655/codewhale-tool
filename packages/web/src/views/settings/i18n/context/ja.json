@@ -9,26 +9,6 @@
       "context_enabled": {
         "label": "Fin 高速パス管理を有効化",
         "help": "手動で有効にする必要があります。Fin は deepseek-v4-flash（thinking オフ）を使用してルーティング、要約、コンテキスト維持などの調整作業を実行し、メインモデルの負担を軽減します。"
-      },
-      "context_verbatim_window_turns": {
-        "label": "完全保持ターン数",
-        "help": "最新の何ターンの会話を完全な原文で保持するか。それより前のターンは圧縮または要約されます。"
-      },
-      "context_l1_threshold": {
-        "label": "L1 コンテキスト圧力閾値",
-        "help": "レベル 1 コンテキスト圧力しきい値（トークン数）。この値を超えると軽量な介入がトリガーされます。"
-      },
-      "context_l2_threshold": {
-        "label": "L2 コンテキスト圧力閾値",
-        "help": "レベル 2 しきい値。超えるとより積極的な圧縮戦略が適用されます。"
-      },
-      "context_l3_threshold": {
-        "label": "L3 コンテキスト圧力閾値",
-        "help": "レベル 3 しきい値。モデルの上限に近づいたときの緊急処理ライン。"
-      },
-      "context_seam_model": {
-        "label": "シームモデル",
-        "help": "コンテキスト調整タスクを実行するモデル。Flash パスは reasoning がないため高速です。"
       }
     }
   }

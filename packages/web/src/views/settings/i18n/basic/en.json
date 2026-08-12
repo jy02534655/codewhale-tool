@@ -17,6 +17,10 @@
       "update_check_for_updates": {
         "label": "Check For Updates",
         "help": "Checks for the latest stable version in the background. Shows a toast notification when a new version is available and resources are complete."
+      },
+      "update_check_interval_hours": {
+        "label": "Update Check Interval",
+        "help": "Cache interval for network update checks (hours). Set to 0 to check network on every startup. Failures are not cached."
       }
     }
   }

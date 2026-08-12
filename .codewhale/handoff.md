@@ -1,74 +1,42 @@
-# CodeWhale Handoff — 2026-08-10
+# CodeWhale Handoff — 2026-08-12
 
 ## 当前目标
-API 传参统一化优化：将 Web API 层与 Server 路由层中“路径参数 + body 传参”的混合模式，统一为纯 body 传参。
+通用设置模块对齐 `doc/codewhale_configuration.md` 2026-08-12 修订记录。
 
 ## 已完成修改
 
-### officialKey 模块
-- Web API：`editOfficialKey`、`activateOfficialKey`、`removeOfficialKey` 统一改为 body 传参
-- Server 路由：`PUT /edit`、`POST /activate`、`DELETE /remove`
-- 调用方：`views/provider/officialKey.vue` 已改为传对象 `{ id }`
+### core 层
+- `packages/core/src/settings/defaults.js`：更新子代理默认值（`subagents_max_concurrent` 20→64、`subagents_launch_concurrency` 20→64、`subagents_api_timeout_secs` 120→600、`subagents_max_admitted` 200→1024）；新增 `update_check_interval_hours`、`approval_default_selection`、通知事件/事件声音/静音、TUI 工作栏/会话栏/启动菜单/聚焦纹理/内联 diff 等字段；删除 context 废弃键（`context_verbatim_window_turns`、`context_l1_threshold`、`context_l2_threshold`、`context_l3_threshold`、`context_seam_model`）。
+- `packages/core/src/settings/schema.js`：同步新增字段 PATH_MAP；删除 context 废弃键 PATH_MAP。
 
-### project 模块
-- Web API：`editProject`、`removeProject`、`setDefaultProject` 统一改为 body 传参
-- Server 路由：`PUT /edit`、`DELETE /remove`、`PUT /default`
-- 调用方：`views/project/index.vue` 已改为传对象 `{ id: row.id }`
+### Web 设置卡片
+- `packages/web/src/views/settings/cards/subagents.js`：`subagents_max_concurrent` UI 上限 20→128。
+- `packages/web/src/views/settings/cards/context.js`：移除已弃用字段，仅保留 `context_enabled` 与 `CODEWHALE_CACHE_MAXIMAL`。
+- `packages/web/src/views/settings/cards/notifications.js`：补充 `notifications_quiet`、6 个事件开关、事件声音开关/间隔/静音。
+- `packages/web/src/views/settings/cards/basic.js`：补充 `update_check_interval_hours`。
+- `packages/web/src/views/settings/cards/security.js`：补充 `approval_default_selection`。
+- `packages/web/src/views/settings/cards/tuiInterface.js`：补充 `thinking_default_expanded`、`inline_diffs`、`focus_texture`、`rail_panel`、`work_surface_placement`、`sessions_rail`、`session_auto_resume`、`launch_screen`、`work_surface_top_height`、`work_surface_side_width`。
+- `packages/web/src/utils/i18n/settings.js`：新增下拉选项映射。
 
-### proxy 模块
-- Web API：`editProxy`、`removeProxy`、`setDefaultProxy` 统一改为 body 传参
-- Server 路由：`PUT /edit`、`DELETE /remove`、`PUT /default`
-- 调用方：`views/proxy/index.vue` 已改为传对象 `{ id: row.id }`
-
-### token 模块
-- Web API：`editToken`、`removeToken`、`setDefaultToken` 统一改为 body 传参
-- Server 路由：`PUT /edit`、`DELETE /remove`、`PUT /default`
-- 调用方：`views/token/index.vue` 已改为传对象 `{ id: row.id }`
-- **已完成**：修复 `views/token/index.vue` 中 `<TokenEdit ref="dialogRef" @submitSuccess="loadList(true)" />` 标签闭合问题
-
-### provider 模块
-- Web API：`editProvider`、`removeProvider`、`activateProvider` 统一改为 body 传参
-- Server 路由：`PUT /edit`、`DELETE /remove`、`POST /activate`
-- 调用方：`views/provider/thirdParty.vue` 已改为传对象 `{ id }`
-- **注意**：删除了未使用的冗余文件 `packages/server/src/routes/provider.js`（provider 目录外），实际使用 `packages/server/src/routes/provider/index.js`
-
-### skill 模块（cmd、files、routes）
-- Web API：
-  - `cmd.js`: `removeSkill`、`copySkillToProject` 改为 body 传参
-  - `files.js`: `getSkillFiles`、`readSkillFile`、`saveSkillFile`、`removeSkillFile` 统一改为 body 传参
-  - `routes.js`: `updateMeta`、`updateSkillSortOrder`、`saveReadme` 改为 body 传参
-- Server 路由：
-  - `cmd.js`: `DELETE /remove`、`POST /copy-to-project` 改为 body 传参；`POST /update/:id` 保留路径参数（避免与 install.js 的 `POST /update` 冲突）
-  - `files.js`: `POST /files`、`POST /file`、`PUT /file`、`DELETE /file` 改为 body 传参
-  - `routes.js`: `PUT /meta`、`PUT /sort`、`PUT /readme` 改为 body 传参；`GET /readme/:id` 保留路径参数
-- 调用方：
-  - `views/skill/edit/detail.vue` 已改为传对象
-  - `views/skill/edit/info.vue` 已改为传对象
-  - `views/skill/edit/readme.vue` 已改为传对象
+### Web 视图 i18n（zh-Hans / en 部分完成）
+- 已完成 zh-Hans：`basic`、`notifications`、`security`、`tuiInterface`、`subagents`、`context`。
+- 已完成 en：`basic`、`notifications`、`security`、`subagents`。
+- 待完成 en：`tuiInterface`、`context`。
+- 待完成 ja / pt-BR：`basic`、`notifications`、`security`、`tuiInterface`、`subagents`、`context`。
 
 ## 关键决策
-- **前端 API 层直接透传对象**，不做拆包/重组
-- **Server 路由层从 req.body 取参**，对需要传给 core 的函数保留 `{ skillId: req.body.id, ...req.body }` 的适配（与 project/proxy 模块一致）
-- **Core 层方法签名保持兼容**，仅 server 路由层做最小适配
-- **调用方只构造一个对象**，降低维护成本
-- **GET 详情接口保留路径参数**：`getProvider(id)`、`getReadme(id)` 等 GET 请求保留路径参数，符合 RESTful 惯例
-- **避免路由冲突**：skill 模块 `POST /update/:id` 保留路径参数，因为 install.js 已占用 `POST /update`
+- **废弃键彻底删除**：context 废弃键从 defaults/schema/UI/i18n 全部移除，不再保留兼容映射。
+- **前端新增字段直接透传**：settings 卡片新增项沿用现有 `el-switch` / `el-input-number` / `SettingsSelect` / `el-input` 模式。
+- **i18n 分层维护**：`utils/i18n/settings.js` 负责下拉选项映射；`views/settings/i18n/<group>/*.json` 负责 label/help 翻译。
 
 ## 进行中
-- ~~token/index.vue lint 错误修复（line 51 标签闭合）~~ ✅ 已完成
-- ~~运行构建验证（eslint / build）~~ ✅ 已完成
+- [x] 从 defaults.js / schema.js 删除 context 废弃键
+- [ ] 补充 settings/i18n 各分组新增配置翻译（en: tuiInterface/context；ja/pt-BR: 全部分组）
+- [ ] 运行 lint/build 验证
 
 ## 下一个动作
-- 无待办事项
+1. 继续补充 `packages/web/src/views/settings/i18n/*` 中 ja / pt-BR 及剩余 en 翻译。
+2. 运行 `npm run lint` 与 `npm run build` 验证。
 
 ## 验证结果
-- `npm run lint`：通过，无错误
-- `npm run build`：通过，构建成功（vite build, 5.60s）
-
-## 全局搜索确认结果
-- `/token/` 旧 URL 模式已清除
-- `/provider/` 旧 URL 模式已清除（除 `GET /:id` 获取详情保留）
-- `/skill/` 旧 URL 模式已清除（除 `GET /readme/:id` 获取详情保留）
-- `/project/` 旧 URL 模式已清除
-- `/proxy/` 旧 URL 模式已清除
-- `/official-key/` 旧 URL 模式已清除
+- 待执行

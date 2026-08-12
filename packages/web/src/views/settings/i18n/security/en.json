@@ -17,6 +17,10 @@
       "permissions_toml": {
         "label": "Permissions TOML File",
         "help": "Path to the TOML-formatted permissions rules file"
+      },
+      "approval_default_selection": {
+        "label": "Approval Card Default Selection",
+        "help": "Default highlighted option when approval card first appears. deny: highlight deny; allow_once: highlight allow once"
       }
     }
   }

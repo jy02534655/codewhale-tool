@@ -84,6 +84,42 @@ const SETTINGS_OPTIONS = {
     ja: { hunt: ' Hunt' },
     'pt-BR': { hunt: ' Hunt' }
   },
+  thinking_default_expanded: {
+    'zh-Hans': { on: '展开', off: '折叠' },
+    en: { on: 'On', off: 'Off' },
+    ja: { on: '展開', off: '折りたたむ' },
+    'pt-BR': { on: 'Abrir', off: 'Fechar' }
+  },
+  inline_diffs: {
+    'zh-Hans': { full: '完整', summary: '统计', off: '关闭' },
+    en: { full: 'Full', summary: 'Summary', off: 'Off' },
+    ja: { full: '完全', summary: '統計', off: 'なし' },
+    'pt-BR': { full: 'Completo', summary: 'Resumo', off: 'Desligado' }
+  },
+  focus_texture: {
+    'zh-Hans': { off: '无', scrim: '遮罩' },
+    en: { off: 'Off', scrim: 'Scrim' },
+    ja: { off: 'なし', scrim: 'Scrim' },
+    'pt-BR': { off: 'Desligado', scrim: 'Scrim' }
+  },
+  rail_panel: {
+    'zh-Hans': { tasks: '任务', agents: '智能体', context: '上下文', pinned: '固定' },
+    en: { tasks: 'Tasks', agents: 'Agents', context: 'Context', pinned: 'Pinned' },
+    ja: { tasks: 'タスク', agents: 'エージェント', context: 'コンテキスト', pinned: '固定' },
+    'pt-BR': { tasks: 'Tarefas', agents: 'Agentes', context: 'Contexto', pinned: 'Fixado' }
+  },
+  work_surface_placement: {
+    'zh-Hans': { top: '顶部', left: '左侧', right: '右侧', off: '隐藏' },
+    en: { top: 'Top', left: 'Left', right: 'Right', off: 'Off' },
+    ja: { top: '上部', left: '左', right: '右', off: '非表示' },
+    'pt-BR': { top: 'Superior', left: 'Esquerda', right: 'Direita', off: 'Oculto' }
+  },
+  approval_default_selection: {
+    'zh-Hans': { deny: '拒绝', allow_once: '允许一次' },
+    en: { deny: 'Deny', allow_once: 'Allow Once' },
+    ja: { deny: '拒否', allow_once: '一度許可' },
+    'pt-BR': { deny: 'Negar', allow_once: 'Permitir uma vez' }
+  },
   search_provider: {
     'zh-Hans': { duckduckgo: 'DuckDuckGo', bing: 'Bing', tavily: 'Tavily', bocha: 'Bocha', metaso: '秘塔', searxng: 'SearXNG', baidu: '百度', volcengine: '火山引擎', sofya: 'Sofya' },
     en: { duckduckgo: 'DuckDuckGo', bing: 'Bing', tavily: 'Tavily', bocha: 'Bocha', metaso: 'Metaso', searxng: 'SearXNG', baidu: 'Baidu', volcengine: 'Volcengine', sofya: 'Sofya' },

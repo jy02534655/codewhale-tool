@@ -17,6 +17,10 @@
       "permissions_toml": {
         "label": "权限规则文件",
         "help": "TOML 格式的权限规则文件路径"
+      },
+      "approval_default_selection": {
+        "label": "审批卡默认选项",
+        "help": "审批卡首次出现时高亮的默认选项。deny：高亮拒绝；allow_once：高亮允许一次"
       }
     }
   }

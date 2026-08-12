@@ -1,4 +1,4 @@
-// 安全与权限分组：审批策略、沙箱模式、Shell 权限、权限规则文件
+// 安全与权限分组：审批策略、沙箱模式、Shell 权限、权限规则文件、审批卡默认选项
 // 配置项顺序：el-switch -> SettingsSelect -> el-input
 export const securityGroups = [
   {
@@ -8,6 +8,8 @@ export const securityGroups = [
       { key: 'allow_shell', tag: 'el-switch' },
       // 审批策略：命令执行前的审批策略级别
       { key: 'approval_policy', tag: 'SettingsSelect', optionKey: 'approval_policy' },
+      // 审批卡默认选项：审批卡首次出现时高亮的默认选项
+      { key: 'approval_default_selection', tag: 'SettingsSelect', optionKey: 'approval_default_selection' },
       // 沙箱模式：代码执行的沙箱隔离模式
       { key: 'sandbox_mode', tag: 'SettingsSelect', optionKey: 'sandbox_mode' },
       // 权限规则文件：权限规则的 TOML 配置文件路径

@@ -18,9 +18,49 @@
         "label": "Incluir Resumo",
         "help": "Se a mensagem de notificação inclui o resumo do resultado da tarefa"
       },
+      "notifications_quiet": {
+        "label": "Silenciar Todas as Notificações",
+        "help": "Suprimir todas as notificações da área de trabalho e sons de eventos"
+      },
       "sound_file": {
         "label": "Caminho do Arquivo de Som",
         "help": "Caminho do arquivo de som de notificação personalizado"
+      },
+      "notifications_event_turn_complete": {
+        "label": "Notificação de Turno Concluído",
+        "help": "Enviar notificação quando o turno do agente for concluído"
+      },
+      "notifications_event_subagent_terminal": {
+        "label": "Notificação de Subagente Terminal",
+        "help": "Enviar notificação quando o subagente atingir estado terminal"
+      },
+      "notifications_event_approval_needed": {
+        "label": "Notificação de Aprovação Necessária",
+        "help": "Enviar notificação quando a chamada de ferramenta aguarda aprovação"
+      },
+      "notifications_event_input_needed": {
+        "label": "Notificação de Entrada Necessária",
+        "help": "Enviar notificação quando o agente aguarda entrada"
+      },
+      "notifications_event_elevation_needed": {
+        "label": "Notificação de Elevação Necessária",
+        "help": "Enviar notificação quando a rejeição do sandbox requer decisão"
+      },
+      "notifications_event_model_notify": {
+        "label": "Notificação de Modelo",
+        "help": "Enviar notificação quando o modelo chama a ferramenta notify"
+      },
+      "notifications_event_sound_enabled": {
+        "label": "Habilitar Sons de Evento",
+        "help": "Reproduzir sons de alerta para eventos de notificação"
+      },
+      "notifications_event_sound_min_interval_ms": {
+        "label": "Intervalo Mínimo de Som de Evento",
+        "help": "Intervalo mínimo entre sons de evento (milissegundos)"
+      },
+      "notifications_event_sound_quiet": {
+        "label": "Som de Evento Silencioso",
+        "help": "Suprimir alertas sonoros de eventos"
       }
     }
   }

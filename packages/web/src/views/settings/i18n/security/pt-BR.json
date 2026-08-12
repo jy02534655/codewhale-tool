@@ -17,6 +17,10 @@
       "permissions_toml": {
         "label": "Arquivo de Permissões TOML",
         "help": "Caminho para o arquivo de regras de permissões no formato TOML"
+      },
+      "approval_default_selection": {
+        "label": "Seleção Padrão do Cartão de Aprovação",
+        "help": "Opção destacada padrão quando o cartão de aprovação aparecer pela primeira vez. deny: destacar negar; allow_once: destacar permitir uma vez"
       }
     }
   }

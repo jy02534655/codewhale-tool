@@ -18,9 +18,49 @@
         "label": "Include Summary",
         "help": "Whether the notification message includes the task result summary"
       },
+      "notifications_quiet": {
+        "label": "Mute All Notifications",
+        "help": "Suppress all desktop notifications and event sounds"
+      },
       "sound_file": {
         "label": "Sound File Path",
         "help": "Custom notification sound file path"
+      },
+      "notifications_event_turn_complete": {
+        "label": "Turn Complete Notification",
+        "help": "Send notification when agent turn completes"
+      },
+      "notifications_event_subagent_terminal": {
+        "label": "Subagent Terminal Notification",
+        "help": "Send notification when subagent reaches terminal state"
+      },
+      "notifications_event_approval_needed": {
+        "label": "Approval Needed Notification",
+        "help": "Send notification when tool call waits for approval"
+      },
+      "notifications_event_input_needed": {
+        "label": "Input Needed Notification",
+        "help": "Send notification when agent asks for input"
+      },
+      "notifications_event_elevation_needed": {
+        "label": "Elevation Needed Notification",
+        "help": "Send notification when sandbox rejection requires decision"
+      },
+      "notifications_event_model_notify": {
+        "label": "Model Notification",
+        "help": "Send notification when model calls notify tool"
+      },
+      "notifications_event_sound_enabled": {
+        "label": "Enable Event Sounds",
+        "help": "Play alert sounds for notification events"
+      },
+      "notifications_event_sound_min_interval_ms": {
+        "label": "Event Sound Min Interval",
+        "help": "Minimum interval between event sounds (milliseconds)"
+      },
+      "notifications_event_sound_quiet": {
+        "label": "Event Sound Quiet",
+        "help": "Suppress event sound alerts"
       }
     }
   }

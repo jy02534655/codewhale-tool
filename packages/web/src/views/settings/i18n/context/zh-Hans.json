@@ -9,26 +9,6 @@
       "context_enabled": {
         "label": "启用 Fin 快速路径管理",
         "help": "需手动开启。Fin 使用 deepseek-v4-flash（thinking 关闭）执行协调工作（路由、摘要、上下文维护），减轻主模型负担"
-      },
-      "context_verbatim_window_turns": {
-        "label": "完整保留轮数",
-        "help": "最近多少轮对话保持完整原文，更早的轮次会被压缩或摘要"
-      },
-      "context_l1_threshold": {
-        "label": "L1 上下文压力阈值",
-        "help": "第一级上下文压力阈值（Token 数）。超过此值触发轻量级干预"
-      },
-      "context_l2_threshold": {
-        "label": "L2 上下文压力阈值",
-        "help": "第二级阈值。超过后采取更激进的压缩策略"
-      },
-      "context_l3_threshold": {
-        "label": "L3 上下文压力阈值",
-        "help": "第三级阈值。接近模型上限时的紧急处理线"
-      },
-      "context_seam_model": {
-        "label": "接缝模型",
-        "help": "执行上下文协调任务的模型。Flash 路径无 reasoning，速度更快"
       }
     }
   }

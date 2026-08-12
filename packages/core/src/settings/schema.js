@@ -26,9 +26,20 @@ const PATH_MAP = {
   tui_terminal_probe_timeout_ms: 'tui.terminal_probe_timeout_ms',
   tui_stream_chunk_timeout_secs: 'tui.stream_chunk_timeout_secs',
   tui_osc8_links: 'tui.osc8_links',
+  thinking_default_expanded: 'thinking_default_expanded',
+  inline_diffs: 'inline_diffs',
+  focus_texture: 'focus_texture',
+  rail_panel: 'rail_panel',
+  work_surface_placement: 'work_surface_placement',
+  sessions_rail: 'sessions_rail',
+  session_auto_resume: 'session_auto_resume',
+  launch_screen: 'launch_screen',
+  work_surface_top_height: 'work_surface_top_height',
+  work_surface_side_width: 'work_surface_side_width',
   approval_policy: 'approval_policy',
   sandbox_mode: 'sandbox_mode',
   allow_shell: 'allow_shell',
+  approval_default_selection: 'approval.default_selection',
   skills_scan_codewhale_only: 'skills.scan_codewhale_only',
   skills_dir: 'skills_dir',
   mcp_config_path: 'mcp_config_path',
@@ -64,7 +75,18 @@ const PATH_MAP = {
   notifications_threshold_secs: 'notifications.threshold_secs',
   notifications_completion_sound: 'notifications.completion_sound',
   notifications_include_summary: 'notifications.include_summary',
+  notifications_quiet: 'notifications.quiet',
   sound_file: 'notifications.sound_file',
+  notifications_event_turn_complete: 'notifications.events.turn-complete',
+  notifications_event_subagent_terminal: 'notifications.events.subagent-terminal',
+  notifications_event_approval_needed: 'notifications.events.approval-needed',
+  notifications_event_input_needed: 'notifications.events.input-needed',
+  notifications_event_elevation_needed: 'notifications.elevation-needed',
+  notifications_event_model_notify: 'notifications.events.model-notify',
+  notifications_event_sound_enabled: 'notifications.event_sound.enabled',
+  notifications_event_sound_events: 'notifications.event_sound.events',
+  notifications_event_sound_min_interval_ms: 'notifications.event_sound.min_interval_ms',
+  notifications_event_sound_quiet: 'notifications.event_sound.quiet',
 
   // Features
   features_shell_tool: 'features.shell_tool',
@@ -82,6 +104,7 @@ const PATH_MAP = {
   // Update
   update_check_for_updates: 'update.check_for_updates',
   update_uri: 'update.uri',
+  update_check_interval_hours: 'update.check_interval_hours',
 
   // Capacity
   capacity_enabled: 'capacity.enabled',
@@ -103,11 +126,6 @@ const PATH_MAP = {
   // Context
   context_enabled: 'context.enabled',
   CODEWHALE_CACHE_MAXIMAL: 'context.CODEWHALE_CACHE_MAXIMAL',
-  context_verbatim_window_turns: 'context.verbatim_window_turns',
-  context_l1_threshold: 'context.l1_threshold',
-  context_l2_threshold: 'context.l2_threshold',
-  context_l3_threshold: 'context.l3_threshold',
-  context_seam_model: 'context.seam_model',
 
   // Memory / Snapshots / Verifier / Reasoning / Permissions
   memory_enabled: 'memory.enabled',

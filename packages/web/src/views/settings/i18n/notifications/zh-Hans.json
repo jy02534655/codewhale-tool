@@ -18,9 +18,49 @@
         "label": "包含摘要",
         "help": "通知消息中是否包含任务结果摘要"
       },
+      "notifications_quiet": {
+        "label": "静音所有通知",
+        "help": "抑制所有桌面通知和事件声音"
+      },
       "sound_file": {
         "label": "声音文件路径",
         "help": "自定义提示音文件路径"
+      },
+      "notifications_event_turn_complete": {
+        "label": "回合完成通知",
+        "help": "代理回合完成时发送通知"
+      },
+      "notifications_event_subagent_terminal": {
+        "label": "子代理终止通知",
+        "help": "子代理到达终止状态时发送通知"
+      },
+      "notifications_event_approval_needed": {
+        "label": "需要审批通知",
+        "help": "工具调用等待审批时发送通知"
+      },
+      "notifications_event_input_needed": {
+        "label": "需要输入通知",
+        "help": "代理提问等待输入时发送通知"
+      },
+      "notifications_event_elevation_needed": {
+        "label": "需要提升通知",
+        "help": "沙箱拒绝需要决策时发送通知"
+      },
+      "notifications_event_model_notify": {
+        "label": "模型通知",
+        "help": "模型调用 notify 工具时发送通知"
+      },
+      "notifications_event_sound_enabled": {
+        "label": "启用事件声音",
+        "help": "为通知事件播放提示音"
+      },
+      "notifications_event_sound_min_interval_ms": {
+        "label": "事件声音最小间隔",
+        "help": "事件声音最小间隔（毫秒）"
+      },
+      "notifications_event_sound_quiet": {
+        "label": "事件声音静音",
+        "help": "抑制事件声音提示"
       }
     }
   }

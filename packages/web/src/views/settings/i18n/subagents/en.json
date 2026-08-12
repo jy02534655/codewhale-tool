@@ -4,7 +4,7 @@
       "title": "Subagents",
       "subagents_max_concurrent": {
         "label": "Max Concurrent Subagents",
-        "help": "Upper limit of concurrently active subagents, default 20, range 1~20."
+        "help": "Upper limit of concurrently active subagents, default 64, range 1~128."
       },
       "subagents_token_budget": {
         "label": "Token Budget",

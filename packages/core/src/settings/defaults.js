@@ -31,20 +31,32 @@ export const DEFAULT_SETTINGS = {
   tui_stream_chunk_timeout_secs: 300,
   tui_osc8_links: true,
 
+  thinking_default_expanded: false,
+  inline_diffs: 'full',
+  focus_texture: 'off',
+  rail_panel: 'tasks',
+  work_surface_placement: 'top',
+  sessions_rail: false,
+  session_auto_resume: false,
+  launch_screen: false,
+  work_surface_top_height: 8,
+  work_surface_side_width: 40,
+
   // 安全与审批
   approval_policy: 'on-request',
   sandbox_mode: 'read-only',
   allow_shell: false,
+  approval_default_selection: 'deny',
 
   // 子代理
-  subagents_max_concurrent: 20,
+  subagents_max_concurrent: 64,
   subagents_token_budget: 0,
-  subagents_api_timeout_secs: 120,
+  subagents_api_timeout_secs: 600,
   subagents_heartbeat_timeout_secs: 300,
   subagents_default_model: '',
   subagents_max_depth: 0,
-  subagents_launch_concurrency: 20,
-  subagents_max_admitted: 200,
+  subagents_launch_concurrency: 64,
+  subagents_max_admitted: 1024,
   subagents_worker_model: '',
   subagents_explorer_model: '',
   subagents_awaiter_model: '',
@@ -63,7 +75,18 @@ export const DEFAULT_SETTINGS = {
   notifications_threshold_secs: 30,
   notifications_completion_sound: 'beep',
   notifications_include_summary: false,
+  notifications_quiet: false,
   sound_file: '',
+  notifications_event_turn_complete: true,
+  notifications_event_subagent_terminal: true,
+  notifications_event_approval_needed: true,
+  notifications_event_input_needed: true,
+  notifications_event_elevation_needed: true,
+  notifications_event_model_notify: true,
+  notifications_event_sound_enabled: false,
+  notifications_event_sound_events: ['turn-complete', 'approval-needed'],
+  notifications_event_sound_min_interval_ms: 2000,
+  notifications_event_sound_quiet: false,
 
   // 功能开关
   features_shell_tool: true,
@@ -81,6 +104,7 @@ export const DEFAULT_SETTINGS = {
   // 更新
   update_check_for_updates: true,
   update_uri: '',
+  update_check_interval_hours: 1,
 
   // 容量控制
   capacity_enabled: false,
@@ -102,11 +126,6 @@ export const DEFAULT_SETTINGS = {
   // 上下文管理
   context_enabled: false,
   CODEWHALE_CACHE_MAXIMAL: false,
-  context_verbatim_window_turns: 16,
-  context_l1_threshold: 192000,
-  context_l2_threshold: 384000,
-  context_l3_threshold: 576000,
-  context_seam_model: 'deepseek-v4-flash',
 
   // 路径与存储
   skills_scan_codewhale_only: false,
