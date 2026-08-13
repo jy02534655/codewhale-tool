@@ -1,7 +1,294 @@
 /* ════════════════════════════════════════════════════════════════
- * common.css — 管理页面共用样式
- * 在 App.vue 或 main.js 中引入，所有管理页面共享
+ * common.scss — Web 端通用样式入口
+ * 整合管理页面通用样式、doc/mixin.scss 工具 mixin、doc/index.scss 布局工具类
+ * 在 main.js 中全局引入
  * ════════════════════════════════════════════════════════════════ */
+
+/* ─── 盒模型 Mixin（源自 doc/mixin.scss） ─── */
+
+// 兼容性 flex 容器
+@mixin box-display($direction) {
+  display: flex;
+  flex-direction: $direction;
+}
+
+// 兼容性 flex 子项
+@mixin box-flex($value) {
+  flex: $value;
+}
+
+// 主轴 + 交叉轴对齐组合
+@mixin box-align($justify, $align) {
+  justify-content: $justify;
+  align-items: $align;
+}
+
+/* ─── 背景图片 Mixin（源自 doc/mixin.scss） ─── */
+
+@mixin bg-size($size...) {
+  background-size: $size;
+}
+
+@mixin bg($size, $position: center) {
+  @include bg-size($size);
+  background-repeat: no-repeat;
+  background-position: $position;
+}
+
+/* ─── 文本对齐工具类（源自 doc/index.scss） ─── */
+.tl { text-align: left; }
+.tc { text-align: center; }
+.tr { text-align: right; }
+
+/* ─── Flex 布局工具类（源自 doc/index.scss） ─── */
+
+/*
+  横向布局：display: flex; flex-direction: row;
+*/
+.box-row {
+  @include box-display(row);
+}
+
+/*
+  纵向布局：display: flex; flex-direction: column;
+*/
+.box-column {
+  @include box-display(column);
+}
+
+/*
+  循环生成 .box-flex1 ~ .box-flex17
+  对应 flex: 1 ~ flex: 17
+*/
+@for $i from 1 through 17 {
+  .box-flex#{$i} {
+    @include box-flex($i);
+  }
+}
+
+/*
+  justify-content + align-items 组合
+*/
+.box-start {
+  @include box-align(flex-start, flex-start);
+}
+
+.box-start-baseline {
+  @include box-align(flex-start, baseline);
+}
+
+.box-start-center {
+  @include box-align(flex-start, center);
+}
+
+.box-end-start {
+  @include box-align(flex-end, flex-start);
+}
+
+.box-end-center {
+  @include box-align(flex-end, center);
+}
+
+.box-end-baseline {
+  @include box-align(flex-end, baseline);
+}
+
+.box-center {
+  @include box-align(center, center);
+}
+
+.box-center-start {
+  @include box-align(center, flex-start);
+}
+
+.box-between-center {
+  @include box-align(space-between, center);
+}
+
+.box-between-start {
+  @include box-align(space-between, flex-start);
+}
+
+/*
+  换行
+*/
+.box-flex-wrap {
+  flex-wrap: wrap;
+}
+
+/* ─── 背景图片工具类（源自 doc/index.scss） ─── */
+
+/*
+  background-size: contain; 不平铺; 居中
+*/
+.bg-contain {
+  @include bg(contain);
+}
+
+/*
+  background-size: auto; 不平铺; 居中
+*/
+.bg-auto {
+  @include bg(auto);
+}
+
+/*
+  background-size: cover; 不平铺; 居中
+*/
+.bg-cover {
+  @include bg(cover);
+}
+
+/*
+  background-size: 100% 100%; 不平铺; 居中
+*/
+.bg-100 {
+  @include bg(100% 100%);
+}
+
+/* ─── 应用外壳布局（抽取自 App.vue） ─── */
+
+.app-shell {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* ─── 顶栏 ─── */
+.top-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 48px;
+  padding: 0 var(--space-5);
+  background: var(--bg-secondary);
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.top-bar-left {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+.collapse-btn {
+  font-size: var(--text-lg);
+  padding: var(--space-1);
+}
+.logo {
+  font-size: var(--text-lg);
+  font-weight: 600;
+  margin: 0;
+}
+.top-bar-right {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  flex-shrink: 0;
+}
+
+/* ─── 主体 ─── */
+.app-body {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+/* ─── 侧边栏 ─── */
+.sidebar {
+  width: 200px;
+  flex-shrink: 0;
+  background: var(--bg-secondary);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  padding: var(--space-2) 0;
+  overflow-y: auto;
+  transition: width 0.2s ease;
+}
+.sidebar.collapsed {
+  width: 60px;
+}
+.sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-2) var(--space-5);
+  text-decoration: none;
+  color: var(--text-primary);
+  font-size: var(--text-base);
+  border-radius: 0;
+  transition: background 0.15s;
+  cursor: pointer;
+  position: relative;
+}
+.sidebar.collapsed .nav-item {
+  padding: var(--space-2);
+  justify-content: center;
+}
+.nav-item:hover {
+  background: var(--bg-tertiary);
+}
+.nav-item.active {
+  background: var(--bg-primary);
+  color: var(--accent);
+  font-weight: 500;
+}
+.nav-item.active::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 6px;
+  bottom: 6px;
+  width: 3px;
+  background: var(--accent);
+  border-radius: 0 3px 3px 0;
+}
+.nav-icon {
+  font-size: var(--text-xl);
+  flex-shrink: 0;
+}
+.nav-label {
+  white-space: nowrap;
+}
+
+/* ─── 内容区 ─── */
+.content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  background: var(--bg-primary);
+}
+
+/* ─── 分屏布局（抽取自 SplitLayout.vue） ─── */
+.split-layout {
+  display: flex;
+  height: 100%;
+  overflow: hidden;
+}
+.split-left {
+  border-right: 1px solid var(--border);
+}
+.split-right {
+  flex: 1;
+  overflow-y: auto;
+  min-width: 0;
+}
+
+/* 通用面板容器 */
+.pane {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  overflow: hidden;
+}
 
 /* ─── 页面通用布局 ─── */
 .page-view {
@@ -9,6 +296,13 @@
   flex-direction: column;
   gap: var(--space-4);
   padding: var(--space-5) var(--space-6);
+}
+
+/* SplitLayout 场景下让页面占满剩余空间 */
+.page-view--fill {
+  flex: 1;
+  overflow: hidden;
+  min-height: 0;
 }
 
 /* ─── 分区标题（单独一行） ─── */
@@ -31,6 +325,13 @@
   align-items: center;
   gap: var(--space-2);
   margin-bottom: var(--space-3);
+}
+
+/* 通用工具栏 */
+.toolbar {
+  display: flex;
+  gap: var(--space-2);
+  align-items: center;
 }
 
 /* ─── 分区内容容器（外层包裹卡） ─── */
@@ -97,6 +398,17 @@
   font-family: monospace;
 }
 
+/* 紧凑型字段行（列表项内键值对） */
+.field-row--compact {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  font-size: 11px;
+  color: var(--text-secondary);
+  margin-top: var(--space-1);
+  flex-wrap: wrap;
+}
+
 /* ─── 提示块 ─── */
 .hint-block {
   display: flex;
@@ -110,7 +422,7 @@
   border: 1px solid var(--border);
 }
 
-/* 禁用tag动画，避免影响布局 */
+/* 禁用 tag 动画，避免影响布局 */
 .el-tag,
 .el-tag__close,
 .el-tag .el-icon {
@@ -153,6 +465,16 @@
   justify-content: space-between;
   align-items: center;
   margin-bottom: var(--space-2);
+}
+
+/* 面板头部 */
+.pane-header {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 8px;
 }
 
 /* ─── 卡片内子标题文本 ─── */
@@ -237,6 +559,15 @@
 .list-item.active {
   background: var(--el-color-primary-light-9);
   border-left-color: var(--el-color-primary);
+}
+
+/* 通用滚动列表容器 */
+.scroll-list {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
 }
 
 /* ─── 列表项内部结构 ─── */

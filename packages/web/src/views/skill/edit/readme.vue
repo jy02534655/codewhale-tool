@@ -12,10 +12,10 @@
       </el-form-item>
     </el-form>
     <div class="editor-layout">
-      <div class="editor-pane">
+      <div class="pane">
         <FileEditor v-model="formData.content" :path="formData.path" :show-syntax="true" />
       </div>
-      <div class="editor-pane preview-pane">
+      <div class="pane preview-pane">
         <div class="pane-header">{{ $t('common.preview') }}</div>
         <FilePreview :path="formData.path" :content="formData.content" :show-syntax="true" />
       </div>
@@ -77,26 +77,5 @@ defineExpose({ showDialog, hideDialog, showDialogByData })
   display: flex;
   gap: 12px;
   height: 68vh;
-}
-
-.editor-pane {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  min-width: 0;
-  overflow: hidden;
-}
-
-.preview-pane {
-  min-width: 0;
-}
-
-.pane-header {
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--text-secondary);
-  padding-bottom: 6px;
-  border-bottom: 1px solid var(--border);
-  margin-bottom: 8px;
 }
 </style>

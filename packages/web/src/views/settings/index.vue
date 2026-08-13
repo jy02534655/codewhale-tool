@@ -145,24 +145,29 @@
     box-shadow: 0 6px 16px rgba(64, 158, 255, 0.25);
   }
 
-  /* 次要按钮降级为文字链接 */
+  /* 次要按钮弱化显示 */
   .action-bar--floating :deep(.el-button:not(.el-button--primary)) {
-    background: transparent !important;
-    border-color: transparent !important;
-    color: #999 !important;
+    background: rgba(255, 255, 255, 0.6) !important;
+    border-color: rgba(0, 0, 0, 0.08) !important;
+    color: #555 !important;
     box-shadow: none !important;
-    border-radius: 0 !important;
-    padding: 8px 4px !important;
+    border-radius: 4px !important;
+    padding: 8px 16px !important;
   }
   .action-bar--floating :deep(.el-button:not(.el-button--primary):hover) {
-    background: transparent !important;
-    color: #666 !important;
+    background: rgba(255, 255, 255, 0.85) !important;
+    border-color: rgba(0, 0, 0, 0.14) !important;
+    color: #333 !important;
   }
   html[data-theme="dark"] .action-bar--floating :deep(.el-button:not(.el-button--primary)) {
-    color: #777 !important;
+    background: rgba(255, 255, 255, 0.08) !important;
+    border-color: rgba(255, 255, 255, 0.12) !important;
+    color: #bbb !important;
   }
   html[data-theme="dark"] .action-bar--floating :deep(.el-button:not(.el-button--primary):hover) {
-    color: #aaa !important;
+    background: rgba(255, 255, 255, 0.14) !important;
+    border-color: rgba(255, 255, 255, 0.22) !important;
+    color: #ddd !important;
   }
 
   .page-section {

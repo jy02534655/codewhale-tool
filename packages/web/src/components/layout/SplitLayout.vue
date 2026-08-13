@@ -22,19 +22,3 @@ defineProps({
   gap: { type: String, default: '0' },
 })
 </script>
-
-<style scoped>
-.split-layout {
-  display: flex;
-  height: 100%;
-  overflow: hidden;
-}
-.split-left {
-  border-right: 1px solid var(--border);
-}
-.split-right {
-  flex: 1;
-  overflow-y: auto;
-  min-width: 0;
-}
-</style>

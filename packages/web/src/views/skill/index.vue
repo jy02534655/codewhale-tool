@@ -7,7 +7,7 @@
       <template #left>
         <div class="panel-left">
           <!-- 顶部操作栏 -->
-          <div class="left-toolbar">
+          <div class="toolbar">
             <el-button size="small" type="primary"
               @click="dialogCtrl.showAddDialog(null, 'installDialog')">
               <el-icon><Plus /></el-icon>
@@ -38,7 +38,7 @@
           />
 
           <!-- 列表 -->
-          <div class="list-scroll">
+          <div class="scroll-list">
             <!-- 全局 Tab -->
             <template v-if="activeTab === 'global'">
 <div
@@ -52,10 +52,10 @@
                     <el-tag v-for="tag in (s.tags || [])" :key="tag" size="small" type="warning" effect="plain">{{ tag }}</el-tag>
                     <el-tag size="small" :type="s.source === 'local' ? 'success' : 'primary'" effect="light">{{ sourceName(s.source) }}</el-tag>
                   </div>
-                  <div v-if="s.name && s.name !== (s.alias || s.id)" class="item-field">
+                  <div v-if="s.name && s.name !== (s.alias || s.id)" class="field-row--compact">
                     <span class="field-value-text">{{ s.name }}</span>
                   </div>
-                  <div v-if="s.remark" class="item-field">
+                  <div v-if="s.remark" class="field-row--compact">
                     <span class="field-value-text remark-text">{{ s.remark }}</span>
                   </div>
                 </div>
@@ -80,10 +80,10 @@
                     <el-tag v-for="tag in (s.tags || [])" :key="tag" size="small" type="warning" effect="plain">{{ tag }}</el-tag>
                     <el-tag size="small" :type="s.source === 'local' ? 'success' : 'primary'" effect="light">{{ sourceName(s.source) }}</el-tag>
                   </div>
-                  <div v-if="s.name && s.name !== (s.alias || s.slug)" class="item-field">
+                  <div v-if="s.name && s.name !== (s.alias || s.slug)" class="field-row--compact">
                     <span class="field-value-text">{{ s.name }}</span>
                   </div>
-                  <div v-if="s.remark" class="item-field">
+                  <div v-if="s.remark" class="field-row--compact">
                     <span class="field-value-text remark-text">{{ s.remark }}</span>
                   </div>
                 </div>
@@ -253,11 +253,11 @@ onMounted(loadSkills)
   overflow: hidden;
   min-height: 0;
 }
-.left-toolbar { display: flex; gap: var(--space-2); align-items: center; }
+.toolbar { display: flex; gap: var(--space-2); align-items: center; }
 .panel-left :deep(.el-tabs__header) { margin-bottom: 0; }
 .panel-left :deep(.el-tabs__item) { padding: 0 var(--space-2); font-size: 13px; }
 
-.list-scroll { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: var(--space-1); }
+.scroll-list { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: var(--space-1); }
 
 .project-group-header {
   padding: var(--space-2) var(--space-3);
@@ -270,7 +270,7 @@ onMounted(loadSkills)
 }
 .project-group-name { margin-left: var(--space-1); }
 
-.item-field { display: flex; align-items: center; gap: var(--space-1); font-size: 11px; color: var(--text-secondary); margin-top: var(--space-1); flex-wrap: wrap; }
+.field-row--compact { display: flex; align-items: center; gap: var(--space-1); font-size: 11px; color: var(--text-secondary); margin-top: var(--space-1); flex-wrap: wrap; }
 
 /* ─── 暗黑模式适配 ─── */
 [data-theme="dark"] .panel-left :deep(.el-input__wrapper) {

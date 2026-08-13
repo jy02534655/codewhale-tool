@@ -95,7 +95,7 @@ export const DEFAULT_SETTINGS = {
   // 安全与审批
   approval_policy: 'on-request',
   sandbox_mode: 'read-only',
-  allow_shell: false,
+  allow_shell: true,
   approval_default_selection: 'deny',
 
   // 子代理
@@ -148,7 +148,7 @@ export const DEFAULT_SETTINGS = {
   features_vision_model: false,
 
   // 搜索
-  search_provider: 'duckduckgo',
+  search_provider: 'firecrawl',
   search_base_url: '',
 
   // 更新
