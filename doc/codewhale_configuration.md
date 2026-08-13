@@ -1,22 +1,38 @@
-# CodeWhale 配置说明文档（含可选值详解）
+# CodeWhale 配置说明文档（含配置位置与可选值详解）
 
-> 基于 [CodeWhale/docs/CONFIGURATION.md](https://github.com/Hmbown/CodeWhale/blob/main/docs/CONFIGURATION.md) 整理，修订日期：2026-08-12
-
----
-
-## 一、配置文件位置
-
-- **默认路径**：`~/.codewhale/config.toml`（旧版兼容：`~/.deepseek/config.toml`）
-- **CLI 覆盖**：`codewhale --config /path/to/config.toml`
-- **环境变量覆盖**：`CODEWHALE_CONFIG_PATH=/path/to/config.toml`
-- **项目级覆盖**：`<workspace>/.codewhale/config.toml`（安全子集，只能收紧不能放宽）
-- **启动时加载**：工作区本地 `.env` 文件（如果存在）
+> 基于 [CodeWhale/docs/CONFIGURATION.md](https://github.com/Hmbown/CodeWhale/blob/main/docs/CONFIGURATION.md) 整理，修订日期：2026-08-13
 
 ---
 
-## 二、核心配置项（含可选值详解）
+## 配置文件体系总览
 
-### 2.1 模型与提供商
+CodeWhale 的配置分散在多个文件中，**写入位置错误会导致配置被忽略或启动失败**。以下是所有配置位置的权威清单：
+
+| 配置文件 | 路径 | 作用域 | 说明 |
+|---------|------|--------|------|
+| **主配置文件** | `~/.codewhale/config.toml`（旧版兼容：`~/.deepseek/config.toml`） | 用户全局 | **运行时策略、提供商、密钥、审批策略等核心配置** |
+| **UI 偏好文件** | `~/.codewhale/settings.toml`（旧版兼容：`~/.deepseek/settings.toml`） | 用户全局 | **主题、布局、显示偏好等纯 UI 设置** |
+| **权限规则文件** | `~/.codewhale/permissions.toml` | 用户全局 | **工具调用的精细化权限规则** |
+| **项目覆盖配置** | `<workspace>/.codewhale/config.toml` | 项目级 | **仅允许收紧安全策略的安全子集** |
+| **项目 Hooks** | `<workspace>/.codewhale/hooks.toml` | 项目级 | **项目生命周期钩子，需仓库被信任后加载** |
+| **用户全局宪法** | `~/.codewhale/constitution.json` | 用户全局 | **个人行为偏好与停止条件** |
+| **仓库本地宪法** | `.codewhale/constitution.json` | 仓库级 | **仓库权威策略、受保护不变量** |
+| **项目指令** | `AGENTS.md`（兼容 `CLAUDE.md`、`.claude/instructions.md`） | 仓库级 | **跨代理项目工作指令（自然语言）** |
+| **MCP 配置** | `~/.codewhale/mcp.json`（旧版兼容：`~/.deepseek/mcp.json`） | 用户全局 | **MCP 服务器列表与参数** |
+| **技能目录** | `~/.codewhale/skills/`（或工作区 `./skills`、`.agents/skills`） | 用户/项目 | **Skill 包存储目录** |
+| **记忆存储** | `~/.codewhale/memory/global/MEMORY.md` | 用户全局 | **用户记忆实际存储位置**（由 `memory_path` 锚定） |
+| **工作区笔记** | `<workspace>/.deepseek/notes.md` | 工作区 | **工作区本地笔记** |
+| **快照存储** | `~/.codewhale/snapshots/<project_hash>/<worktree_hash>/.git` | 用户全局 | **文件修改的 side-git 快照** |
+
+> **重要原则**：`config.toml` 与 `settings.toml` 是**两个不同的文件**。运行时策略（如 `approval_policy`、`sandbox_mode`）必须写在 `config.toml`；主题、布局等 UI 偏好必须写在 `settings.toml`。TUI 内 `/config` 命令管理的是 `config.toml`，`/settings` 管理的是 `settings.toml`。
+
+---
+
+## 一、主配置文件（`~/.codewhale/config.toml`）
+
+> 以下所有配置项**必须写入 `~/.codewhale/config.toml`**（或 CLI `--config` 指定的文件）。写入 `settings.toml` 会被忽略。
+
+### 1.1 模型与提供商
 
 | 配置项 | 作用 | 可选值 | 各值说明 |
 |--------|------|--------|----------|
@@ -79,7 +95,7 @@
 
 ---
 
-### 2.2 安全与审批
+### 1.2 安全与审批（写入 `~/.codewhale/config.toml`）
 
 | 配置项 | 作用 | 可选值 | 各值说明 |
 |--------|------|--------|----------|
@@ -94,11 +110,12 @@
 | | | `external-sandbox` | 使用外部沙箱工具（如 Docker、Seatbelt、Landlock）进行隔离，具体行为取决于外部配置 |
 | `allow_shell` | 是否允许 shell 工具 | `true` | 交互式 TUI 会话中默认可用 shell 工具（但仍受 `approval_policy` 控制） |
 | | | `false` | 完全隐藏 `exec_shell` 工具，即使模型请求也无法调用 |
-| `permissions.toml` | 同级权限规则文件 | `[[rules]]` 条目 | 支持 `tool` + 可选 `command` / `path` 字段。匹配的规则会在非 YOLO 模式下强制触发审批；`never` 模式下匹配则直接拒绝（因为无法弹窗）。审批卡片中可按 `P` 保存"始终允许"规则（`action = "allow"`），按 `S` 保存"询问"规则（`action = "ask"`） |
+
+> **权限规则文件**：`permissions.toml` 与 `config.toml` 同级（默认 `~/.codewhale/permissions.toml`），支持 `[[rules]]` 条目。项目配置**不加载**项目级 `permissions.toml`。
 
 ---
 
-### 2.3 子代理（Sub-agents）
+### 1.3 子代理（Sub-agents）（写入 `~/.codewhale/config.toml`）
 
 | 配置项 | 作用 | 默认值 / 范围 | 说明 |
 |--------|------|---------------|------|
@@ -120,7 +137,7 @@
 
 ---
 
-### 2.4 上下文管理
+### 1.4 上下文管理（写入 `~/.codewhale/config.toml`）
 
 | 配置项 | 作用 | 默认值 | 说明 |
 |--------|------|--------|------|
@@ -135,7 +152,7 @@
 
 ---
 
-### 2.5 重试机制
+### 1.5 重试机制（写入 `~/.codewhale/config.toml`）
 
 | 配置项 | 作用 | 默认值 | 说明 |
 |--------|------|--------|------|
@@ -147,37 +164,13 @@
 
 ---
 
-### 2.6 容量控制（实验性）
-
-> **注意**：`[capacity]` 章节为实验性功能，英文原版中已移除相关描述。以下保留供参考，但可能在未来版本中变更或移除。
-
-| 配置项 | 作用 | 默认值 | 说明 |
-|--------|------|--------|------|
-| `[capacity].enabled` | 启用容量控制器 | `false` | **实验性功能**。开启后，当上下文接近模型上限时，控制器会主动干预（如压缩、重写 transcript），可能改变对话历史 |
-| `[capacity].low_risk_max` | 低风险上限比例 | `0.50` | 上下文使用率低于 50% 时视为低风险，无需干预 |
-| `[capacity].medium_risk_max` | 中风险上限比例 | `0.62` | 使用率在 50%~62% 之间为中等风险，开始预警 |
-| `[capacity].severe_min_slack` | 严重风险最小余量 | `-0.25` | 负值表示允许短暂超额，但触发紧急压缩 |
-| `[capacity].severe_violation_ratio` | 严重违规比例 | `0.40` | 当实际使用率超过预期比例的 40% 时视为严重违规 |
-| `[capacity].refresh_cooldown_turns` | 刷新冷却轮数 | `6` | 两次上下文刷新操作之间至少间隔多少轮，防止频繁抖动 |
-| `[capacity].replan_cooldown_turns` | 重规划冷却轮数 | `5` | 两次重新规划之间至少间隔多少轮 |
-| `[capacity].max_replay_per_turn` | 每轮最大重放 | `1` | 单轮内最多重放多少次历史内容到提示中 |
-| `[capacity].min_turns_before_guardrail` | 护栏前最小轮数 | `4` | 会话开始至少多少轮后才启用容量护栏，给初始设置留空间 |
-| `[capacity].profile_window` | 分析窗口 | `8` | 容量控制器分析最近多少轮的 Token 使用趋势 |
-| `[capacity].deepseek_v3_2_chat_prior` | V3.2 Chat 优先级 | `3.9` | 使用 V3.2 Chat 模型时的上下文优先级权重 |
-| `[capacity].deepseek_v3_2_reasoner_prior` | V3.2 Reasoner 优先级 | `4.1` | 使用 V3.2 Reasoner 模型时的权重（略高于 Chat，因为推理消耗更多） |
-| `[capacity].deepseek_v4_pro_prior` | V4 Pro 优先级 | `3.5` | V4 Pro 的上下文权重 |
-| `[capacity].deepseek_v4_flash_prior` | V4 Flash 优先级 | `4.2` | V4 Flash 的权重（最高，因为 Flash 用于协调，需要更多上下文余量） |
-| `[capacity].fallback_default_prior` | 回退默认优先级 | `3.8` | 未知模型时的默认权重 |
-
----
-
-### 2.7 通知
+### 1.6 通知（写入 `~/.codewhale/config.toml`）
 
 | 配置项 | 作用 | 可选值 | 各值说明 |
 |--------|------|--------|----------|
 | `[notifications].method` | 通知方式 | `auto` | **默认**。自动检测终端：iTerm.app、Ghostty、WezTerm 使用 `osc9`；其他终端回退到 `bel`；Windows 上 `bel` 映射为 `MessageBeep(MB_OK)` |
-| | | `osc9` | 发送 OSC 9 转义序列 `]9;<msg>`。在 tmux 中会自动包装 DCS 透传。支持 iTerm2、Terminal.app 13+、Ghostty、Kitty、WezTerm 等 |
-| | | `bel` | 发送单个 ``（BEL）字符。最保守的兼容性方案，几乎所有终端都支持响铃 |
+| | | `osc9` | 发送 OSC 9 转义序列。在 tmux 中会自动包装 DCS 透传。支持 iTerm2、Terminal.app 13+、Ghostty、Kitty、WezTerm 等 |
+| | | `bel` | 发送单个 BEL 字符。最保守的兼容性方案，几乎所有终端都支持响铃 |
 | | | `off` | 完全关闭完成通知 |
 | `[notifications].threshold_secs` | 触发阈值（秒） | 整数 | 默认 `30`。只有成功完成且耗时 ≥ 该值的回合才会触发通知。失败/取消的回合始终静默 |
 | `[notifications].include_summary` | 包含摘要 | `true` / `false` | 默认 `false`。开启后通知体会包含耗时和该回合的估算费用 |
@@ -212,87 +205,16 @@ quiet           = false
 
 | 事件 | 提示音 |
 |------|--------|
-| `turn-complete` | BEL (``) |
-| `subagent-terminal` | BEL (``) |
-| `approval-needed` | 双 BEL (``) |
-| `input-needed` | BEL (``) |
-| `elevation-needed` | 双 BEL (``) |
-| `model-notify` | BEL (``) |
+| `turn-complete` | BEL |
+| `subagent-terminal` | BEL |
+| `approval-needed` | 双 BEL |
+| `input-needed` | BEL |
+| `elevation-needed` | 双 BEL |
+| `model-notify` | BEL |
 
 ---
 
-### 2.8 TUI 界面与交互
-
-| 配置项 | 作用 | 可选值 | 各值说明 |
-|--------|------|--------|----------|
-| `theme` | 主题 | `system` | **默认**。自动检测终端背景色，跟随系统亮/暗模式 |
-| | | `dark` | 强制使用 DeepSeek 暗色配色 |
-| | | `light` | 强制使用 DeepSeek 亮色配色 |
-| | | `grayscale` | 低饱和度的黑白灰主题，无色彩偏好 |
-| | | `catppuccin-mocha` | Catppuccin Mocha 社区主题 |
-| | | `tokyo-night` | Tokyo Night 社区主题 |
-| | | `dracula` | Dracula 社区主题 |
-| | | `gruvbox-dark` | Gruvbox Dark 社区主题 |
-| `locale` | 界面语言 | `auto` | **默认**。依次检查 `LC_ALL` → `LC_MESSAGES` → `LANG` 环境变量，不支持时回退英语 |
-| | | `en` | 英语 |
-| | | `zh-Hans` | 简体中文 |
-| | | `ja` | 日语 |
-| | | `pt-BR` | 巴西葡萄牙语 |
-| `default_mode` | 默认模式 | `agent` | **默认**。代理模式，模型可自主调用工具、读写文件、执行命令 |
-| | | `plan` | 计划模式，模型先制定计划，用户确认后逐步执行。此模式下 shell 工具始终隐藏 |
-| | | `yolo` | 全自动模式，启用 shell 和自动审批，适合完全信任的环境。旧版 `normal` 已映射为 `agent` |
-| `sidebar_focus` | 侧边栏焦点 | `pinned` | **默认**。右侧边栏始终可见（终端足够宽时），显示 Work、Tasks、Agents、Context 面板 |
-| | | `auto` | 边栏在空闲时自动折叠，有内容时展开 |
-| | | `tasks` | 默认聚焦 Tasks 面板 |
-| | | `agents` | 默认聚焦 Agents 面板 |
-| | | `context` | 默认聚焦 Context 面板 |
-| | | `hidden` | 完全隐藏右侧边栏 |
-| `work_surface_placement` | 工作栏位置 | `top` | **默认**。工作栏位于对话记录上方 |
-| | | `left` | 工作栏位于左侧 |
-| | | `right` | 工作栏位于右侧 |
-| | | `off` | 隐藏工作栏 |
-| `rail_panel` | 工作栏默认面板 | `tasks` | **默认**。显示完整任务列表（待办 + 子代理） |
-| | | `agents` | 仅显示子代理行 |
-| | | `context` | 显示只读的会话事实列表 |
-| | | `pinned` | 显示目标 + 待办清单 |
-| `show_thinking` | 显示思考过程 | `on` / `off` | 是否在 TUI 对话记录中展示模型的 reasoning/thinking 内容 |
-| `thinking_default_expanded` | 思考块默认展开 | `on` / `off` | 默认 `off`。`show_thinking` 开启时，是否默认展开 thinking 块 |
-| `show_tool_details` | 显示工具详情 | `on` / `off` | 是否展开显示每次工具调用的详细参数和结果 |
-| `auto_compact` | 自动压缩上下文 | `on` / `off` | 模型感知默认开启。当上下文接近模型窗口上限时，自动生成摘要并替换旧内容 |
-| `auto_compact_threshold_percent` | 自动压缩阈值 | `10~100` | 默认 `80`。当活跃请求输入估算达到模型上下文窗口的该百分比时触发自动压缩 |
-| `paste_burst_detection` | 粘贴突发检测 | `on` / `off` | 默认 `on`。检测不支持 bracketed-paste 事件的终端中的快速批量粘贴 |
-| `mention_menu_limit` | @提及菜单候选数 | 整数 | 默认 `128`。`@` 弹窗最多保留多少候选文件 |
-| `mention_walk_depth` | @提及遍历深度 | 整数 | 默认 `6`。`@` 补全遍历工作区的最大目录深度。设为 `0` 表示无限深度 |
-| `mention_menu_behavior` | @提及菜单行为 | `fuzzy` | **默认**。模糊搜索整个工作区，并结合提及频率（frecency）排序 |
-| | | `browser` | 仅列出当前已输入目录段的直接子目录，按字母顺序排列 |
-| `cost_currency` | 成本显示货币 | `usd` | **默认**。美元 |
-| | | `cny` | 人民币（别名 `rmb`、`yuan` 会归一化为 `cny`） |
-| `background_color` | 自定义背景色 | `#RRGGBB` / `default` | 自定义 TUI 根、头部、对话记录、底部的背景色，同时保留面板对比度 |
-| `max_input_history` | 输入历史条数 | 整数 | 默认 `100`。保留多少条已提交输入历史。已清除的草稿也保留在本地用于历史搜索。**注意**：`/config set` 使用 `max_history` 作为别名，但写入 `settings.toml` 的键名必须是 `max_input_history`** |
-| `default_model` | 默认模型覆盖 | 字符串 | 覆盖当前提供商的默认模型选择 |
-| `verbosity` | 输出详细程度 | `normal` | **默认**。标准对话风格，包含解释和上下文 |
-| | | `concise` | 简洁模式，追加提示纪律块要求直接、低冗余输出 |
-| `inline_diffs` | 内联 diff 展示 | `full` | **默认**。显示完整的红/绿 diff 和语义统计 |
-| | | `summary` | 仅保留统计信息 |
-| | | `off` | 仅显示已变更文件的平静结果 |
-| `focus_texture` | 聚焦纹理 | `off` | **默认**。无纹理 |
-| | | `scrim` | 模态视图外背景变暗 |
-| | | `grain` | 在空白单元格上散布稀疏点 |
-| `sessions_rail` | 会话栏 | `on` / `off` | 默认 `off`。在侧边栏显示最近会话列表 |
-| `session_auto_resume` | 自动恢复会话 | `on` / `off` | 默认 `off`。启动时自动恢复该工作区最近会话 |
-| `launch_screen` | 启动菜单 | `on` / `off` | 默认 `off`。启动时显示 New/Resume/Worktree 菜单 |
-| `work_surface_top_height` | 顶部工作栏高度上限 | `2~16` | 顶部条带高度上限（通常通过拖拽分隔线持久化） |
-| `work_surface_side_width` | 侧边工作栏宽度上限 | `26~80` | 侧边栏宽度上限（通常通过拖拽分隔线持久化） |
-| `tui.alternate_screen` | 备用屏幕 | `auto` / `always` / `never` | 保留兼容性配置。实际上交互会话始终使用 TUI 拥有的备用屏幕 |
-| `tui.mouse_capture` | 鼠标捕获 | `true` / `false` | 默认 `true`（非 Windows 终端和 Windows Terminal/ConEmu/Cmder 启用；JetBrains 终端默认关闭）。启用后支持内部滚动、对话选择、右键菜单、滚动条拖拽 |
-| `tui.terminal_probe_timeout_ms` | 终端探测超时 | 整数 | 默认 `500`，范围 `100~5000`。启动时探测终端模式的超时 |
-| `tui.stream_chunk_timeout_secs` | 流式块超时 | 整数 | 默认 `900`，范围 `1~3600`。SSE 流中两个数据块之间的最大空闲时间 |
-| `tui.osc8_links` | OSC 8 超链接 | `true` / `false` | macOS/Linux 默认 `true`，Windows 默认 `false`。在对话输出中的 URL 周围包裹 OSC 8 转义序列，支持终端 Cmd/Ctrl+点击跳转 |
-| `tui.header_items` | 头部可选芯片 | `string[]` | 默认 `[]`。例如 `["tokens"]` 可在头部显示会话输入、缓存命中和输出 Token 计数 |
-
----
-
-### 2.9 功能开关（Feature Flags）
+### 1.7 功能开关（Feature Flags）（写入 `~/.codewhale/config.toml`）
 
 | 配置项 | 作用 | 默认值 | 说明 |
 |--------|------|--------|------|
@@ -306,7 +228,7 @@ quiet           = false
 
 ---
 
-### 2.10 搜索提供商
+### 1.8 搜索提供商（写入 `~/.codewhale/config.toml`）
 
 | 配置项 | 作用 | 可选值 | 各值说明 |
 |--------|------|--------|----------|
@@ -325,36 +247,38 @@ quiet           = false
 
 ---
 
-### 2.11 其他路径配置
+### 1.9 其他路径与功能配置（写入 `~/.codewhale/config.toml`）
 
 | 配置项 | 作用 | 默认值 | 说明 |
 |--------|------|--------|------|
 | `skills_dir` | 技能目录 | `~/.codewhale/skills` | 每个技能是一个包含 `SKILL.md` 的目录。工作区本地 `.agents/skills` 或 `./skills` 优先于全局目录 |
 | `[skills].scan_codewhale_only` | 仅扫描 CodeWhale 技能 | `false` | 设为 `true` 时，忽略 `.claude/skills`、`.opencode/skills`、`.cursor/skills`、`~/.agents/skills` 等跨工具根目录 |
+| `[skills].registry_url` | 技能注册表地址 | — | 供 `/skills --remote`、`/skills suggest <task>`、`/skills sync` 使用 |
+| `[skills].max_install_size_bytes` | 最大安装大小 | — | 远程技能安装的大小限制 |
 | `mcp_config_path` | MCP 配置文件 | `~/.codewhale/mcp.json` | MCP 服务器配置文件路径。TUI 内可通过 `/mcp` 查看，修改后需重启 TUI 重建工具池 |
 | `notes_path` | 笔记文件路径 | `~/.codewhale/notes.txt` | 模型可见的 `note` 工具使用的笔记文件路径 |
-| `memory_path` | 记忆文件路径 | `~/.codewhale/memory.md` | 用户记忆文件路径。`memory_path` 是顶层字段，不嵌套在 `[memory]` 下 |
+| `memory_path` | 记忆文件锚点路径 | `~/.codewhale/memory.md` | **顶层字段，不嵌套在 `[memory]` 下**。<br><br>⚠️ **反直觉行为**：`memory_path` 指定的文件名**不是实际写入的文件**。CodeWhale 会以其父目录为根，自动创建 `memory/global/MEMORY.md` 目录结构。例如设置 `memory_path = "~/my_notes/ideas"`，实际文件是 `~/my_notes/memory/global/MEMORY.md`，而非 `~/my_notes/ideas.md`！ |
 | `[memory].enabled` | 启用用户记忆 | `false` | 开启后，TUI 加载记忆文件到 `<user_memory>` 提示块，启用 `# foo` 快速捕获和 `remember` 工具 |
 | `[snapshots].enabled` | 启用文件快照 | `true` | 为文件修改创建 side-git 快照，支持回滚。快照存储在 `~/.codewhale/snapshots/...`，从不使用工作区自身的 `.git` |
 | `[snapshots].max_age_days` | 快照保留天数 | `7` | 超过该天数的快照自动清理 |
 | `[verifier].enabled` | 启用自动验证器 | `false` | 开启后，模型声称任务完成时会自动运行验证器预览检查 |
 | `[verifier].verdict_policy` | 验证器裁决策略 | `hunt` | 当前唯一策略。将验证器的 `pass`/`partial`/`fail` 映射为 `hunted`/`wounded`/`escaped` 语义 |
 | `[tools].always_load` | 常驻加载工具 | `[]` | 保持特定原生工具（如 `["Git", "notify"]`）在每次请求时加载，避免通过 ToolSearch 发现 |
-
----
-
-### 2.12 更新检查
-
-| 配置项 | 作用 | 默认值 | 说明 |
-|--------|------|--------|------|
 | `[update].check_for_updates` | 启动时检查更新 | `true` | 后台检查最新稳定版，有新版本且资源完整时显示 toast 提示 |
-| | | `false` | 完全关闭更新检查，适合离线、代理或托管桌面环境 |
 | `[update].check_interval_hours` | 检查缓存间隔 | `1` | 网络更新检查的缓存间隔（小时）。设为 `0` 则每次启动都检查网络。失败不缓存 |
-| `[update].update_uri` | 自定义更新镜像 | URL 字符串 | 指向内部镜像端点，需返回 GitHub 兼容的 latest-release JSON（至少包含 `tag_name`）。若配置了 `assets`，CodeWhale 会要求与官方发布相同的资源集才提示更新 |
+| `[update].update_uri` | 自定义更新镜像 | URL 字符串 | 指向内部镜像端点，需返回 GitHub 兼容的 latest-release JSON |
+| `managed_config_path` | 托管配置文件路径 | — | 托管配置文件路径，加载于用户配置之后 |
+| `requirements_path` | 需求验证文件路径 | — | 需求验证文件路径，用于限制允许的审批策略和沙箱模式 |
+| `telemetry` | 遥测开关 | `true` | 匿名使用统计。显式 `false` 为持久化退订，删除安装 ID 并留下墓碑标记 |
+| `telemetry_endpoint` | 遥测端点 | `https://telemetry.codewhale.net/v1/telemetry` | 遥测上报地址。设为空字符串则写入本地 dry-run 文件而不发送网络请求 |
+| `max_subagents` | 最大子代理数 | `64` | 顶层快捷方式，与 `[subagents].max_concurrent` 等价 |
+| `instructions` | 额外指令源 | `[]` | 附加系统提示源文件路径列表。项目配置**忽略**此键 |
+| `verbosity` | 输出详细程度 | — | `normal` 或 `concise`。CLI 非交互命令默认 `concise` |
+| `http_headers` | 自定义请求头 | `{}` | 额外 HTTP 请求头，如 `{ "X-Model-Provider-Id" = "your-model-provider" }` |
 
 ---
 
-### 2.13 热键栏（Hotbar）
+### 1.10 热键栏（Hotbar）（写入 `~/.codewhale/config.toml`）
 
 ```toml
 [[hotbar]]
@@ -373,11 +297,11 @@ action = "session.compact"
 | `action` | 动作 ID，如 `mode.plan`（切换到计划模式）、`session.compact`（手动压缩上下文）等 |
 | `label` | 显示标签（可选），覆盖默认动作名称 |
 
-> 若未配置 `hotbar`，使用内置默认 8 个槽位；`hotbar = []` 禁用所有热键；配置后只显示已配置的槽位，未配置的留空。
+> 若未配置 `hotbar`，使用内置默认 8 个槽位；`hotbar = []` 禁用所有热键；配置后只显示已配置的槽位，未配置的留空。项目配置**忽略** `hotbar`。
 
 ---
 
-### 2.14 自动审查（Auto Review）
+### 1.11 自动审查（Auto Review）（写入 `~/.codewhale/config.toml`）
 
 ```toml
 [auto_review]
@@ -413,26 +337,30 @@ reason = "Release and publish actions require maintainer review."
 
 ---
 
-### 2.15 指令源
+### 1.12 目标循环（`[goal]`）（写入 `~/.codewhale/config.toml`）
 
 ```toml
-instructions = [
-    "./AGENTS.md",
-    "~/.codewhale/global.md",
-    "~/team/agents-shared.md",
-]
+[goal]
+max_continuations = 100   # 默认 0（无限制），设为正值启用安全上限
 ```
 
-| 特性 | 说明 |
-|------|------|
-| 路径展开 | 支持 `~` 和环境变量展开 |
-| 文件大小 | 每个文件上限 100 KiB，超出会被截断并附加 `[…elided]` 标记 |
-| 缺失文件 | 跳过并记录 tracing 警告，不会导致启动失败 |
-| 安全限制 | 项目配置（`<workspace>/.codewhale/config.toml`）**忽略** `instructions` 设置，防止克隆的仓库注入任意文件到提示中 |
+Operate 模式目标默认无 Token、时间或延续上限。`max_continuations` 是可选的安全断路器，触发后目标暂停并提示检查进度。
 
 ---
 
-## 三、Harness Profiles（模型特定配置）
+### 1.13 Hooks（生命周期钩子）（写入 `~/.codewhale/config.toml`）
+
+配置在 `[[hooks.hooks]]` 下，支持的事件：
+- `message_submit` — 可替换/阻断提交文本（非后台模式）
+- `tool_call_before` — 可决策 `allow`/`deny`/`ask`，重写输入或追加上下文
+- `turn_end`、`subagent_spawn`、`subagent_complete` — 观察者钩子，只读
+- `shell_env` — 环境变量注入
+
+> 项目级 hooks 可放在 `<workspace>/.codewhale/hooks.toml`，需仓库被信任后才加载。全局 hooks 写在 `~/.codewhale/config.toml` 的 `[hooks]` 下。
+
+---
+
+### 1.14 Harness Profiles（模型特定配置）（写入 `~/.codewhale/config.toml`）
 
 ```toml
 [[harness_profiles]]
@@ -468,65 +396,205 @@ safety_posture = "standard"
 
 ---
 
-## 四、环境变量速查
+## 二、UI 偏好文件（`~/.codewhale/settings.toml`）
 
-### 4.1 核心三件套（新旧前缀共存，CODEWHALE_* 优先）
+> 以下所有配置项**必须写入 `~/.codewhale/settings.toml`**。写入 `config.toml` 会被忽略。TUI 内 `/settings` 查看，`/config` 部分键可修改并 `--save` 持久化到 `settings.toml`。
 
-| 变量名 | 作用 |
-|--------|------|
-| `CODEWHALE_PROVIDER` / `DEEPSEEK_PROVIDER` | 覆盖提供商 |
-| `CODEWHALE_MODEL` / `DEEPSEEK_MODEL` | 覆盖默认模型 |
-| `CODEWHALE_BASE_URL` / `DEEPSEEK_BASE_URL` | 覆盖基础地址 |
+| 配置项 | 作用 | 可选值 | 各值说明 |
+|--------|------|--------|----------|
+| `theme` | 主题 | `system` | **默认**。自动检测终端背景色，跟随系统亮/暗模式 |
+| | | `dark` | 强制使用 DeepSeek 暗色配色 |
+| | | `light` | 强制使用 DeepSeek 亮色配色 |
+| | | `grayscale` | 低饱和度的黑白灰主题，无色彩偏好 |
+| | | `catppuccin-mocha` | Catppuccin Mocha 社区主题 |
+| | | `tokyo-night` | Tokyo Night 社区主题 |
+| | | `dracula` | Dracula 社区主题 |
+| | | `gruvbox-dark` | Gruvbox Dark 社区主题 |
+| `locale` | 界面语言 | `auto` | **默认**。依次检查 `LC_ALL` → `LC_MESSAGES` → `LANG` 环境变量，不支持时回退英语 |
+| | | `en` | 英语 |
+| | | `zh-Hans` | 简体中文 |
+| | | `ja` | 日语 |
+| | | `pt-BR` | 巴西葡萄牙语 |
+| `default_mode` | 默认模式 | `agent` | **默认**。代理模式，模型可自主调用工具、读写文件、执行命令 |
+| | | `plan` | 计划模式，模型先制定计划，用户确认后逐步执行。此模式下 shell 工具始终隐藏 |
+| | | `operate` | 操作模式（预览），目标循环自动执行 |
+| `work_surface_placement` | 工作栏位置 | `top` | **默认**。工作栏位于对话记录上方 |
+| | | `left` | 工作栏位于左侧 |
+| | | `right` | 工作栏位于右侧 |
+| | | `off` | 隐藏工作栏 |
+| `rail_panel` | 工作栏默认面板 | `tasks` | **默认**。显示完整任务列表（待办 + 子代理） |
+| | | `agents` | 仅显示子代理行 |
+| | | `context` | 显示只读的会话事实列表 |
+| | | `pinned` | 显示目标 + 待办清单 |
+| `show_thinking` | 显示思考过程 | `on` / `off` | 是否在 TUI 对话记录中展示模型的 reasoning/thinking 内容 |
+| `thinking_default_expanded` | 思考块默认展开 | `true` / `false` | 默认 `false`。`show_thinking` 开启时，是否默认展开 thinking 块 |
+| `show_tool_details` | 显示工具详情 | `on` / `off` | 是否展开显示每次工具调用的详细参数和结果 |
+| `auto_compact` | 自动压缩上下文 | `on` / `off` | 模型感知默认开启。当上下文接近模型窗口上限时，自动生成摘要并替换旧内容 |
+| `auto_compact_threshold_percent` | 自动压缩阈值 | `10~100` | 默认 `80`。当活跃请求输入估算达到模型上下文窗口的该百分比时触发自动压缩 |
+| `paste_burst_detection` | 粘贴突发检测 | `on` / `off` | 默认 `on`。检测不支持 bracketed-paste 事件的终端中的快速批量粘贴 |
+| `mention_menu_limit` | @提及菜单候选数 | 整数 | 默认 `128`。`@` 弹窗最多保留多少候选文件 |
+| `mention_walk_depth` | @提及遍历深度 | 整数 | 默认 `6`。`@` 补全遍历工作区的最大目录深度。设为 `0` 表示无限深度 |
+| `mention_menu_behavior` | @提及菜单行为 | `fuzzy` | **默认**。模糊搜索整个工作区，并结合提及频率（frecency）排序 |
+| | | `browser` | 仅列出当前已输入目录段的直接子目录，按字母顺序排列 |
+| `cost_currency` | 成本显示货币 | `usd` | **默认**。美元 |
+| | | `cny` | 人民币（别名 `rmb`、`yuan` 会归一化为 `cny`） |
+| `background_color` | 自定义背景色 | `#RRGGBB` / `default` | 自定义 TUI 根、头部、对话记录、底部的背景色，同时保留面板对比度 |
+| `max_input_history` | 输入历史条数 | 整数 | 默认 `100`。保留多少条已提交输入历史。已清除的草稿也保留在本地用于历史搜索。<br><br>⚠️ **键名陷阱**：TUI 内 `/config set max_history 200 --save` 使用的别名是 `max_history`，但保存到 `settings.toml` 时**会自动映射为 `max_input_history`**。如果用户**手动在文件里写 `max_history`**，该配置会被**完全忽略**！请始终使用 `max_input_history` 作为文件键名 |
+| `default_model` | 默认模型覆盖 | 字符串 | 覆盖当前提供商的默认模型选择 |
+| `verbosity` | 输出详细程度 | `normal` | **默认**。标准对话风格，包含解释和上下文 |
+| | | `concise` | 简洁模式，追加提示纪律块要求直接、低冗余输出 |
+| `inline_diffs` | 内联 diff 展示 | `full` | **默认**。显示完整的红/绿 diff 和语义统计 |
+| | | `summary` | 仅保留统计信息 |
+| | | `off` | 仅显示已变更文件的平静结果 |
+| `focus_texture` | 聚焦纹理 | `off` | **默认**。无纹理 |
+| | | `scrim` | 模态视图外背景变暗 |
+| | | `grain` | 在空白单元格上散布稀疏点 |
+| `sessions_rail` | 会话栏 | `on` / `off` | 默认 `off`。在侧边栏显示最近会话列表 |
+| `session_auto_resume` | 自动恢复会话 | `on` / `off` | 默认 `off`。启动时自动恢复该工作区最近会话 |
+| `launch_screen` | 启动菜单 | `on` / `off` | 默认 `off`。启动时显示 New/Resume/Worktree 菜单 |
+| `work_surface_top_height` | 顶部工作栏高度上限 | `2~16` | 顶部条带高度上限（通常通过拖拽分隔线持久化） |
+| `work_surface_side_width` | 侧边工作栏宽度上限 | `26~80` | 侧边栏宽度上限（通常通过拖拽分隔线持久化） |
+| `tui.alternate_screen` | 备用屏幕 | `auto` / `always` / `never` | 保留兼容性配置。实际上交互会话始终使用 TUI 拥有的备用屏幕 |
+| `tui.mouse_capture` | 鼠标捕获 | `true` / `false` | 默认 `true`（非 Windows 终端和 Windows Terminal/ConEmu/Cmder 启用；JetBrains 终端默认关闭）。启用后支持内部滚动、对话选择、右键菜单、滚动条拖拽 |
+| `tui.terminal_probe_timeout_ms` | 终端探测超时 | 整数 | 默认 `500`，范围 `100~5000`。启动时探测终端模式的超时 |
+| `tui.stream_chunk_timeout_secs` | 流式块超时 | 整数 | 默认 `900`，范围 `1~3600`。SSE 流中两个数据块之间的最大空闲时间 |
+| `tui.osc8_links` | OSC 8 超链接 | `true` / `false` | macOS/Linux 默认 `true`，Windows 默认 `false`。在对话输出中的 URL 周围包裹 OSC 8 转义序列，支持终端 Cmd/Ctrl+点击跳转 |
+| `tui.header_items` | 头部可选芯片 | `string[]` | 默认 `[]`。例如 `["tokens"]` 可在头部显示会话输入、缓存命中和输出 Token 计数 |
 
-### 4.2 常用开关
+---
+
+## 三、项目覆盖配置（`<workspace>/.codewhale/config.toml`）
+
+> **安全子集**：项目级配置仅支持以下键，且**只能收紧**用户全局配置。写入其他键会被忽略。
+
+| 键 | 允许的值 | 效果 | 收紧规则 |
+|----|----------|------|----------|
+| `model` | 任意模型 ID | 覆盖 `default_text_model` | — |
+| `reasoning_effort` | `high` / `max` | 强制高推理强度 | 仅允许提升（不能降低） |
+| `approval_policy` | 更严格的值 | 收紧审批姿态 | 只能比全局更严格 |
+| `sandbox_mode` | 更严格的值 | 收紧沙箱姿态 | 只能比全局更严格 |
+| `notes_path` | 路径 | 将笔记保存在仓库内 | — |
+| `max_subagents` | `1~128` | 限制子代理并发 | clamp 到 `1..=128` |
+| `allow_shell` | `false` | 禁用 shell | `true` 被**忽略**（不能放宽） |
+
+> **以下键在项目配置中会被明确忽略**：`api_key`、`base_url`、`provider`、`mcp_config_path`、`hotbar`、`allow_shell = true`、`instructions`、`telemetry`、`telemetry_endpoint`、`http_headers`。
+
+---
+
+## 四、Constitution 与项目指令
+
+### 4.1 用户全局 Constitution（`~/.codewhale/constitution.json`）
+
+通过 TUI 内 `/constitution` 或 `/setup` 管理。存储个人偏好和停止条件，**不改变运行时审批策略、沙箱或权限**。
+
+```json
+{
+  "schema_version": 1,
+  "authority": [
+    "current user request",
+    "live code and tests",
+    "AGENTS.md",
+    "memory"
+  ],
+  "protected_invariants": [
+    "do not break old-session transcript replay"
+  ]
+}
+```
+
+### 4.2 仓库本地 Constitution（`.codewhale/constitution.json`）
+
+放在仓库内的 `.codewhale/` 目录中。可定义权威优先级、受保护不变量（带 `paths` 的对象可被**机械执行**）、分支策略、验证策略等。
+
+```json
+{
+  "schema_version": 1,
+  "authority": [
+    "current user request",
+    "live code and tests",
+    "GitHub issue/PR details",
+    "AGENTS.md"
+  ],
+  "protected_invariants": [
+    "Keep DeepSeek support first-class.",
+    {
+      "text": "The wire format is frozen; protocol changes need a human.",
+      "paths": ["crates/protocol/**"],
+      "action": "block"
+    }
+  ],
+  "branch_policy": "PRs target the integration branch, not main",
+  "verification_policy": {
+    "before_claiming_done": ["run focused tests", "read changed files back"]
+  }
+}
+```
+
+### 4.3 项目指令（`AGENTS.md`）
+
+跨代理项目工作指令（自然语言 prose）。通过 `/init` 脚手架化。`CLAUDE.md` 和 `.claude/instructions.md` 作为兼容回退读取。
+
+> `WHALE.md` 已弃用，不再读取。
+
+---
+
+## 五、环境变量速查
+
+> 环境变量**覆盖**配置文件中的对应值。以下列出与配置位置相关的关键变量。
+
+### 5.1 核心三件套（新旧前缀共存，`CODEWHALE_*` 优先）
+
+| 变量名 | 作用 | 对应配置文件位置 |
+|--------|------|------------------|
+| `CODEWHALE_PROVIDER` / `DEEPSEEK_PROVIDER` | 覆盖提供商 | `config.toml` → `provider` |
+| `CODEWHALE_MODEL` / `DEEPSEEK_MODEL` | 覆盖默认模型 | `config.toml` → `default_text_model` |
+| `CODEWHALE_BASE_URL` / `DEEPSEEK_BASE_URL` | 覆盖基础地址 | `config.toml` → `[providers.<name>].base_url` |
+
+### 5.2 安全与审批（对应 `config.toml`）
 
 | 变量名 | 作用 | 有效值 |
 |--------|------|--------|
-| `DEEPSEEK_ALLOW_SHELL` | 允许 Shell | `1`、`true` |
-| `DEEPSEEK_APPROVAL_POLICY` | 审批策略 | `on-request`、`untrusted`、`never` |
-| `DEEPSEEK_SANDBOX_MODE` | 沙箱模式 | `read-only`、`workspace-write`、`danger-full-access`、`external-sandbox` |
-| `DEEPSEEK_MEMORY` | 启用记忆 | `1`、`on`、`true`、`yes`、`y`、`enabled` |
-| `CODEWHALE_CACHE_MAXIMAL` | 缓存最大化 | `1`、`true`、`on`、`yes` |
-| `DEEPSEEK_ALLOW_INSECURE_HTTP` | 允许非本地 HTTP | `1`、`true` |
-| `DEEPSEEK_FORCE_HTTP1` | 强制 HTTP/1.1 | `1`、`true`、`yes`、`on` |
+| `CODEWHALE_ALLOW_SHELL` / `DEEPSEEK_ALLOW_SHELL` | 允许 Shell | `1`、`true` |
+| `CODEWHALE_APPROVAL_POLICY` / `DEEPSEEK_APPROVAL_POLICY` | 审批策略 | `on-request`、`untrusted`、`never` |
+| `CODEWHALE_SANDBOX_MODE` / `DEEPSEEK_SANDBOX_MODE` | 沙箱模式 | `read-only`、`workspace-write`、`danger-full-access`、`external-sandbox` |
 
-### 4.3 路径与日志
+### 5.3 路径与配置覆盖
+
+| 变量名 | 作用 | 对应配置文件位置 |
+|--------|------|------------------|
+| `CODEWHALE_HOME` | 覆盖基础数据目录 | 影响所有 `~/.codewhale/*` 路径 |
+| `CODEWHALE_CONFIG_PATH` / `DEEPSEEK_CONFIG_PATH` | 覆盖配置文件路径 | 替换 `~/.codewhale/config.toml` |
+| `CODEWHALE_MANAGED_CONFIG_PATH` | 托管配置文件路径 | `config.toml` → `managed_config_path` |
+| `CODEWHALE_REQUIREMENTS_PATH` | 需求验证文件路径 | `config.toml` → `requirements_path` |
+| `CODEWHALE_SKILLS_DIR` | 覆盖技能目录 | `config.toml` → `skills_dir` |
+| `CODEWHALE_MCP_CONFIG` / `DEEPSEEK_MCP_CONFIG` | 覆盖 MCP 配置文件 | `config.toml` → `mcp_config_path` |
+| `CODEWHALE_NOTES_PATH` | 覆盖笔记文件路径 | `config.toml` → `notes_path` |
+| `CODEWHALE_MEMORY_PATH` / `DEEPSEEK_MEMORY_PATH` | 覆盖记忆文件锚点 | `config.toml` → `memory_path` |
+| `CODEWHALE_TASKS_DIR` / `DEEPSEEK_TASKS_DIR` | 运行时任务队列目录 | — |
+| `CODEWHALE_AUTOMATIONS_DIR` | 覆盖自动化存储目录 | — |
+
+### 5.4 功能开关（对应 `config.toml`）
+
+| 变量名 | 作用 | 有效值 |
+|--------|------|--------|
+| `CODEWHALE_MEMORY` / `DEEPSEEK_MEMORY` | 启用用户记忆 | `1`、`on`、`true`、`yes`、`y`、`enabled` |
+| `CODEWHALE_CACHE_MAXIMAL` | 缓存最大化模式 | `1`、`true`、`on`、`yes` |
+| `CODEWHALE_ALLOW_INSECURE_HTTP` / `DEEPSEEK_ALLOW_INSECURE_HTTP` | 允许非本地 HTTP | `1`、`true` |
+| `CODEWHALE_FORCE_HTTP1` / `DEEPSEEK_FORCE_HTTP1` | 强制 HTTP/1.1 | `1`、`true`、`yes`、`on` |
+| `CODEWHALE_TELEMETRY` / `DEEPSEEK_TELEMETRY` | 遥测开关 | `0`、`1`、`true`、`false`、`yes`、`no`、`on`、`off` |
+| `CODEWHALE_TELEMETRY_ENDPOINT` / `DEEPSEEK_TELEMETRY_ENDPOINT` | 遥测端点 | URL 或空字符串 |
+| `CODEWHALE_MAX_SUBAGENTS` / `DEEPSEEK_MAX_SUBAGENTS` | 最大子代理数 | `1~128` |
+| `CODEWHALE_VERBOSITY` / `DEEPSEEK_VERBOSITY` | 输出详细程度 | `normal`、`concise` |
+
+### 5.5 日志与调试
 
 | 变量名 | 作用 |
 |--------|------|
-| `CODEWHALE_HOME` | 覆盖基础数据目录（默认 `~/.codewhale`） |
-| `CODEWHALE_CONFIG_PATH` | 覆盖配置文件路径 |
-| `DEEPSEEK_LOG_LEVEL` / `RUST_LOG` | 日志级别：`info`、`debug`、`trace` |
+| `CODEWHALE_LOG_LEVEL` / `RUST_LOG` | 日志级别：`info`、`debug`、`trace` |
 | `SSL_CERT_FILE` | 企业代理/自签证书路径 |
-
-### 4.4 新增环境变量
-
-| 变量名 | 作用 |
-|--------|------|
-| `CODEWHALE_MAX_OUTPUT_TOKENS` / `DEEPSEEK_MAX_OUTPUT_TOKENS` | 覆盖请求输出上限（无 `config.toml` 对应键） |
-| `CODEWHALE_TELEMETRY` / `DEEPSEEK_TELEMETRY` | 匿名使用统计开关（显式 `off` 为硬底线） |
-| `CODEWHALE_TELEMETRY_ENDPOINT` / `DEEPSEEK_TELEMETRY_ENDPOINT` | 遥测上报端点（空字符串 = 本地 dry-run） |
-| `CODEWHALE_RELEASE_BASE_URL` | 发布资源镜像地址 |
-| `CODEWHALE_AUTOMATIONS_DIR` | 覆盖自动化存储目录 |
-| `CODEWHALE_NO_UPDATE_CHECK` | 显式禁用启动更新检查 |
-| `CODEWHALE_INSTALL_METHOD` | 覆盖安装方式检测（`npm`/`homebrew`/`cargo`/`binary`） |
-| `CODEWHALE_SSH_CLIPBOARD` | SSH 剪贴板策略（`graphical` 或 `terminal`） |
-| `CODEWHALE_VERBOSITY` / `DEEPSEEK_VERBOSITY` | 输出详细程度（`normal`/`concise`） |
 | `NO_ANIMATIONS` | 强制低动效（`1`/`true`/`yes`/`on`） |
-| `CODEWHALE_MAX_SUBAGENTS` | 覆盖最大子代理数（限制 `1~128`） |
-| `CODEWHALE_TASKS_DIR` | 运行时任务队列/工件存储目录 |
-| `CODEWHALE_MANAGED_CONFIG_PATH` | 托管配置文件路径 |
-| `CODEWHALE_REQUIREMENTS_PATH` | 需求验证文件路径 |
-| `CODEWHALE_SKILLS_DIR` | 覆盖技能目录 |
-| `CODEWHALE_MCP_CONFIG` | 覆盖 MCP 配置文件路径 |
-| `CODEWHALE_NOTES_PATH` | 覆盖笔记文件路径 |
-| `CODEWHALE_MEMORY` | 启用用户记忆（`1`/`on`/`true`/`yes`/`y`/`enabled`） |
-| `CODEWHALE_MEMORY_PATH` | 覆盖记忆文件锚点路径 |
-| `DEEPSEEK_STREAM_IDLE_TIMEOUT_SECS` | SSE 流空闲超时（默认 `900`） |
-| `DEEPSEEK_STREAM_OPEN_TIMEOUT_SECS` | 连接建立+响应头等待超时（默认 `45`） |
-| `DEEPSEEK_HTTP_HEADERS` | 自定义模型请求头（逗号分隔 `name=value`） |
 
-### 4.5 提供商专属环境变量（部分）
+### 5.6 提供商专属环境变量
 
 | 变量名 | 对应 Provider |
 |--------|--------------|
@@ -540,113 +608,9 @@ safety_posture = "standard"
 
 ---
 
-## 五、项目覆盖配置（安全子集）
-
-项目级 `<workspace>/.codewhale/config.toml` 仅支持以下键，且**只能收紧**用户全局配置：
-
-| 键 | 允许的值 | 效果 |
-|----|----------|------|
-| `model` | 任意模型 ID | 覆盖 `default_text_model` |
-| `reasoning_effort` | `high` / `max` | 强制高推理强度（仅允许提升） |
-| `approval_policy` | 更严格的值 | 只能收紧当前用户的审批姿态 |
-| `sandbox_mode` | 更严格的值 | 只能收紧当前用户的沙箱姿态 |
-| `notes_path` | 路径 | 将笔记保存在仓库内 |
-| `max_subagents` | `1~128` | 限制子代理并发（clamp 到 `1..=128`） |
-| `allow_shell` | `false` | 禁用 shell；`true` 被忽略（不能放宽） |
-
-> **以下键在项目配置中会被忽略**：`api_key`、`base_url`、`provider`、`mcp_config_path`、`hotbar`、`allow_shell = true`、`instructions`。
-
----
-
-## 六、Settings 文件（持久化 UI 偏好）
-
-CodeWhale 将用户偏好存储在 `~/.codewhale/settings.toml`（新安装）或 `~/.deepseek/settings.toml`（旧版迁移）。
-
-**常见 Settings 键（与 `config.toml` 不重复列出，仅作速查）：**
-
-| 键 | 默认值 | 说明 |
-|----|--------|------|
-| `theme` | `system` | 主题，同 2.8 |
-| `auto_compact` | 模型感知默认开启 | 自动压缩开关 |
-| `auto_compact_threshold_percent` | `80` | 自动压缩触发阈值（`10~100`） |
-| `work_surface_placement` | `top` | 工作栏位置 |
-| `rail_panel` | `tasks` | 工作栏默认面板 |
-| `focus_texture` | `off` | 聚焦纹理 |
-| `inline_diffs` | `full` | 内联 diff 模式 |
-| `thinking_default_expanded` | `off` | thinking 块默认展开 |
-| `sessions_rail` | `off` | 会话栏显示 |
-| `session_auto_resume` | `off` | 自动恢复会话 |
-| `launch_screen` | `off` | 启动菜单 |
-| `work_surface_top_height` | — | 顶部工作栏高度上限（`2~16`） |
-| `work_surface_side_width` | — | 侧边工作栏宽度上限（`26~80`） |
-| `mention_menu_limit` | `128` | @提及菜单候选数 |
-| `mention_walk_depth` | `6` | @提及遍历深度（`0` = 无限） |
-| `mention_menu_behavior` | `fuzzy` | @提及菜单行为 |
-| `show_thinking` | — | 显示思考过程 |
-| `show_tool_details` | — | 显示工具详情 |
-| `cost_currency` | `usd` | 成本货币 |
-| `background_color` | — | 自定义背景色 |
-| `locale` | `auto` | UI 语言 |
-| `paste_burst_detection` | `on` | 粘贴突发检测 |
-| `tui.mouse_capture` | `true` | 鼠标捕获 |
-| `tui.osc8_links` | 平台相关 | OSC 8 超链接 |
-| `tui.stream_chunk_timeout_secs` | `900` | 流式块超时 |
-| `tui.terminal_probe_timeout_ms` | `500` | 终端探测超时 |
-| `tui.header_items` | `[]` | 头部可选芯片 |
-| `max_input_history` | `100` | 输入历史条数（serde 字段名，非 `max_history`） |
-| `default_model` | — | 默认模型覆盖 |
-| `default_mode` | `agent` | 默认模式 |
-| `verbosity` | — | 输出详细程度 |
-
-> 可通过 `/settings` 查看、`/config` 修改并 `--save` 持久化。
-
----
-
-## 七、其他重要配置
-
-### 7.1 目标循环（`[goal]`）
-
-```toml
-[goal]
-max_continuations = 100   # 默认 0（无限制），设为正值启用安全上限
-```
-
-Operate 模式目标默认无 Token、时间或延续上限。`max_continuations` 是可选的安全断路器，触发后目标暂停并提示检查进度。
-
-### 7.2 工具目录（`[tools]`）
-
-```toml
-[tools]
-always_load = ["Git", "notify"]
-```
-
-保持特定原生工具在每次请求时加载，避免通过 ToolSearch 发现。`codewhale-tui setup --tools` 可脚手架化工具目录。
-
-### 7.3 Constitution 与项目指令
-
-CodeWhale 的指令层级（从高到低）：
-1. **编译内置 Constitution** — 二进制中的基础法则
-2. **用户全局 Constitution** — `~/.codewhale/constitution.json`，通过 `/constitution` 管理
-3. **仓库本地 Constitution** — `.codewhale/constitution.json`，可定义 `authority`、`protected_invariants`（带 `paths` 的对象可被机械执行）、`branch_policy`、`verification_policy` 等
-4. **`AGENTS.md`** — 跨代理项目指令（prose）
-5. **记忆和交接** —  recalled state
-
-> `WHALE.md` 已弃用，不再读取。`AGENTS.md` 是项目指令的规范文件。
-
-### 7.4 Hooks（生命周期钩子）
-
-配置在 `[[hooks.hooks]]` 下，支持的事件：
-- `message_submit` — 可替换/阻断提交文本（非后台模式）
-- `tool_call_before` — 可决策 `allow`/`deny`/`ask`，重写输入或追加上下文
-- `turn_end`、`subagent_spawn`、`subagent_complete` — 观察者钩子，只读
-- `shell_env` — 环境变量注入
-
-项目级 hooks 可放在 `<workspace>/.codewhale/hooks.toml`，需仓库被信任后才加载。
-
----
-
-## 八、修订记录
+## 六、修订记录
 
 | 日期 | 修订内容 |
 |------|----------|
+| 2026-08-13 | **新增**：为每个配置项明确标注应写入的配置文件位置（`config.toml` / `settings.toml` / `permissions.toml` / `constitution.json` / `AGENTS.md` / 项目覆盖）；新增"配置文件体系总览"章节；区分 `config.toml` 与 `settings.toml` 的边界；补充项目覆盖的安全子集说明；补充 Constitution 与项目指令的独立文件说明 |
 | 2026-08-12 | 修正 `max_subagents` 默认值（20→64）、限制（20→128）；修正 `max_admitted` 默认值（200→1024）；修正 `api_timeout_secs` 默认值（120→600）；标注 `[context]` 废弃键；补充新增 provider（xai、longcat、opencode-go、mistral、telecomjs 等）；补充 `[notifications.events/event_sound]`、`[update].check_interval_hours`、`[approval].default_selection`、Settings 章节、环境变量等 |

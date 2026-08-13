@@ -54,9 +54,9 @@
         "label": "Profundidade de Menções",
         "help": "Profundidade máxima de diretório para o {'@'} percorrer o workspace. 0 significa profundidade ilimitada, padrão 6."
       },
-      "max_history": {
+      "max_input_history": {
         "label": "Histórico Máximo",
-        "help": "Número de histórico de entrada submetida a reter. Rascunhos limpos ainda são mantidos para pesquisa no histórico, padrão 1000."
+        "help": "Número de histórico de entrada submetida a reter. Rascunhos limpos ainda são mantidos para pesquisa no histórico, padrão 100."
       },
       "background_color": {
         "label": "Cor de Fundo",

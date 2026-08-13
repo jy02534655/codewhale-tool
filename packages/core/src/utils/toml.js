@@ -6,45 +6,91 @@
  */
 
 import { parse, stringify } from 'smol-toml';
-import { readFileSync, existsSync, mkdirSync } from 'node:fs';
-import { dirname } from 'node:path';
-import { atomicWriteSync } from './config.js';
-import { isEmpty, codeWhalePath } from './index.js';
+import { readFileSync, existsSync, mkdirSync, renameSync, writeFileSync } from 'node:fs';
+import { dirname, join } from 'node:path';
+import { codeWhalePath } from './index.js';
 
-const DEFAULT_HEADER = '# CodeWhale Configuration\n# Synced by codewhale-tool\n\n';
+const CODEWHALE_HOME = process.env.CODEWHALE_HOME || join(dirname(codeWhalePath()), '');
 
-/**
- * 读取 CodeWhale 配置
- * @param {Object} [fallback={}] - 文件不存在或解析失败时的返回值
- * @returns {Object} 解析后的 TOML 配置对象
- */
-export function readCodeWhaleConfig(fallback = {}) {
-  const filePath = codeWhalePath();
-  if (!existsSync(filePath)) {
-    return fallback;
-  }
-  try {
-    const raw = readFileSync(filePath, 'utf-8');
-    return parse(raw);
-  } catch {
-    return fallback;
-  }
+// ============================================================
+// 1. FileManager 工厂
+// ============================================================
+
+function createFileManager({ getPath, name, isRawText = false }) {
+  return {
+    getPath,
+    name,
+
+    read(options = {}) {
+      const path = options[`${name}Path`] || getPath();
+      try {
+        if (existsSync(path)) {
+          const content = readFileSync(path, 'utf-8');
+          if (isRawText) return content;
+          return parse(content);
+        }
+      } catch (e) {
+        console.warn(`[toml] Failed to read ${name}.toml:`, e.message);
+      }
+      return isRawText ? null : {};
+    },
+
+    write(data, options = {}) {
+      const path = options[`${name}Path`] || getPath();
+      const dir = join(path, '..');
+      mkdirSync(dir, { recursive: true });
+
+      const content = isRawText
+        ? (data ?? '')
+        : stringify(data);
+
+      const tmpPath = `${path}.tmp.${Date.now()}`;
+      writeFileSync(tmpPath, content, 'utf-8');
+      renameSync(tmpPath, path);
+    },
+
+    exists(options = {}) {
+      const path = options[`${name}Path`] || getPath();
+      return existsSync(path);
+    },
+  };
 }
 
-/**
- * 写入 CodeWhale 配置（原子写入，自动创建目录）
- * @param {Object} data - 要写入的配置对象
- */
-export function writeCodeWhaleConfig(data) {
-  const filePath = codeWhalePath();
-  const dir = dirname(filePath);
-  if (!existsSync(dir)) {
-    mkdirSync(dir, { recursive: true });
-  }
+// ============================================================
+// 2. 三个文件管理器
+// ============================================================
 
-  const content = isEmpty(data)
-    ? '# CodeWhale Configuration\n# (All settings are at default values)\n'
-    : DEFAULT_HEADER + stringify(data);
+export const configManager = createFileManager({
+  getPath: () => process.env.CODEWHALE_CONFIG_PATH || join(CODEWHALE_HOME, 'config.toml'),
+  name: 'config',
+  isRawText: false,
+});
 
-  atomicWriteSync(filePath, content);
-}
+export const settingsManager = createFileManager({
+  getPath: () => join(CODEWHALE_HOME, 'settings.toml'),
+  name: 'settings',
+  isRawText: false,
+});
+
+export const permissionsManager = createFileManager({
+  getPath: () => join(CODEWHALE_HOME, 'permissions.toml'),
+  name: 'permissions',
+  isRawText: true,
+});
+
+// ============================================================
+// 3. 便捷函数
+// ============================================================
+
+export const getCodeWhaleConfigPath = configManager.getPath;
+export const getCodeWhaleSettingsPath = settingsManager.getPath;
+export const getCodeWhalePermissionsPath = permissionsManager.getPath;
+
+export const readCodeWhaleConfig = (opts) => configManager.read(opts);
+export const writeCodeWhaleConfig = (data, opts) => configManager.write(data, opts);
+
+export const readCodeWhaleSettings = (opts) => settingsManager.read(opts);
+export const writeCodeWhaleSettings = (data, opts) => settingsManager.write(data, opts);
+
+export const readPermissionsToml = (opts) => permissionsManager.read(opts);
+export const writePermissionsToml = (data, opts) => permissionsManager.write(data, opts);

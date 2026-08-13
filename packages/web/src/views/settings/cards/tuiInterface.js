@@ -21,7 +21,7 @@ export const tuiInterfaceGroups = [
       // 提及遍历深度：@ 提及内容解析的最大深度
       { key: 'mention_walk_depth', tag: 'el-input-number', attrs: { min: 0 } },
       // 最大历史记录数：终端保留的最大历史轮数
-      { key: 'max_history', tag: 'el-input-number', attrs: { min: 1 } },
+      { key: 'max_input_history', tag: 'el-input-number', attrs: { min: 1 } },
       // 主题：终端界面主题风格
       { key: 'theme', tag: 'SettingsSelect', optionKey: 'theme' },
       // 默认模式：终端的默认交互模式

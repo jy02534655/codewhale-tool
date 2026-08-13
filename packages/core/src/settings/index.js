@@ -8,7 +8,7 @@
 import { ok, okMsg } from '../utils/result.js';
 import { DEFAULT_SETTINGS } from './defaults.js';
 import { readSettingsFromCodeWhale } from './reader.js';
-import { writeSettingsToCodeWhale } from './writer.js';
+import { writeSettingsToCodeWhale, restoreCodeWhaleDefaults } from './writer.js';
 
 // ---------- 导出 ----------
 
@@ -40,8 +40,7 @@ export class SettingsManager {
    * @returns {{ success: true, data: Object, message: string }}
    */
   restoreDefaults() {
-    const defaults = { ...DEFAULT_SETTINGS };
-    writeSettingsToCodeWhale(defaults);
+    restoreCodeWhaleDefaults();
     return okMsg('updated', readSettingsFromCodeWhale());
   }
 

@@ -97,10 +97,10 @@ const SETTINGS_OPTIONS = {
     'pt-BR': { full: 'Completo', summary: 'Resumo', off: 'Desligado' }
   },
   focus_texture: {
-    'zh-Hans': { off: '无', scrim: '遮罩' },
-    en: { off: 'Off', scrim: 'Scrim' },
-    ja: { off: 'なし', scrim: 'Scrim' },
-    'pt-BR': { off: 'Desligado', scrim: 'Scrim' }
+    'zh-Hans': { off: '无', scrim: '遮罩', grain: '颗粒' },
+    en: { off: 'Off', scrim: 'Scrim', grain: 'Grain' },
+    ja: { off: 'なし', scrim: 'Scrim', grain: 'Grain' },
+    'pt-BR': { off: 'Desligado', scrim: 'Scrim', grain: 'Grain' }
   },
   rail_panel: {
     'zh-Hans': { tasks: '任务', agents: '智能体', context: '上下文', pinned: '固定' },

@@ -16,7 +16,7 @@
         <el-button @click="onRestoreDefaults">{{ $t('settings.actions_restore_defaults') }}</el-button>
       </div>
 
-      <el-form ref="settingsFormRef" :model="formData" :rules="rules" label-width="auto" label-position="left" size="default" require-asterisk-position="right">
+      <el-form ref="settingsFormRef" :model="formData" :rules="rules" label-width="200px" label-position="left" size="default" require-asterisk-position="right">
         <div class="settings-masonry">
           <groupCard v-for="group in groups" :key="group.titleKey" v-model:formData="formData" :title-key="group.titleKey" :items="group.items" />
         </div>
@@ -29,7 +29,7 @@
   import { ref, reactive, onMounted } from 'vue';
   import { useI18n } from 'vue-i18n';
   import { ElMessage, ElMessageBox } from 'element-plus';
-  import { getSettings, updateSettings, postSettingsDefaults } from '@/api/settings';
+  import { getSettings, updateSettings, postSettingsDefaults, getSettingsDefaults } from '@/api/settings';
   import { clearObject } from '@/utils';
   import { assign, cloneDeep } from 'lodash-es';
 
@@ -47,16 +47,27 @@
   // 用于取消重置的原始数据快照
   const originalForm = {};
 
+  // 默认值数据，用于 diff 时判断是否恢复默认
+  const defaultSettings = reactive({});
+
   // ========== 表单校验规则 ==========
   const rules = {};
 
   // ========== 获取设置 ==========
   const fetchSettings = () => {
-    getSettings().then((data) => {
-      if (!data) return;
-      assign(formData, clearObject(data));
-      // 同步原始快照
-      assign(originalForm, cloneDeep(formData));
+    Promise.allSettled([
+      getSettings(),
+      getSettingsDefaults()
+    ]).then(([settingsResult, defaultsResult]) => {
+      if (settingsResult.status === 'fulfilled' && settingsResult.value) {
+        const settingsData = settingsResult.value;
+        assign(formData, clearObject(settingsData));
+        // 同步原始快照
+        assign(originalForm, cloneDeep(formData));
+      }
+      if (defaultsResult.status === 'fulfilled' && defaultsResult.value) {
+        assign(defaultSettings, defaultsResult.value);
+      }
     });
   }
 
@@ -66,8 +77,21 @@
       if (!valid) {
         return;
       }
-      const settingsData = clearObject({ ...formData });
-      updateSettings(settingsData)
+      // 计算 diff：只提交修改过的字段，改回默认值的字段传 null
+      const payload = {};
+      for (const key of Object.keys(formData)) {
+        const current = formData[key];
+        const original = originalForm[key];
+        // 跳过未变更的字段
+        if (current === original) continue;
+        // 改回默认值时传 null，让后端删除该字段以恢复默认
+        if (defaultSettings[key] !== undefined && current === defaultSettings[key]) {
+          payload[key] = null;
+        } else {
+          payload[key] = current;
+        }
+      }
+      updateSettings(payload)
         .then(() => {
           // 保存成功后更新原始快照
           assign(originalForm, cloneDeep(formData));

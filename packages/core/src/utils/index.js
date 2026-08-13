@@ -1,4 +1,4 @@
-import { pickBy, isNumber, isEmpty as lodashIsEmpty, isBoolean, isDate, isFunction } from 'lodash-es';
+import { pickBy, isNumber, isEmpty as lodashIsEmpty, isBoolean, isDate, isFunction, isPlainObject, isArray } from 'lodash-es';
 import { homedir } from 'node:os';
 import { join } from 'node:path';
 
@@ -9,8 +9,11 @@ export function isEmpty(v) {
   return lodashIsEmpty(v);
 }
 
-export function clearObject(o) {
-  return pickBy(o, (item) => !isEmpty(item));
+export function clearObject(o, preserveEmptyArrays = false) {
+  return pickBy(o, (item) => {
+    if (preserveEmptyArrays && (isArray(item) || isPlainObject(item))) return true;
+    return !isEmpty(item);
+  });
 }
 
 /**

@@ -4,6 +4,35 @@
  * 与 CodeWhale config.toml 默认值保持一致，供 server 和前端共享。
  */
 
+// ============================================================
+// CODEWHALE_DEFAULTS：settings.toml 必须存在配置项（仅键名）
+// 这些键即使等于默认值也始终保留，防止 CodeWhale 启动时因缺失而重置文件。
+// ============================================================
+export const CODEWHALE_DEFAULTS = [
+  'calm_mode', 'tool_collapse_mode', 'low_motion', 'fancy_animations',
+  'ocean_treatment', 'focus_texture', 'work_surface_placement',
+  'work_surface_top_height', 'work_surface_side_width', 'rail_panel',
+  'bracketed_paste', 'paste_burst_detection', 'mention_menu_limit',
+  'mention_walk_depth', 'mention_menu_behavior', 'show_thinking',
+  'thinking_default_expanded', 'thinking_highlight', 'show_tool_details',
+  'inline_diffs', 'locale', 'theme', 'composer_density', 'composer_border',
+  'composer_vim_mode', 'transcript_spacing', 'launch_screen', 'default_mode',
+  'context_panel', 'cost_currency', 'max_input_history', 'status_indicator',
+  'synchronized_output', 'workspace_follow_symlinks', 'feature_intro_shown',
+  'yolo_deprecation_shown',
+  // TUI 界面偏好（持久化在 settings.toml）
+  'tui_mouse_capture', 'tui_terminal_probe_timeout_ms',
+  'tui_stream_chunk_timeout_secs', 'tui_osc8_links',
+];
+
+// ============================================================
+// CONFIG_REQUIRED_KEYS：config.toml 中必须存在的配置项（仅键名）
+// 这些键即使等于默认值也始终保留在 config.toml 中。
+// ============================================================
+export const CONFIG_REQUIRED_KEYS = [
+  'tui_mouse_capture',
+];
+
 export const DEFAULT_SETTINGS = {
   // 基础
   locale: 'auto',
@@ -23,15 +52,15 @@ export const DEFAULT_SETTINGS = {
   mention_menu_behavior: 'fuzzy',
   cost_currency: 'usd',
   background_color: 'default',
-  max_history: 1000,
+  max_input_history: 100,
   verbosity: 'normal',
   tui_alternate_screen: 'auto',
-  tui_mouse_capture: false,
+  tui_mouse_capture: true,
   tui_terminal_probe_timeout_ms: 500,
   tui_stream_chunk_timeout_secs: 300,
   tui_osc8_links: true,
 
-  thinking_default_expanded: false,
+  thinking_default_expanded: 'off',
   inline_diffs: 'full',
   focus_texture: 'off',
   rail_panel: 'tasks',
@@ -41,6 +70,24 @@ export const DEFAULT_SETTINGS = {
   launch_screen: false,
   work_surface_top_height: 8,
   work_surface_side_width: 40,
+
+  calm_mode: true,
+  tool_collapse_mode: 'compact',
+  low_motion: false,
+  fancy_animations: true,
+  ocean_treatment: 'ombre',
+  bracketed_paste: true,
+  thinking_highlight: true,
+  composer_density: 'comfortable',
+  composer_border: true,
+  composer_vim_mode: 'normal',
+  transcript_spacing: 'comfortable',
+  context_panel: false,
+  status_indicator: 'cw',
+  synchronized_output: 'auto',
+  workspace_follow_symlinks: false,
+  feature_intro_shown: true,
+  yolo_deprecation_shown: false,
 
   // 安全与审批
   approval_policy: 'on-request',
@@ -125,7 +172,6 @@ export const DEFAULT_SETTINGS = {
 
   // 上下文管理
   context_enabled: false,
-  CODEWHALE_CACHE_MAXIMAL: false,
 
   // 路径与存储
   skills_scan_codewhale_only: false,
