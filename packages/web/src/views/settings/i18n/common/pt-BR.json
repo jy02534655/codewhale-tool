@@ -8,9 +8,6 @@
     "placeholder_background_color": "#RRGGBB or default",
     "placeholder_default_model_override": "deepseek-v4-pro",
     "actions_save": "Salvar",
-    "actions_cancel": "Cancelar",
-    "actions_restore_defaults": "Restaurar Padrões",
-    "reset_confirm_title": "Restaurar Padrões",
-    "reset_confirm_message": "Tem certeza que deseja restaurar todas as configurações para o padrão? Alterações não salvas serão perdidas."
+    "actions_cancel": "Cancelar"
   }
 }

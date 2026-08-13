@@ -11,7 +11,6 @@ import { searchGroups } from './search.js';
 import { reasoningGroups } from './reasoning.js';
 import { contextGroups } from './context.js';
 import { pathsGroups } from './paths.js';
-import { capacityGroups } from './capacity.js';
 
 export const groups = [
   ...basicGroups,
@@ -25,6 +24,5 @@ export const groups = [
   ...searchGroups,
   ...reasoningGroups,
   ...contextGroups,
-  ...pathsGroups,
-  ...capacityGroups
+  ...pathsGroups
 ];

@@ -8,14 +8,6 @@ export const notificationsGroups = [
       { key: 'notifications_include_summary', tag: 'el-switch' },
       // 静音所有通知：抑制所有桌面通知和事件声音
       { key: 'notifications_quiet', tag: 'el-switch' },
-      // 通知触发阈值：超过该秒数无响应后触发通知
-      { key: 'notifications_threshold_secs', tag: 'el-input-number', attrs: { min: 0, max: 3600 } },
-      // 通知方式：选择通知触发方式
-      { key: 'notifications_method', tag: 'SettingsSelect', optionKey: 'notifications_method' },
-      // 完成声音：任务完成后播放的声音类型
-      { key: 'notifications_completion_sound', tag: 'SettingsSelect', optionKey: 'notifications_completion_sound' },
-      // 声音文件路径：自定义通知声音文件路径
-      { key: 'sound_file', tag: 'el-input' },
       // 回合完成：代理回合完成通知
       { key: 'notifications_event_turn_complete', tag: 'el-switch' },
       // 子代理终止：子代理到达终止状态通知
@@ -30,10 +22,18 @@ export const notificationsGroups = [
       { key: 'notifications_event_model_notify', tag: 'el-switch' },
       // 启用事件声音：为通知事件播放提示音
       { key: 'notifications_event_sound_enabled', tag: 'el-switch' },
+      // 事件声音静音：抑制事件声音提示
+      { key: 'notifications_event_sound_quiet', tag: 'el-switch' },
+      // 通知触发阈值：超过该秒数无响应后触发通知
+      { key: 'notifications_threshold_secs', tag: 'el-input-number', attrs: { min: 0, max: 3600 } },
       // 事件声音最小间隔：事件声音最小间隔（毫秒）
       { key: 'notifications_event_sound_min_interval_ms', tag: 'el-input-number', attrs: { min: 0, max: 60000 } },
-      // 事件声音静音：抑制事件声音提示
-      { key: 'notifications_event_sound_quiet', tag: 'el-switch' }
+      // 通知方式：选择通知触发方式
+      { key: 'notifications_method', tag: 'SettingsSelect', optionKey: 'notifications_method' },
+      // 完成声音：任务完成后播放的声音类型
+      { key: 'notifications_completion_sound', tag: 'SettingsSelect', optionKey: 'notifications_completion_sound' },
+      // 声音文件路径：自定义通知声音文件路径
+      { key: 'sound_file', tag: 'el-input' }
     ]
   }
 ];

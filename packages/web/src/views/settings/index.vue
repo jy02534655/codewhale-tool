@@ -1,6 +1,6 @@
 <!--
   index.vue — 通用设置页面（Masonry 瀑布流布局版）
-  使用 CSS column-count 实现多列卡片布局，保留批量保存、取消、恢复默认。
+  使用 CSS column-count 实现多列卡片布局，保留批量保存、取消。
  -->
 <template>
   <div class="page-view">
@@ -9,18 +9,18 @@
         <span class="section-title">{{ $t('settings.title') }}</span>
       </div>
 
-      <!-- ========== 操作按钮 ========== -->
-      <div class="action-bar">
-        <el-button type="primary" @click="onSave">{{ $t('settings.actions_save') }}</el-button>
-        <el-button @click="onCancel">{{ $t('settings.actions_cancel') }}</el-button>
-        <el-button @click="onRestoreDefaults">{{ $t('settings.actions_restore_defaults') }}</el-button>
-      </div>
-
+      <!-- ========== 表单内容 ========== -->
       <el-form ref="settingsFormRef" :model="formData" :rules="rules" label-width="200px" label-position="left" size="default" require-asterisk-position="right">
         <div class="settings-masonry">
           <groupCard v-for="group in groups" :key="group.titleKey" v-model:formData="formData" :title-key="group.titleKey" :items="group.items" />
         </div>
       </el-form>
+
+      <!-- ========== 操作按钮（浮动在底部） ========== -->
+      <div class="action-bar action-bar--floating">
+        <el-button type="primary" @click="onSave">{{ $t('settings.actions_save') }}</el-button>
+        <el-button @click="onCancel">{{ $t('settings.actions_cancel') }}</el-button>
+      </div>
     </div>
   </div>
 </template>
@@ -28,8 +28,8 @@
 <script setup>
   import { ref, reactive, onMounted } from 'vue';
   import { useI18n } from 'vue-i18n';
-  import { ElMessage, ElMessageBox } from 'element-plus';
-  import { getSettings, updateSettings, postSettingsDefaults, getSettingsDefaults } from '@/api/settings';
+  import { ElMessage } from 'element-plus';
+  import { getSettings, updateSettings } from '@/api/settings';
   import { clearObject } from '@/utils';
   import { assign, cloneDeep } from 'lodash-es';
 
@@ -47,26 +47,17 @@
   // 用于取消重置的原始数据快照
   const originalForm = {};
 
-  // 默认值数据，用于 diff 时判断是否恢复默认
-  const defaultSettings = reactive({});
-
   // ========== 表单校验规则 ==========
   const rules = {};
 
   // ========== 获取设置 ==========
   const fetchSettings = () => {
-    Promise.allSettled([
-      getSettings(),
-      getSettingsDefaults()
-    ]).then(([settingsResult, defaultsResult]) => {
-      if (settingsResult.status === 'fulfilled' && settingsResult.value) {
-        const settingsData = settingsResult.value;
+    getSettings().then((settingsResult) => {
+      if (settingsResult) {
+        const settingsData = settingsResult;
         assign(formData, clearObject(settingsData));
         // 同步原始快照
         assign(originalForm, cloneDeep(formData));
-      }
-      if (defaultsResult.status === 'fulfilled' && defaultsResult.value) {
-        assign(defaultSettings, defaultsResult.value);
       }
     });
   }
@@ -77,19 +68,14 @@
       if (!valid) {
         return;
       }
-      // 计算 diff：只提交修改过的字段，改回默认值的字段传 null
+      // 计算 diff：只提交修改过的字段
       const payload = {};
       for (const key of Object.keys(formData)) {
         const current = formData[key];
         const original = originalForm[key];
         // 跳过未变更的字段
         if (current === original) continue;
-        // 改回默认值时传 null，让后端删除该字段以恢复默认
-        if (defaultSettings[key] !== undefined && current === defaultSettings[key]) {
-          payload[key] = null;
-        } else {
-          payload[key] = current;
-        }
+        payload[key] = current;
       }
       updateSettings(payload)
         .then(() => {
@@ -111,25 +97,6 @@
     ElMessage.info(t('settings.cancel_reset'));
   }
 
-  // ========== 恢复默认 ==========
-  const onRestoreDefaults = () => {
-    ElMessageBox.confirm(t('settings.reset_confirm_message'), t('settings.reset_confirm_title'), {
-      confirmButtonText: t('common.confirm'),
-      cancelButtonText: t('common.cancel'),
-      type: 'warning'
-    })
-      .then(() => {
-        return postSettingsDefaults();
-      })
-      .then(() => {
-        // 恢复成功后重新拉取最新数据
-        return fetchSettings();
-      })
-      .catch(() => {
-        // 用户取消恢复
-      });
-  }
-
   onMounted(fetchSettings);
 </script>
 
@@ -138,8 +105,67 @@
   .action-bar {
     display: flex;
     gap: 12px;
-    margin-bottom: 20px;
     flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .action-bar--floating {
+    position: sticky;
+    bottom: 16px;
+    z-index: 10;
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    margin: 16px 0;
+    padding: 14px 32px 16px;
+    width: 100%;
+    background: rgba(255, 255, 255, 0.7);
+    border-top: 1px solid rgba(0, 0, 0, 0.06);
+    border-radius: 4px;
+    box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.05);
+    backdrop-filter: blur(16px);
+  }
+
+  /* 暗色模式毛玻璃 */
+  html[data-theme="dark"] .action-bar--floating {
+    background: rgba(30, 30, 40, 0.75);
+    border-top-color: rgba(255, 255, 255, 0.08);
+    box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.25);
+  }
+
+  /* 主按钮悬停上浮 */
+  .action-bar--floating :deep(.el-button--primary) {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  .action-bar--floating :deep(.el-button--primary:hover) {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px rgba(64, 158, 255, 0.35);
+  }
+  html[data-theme="dark"] .action-bar--floating :deep(.el-button--primary:hover) {
+    box-shadow: 0 6px 16px rgba(64, 158, 255, 0.25);
+  }
+
+  /* 次要按钮降级为文字链接 */
+  .action-bar--floating :deep(.el-button:not(.el-button--primary)) {
+    background: transparent !important;
+    border-color: transparent !important;
+    color: #999 !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+    padding: 8px 4px !important;
+  }
+  .action-bar--floating :deep(.el-button:not(.el-button--primary):hover) {
+    background: transparent !important;
+    color: #666 !important;
+  }
+  html[data-theme="dark"] .action-bar--floating :deep(.el-button:not(.el-button--primary)) {
+    color: #777 !important;
+  }
+  html[data-theme="dark"] .action-bar--floating :deep(.el-button:not(.el-button--primary):hover) {
+    color: #aaa !important;
+  }
+
+  .page-section {
   }
 
   /* ========== 卡片样式 ========== */
@@ -224,9 +250,13 @@
     }
     .action-bar {
       flex-direction: column;
+      align-items: stretch;
     }
     .action-bar .el-button {
       width: 100%;
+    }
+    .action-bar--floating :deep(.el-button:not(.el-button--primary)) {
+      text-align: right;
     }
   }
 </style>

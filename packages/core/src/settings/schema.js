@@ -36,6 +36,7 @@ const PATH_MAP = {
   tui_terminal_probe_timeout_ms: 'tui_terminal_probe_timeout_ms',
   tui_stream_chunk_timeout_secs: 'tui_stream_chunk_timeout_secs',
   tui_osc8_links: 'tui_osc8_links',
+  tui_header_items: 'tui_header_items',
 
   thinking_default_expanded: 'thinking_default_expanded',
   inline_diffs: 'inline_diffs',
@@ -140,23 +141,6 @@ const PATH_MAP = {
   update_uri: 'update.update_uri',
   update_check_interval_hours: 'update.check_interval_hours',
 
-  // ===== 容量控制 =====
-  capacity_enabled: 'capacity.enabled',
-  capacity_low_risk_max: 'capacity.low_risk_max',
-  capacity_medium_risk_max: 'capacity.medium_risk_max',
-  capacity_severe_min_slack: 'capacity.severe_min_slack',
-  capacity_severe_violation_ratio: 'capacity.severe_violation_ratio',
-  capacity_refresh_cooldown_turns: 'capacity.refresh_cooldown_turns',
-  capacity_replan_cooldown_turns: 'capacity.replan_cooldown_turns',
-  capacity_max_replay_per_turn: 'capacity.max_replay_per_turn',
-  capacity_min_turns_before_guardrail: 'capacity.min_turns_before_guardrail',
-  capacity_profile_window: 'capacity.profile_window',
-  capacity_deepseek_v3_2_chat_prior: 'capacity.deepseek_v3_2_chat_prior',
-  capacity_deepseek_v3_2_reasoner_prior: 'capacity.deepseek_v3_2_reasoner_prior',
-  capacity_deepseek_v4_pro_prior: 'capacity.deepseek_v4_pro_prior',
-  capacity_deepseek_v4_flash_prior: 'capacity.deepseek_v4_flash_prior',
-  capacity_fallback_default_prior: 'capacity.fallback_default_prior',
-
   // ===== 上下文管理 =====
   context_enabled: 'context.enabled',
 
@@ -187,6 +171,8 @@ export const SETTINGS_KEYS = new Set([
   'auto_compact_threshold_percent',
   'default_model',
   'verbosity',
+  'tui_alternate_screen',
+  'tui_header_items',
 ]);
 
 export const FIELD_ROUTES = {};

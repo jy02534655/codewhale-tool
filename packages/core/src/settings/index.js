@@ -8,7 +8,7 @@
 import { ok, okMsg } from '../utils/result.js';
 import { DEFAULT_SETTINGS } from './defaults.js';
 import { readSettingsFromCodeWhale } from './reader.js';
-import { writeSettingsToCodeWhale, restoreCodeWhaleDefaults } from './writer.js';
+import { writeSettingsToCodeWhale } from './writer.js';
 
 // ---------- 导出 ----------
 
@@ -16,7 +16,8 @@ import { writeSettingsToCodeWhale, restoreCodeWhaleDefaults } from './writer.js'
  * SettingsManager — 通用设置管理器
  *
  * 直接操作 CodeWhale config.toml，不经过 store.json。
- * 封装读取、写入、恢复默认等通用设置操作。
+ * 封装读取、写入等通用设置操作。
+ * 不直接操作 HTTP，不包含恢复默认等危险批量操作。
  */
 export class SettingsManager {
   /**
@@ -33,15 +34,6 @@ export class SettingsManager {
    */
   getDefaults() {
     return ok({ ...DEFAULT_SETTINGS });
-  }
-
-  /**
-   * 恢复默认设置
-   * @returns {{ success: true, data: Object, message: string }}
-   */
-  restoreDefaults() {
-    restoreCodeWhaleDefaults();
-    return okMsg('updated', readSettingsFromCodeWhale());
   }
 
   /**

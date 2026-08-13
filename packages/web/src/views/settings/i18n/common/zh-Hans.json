@@ -8,9 +8,6 @@
     "placeholder_background_color": "#RRGGBB or default",
     "placeholder_default_model_override": "deepseek-v4-pro",
     "actions_save": "保存",
-    "actions_cancel": "取消",
-    "actions_restore_defaults": "恢复默认",
-    "reset_confirm_title": "恢复默认配置",
-    "reset_confirm_message": "确定要将所有设置恢复到默认配置吗？当前未保存的更改将丢失。"
+    "actions_cancel": "取消"
   }
 }

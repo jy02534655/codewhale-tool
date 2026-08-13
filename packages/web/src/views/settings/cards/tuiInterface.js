@@ -14,6 +14,12 @@ export const tuiInterfaceGroups = [
       { key: 'auto_compact', tag: 'el-switch' },
       // 粘贴突发检测：检测大量粘贴内容并自动处理
       { key: 'paste_burst_detection', tag: 'el-switch' },
+      // 会话栏显示：是否显示会话栏
+      { key: 'sessions_rail', tag: 'el-switch' },
+      // 自动恢复会话：是否自动恢复上次会话
+      { key: 'session_auto_resume', tag: 'el-switch' },
+      // 启动菜单：是否显示启动菜单
+      { key: 'launch_screen', tag: 'el-switch' },
       // 自动压缩阈值：上下文占用超过该百分比时触发压缩
       { key: 'auto_compact_threshold_percent', tag: 'el-input-number', attrs: { min: 10, max: 100 } },
       // 提及菜单限制：@ 提及菜单的最大显示数量
@@ -22,6 +28,10 @@ export const tuiInterfaceGroups = [
       { key: 'mention_walk_depth', tag: 'el-input-number', attrs: { min: 0 } },
       // 最大历史记录数：终端保留的最大历史轮数
       { key: 'max_input_history', tag: 'el-input-number', attrs: { min: 1 } },
+      // 顶部工作栏高度上限：顶部工作栏最大高度
+      { key: 'work_surface_top_height', tag: 'el-input-number', attrs: { min: 2, max: 16 } },
+      // 侧边工作栏宽度上限：侧边工作栏最大宽度
+      { key: 'work_surface_side_width', tag: 'el-input-number', attrs: { min: 26, max: 80 } },
       // 主题：终端界面主题风格
       { key: 'theme', tag: 'SettingsSelect', optionKey: 'theme' },
       // 默认模式：终端的默认交互模式
@@ -34,10 +44,6 @@ export const tuiInterfaceGroups = [
       { key: 'cost_currency', tag: 'SettingsSelect', optionKey: 'cost_currency' },
       // 详细程度：终端输出的详细程度
       { key: 'verbosity', tag: 'SettingsSelect', optionKey: 'verbosity' },
-      // 背景颜色：终端背景的自定义颜色
-      { key: 'background_color', tag: 'el-input' },
-      // 默认模型：终端默认使用的模型 ID
-      { key: 'default_model', tag: 'el-input' },
       // 内联 diff 展示：显示完整的红/绿 diff 和语义统计
       { key: 'inline_diffs', tag: 'SettingsSelect', optionKey: 'inline_diffs' },
       // 聚焦纹理：模态视图外背景纹理
@@ -46,16 +52,10 @@ export const tuiInterfaceGroups = [
       { key: 'work_surface_placement', tag: 'SettingsSelect', optionKey: 'work_surface_placement' },
       // 工作栏默认面板：工作栏默认显示的面板
       { key: 'rail_panel', tag: 'SettingsSelect', optionKey: 'rail_panel' },
-      // 会话栏显示：是否显示会话栏
-      { key: 'sessions_rail', tag: 'el-switch' },
-      // 自动恢复会话：是否自动恢复上次会话
-      { key: 'session_auto_resume', tag: 'el-switch' },
-      // 启动菜单：是否显示启动菜单
-      { key: 'launch_screen', tag: 'el-switch' },
-      // 顶部工作栏高度上限：顶部工作栏最大高度
-      { key: 'work_surface_top_height', tag: 'el-input-number', attrs: { min: 2, max: 16 } },
-      // 侧边工作栏宽度上限：侧边工作栏最大宽度
-      { key: 'work_surface_side_width', tag: 'el-input-number', attrs: { min: 26, max: 80 } }
+      // 背景颜色：终端背景的自定义颜色
+      { key: 'background_color', tag: 'el-input' },
+      // 界面默认模型：当前会话的默认模型 ID（优先级高于引擎默认）
+      { key: 'default_model', tag: 'el-input' }
     ]
   }
 ];

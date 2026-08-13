@@ -23,6 +23,7 @@ export const CODEWHALE_DEFAULTS = [
   // TUI 界面偏好（持久化在 settings.toml）
   'tui_mouse_capture', 'tui_terminal_probe_timeout_ms',
   'tui_stream_chunk_timeout_secs', 'tui_osc8_links',
+  'tui_header_items',
 ];
 
 // ============================================================
@@ -89,6 +90,8 @@ export const DEFAULT_SETTINGS = {
   feature_intro_shown: true,
   yolo_deprecation_shown: false,
 
+  // TUI 头部项目
+  tui_header_items: [],
   // 安全与审批
   approval_policy: 'on-request',
   sandbox_mode: 'read-only',
@@ -152,23 +155,6 @@ export const DEFAULT_SETTINGS = {
   update_check_for_updates: true,
   update_uri: '',
   update_check_interval_hours: 1,
-
-  // 容量控制
-  capacity_enabled: false,
-  capacity_low_risk_max: 0.50,
-  capacity_medium_risk_max: 0.62,
-  capacity_severe_min_slack: -0.25,
-  capacity_severe_violation_ratio: 0.40,
-  capacity_refresh_cooldown_turns: 6,
-  capacity_replan_cooldown_turns: 5,
-  capacity_max_replay_per_turn: 1,
-  capacity_min_turns_before_guardrail: 4,
-  capacity_profile_window: 8,
-  capacity_deepseek_v3_2_chat_prior: 3.9,
-  capacity_deepseek_v3_2_reasoner_prior: 4.1,
-  capacity_deepseek_v4_pro_prior: 3.5,
-  capacity_deepseek_v4_flash_prior: 4.2,
-  capacity_fallback_default_prior: 3.8,
 
   // 上下文管理
   context_enabled: false,

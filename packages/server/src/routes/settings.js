@@ -19,11 +19,6 @@ export function createSettingsRouter(settingsMgr) {
     res.json(guard(() => settingsMgr.getDefaults()));
   });
 
-  // 恢复默认设置
-  router.post('/defaults', (req, res) => {
-    res.json(guard(() => settingsMgr.restoreDefaults()));
-  });
-
   // 更新通用设置
   router.put('/', (req, res) => {
     res.json(guard(() => settingsMgr.update(req.body)));

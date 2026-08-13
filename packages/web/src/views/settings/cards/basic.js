@@ -10,7 +10,7 @@ export const basicGroups = [
       { key: 'update_check_interval_hours', tag: 'el-input-number', attrs: { min: 0, max: 168 } },
       // 语言选择：界面显示语言
       { key: 'locale', tag: 'SettingsSelect', optionKey: 'locale' },
-      // 默认文本模型：默认使用的文本模型 ID
+      // 引擎默认文本模型：CodeWhale 引擎默认使用的文本模型 ID
       { key: 'default_text_model', tag: 'el-input' },
       // 自定义更新镜像：手动指定更新镜像地址
       { key: 'update_uri', tag: 'el-input' }

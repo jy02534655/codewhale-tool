@@ -11,8 +11,8 @@
         "help": "Web UI の表示言語を選択します。"
       },
       "default_text_model": {
-        "label": "デフォルトモデル",
-        "help": "デフォルトのテキストモデル。例: deepseek-v4-pro、deepseek-v4-flash、claude-sonnet-4-6 など。DeepSeek 公式は現在 deepseek-v4-pro を推奨しています。"
+        "label": "エンジン既定モデル",
+        "help": "CodeWhale エンジンが使用するデフォルトのテキストモデル ID。例: deepseek-v4-pro、deepseek-v4-flash など。DeepSeek 公式は現在 deepseek-v4-pro を推奨。"
       },
       "update_check_for_updates": {
         "label": "更新を確認",

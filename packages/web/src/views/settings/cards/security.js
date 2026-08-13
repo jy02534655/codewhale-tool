@@ -12,8 +12,8 @@ export const securityGroups = [
       { key: 'approval_default_selection', tag: 'SettingsSelect', optionKey: 'approval_default_selection' },
       // 沙箱模式：代码执行的沙箱隔离模式
       { key: 'sandbox_mode', tag: 'SettingsSelect', optionKey: 'sandbox_mode' },
-      // 权限规则文件：权限规则的 TOML 配置文件路径
-      { key: 'permissions_toml', tag: 'el-input' }
+      // 权限规则内容：直接编辑 permissions.toml 的 TOML 规则文本（非文件路径）
+      { key: 'permissions_toml', tag: 'el-input', attrs: { placeholder: '直接输入 TOML 规则内容，例如：[[rules]]\ncommand = "*"\naction = "allow"' } },
     ]
   }
 ];

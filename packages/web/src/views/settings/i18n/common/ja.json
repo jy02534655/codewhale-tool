@@ -8,9 +8,6 @@
     "placeholder_background_color": "#RRGGBB or default",
     "placeholder_default_model_override": "deepseek-v4-pro",
     "actions_save": "保存",
-    "actions_cancel": "キャンセル",
-    "actions_restore_defaults": "デフォルトに戻す",
-    "reset_confirm_title": "デフォルトに戻す",
-    "reset_confirm_message": "すべての設定をデフォルトに戻しますか？保存されていない変更は失われます。"
+    "actions_cancel": "キャンセル"
   }
 }

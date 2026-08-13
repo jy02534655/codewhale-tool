@@ -63,8 +63,8 @@
         "help": "Personaliza a cor de fundo da raiz, cabeçalho, histórico de conversas e rodapé do TUI; default usa o padrão do tema."
       },
       "default_model": {
-        "label": "Modelo Padrão",
-        "help": "Substitui a seleção de modelo padrão para o provedor atual. Ainda não configurável, suporte em versões futuras."
+        "label": "Modelo Padrão da Interface",
+        "help": "ID do modelo padrão para a sessão atual (sobrescreve o padrão do motor). Deixe vazio para usar o modelo padrão do motor."
       },
       "thinking_default_expanded": {
         "label": "Expansão Padrão do Bloco de Pensamento",

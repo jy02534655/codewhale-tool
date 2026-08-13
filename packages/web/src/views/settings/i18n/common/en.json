@@ -8,9 +8,6 @@
     "placeholder_background_color": "#RRGGBB or default",
     "placeholder_default_model_override": "deepseek-v4-pro",
     "actions_save": "Save",
-    "actions_cancel": "Cancel",
-    "actions_restore_defaults": "Restore Defaults",
-    "reset_confirm_title": "Restore Defaults",
-    "reset_confirm_message": "Are you sure you want to restore all settings to default? Unsaved changes will be lost."
+    "actions_cancel": "Cancel"
   }
 }

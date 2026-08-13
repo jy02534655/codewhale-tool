@@ -11,8 +11,8 @@
         "help": "选择 Web 界面的显示语言。"
       },
       "default_text_model": {
-        "label": "默认模型",
-        "help": "默认文本模型。如 deepseek-v4-pro、deepseek-v4-flash、claude-sonnet-4-6 等。DeepSeek 官方当前推荐 deepseek-v4-pro"
+        "label": "引擎默认模型",
+        "help": "CodeWhale 引擎默认使用的文本模型 ID。如 deepseek-v4-pro、deepseek-v4-flash 等。DeepSeek 官方当前推荐 deepseek-v4-pro"
       },
       "update_check_for_updates": {
         "label": "启动时检查更新",

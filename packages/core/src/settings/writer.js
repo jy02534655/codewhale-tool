@@ -7,7 +7,6 @@
  */
 
 import { SCHEMA, getFieldTarget, FILE_TARGET } from './schema.js';
-import { CODEWHALE_DEFAULTS } from './defaults.js';
 import {
   configManager,
   settingsManager,
@@ -141,92 +140,4 @@ function cleanObject(o) {
   return result;
 }
 
-/**
- * 恢复 CodeWhale 默认设置
- * 直接操作文件，保留非 SCHEMA 字段（api_key、providers 等），
- * 只补全 CODEWHALE_DEFAULTS 中属于 settings.toml 的键，其他 SCHEMA 字段全部清空。
- */
-export function restoreCodeWhaleDefaults() {
-  const currentConfig = configManager.read();
-  const currentSettings = settingsManager.read();
 
-  // 保留非 SCHEMA 字段
-  const configExtras = extractExtras(currentConfig, FILE_TARGET.CONFIG);
-  const settingsExtras = extractExtras(currentSettings, FILE_TARGET.SETTINGS);
-
-  const newConfig = { ...configExtras };
-  const newSettings = { ...settingsExtras };
-
-  // 只补全 CODEWHALE_DEFAULTS 中属于 settings.toml 的键
-  for (const key of CODEWHALE_DEFAULTS) {
-    const field = SCHEMA.find(f => f.key === key);
-    if (field && getFieldTarget(field.key) === FILE_TARGET.SETTINGS) {
-      newSettings[field.settingsPath] = field.default;
-    }
-  }
-
-  // 清理空对象后写回
-  configManager.write(cleanEmptyObjects(newConfig));
-  settingsManager.write(cleanEmptyObjects(newSettings));
-  permissionsManager.write('');
-}
-
-/**
- * 提取当前配置中的非 SCHEMA 字段（保留 api_key、providers 等未知字段）
- * @param {Object} currentObj - 当前配置对象
- * @param {string} targetFile - 目标文件（'config' | 'settings'）
- * @returns {Object} 只包含非 SCHEMA 字段的对象
- */
-function extractExtras(currentObj, targetFile) {
-  const result = cloneDeep(currentObj);
-
-  for (const field of SCHEMA) {
-    if (getFieldTarget(field.key) !== targetFile) continue;
-
-    if (targetFile === FILE_TARGET.SETTINGS) {
-      delete result[field.settingsPath];
-    } else if (targetFile === FILE_TARGET.CONFIG) {
-      const parts = field.path.split('.');
-      let current = result;
-      for (let i = 0; i < parts.length - 1; i++) {
-        if (current[parts[i]] === undefined) break;
-        current = current[parts[i]];
-      }
-      if (current && current[parts[parts.length - 1]] !== undefined) {
-        delete current[parts[parts.length - 1]];
-      }
-    }
-  }
-
-  return result;
-}
-
-/**
- * 清理空对象：递归删除空对象（保留空数组、空字符串、0、false）
- * @param {Object} o - 待清理的对象
- * @returns {Object} 清理后的新对象
- */
-function cleanEmptyObjects(o) {
-  if (typeof o !== 'object' || o === null) return o;
-
-  if (Array.isArray(o)) {
-    return o.map((item) => cleanEmptyObjects(item));
-  }
-
-  const result = {};
-  for (const [key, value] of Object.entries(o)) {
-    if (value === undefined || value === null) continue;
-    const cleaned = cleanEmptyObjects(value);
-    // 跳过空对象（保留空数组）
-    if (
-      typeof cleaned === 'object' &&
-      cleaned !== null &&
-      !Array.isArray(cleaned) &&
-      Object.keys(cleaned).length === 0
-    ) {
-      continue;
-    }
-    result[key] = cleaned;
-  }
-  return result;
-}

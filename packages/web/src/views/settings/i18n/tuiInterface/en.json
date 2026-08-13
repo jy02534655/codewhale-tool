@@ -63,8 +63,8 @@
         "help": "Custom background color for TUI root, header, conversation history, and footer; default uses the theme default."
       },
       "default_model": {
-        "label": "Default Model Override",
-        "help": "Override the default model selection for the current provider. Not yet configurable, support in future versions."
+        "label": "UI Default Model",
+        "help": "Default model ID for the current session (overrides engine default). Leave empty to use the engine default model."
       },
       "thinking_default_expanded": {
         "label": "Thinking Block Default Expanded",
