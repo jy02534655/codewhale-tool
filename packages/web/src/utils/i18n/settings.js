@@ -85,10 +85,10 @@ const SETTINGS_OPTIONS = {
     'pt-BR': { hunt: ' Hunt' }
   },
   thinking_default_expanded: {
-    'zh-Hans': { on: '展开', off: '折叠' },
-    en: { on: 'On', off: 'Off' },
-    ja: { on: '展開', off: '折りたたむ' },
-    'pt-BR': { on: 'Abrir', off: 'Fechar' }
+    'zh-Hans': { 'true': '展开', 'false': '折叠' },
+    en: { 'true': 'On', 'false': 'Off' },
+    ja: { 'true': '展開', 'false': '折りたたむ' },
+    'pt-BR': { 'true': 'Abrir', 'false': 'Fechar' }
   },
   inline_diffs: {
     'zh-Hans': { full: '完整', summary: '统计', off: '关闭' },

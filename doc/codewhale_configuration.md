@@ -428,7 +428,7 @@ safety_posture = "standard"
 | | | `pinned` | 显示目标 + 待办清单 |
 | `show_thinking` | 显示思考过程 | `on` / `off` | 是否在 TUI 对话记录中展示模型的 reasoning/thinking 内容 |
 | `thinking_default_expanded` | 思考块默认展开 | `true` / `false` | 默认 `false`。`show_thinking` 开启时，是否默认展开 thinking 块 |
-| `show_tool_details` | 显示工具详情 | `on` / `off` | 是否展开显示每次工具调用的详细参数和结果 |
+| `show_tool_details` | 显示工具详情 | `true` / `false` | 是否展开显示每次工具调用的详细参数和结果 |
 | `auto_compact` | 自动压缩上下文 | `on` / `off` | 模型感知默认开启。当上下文接近模型窗口上限时，自动生成摘要并替换旧内容 |
 | `auto_compact_threshold_percent` | 自动压缩阈值 | `10~100` | 默认 `80`。当活跃请求输入估算达到模型上下文窗口的该百分比时触发自动压缩 |
 | `paste_burst_detection` | 粘贴突发检测 | `on` / `off` | 默认 `on`。检测不支持 bracketed-paste 事件的终端中的快速批量粘贴 |
@@ -608,9 +608,12 @@ safety_posture = "standard"
 
 ---
 
-## 六、修订记录
+## 备注
 
-| 日期 | 修订内容 |
-|------|----------|
-| 2026-08-13 | **新增**：为每个配置项明确标注应写入的配置文件位置（`config.toml` / `settings.toml` / `permissions.toml` / `constitution.json` / `AGENTS.md` / 项目覆盖）；新增"配置文件体系总览"章节；区分 `config.toml` 与 `settings.toml` 的边界；补充项目覆盖的安全子集说明；补充 Constitution 与项目指令的独立文件说明 |
-| 2026-08-12 | 修正 `max_subagents` 默认值（20→64）、限制（20→128）；修正 `max_admitted` 默认值（200→1024）；修正 `api_timeout_secs` 默认值（120→600）；标注 `[context]` 废弃键；补充新增 provider（xai、longcat、opencode-go、mistral、telecomjs 等）；补充 `[notifications.events/event_sound]`、`[update].check_interval_hours`、`[approval].default_selection`、Settings 章节、环境变量等 |
+> **注意**：以下配置项的实际实现值与官方配置文档（`CONFIGURATION.md`）不一致：
+> - `thinking_default_expanded`：官方文档可能描述为 `on` / `off`，但当前代码实现为布尔值 `true` / `false`
+> - `show_tool_details`：官方文档可能描述为 `on` / `off`，但当前代码实现为布尔值 `true` / `false`
+> 
+> 请以实际代码实现为准。
+
+---

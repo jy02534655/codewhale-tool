@@ -7,7 +7,7 @@ export const tuiInterfaceGroups = [
       // 显示思考过程：是否在界面中展示模型思考过程
       { key: 'show_thinking', tag: 'el-switch' },
       // 思考块默认展开：show_thinking 开启时是否默认展开 thinking 块
-      { key: 'thinking_default_expanded', tag: 'SettingsSelect', optionKey: 'thinking_default_expanded' },
+      { key: 'thinking_default_expanded', tag: 'el-switch' },
       // 显示工具详情：是否展示工具调用的详细参数
       { key: 'show_tool_details', tag: 'el-switch' },
       // 自动压缩：上下文超限时自动压缩历史

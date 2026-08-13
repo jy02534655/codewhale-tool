@@ -60,7 +60,7 @@ export const DEFAULT_SETTINGS = {
   tui_stream_chunk_timeout_secs: 300,
   tui_osc8_links: true,
 
-  thinking_default_expanded: 'off',
+  thinking_default_expanded: false,
   inline_diffs: 'full',
   focus_texture: 'off',
   rail_panel: 'tasks',
