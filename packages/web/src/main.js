@@ -6,6 +6,7 @@ import { createApp } from 'vue';
 import { createPinia } from 'pinia';
 import ElementPlus from 'element-plus';
 import 'element-plus/dist/index.css';
+import 'element-plus/theme-chalk/dark/css-vars.css';
 import './styles/common.scss';
 import zhCn from 'element-plus/dist/locale/zh-cn.mjs';
 import enLoc from 'element-plus/dist/locale/en.mjs';

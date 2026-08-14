@@ -2,7 +2,7 @@
   thirdParty.vue — 第三方供应商管理页面（从 provider/index.vue 拆分）
   负责第三方供应商的列表展示、激活/停用、模型管理
 --><template>
-  <div class="page-section">
+  <div v-loading="maskingStore.isLoading" class="page-section">
     <div class="section-header">
       <span class="section-title">{{ $t('third_party.title') }}</span>
       <el-tag v-if="hasActiveProvider" size="small" type="warning" effect="plain">
@@ -24,7 +24,7 @@
         <el-icon style="margin-right:6px"><InfoFilled /></el-icon>
         {{ $t('third_party.hint') }}
       </div>
-      <el-empty v-if="providers.length === 0" :description="$t('third_party.no_providers')" />
+      <el-empty v-if="providers.length === 0 && !maskingStore.isLoading" :description="$t('third_party.no_providers')" />
       <div v-else class="card-grid">
         <el-card v-for="p in providers" :key="p.id" :class="['provider-card', { 'card-active': p.active }]" shadow="hover">
           <template #header>
@@ -118,11 +118,13 @@ import { compositionDialogContainer } from '@/composition/dialog/Container';
 import provider from './edit/provider.vue';
 // 引入模型编辑弹窗组件
 import model from './edit/model.vue';
+import { useMaskingStore } from '@/stores/masking';
 
 // 获取国际化函数
 const { t } = useI18n({ useScope: 'global' });
 // 创建弹窗控制器实例
 const dialogCtrl = compositionDialogContainer();
+const maskingStore = useMaskingStore();
 
 // 第三方供应商列表数据
 const providers = ref([]);

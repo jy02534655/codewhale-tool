@@ -14,7 +14,7 @@
         </el-button>
       </div>
       <el-card shadow="never">
-        <el-empty v-if="list.length === 0" :description="$t('project.empty')" />
+        <el-empty v-if="list.length === 0 && !maskingStore.isLoading" :description="$t('project.empty')" />
         <div v-else class="card-grid">
           <el-card
             v-for="p in list"

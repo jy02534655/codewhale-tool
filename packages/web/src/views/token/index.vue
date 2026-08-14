@@ -11,7 +11,7 @@
         </el-button>
       </div>
       <el-card shadow="never">
-        <el-empty v-if="list.length === 0" :description="$t('token.empty')" />
+        <el-empty v-if="list.length === 0 && !maskingStore.isLoading" :description="$t('token.empty')" />
         <div v-else class="card-grid">
           <el-card v-for="t in list" :key="t.id" :class="['token-card', { 'card-active': t.default }]" shadow="hover">
             <template #header>

@@ -104,7 +104,7 @@
   /* ========== 操作按钮栏 ========== */
   .action-bar {
     display: flex;
-    gap: 12px;
+    gap: 16px;
     flex-wrap: wrap;
     justify-content: center;
   }
@@ -112,25 +112,26 @@
   .action-bar--floating {
     position: sticky;
     bottom: 16px;
-    z-index: 10;
+    z-index: 100;
     display: flex;
     justify-content: center;
-    gap: 12px;
-    margin: 16px 0;
-    padding: 14px 32px 16px;
+    gap: 16px;
+    margin: 24px 0;
+    padding: 12px 24px;
     width: 100%;
-    background: rgba(255, 255, 255, 0.7);
+    /* 提高不透明度，贴近 Element Plus 背景色，避免与卡片区混色 */
+    background: rgba(255, 255, 255, 0.92);
     border-top: 1px solid rgba(0, 0, 0, 0.06);
-    border-radius: 4px;
-    box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.05);
+    border-radius: 0;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
     backdrop-filter: blur(16px);
   }
 
   /* 暗色模式毛玻璃 */
   html[data-theme="dark"] .action-bar--floating {
-    background: rgba(30, 30, 40, 0.75);
+    background: rgba(30, 30, 40, 0.92);
     border-top-color: rgba(255, 255, 255, 0.08);
-    box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.25);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
   }
 
   /* 主按钮悬停上浮 */
@@ -145,29 +146,29 @@
     box-shadow: 0 6px 16px rgba(64, 158, 255, 0.25);
   }
 
-  /* 次要按钮弱化显示 */
+  /* 次要按钮：贴近 Element Plus 默认变量，提升对比度 */
   .action-bar--floating :deep(.el-button:not(.el-button--primary)) {
-    background: rgba(255, 255, 255, 0.6) !important;
-    border-color: rgba(0, 0, 0, 0.08) !important;
-    color: #555 !important;
+    background: var(--el-fill-color-blank, rgba(255, 255, 255, 0.6)) !important;
+    border-color: var(--el-border-color, rgba(0, 0, 0, 0.08)) !important;
+    color: var(--el-text-color-regular, #444) !important;
     box-shadow: none !important;
-    border-radius: 4px !important;
+    border-radius: 6px !important;
     padding: 8px 16px !important;
   }
   .action-bar--floating :deep(.el-button:not(.el-button--primary):hover) {
-    background: rgba(255, 255, 255, 0.85) !important;
-    border-color: rgba(0, 0, 0, 0.14) !important;
-    color: #333 !important;
+    background: var(--el-fill-color-blank, rgba(255, 255, 255, 0.85)) !important;
+    border-color: var(--el-border-color, rgba(0, 0, 0, 0.14)) !important;
+    color: var(--el-text-color-primary, #333) !important;
   }
   html[data-theme="dark"] .action-bar--floating :deep(.el-button:not(.el-button--primary)) {
-    background: rgba(255, 255, 255, 0.08) !important;
-    border-color: rgba(255, 255, 255, 0.12) !important;
-    color: #bbb !important;
+    background: var(--el-fill-color-blank, rgba(255, 255, 255, 0.08)) !important;
+    border-color: var(--el-border-color, rgba(255, 255, 255, 0.12)) !important;
+    color: var(--el-text-color-regular, #ccc) !important;
   }
   html[data-theme="dark"] .action-bar--floating :deep(.el-button:not(.el-button--primary):hover) {
-    background: rgba(255, 255, 255, 0.14) !important;
-    border-color: rgba(255, 255, 255, 0.22) !important;
-    color: #ddd !important;
+    background: var(--el-fill-color-blank, rgba(255, 255, 255, 0.14)) !important;
+    border-color: var(--el-border-color, rgba(255, 255, 255, 0.22)) !important;
+    color: var(--el-text-color-primary, #ddd) !important;
   }
 
   .page-section {
@@ -175,11 +176,11 @@
 
   /* ========== 卡片样式 ========== */
   .settings-card {
-    border-radius: 4px;
+    border-radius: 8px;
     transition:
       box-shadow 0.2s,
       transform 0.2s;
-    margin-bottom: 20px;
+    margin-bottom: 24px;
     break-inside: avoid;
   }
   .settings-card:hover {

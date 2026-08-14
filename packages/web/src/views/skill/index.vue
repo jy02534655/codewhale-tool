@@ -59,13 +59,13 @@
                     <span class="field-value-text remark-text">{{ s.remark }}</span>
                   </div>
                 </div>
-                <el-empty v-if="filteredGlobal.length === 0"
+                <el-empty v-if="filteredGlobal.length === 0 && !maskingStore.isLoading"
                 :description="search ? $t('skill.noMatch') : $t('skill.noSkill')" />
             </template>
 
             <!-- 项目 Tab -->
             <template v-if="activeTab === 'project'">
-              <el-empty v-if="projectTree.length === 0" :description="$t('skill.noProject')" />
+              <el-empty v-if="projectTree.length === 0 && !maskingStore.isLoading" :description="$t('skill.noProject')" />
               <template v-for="node in filteredProjectTree" :key="node.name">
                 <div class="project-group-header">
                   <span class="project-group-name">{{ node.alias || node.name }}</span>

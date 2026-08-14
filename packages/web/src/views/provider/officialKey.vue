@@ -2,7 +2,7 @@
   officialKey.vue — 官方 API Key 管理页面（从 provider/index.vue 拆分）
   负责官方 API Key 的列表展示、激活、编辑别名、删除
 --><template>
-  <div class="page-section">
+  <div v-loading="maskingStore.isLoading" class="page-section">
     <div class="section-header">
       <span class="section-title">{{ $t('official.title') }}</span>
     </div>
@@ -13,7 +13,7 @@
       </el-button>
     </div>
     <el-card shadow="never">
-      <el-empty v-if="officialKeys.length === 0" :description="$t('official.no_keys')" />
+      <el-empty v-if="officialKeys.length === 0 && !maskingStore.isLoading" :description="$t('official.no_keys')" />
       <div v-else class="card-grid">
         <el-card v-for="k in officialKeys" :key="k.id" :class="['official-card', { 'card-active': k.active }]" shadow="hover">
           <template #header>
@@ -66,11 +66,13 @@ import {
 import { compositionDialogContainer } from '@/composition/dialog/Container';
 // 引入官方 API Key 编辑弹窗组件
 import officialKey from './edit/officialKey.vue';
+import { useMaskingStore } from '@/stores/masking';
 
 // 获取国际化函数
 const { t } = useI18n({ useScope: 'global' });
 // 创建弹窗控制器实例
 const dialogCtrl = compositionDialogContainer();
+const maskingStore = useMaskingStore();
 
 // 官方 API Key 列表数据
 const officialKeys = ref([]);

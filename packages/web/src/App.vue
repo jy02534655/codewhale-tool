@@ -45,9 +45,11 @@
         <!-- 内容区 -->
         <main class="content">
           <router-view v-slot="{ Component }">
-            <keep-alive :max="4">
-              <component :is="Component" />
-            </keep-alive>
+            <transition name="fade-page" mode="out-in">
+              <keep-alive :max="4">
+                <component :is="Component" />
+              </keep-alive>
+            </transition>
           </router-view>
         </main>
       </div>
@@ -100,6 +102,11 @@ const theme = ref('light');
 const applyTheme = (val) => {
   const html = document.documentElement;
   html.setAttribute('data-theme', val);
+  if (val === 'dark') {
+    html.classList.add('dark');
+  } else {
+    html.classList.remove('dark');
+  }
   localStorage.setItem('codewhale-theme', val);
 };
 
@@ -135,3 +142,21 @@ onMounted(() => {
   applyTheme(saved);
 });
 </script>
+
+<style>
+/* 页面切换淡入淡出 */
+.fade-page-enter-active,
+.fade-page-leave-active {
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.fade-page-enter-from {
+  opacity: 0;
+  transform: translateY(4px);
+}
+
+.fade-page-leave-to {
+  opacity: 0;
+  transform: translateY(-4px);
+}
+</style>

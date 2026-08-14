@@ -14,7 +14,7 @@
         </el-button>
       </div>
       <el-card shadow="never">
-        <el-empty v-if="list.length === 0" :description="$t('proxy.empty')" />
+        <el-empty v-if="list.length === 0 && !maskingStore.isLoading" :description="$t('proxy.empty')" />
         <div v-else class="card-grid">
           <el-card v-for="p in list" :key="p.id" :class="['proxy-card', { 'card-active': p.default }]" shadow="hover">
             <template #header>
