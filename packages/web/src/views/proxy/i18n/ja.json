@@ -17,6 +17,7 @@
     "add_title": "プロキシ追加",
     "edit_title": "プロキシ編集",
     "default": "デフォルト",
-    "setDefault": "デフォルトに設定"
+    "setDefault": "デフォルトに設定",
+    "emptyHint": "Skill ダウンロード等をサポートするプロキシを追加"
   }
 }

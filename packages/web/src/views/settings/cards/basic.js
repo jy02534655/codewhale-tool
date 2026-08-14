@@ -1,5 +1,3 @@
-// 基础设置分组：语言、默认模型、更新检查、更新检查间隔、自定义更新镜像
-// 配置项顺序：el-switch -> SettingsSelect -> el-input -> el-input-number
 export const basicGroups = [
   {
     titleKey: 'settings.basic',

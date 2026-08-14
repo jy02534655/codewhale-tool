@@ -113,6 +113,10 @@
     "copyToProjectSuccess": "Copiado para o diretório de skills do projeto",
     "selectProject": "Selecionar projeto de destino",
     "selectProjectPlaceholder": "Selecione o projeto para copiar",
-    "alreadyCopied": "Esta skill já foi copiada para o projeto selecionado"
+    "alreadyCopied": "Esta skill já foi copiada para o projeto selecionado",
+    "emptyGlobalHint": "Instale Skills para estender capacidades",
+    "emptyProjectHint": "Skills de nível projeto aparecerão após vincular projetos",
+    "searchHint": "Tente outras palavras-chave",
+    "noFilesHint": "Esta Skill não contém arquivos pré-visualizáveis"
   }
 }

@@ -22,6 +22,9 @@
         "label": "Intervalo de Verificação de Atualizações",
         "help": "Intervalo de cache para verificações de atualização de rede (horas). Defina como 0 para verificar a rede em cada inicialização. Falhas não são armazenadas em cache."
       }
+    },
+    "theme": {
+      "title": "Tema"
     }
   }
 }

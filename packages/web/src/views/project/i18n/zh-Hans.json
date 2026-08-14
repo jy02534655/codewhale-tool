@@ -3,6 +3,7 @@
     "title": "项目管理",
     "add": "添加项目",
     "empty": "暂无项目配置，点击添加",
+    "emptyHint": "点击上方按钮添加你的第一个项目",
     "alias": "别名",
     "path": "路径",
     "alias_placeholder": "如 主项目、插件项目",

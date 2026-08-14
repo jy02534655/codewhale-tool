@@ -11,6 +11,7 @@
     "edit_title": "编辑 Token",
     "edit_alias": "修改别名",
     "default": "默认",
-    "setDefault": "设为默认"
+    "setDefault": "设为默认",
+    "emptyHint": "添加 GitHub Token 等访问令牌"
   }
 }

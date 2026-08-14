@@ -13,7 +13,7 @@
       </el-button>
     </div>
     <el-card shadow="never">
-      <el-empty v-if="officialKeys.length === 0 && !maskingStore.isLoading" :description="$t('official.no_keys')" />
+      <BrandEmpty v-if="officialKeys.length === 0 && !maskingStore.isLoading" :text="$t('official.no_keys')" :hint="$t('official.emptyHint')" />
       <div v-else class="card-grid">
         <el-card v-for="k in officialKeys" :key="k.id" :class="['official-card', { 'card-active': k.active }]" shadow="hover">
           <template #header>
@@ -67,6 +67,7 @@ import { compositionDialogContainer } from '@/composition/dialog/Container';
 // 引入官方 API Key 编辑弹窗组件
 import officialKey from './edit/officialKey.vue';
 import { useMaskingStore } from '@/stores/masking';
+import { BrandEmpty } from '@/components/brand';
 
 // 获取国际化函数
 const { t } = useI18n({ useScope: 'global' });

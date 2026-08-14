@@ -13,16 +13,16 @@ import { contextGroups } from './context.js';
 import { pathsGroups } from './paths.js';
 
 export const groups = [
-  ...basicGroups,
-  ...tuiInterfaceGroups,
-  ...tuiTerminalGroups,
-  ...securityGroups,
-  ...subagentsGroups,
-  ...retryGroups,
-  ...notificationsGroups,
-  ...featuresGroups,
-  ...searchGroups,
   ...reasoningGroups,
   ...contextGroups,
-  ...pathsGroups
+  ...basicGroups,
+  ...tuiInterfaceGroups,
+  ...retryGroups,
+  ...subagentsGroups,
+  ...securityGroups,
+  ...notificationsGroups,
+  ...featuresGroups,
+  ...pathsGroups,
+  ...tuiTerminalGroups,
+  ...searchGroups
 ];

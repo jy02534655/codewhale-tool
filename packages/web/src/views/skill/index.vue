@@ -59,13 +59,16 @@
                     <span class="field-value-text remark-text">{{ s.remark }}</span>
                   </div>
                 </div>
-                <el-empty v-if="filteredGlobal.length === 0 && !maskingStore.isLoading"
-                :description="search ? $t('skill.noMatch') : $t('skill.noSkill')" />
+                <BrandEmpty v-if="filteredGlobal.length === 0 && !maskingStore.isLoading"
+                  :text="search ? $t('skill.noMatch') : $t('skill.noSkill')"
+                  :hint="search ? $t('skill.searchHint') : $t('skill.emptyGlobalHint')" />
             </template>
 
             <!-- 项目 Tab -->
             <template v-if="activeTab === 'project'">
-              <el-empty v-if="projectTree.length === 0 && !maskingStore.isLoading" :description="$t('skill.noProject')" />
+              <BrandEmpty v-if="projectTree.length === 0 && !maskingStore.isLoading"
+                :text="$t('skill.noProject')"
+                :hint="$t('skill.emptyProjectHint')" />
               <template v-for="node in filteredProjectTree" :key="node.name">
                 <div class="project-group-header">
                   <span class="project-group-name">{{ node.alias || node.name }}</span>
@@ -123,6 +126,7 @@
  import detail from './edit/detail.vue'
  import info from './edit/info.vue'
  import installLog from './edit/install-log.vue'
+import { BrandEmpty } from '@/components/brand'
 
 const { t } = useI18n({ useScope: 'global' })
 const maskingStore = useMaskingStore()

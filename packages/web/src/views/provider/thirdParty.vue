@@ -24,7 +24,7 @@
         <el-icon style="margin-right:6px"><InfoFilled /></el-icon>
         {{ $t('third_party.hint') }}
       </div>
-      <el-empty v-if="providers.length === 0 && !maskingStore.isLoading" :description="$t('third_party.no_providers')" />
+      <BrandEmpty v-if="providers.length === 0 && !maskingStore.isLoading" :text="$t('third_party.no_providers')" :hint="$t('third_party.emptyHint')" />
       <div v-else class="card-grid">
         <el-card v-for="p in providers" :key="p.id" :class="['provider-card', { 'card-active': p.active }]" shadow="hover">
           <template #header>
@@ -119,6 +119,7 @@ import provider from './edit/provider.vue';
 // 引入模型编辑弹窗组件
 import model from './edit/model.vue';
 import { useMaskingStore } from '@/stores/masking';
+import { BrandEmpty } from '@/components/brand';
 
 // 获取国际化函数
 const { t } = useI18n({ useScope: 'global' });

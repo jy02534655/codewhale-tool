@@ -11,6 +11,7 @@
     "edit_title": "Edit Token",
     "edit_alias": "Edit Alias",
     "default": "Default",
-    "setDefault": "Set Default"
+    "setDefault": "Set Default",
+    "emptyHint": "Add GitHub Token and other access tokens"
   }
 }

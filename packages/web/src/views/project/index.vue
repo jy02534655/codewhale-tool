@@ -14,7 +14,7 @@
         </el-button>
       </div>
       <el-card shadow="never">
-        <el-empty v-if="list.length === 0 && !maskingStore.isLoading" :description="$t('project.empty')" />
+        <BrandEmpty v-if="list.length === 0 && !maskingStore.isLoading" :text="$t('project.empty')" :hint="$t('project.emptyHint')" />
         <div v-else class="card-grid">
           <el-card
             v-for="p in list"
@@ -70,6 +70,7 @@ import { useShareStore } from '@/stores/share';
 import { useMaskingStore } from '@/stores/masking';
 import { compositionDialogContainer } from '@/composition/dialog/Container';
 import ProjectEdit from './edit.vue';
+import { BrandEmpty } from '@/components/brand';
 
 const { t } = useI18n({ useScope: 'global' });
 const maskingStore = useMaskingStore();

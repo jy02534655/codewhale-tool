@@ -113,6 +113,10 @@
     "copyToProjectSuccess": "プロジェクト skill ディレクトリにコピーしました",
     "selectProject": "対象プロジェクトを選択",
     "selectProjectPlaceholder": "コピー先のプロジェクトを選択してください",
-    "alreadyCopied": "この skill は選択したプロジェクトに既にコピーされています"
+    "alreadyCopied": "この skill は選択したプロジェクトに既にコピーされています",
+    "emptyGlobalHint": "スキルをインストールして機能を拡張",
+    "emptyProjectHint": "プロジェクトをリンクするとプロジェクトレベルスキルが表示されます",
+    "searchHint": "他のキーワードを試してください",
+    "noFilesHint": "この Skill にはプレビュー可能なファイルがありません"
   }
 }

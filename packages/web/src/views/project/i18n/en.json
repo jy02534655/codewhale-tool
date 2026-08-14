@@ -3,6 +3,7 @@
     "title": "Project Manager",
     "add": "Add Project",
     "empty": "No projects configured. Click to add.",
+    "emptyHint": "Click the button above to add your first project",
     "alias": "Alias",
     "path": "Path",
     "alias_placeholder": "e.g. Main, Plugin",

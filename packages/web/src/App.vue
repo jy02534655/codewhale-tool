@@ -11,7 +11,10 @@
       <header class="top-bar">
         <div class="top-bar-left">
           <el-button class="collapse-btn" :icon="sidebarCollapsed ? Expand : Fold" text @click="toggleSidebar" />
-          <h1 class="logo">{{ $t('app.title') }}</h1>
+          <div class="logo box-row box-start-center">
+            <BrandWhale class="logo__icon" />
+            <span class="logo__text">{{ $t('app.title') }}</span>
+          </div>
         </div>
         <div class="top-bar-right">
           <el-select v-model="locale" size="small" style="width:120px" @change="onLocaleChange">
@@ -65,6 +68,8 @@ import { useI18n } from 'vue-i18n';
 import {
   Monitor, Collection, Link, Key, Folder, Fold, Expand, Setting,
 } from '@element-plus/icons-vue';
+
+import { BrandWhale } from '@/components/brand';
 
 import zhCn from 'element-plus/dist/locale/zh-cn.mjs';
 import enLoc from 'element-plus/dist/locale/en.mjs';
@@ -158,5 +163,24 @@ onMounted(() => {
 .fade-page-leave-to {
   opacity: 0;
   transform: translateY(-4px);
+}
+.logo__text{
+  padding-left: 4px;
+}
+
+/* 鲸鱼 logo 极简呼吸动画 */
+@keyframes whale-breathe {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-2px); }
+}
+
+.logo__icon {
+  animation: whale-breathe 4s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .logo__icon {
+    animation: none;
+  }
 }
 </style>

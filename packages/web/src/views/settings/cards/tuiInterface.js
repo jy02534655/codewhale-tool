@@ -32,8 +32,6 @@ export const tuiInterfaceGroups = [
       { key: 'work_surface_top_height', tag: 'el-input-number', attrs: { min: 2, max: 16 } },
       // 侧边工作栏宽度上限：侧边工作栏最大宽度
       { key: 'work_surface_side_width', tag: 'el-input-number', attrs: { min: 26, max: 80 } },
-      // 主题：终端界面主题风格
-      { key: 'theme', tag: 'SettingsSelect', optionKey: 'theme' },
       // 默认模式：终端的默认交互模式
       { key: 'default_mode', tag: 'SettingsSelect', optionKey: 'default_mode' },
       // 侧边栏焦点：侧边栏的默认焦点位置

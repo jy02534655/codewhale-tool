@@ -113,6 +113,10 @@
     "copyToProjectSuccess": "已复制到项目 skill 目录",
     "selectProject": "选择目标项目",
     "selectProjectPlaceholder": "请选择要复制到的项目",
-    "alreadyCopied": "该 skill 已复制到所选项目"
+    "alreadyCopied": "该 skill 已复制到所选项目",
+    "emptyGlobalHint": "安装 Skill 来扩展能力",
+    "emptyProjectHint": "关联项目后将自动显示项目级 Skill",
+    "searchHint": "尝试其他关键词",
+    "noFilesHint": "该 Skill 尚未包含可预览的文件"
   }
 }

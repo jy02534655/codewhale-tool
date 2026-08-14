@@ -22,6 +22,9 @@
         "label": "Update Check Interval",
         "help": "Cache interval for network update checks (hours). Set to 0 to check network on every startup. Failures are not cached."
       }
+    },
+    "theme": {
+      "title": "Theme"
     }
   }
 }

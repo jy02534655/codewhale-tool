@@ -7,7 +7,8 @@
     "alias_placeholder": "ex: Principal, Reserva",
     "api_key_label": "API Key",
     "edit_alias_title": "Editar Apelido",
-    "alias_default": "Key Oficial DeepSeek"
+    "alias_default": "Key Oficial DeepSeek",
+    "emptyHint": "Adicione a API Key oficial do DeepSeek para começar"
   },
   "third_party": {
     "title": "Terceiros",
@@ -35,6 +36,7 @@
     "model_name_placeholder": "ex: deepseek-ai/DeepSeek-V4-Flash",
     "fetch_failed": "Falha ao buscar",
     "loading_failed": "Falha ao carregar",
-    "error_update": "Falha ao atualizar"
+    "error_update": "Falha ao atualizar",
+    "emptyHint": "Adicione provedores terceiros para expandir as fontes de modelo"
   }
 }

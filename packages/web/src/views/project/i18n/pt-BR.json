@@ -3,6 +3,7 @@
     "title": "Gerenciador de Projetos",
     "add": "Adicionar Projeto",
     "empty": "Nenhum projeto configurado. Clique para adicionar.",
+    "emptyHint": "Clique no botão acima para adicionar seu primeiro projeto",
     "alias": "Apelido",
     "path": "Caminho",
     "alias_placeholder": "ex: Principal, Plugin",

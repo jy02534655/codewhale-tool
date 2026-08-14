@@ -7,7 +7,8 @@
     "alias_placeholder": "e.g. Primary, Backup",
     "api_key_label": "API Key",
     "edit_alias_title": "Edit Alias",
-    "alias_default": "DeepSeek Official Key"
+    "alias_default": "DeepSeek Official Key",
+    "emptyHint": "Add official DeepSeek API Key to get started"
   },
   "third_party": {
     "title": "Third-party Models",
@@ -35,6 +36,7 @@
     "model_name_placeholder": "e.g. deepseek-ai/DeepSeek-V4-Flash",
     "fetch_failed": "Failed to fetch",
     "loading_failed": "Loading failed",
-    "error_update": "Update failed"
+    "error_update": "Update failed",
+    "emptyHint": "Add third-party providers to expand model sources"
   }
 }

@@ -146,6 +146,20 @@
   @include bg(100% 100%);
 }
 
+/* ─── 字体系统 ─── */
+
+body {
+  font-family: var(--font-body);
+}
+
+.font-display {
+  font-family: var(--font-display);
+}
+
+.font-mono {
+  font-family: var(--font-mono);
+}
+
 /* ─── 应用外壳布局（抽取自 App.vue） ─── */
 
 .app-shell {
@@ -176,6 +190,7 @@
   padding: var(--space-1);
 }
 .logo {
+  font-family: var(--font-display);
   font-size: var(--text-lg);
   font-weight: 600;
   margin: 0;
@@ -315,6 +330,7 @@
   margin-bottom: var(--space-3);
 }
 .section-title {
+  font-family: var(--font-display);
   font-weight: 600;
   font-size: var(--text-lg);
 }

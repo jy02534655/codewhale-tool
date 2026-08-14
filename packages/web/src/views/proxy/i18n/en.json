@@ -17,6 +17,7 @@
     "add_title": "Add Proxy",
     "edit_title": "Edit Proxy",
     "default": "Default",
-    "setDefault": "Set Default"
+    "setDefault": "Set Default",
+    "emptyHint": "Add proxy to support Skill downloads and other scenarios"
   }
 }

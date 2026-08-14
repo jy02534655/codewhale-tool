@@ -3,7 +3,7 @@
   支持树形文件浏览、折叠目录、按文件类型预览与任意文本文件编辑
 --><template>
   <div class="detail-panel">
-    <el-empty v-if="!skill" :description="$t('skill.selectHint')" />
+    <BrandEmpty v-if="!skill" :text="$t('skill.selectHint')" />
     <template v-else>
       <div class="detail-header">
         <h3 class="detail-title">{{ displayTitle }}</h3>
@@ -103,6 +103,9 @@ import { getSkillFiles, readSkillFile, removeSkillFile } from '@/api/skill/files
 
 // 引入复用文件预览组件。
 import FilePreview from '@/components/file/preview.vue'
+
+// 引入品牌空状态组件。
+import { BrandEmpty } from '@/components/brand'
 
 // 引入弹窗容器，统一管理详情页弹窗。
 import { compositionDialogContainer } from '@/composition/dialog/Container'

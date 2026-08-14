@@ -113,6 +113,10 @@
     "copyToProjectSuccess": "Copied to project skill directory",
     "selectProject": "Select target project",
     "selectProjectPlaceholder": "Please select a project",
-    "alreadyCopied": "This skill has already been copied to the selected project"
+    "alreadyCopied": "This skill has already been copied to the selected project",
+    "emptyGlobalHint": "Install Skills to extend capabilities",
+    "emptyProjectHint": "Project-level Skills will appear after linking projects",
+    "searchHint": "Try other keywords",
+    "noFilesHint": "This Skill does not contain any previewable files"
   }
 }

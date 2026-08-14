@@ -17,6 +17,7 @@
     "add_title": "添加代理",
     "edit_title": "编辑代理",
     "default": "默认",
-    "setDefault": "设为默认"
+    "setDefault": "设为默认",
+    "emptyHint": "添加代理以支持 Skill 下载等场景"
   }
 }

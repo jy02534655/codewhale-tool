@@ -11,7 +11,7 @@
         </el-button>
       </div>
       <el-card shadow="never">
-        <el-empty v-if="list.length === 0 && !maskingStore.isLoading" :description="$t('token.empty')" />
+        <BrandEmpty v-if="list.length === 0 && !maskingStore.isLoading" :text="$t('token.empty')" :hint="$t('token.emptyHint')" />
         <div v-else class="card-grid">
           <el-card v-for="t in list" :key="t.id" :class="['token-card', { 'card-active': t.default }]" shadow="hover">
             <template #header>
@@ -61,6 +61,7 @@ import { useMaskingStore } from '@/stores/masking';
 import { useShareStore } from '@/stores/share';
 import { compositionDialogContainer } from '@/composition/dialog/Container';
 import TokenEdit from './edit.vue';
+import { BrandEmpty } from '@/components/brand';
 
 const { t } = useI18n({ useScope: 'global' });
 const maskingStore = useMaskingStore();

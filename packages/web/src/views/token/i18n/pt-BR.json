@@ -11,6 +11,7 @@
     "edit_title": "Editar Token",
     "edit_alias": "Editar Apelido",
     "default": "Padrão",
-    "setDefault": "Definir Padrão"
+    "setDefault": "Definir Padrão",
+    "emptyHint": "Adicione GitHub Token e outros tokens de acesso"
   }
 }

@@ -7,7 +7,8 @@
     "alias_placeholder": "例: メイン、予備",
     "api_key_label": "API Key",
     "edit_alias_title": "別名の編集",
-    "alias_default": "DeepSeek 公式 Key"
+    "alias_default": "DeepSeek 公式 Key",
+    "emptyHint": "公式 DeepSeek API Key を追加して開始"
   },
   "third_party": {
     "title": "サードパーティ",
@@ -35,6 +36,7 @@
     "model_name_placeholder": "例: deepseek-ai/DeepSeek-V4-Flash",
     "fetch_failed": "取得失敗",
     "loading_failed": "読み込み失敗",
-    "error_update": "更新失敗"
+    "error_update": "更新失敗",
+    "emptyHint": "サードパーティプロバイダを追加してモデルソースを拡張"
   }
 }

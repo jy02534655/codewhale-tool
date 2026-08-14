@@ -17,6 +17,7 @@
     "add_title": "Adicionar Proxy",
     "edit_title": "Editar Proxy",
     "default": "Padrão",
-    "setDefault": "Definir Padrão"
+    "setDefault": "Definir Padrão",
+    "emptyHint": "Adicione proxy para suportar downloads de Skill e outros cenários"
   }
 }

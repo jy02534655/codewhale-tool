@@ -11,9 +11,12 @@
 
       <!-- ========== 表单内容 ========== -->
       <el-form ref="settingsFormRef" :model="formData" :rules="rules" label-width="200px" label-position="left" size="default" require-asterisk-position="right">
-        <div class="settings-masonry">
-          <groupCard v-for="group in groups" :key="group.titleKey" v-model:formData="formData" :title-key="group.titleKey" :items="group.items" />
-        </div>
+        <MasonryWall :items="masonryItems" :cols="3" :gap="16">
+          <template #default="{ item }">
+            <ThemeCard v-if="item.type === 'theme'" v-model="formData.theme" />
+            <groupCard v-else v-model:formData="formData" :title-key="item.titleKey" :items="item.items" />
+          </template>
+        </MasonryWall>
       </el-form>
 
       <!-- ========== 操作按钮（浮动在底部） ========== -->
@@ -26,7 +29,7 @@
 </template>
 
 <script setup>
-  import { ref, reactive, onMounted } from 'vue';
+  import { ref, reactive, onMounted, computed } from 'vue';
   import { useI18n } from 'vue-i18n';
   import { ElMessage } from 'element-plus';
   import { getSettings, updateSettings } from '@/api/settings';
@@ -35,6 +38,8 @@
 
   import groupCard from './cards/groupCard.vue';
   import { groups } from './cards/index.js';
+  import ThemeCard from '@/components/settings/ThemeCard.vue';
+  import { MasonryWall } from '@yeger/vue-masonry-wall';
 
   const { t } = useI18n({ useScope: 'global' });
 
@@ -43,6 +48,20 @@
 
   // ========== 表单数据 ==========
   const formData = reactive({});
+
+  // 瀑布流数据：ThemeCard 始终排第一个
+  const masonryItems = computed(() => {
+    const items = [
+      { type: 'theme', key: 'theme' },
+      ...groups.map(group => ({
+        type: 'group',
+        key: group.titleKey,
+        titleKey: group.titleKey,
+        items: group.items
+      }))
+    ];
+    return items;
+  });
 
   // 用于取消重置的原始数据快照
   const originalForm = {};
@@ -187,12 +206,6 @@
     /* hover 浮动效果已移除，保持界面稳定 */
   }
 
-  /* ========== 瀑布流布局 ========== */
-  .settings-masonry {
-    column-count: 3;
-    column-gap: 16px;
-  }
-
   /* ========== 卡片头部 ========== */
   .card-header {
     display: flex;
@@ -229,10 +242,6 @@
   .settings-grid :deep(.el-form-item) {
     margin-bottom: 0;
   }
-  .settings-masonry :deep(.el-form-item__content) {
-    display: flex;
-    justify-content: flex-end;
-  }
 
   /* ========== 页面基础 ========== */
   .page-view {
@@ -248,9 +257,6 @@
 
   /* ========== 响应式 ========== */
   @media (max-width: 768px) {
-    .settings-masonry {
-      column-count: 1;
-    }
     .settings-grid {
       grid-template-columns: 1fr;
     }
