@@ -10,6 +10,10 @@
         "label": "Web UI 语言",
         "help": "选择 Web 界面的显示语言。"
       },
+      "theme": {
+        "label": "主题风格",
+        "help": "界面主题风格。"
+      },
       "default_text_model": {
         "label": "引擎默认模型",
         "help": "CodeWhale 引擎默认使用的文本模型 ID。如 deepseek-v4-pro、deepseek-v4-flash 等。DeepSeek 官方当前推荐 deepseek-v4-pro"

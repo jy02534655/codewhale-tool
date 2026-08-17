@@ -667,3 +667,17 @@ body {
 .readonly-value {
   color: var(--text-secondary);
 }
+
+/* 主题切换预览浮层固定浅色背景，避免暗黑模式下混入大背景 */
+.theme-switcher-popover {
+  background: #ffffff !important;
+  border-color: #e0e0e0 !important;
+}
+
+/* 暗黑模式下也保持浮层浅色，确保预览卡片始终可读 */
+html[data-theme="dark"] .theme-switcher-popover,
+html.dark .theme-switcher-popover {
+  background: #ffffff !important;
+  border-color: #e0e0e0 !important;
+  color: #1f2328 !important;
+}

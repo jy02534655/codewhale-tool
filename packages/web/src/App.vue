@@ -20,9 +20,7 @@
           <el-select v-model="locale" size="small" style="width:120px" @change="onLocaleChange">
             <el-option v-for="l in locales" :key="l.value" :label="l.label" :value="l.value" />
           </el-select>
-          <el-select v-model="theme" size="small" style="width:100px" @change="onThemeChange">
-            <el-option v-for="t in themeOptions" :key="t.value" :label="t.label" :value="t.value" />
-          </el-select>
+          <ThemeSwitcher v-model="theme" :options="themeOptions" @change="onThemeChange" />
         </div>
       </header>
 
@@ -69,7 +67,7 @@ import {
   Monitor, Collection, Link, Key, Folder, Fold, Expand, Setting,
 } from '@element-plus/icons-vue';
 
-import { BrandWhale } from '@/components/brand';
+import { BrandWhale, ThemeSwitcher } from '@/components/brand';
 
 import zhCn from 'element-plus/dist/locale/zh-cn.mjs';
 import enLoc from 'element-plus/dist/locale/en.mjs';
@@ -94,12 +92,12 @@ const elLocale = computed(() => elLocaleMap[locale.value] || zhCn);
 
 /** 主题配置 */
 const themeOptions = [
-  { value: 'light', label: '暖白' },
-  { value: 'sage', label: '森林' },
-  { value: 'ocean', label: '海洋' },
-  { value: 'rose', label: '玫瑰' },
-  { value: 'lavender', label: '淡紫' },
-  { value: 'dark', label: '暗黑' },
+  { value: 'light', label: '暖白', accent: '#0d5c75' },
+  { value: 'sage', label: '森林', accent: '#2d8a4e' },
+  { value: 'ocean', label: '海洋', accent: '#1a73e8' },
+  { value: 'rose', label: '玫瑰', accent: '#c43e6b' },
+  { value: 'lavender', label: '淡紫', accent: '#7c3aed' },
+  { value: 'dark', label: '暗黑', accent: '#58a6ff' },
 ];
 
 const theme = ref('light');

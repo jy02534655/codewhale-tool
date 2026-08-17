@@ -1,10 +1,10 @@
 // 通用设置下拉选项 i18n 配置（集中管理，不依赖 locales 的 settings.*_options）
 const SETTINGS_OPTIONS = {
   theme: {
-    'zh-Hans': { system: '系统默认', dark: '深色', light: '浅色', grayscale: '灰度', 'catppuccin-mocha': '猫特金摩卡', 'tokyo-night': '东京夜色', dracula: '德古拉', 'gruvbox-dark': '格鲁夫暗色' },
-    en: { system: 'System', dark: 'Dark', light: 'Light', grayscale: 'Grayscale', 'catppuccin-mocha': 'Catppuccin Mocha', 'tokyo-night': 'Tokyo Night', dracula: 'Dracula', 'gruvbox-dark': 'Gruvbox Dark' },
-    ja: { system: 'システム', dark: 'ダーク', light: 'ライト', grayscale: 'グレースケール', 'catppuccin-mocha': 'Catppuccin Mocha', 'tokyo-night': 'Tokyo Night', dracula: 'Dracula', 'gruvbox-dark': 'Gruvbox Dark' },
-    'pt-BR': { system: 'Sistema', dark: 'Escuro', light: 'Claro', grayscale: 'Cinza', 'catppuccin-mocha': 'Catppuccin Mocha', 'tokyo-night': 'Tokyo Night', dracula: 'Dracula', 'gruvbox-dark': 'Gruvbox Dark' }
+    'zh-Hans': { system: '系统默认', terminal: '终端', 'blue-stage': 'Blue Stage', 'blue-stage-light': 'Blue Stage Light', grayscale: '灰度', 'catppuccin-mocha': '猫特金摩卡', 'tokyo-night': '东京夜色', dracula: '德古拉', 'gruvbox-dark': '格鲁夫暗色', claude: 'Claude', matrix: 'Matrix', 'solarized-light': 'Solarized Light', uwu: 'Uwu' },
+    en: { system: 'System', terminal: 'Terminal', 'blue-stage': 'Blue Stage', 'blue-stage-light': 'Blue Stage Light', grayscale: 'Grayscale', 'catppuccin-mocha': 'Catppuccin Mocha', 'tokyo-night': 'Tokyo Night', dracula: 'Dracula', 'gruvbox-dark': 'Gruvbox Dark', claude: 'Claude', matrix: 'Matrix', 'solarized-light': 'Solarized Light', uwu: 'Uwu' },
+    ja: { system: 'システム', terminal: 'ターミナル', 'blue-stage': 'Blue Stage', 'blue-stage-light': 'Blue Stage Light', grayscale: 'グレースケール', 'catppuccin-mocha': 'Catppuccin Mocha', 'tokyo-night': 'Tokyo Night', dracula: 'Dracula', 'gruvbox-dark': 'Gruvbox Dark', claude: 'Claude', matrix: 'Matrix', 'solarized-light': 'Solarized Light', uwu: 'Uwu' },
+    'pt-BR': { system: 'Sistema', terminal: 'Terminal', 'blue-stage': 'Blue Stage', 'blue-stage-light': 'Blue Stage Light', grayscale: 'Cinza', 'catppuccin-mocha': 'Catppuccin Mocha', 'tokyo-night': 'Tokyo Night', dracula: 'Dracula', 'gruvbox-dark': 'Gruvbox Dark', claude: 'Claude', matrix: 'Matrix', 'solarized-light': 'Solarized Light', uwu: 'Uwu' }
   },
   default_mode: {
     'zh-Hans': { agent: '智能体', plan: '规划', yolo: '直出' },

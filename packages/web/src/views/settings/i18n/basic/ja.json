@@ -10,6 +10,10 @@
         "label": "Web UI 言語",
         "help": "Web UI の表示言語を選択します。"
       },
+      "theme": {
+        "label": "テーマ",
+        "help": "インターフェースのテーマスタイル。"
+      },
       "default_text_model": {
         "label": "エンジン既定モデル",
         "help": "CodeWhale エンジンが使用するデフォルトのテキストモデル ID。例: deepseek-v4-pro、deepseek-v4-flash など。DeepSeek 公式は現在 deepseek-v4-pro を推奨。"

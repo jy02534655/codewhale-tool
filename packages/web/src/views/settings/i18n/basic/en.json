@@ -10,6 +10,10 @@
         "label": "Web UI Language",
         "help": "Select the display language for the Web UI."
       },
+      "theme": {
+        "label": "Theme",
+        "help": "Interface theme style."
+      },
       "default_text_model": {
         "label": "Engine Default Model",
         "help": "Default text model used by the CodeWhale engine. Examples: deepseek-v4-pro, deepseek-v4-flash, etc. DeepSeek currently recommends deepseek-v4-pro."

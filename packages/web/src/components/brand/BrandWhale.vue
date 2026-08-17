@@ -7,6 +7,7 @@
     viewBox="0 0 24 24"
     class="brand-whale"
     :class="{ 'brand-whale--dark': isDark }"
+    :style="whaleStyle"
     fill="none"
     stroke="currentColor"
     stroke-width="1.8"
@@ -34,6 +35,21 @@
 import { computed } from 'vue';
 
 defineOptions({ name: 'BrandWhale' });
+
+const props = defineProps({
+  color: {
+    type: String,
+    default: ''
+  }
+});
+
+// 传递 color 时以内联样式覆盖主题色，实现每个选项独立预览色
+const whaleStyle = computed(() => {
+  if (props.color) {
+    return { color: props.color };
+  }
+  return undefined;
+});
 
 const isDark = computed(() => {
   return document.documentElement.getAttribute('data-theme') === 'dark';
