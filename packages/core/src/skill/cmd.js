@@ -109,8 +109,11 @@ export function copyToProject(store, { skillId, projectId }) {
   }
 
   const newId = randomUUID();
-  // 目标目录：当前工作目录 / skills / skill-slug
-  const targetDir = join(process.cwd(), store.projectSkillsDir, entry.slug);
+  // 目标目录：优先使用目标项目的真实路径，避免总是落到 process.cwd()（默认项目目录）
+  const targetProjectPath = store.getProjectPath(targetProjectId);
+  const targetDir = targetProjectPath
+    ? join(targetProjectPath, store.projectSkillsDir, entry.slug)
+    : join(process.cwd(), store.projectSkillsDir, entry.slug);
 
   try {
     // 如果目标目录已存在，先删除

@@ -53,6 +53,19 @@ export class SkillStore {
   }
 
   /**
+   * 根据项目 ID 查找项目路径
+   * 直接读 engine 中的 projects 配置，避免依赖 projectManager.list() 的返回结构
+   * @param {string} projectId - 项目 ID
+   * @returns {string|null} 找到返回项目路径，否则返回 null
+   */
+  getProjectPath(projectId) {
+    if (!projectId || !this.engine) return null;
+    const projects = this.engine.get('projects') || [];
+    const project = projects.find((p) => p.id === projectId);
+    return project ? project.path : null;
+  }
+
+  /**
    * 获取指定项目已安装的 skill 列表
    * @param {string} [projectId] - 项目 ID，默认当前项目
    * @returns {Object[]} 该项目的已安装 skill 条目数组
